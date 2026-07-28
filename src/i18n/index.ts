@@ -7,11 +7,18 @@ import sv from "./locales/sv.json";
 export const supportedLanguages = ["sv", "en"] as const;
 export type SupportedLanguage = (typeof supportedLanguages)[number];
 
+type TranslationResource = typeof sv & typeof en;
+
+const resources = {
+  en: { translation: en },
+  sv: { translation: sv },
+} satisfies Record<SupportedLanguage, { translation: TranslationResource }>;
+
 void i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    resources: { en: { translation: en }, sv: { translation: sv } },
+    resources,
     supportedLngs: supportedLanguages,
     fallbackLng: "sv",
     interpolation: { escapeValue: false },

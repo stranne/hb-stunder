@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-import type { Preview } from "@storybook/react-vite";
+import type { Preview } from "@storybook/tanstack-react";
 // Initialize React Aria before Storybook replaces HTMLElement.prototype.focus with a getter.
 await import("react-aria-components");
 import { setupWorker } from "msw/browser";

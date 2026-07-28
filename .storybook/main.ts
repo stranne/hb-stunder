@@ -1,11 +1,11 @@
-import type { StorybookConfig } from "@storybook/react-vite";
+import type { StorybookConfig } from "@storybook/tanstack-react";
 import { STORYBOOK_API_BASE_URL } from "../src/api/config.ts";
 
 const config: StorybookConfig = {
   stories: ["../src/**/*.stories.@(ts|tsx)"],
   addons: ["@storybook/addon-a11y", "@storybook/addon-themes", "msw-storybook-addon"],
   framework: {
-    name: "@storybook/react-vite",
+    name: "@storybook/tanstack-react",
     options: {},
   },
   viteFinal(viteConfig) {

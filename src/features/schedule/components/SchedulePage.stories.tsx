@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { Meta, StoryObj } from "@storybook/tanstack-react";
 import { http, HttpResponse } from "msw";
 import { API_BASE_URL } from "../../../api/client";
 import { SchedulePage } from "./SchedulePage";

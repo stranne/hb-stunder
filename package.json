@@ -28,7 +28,7 @@
   "devDependencies": {
     "@storybook/addon-a11y": "10.5.5",
     "@storybook/addon-themes": "10.5.5",
-    "@storybook/react-vite": "10.5.5",
+    "@storybook/tanstack-react": "10.5.5",
     "@tanstack/react-query-devtools": "5.101.4",
     "@tanstack/react-router-devtools": "1.167.0",
     "@types/node": "^24.13.2",

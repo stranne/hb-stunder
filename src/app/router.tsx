@@ -4,7 +4,7 @@ import { ScheduleRoute } from "../routes/ScheduleRoute";
 import { AppRoot } from "./AppRoot";
 
 const rootRoute = createRootRoute({ component: AppRoot });
-const indexRoute = createRoute({
+export const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
   validateSearch: parseScheduleSearch,

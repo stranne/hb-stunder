@@ -1,0 +1,46 @@
+@layer components {
+  .button {
+    min-block-size: 2.75rem;
+    padding: 0.65rem 1rem;
+    border: 0;
+    border-radius: var(--radius-pill);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+      transform var(--motion-fast) var(--ease-out),
+      background-color var(--motion-fast) var(--ease-out);
+
+    &[data-hovered] {
+      transform: translateY(-1px);
+    }
+
+    &[data-pressed] {
+      transform: translateY(1px);
+    }
+
+    &[data-focus-visible] {
+      outline: var(--focus-width) solid var(--color-focus);
+      outline-offset: var(--focus-offset);
+    }
+
+    &[data-disabled] {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+  }
+
+  .accent {
+    color: var(--color-ink-inverse);
+    background: var(--color-accent);
+
+    &[data-hovered] {
+      background: var(--color-accent-strong);
+    }
+  }
+
+  .quiet {
+    color: var(--color-ink);
+    background: var(--color-surface-strong);
+  }
+}

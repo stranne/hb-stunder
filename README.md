@@ -1,0 +1,49 @@
+# HB Stunder
+
+Unofficial frontend foundation for browsing and booking Hagabadet classes. HB Stunder is not affiliated with Hagabadet.
+
+See [`docs/PROJECT_FOUNDATION.md`](docs/PROJECT_FOUNDATION.md) for product and architecture decisions.
+
+## Requirements
+
+- Node.js `^20.19.0`, `^22.18.0`, or `>=24.11.0`
+- pnpm `11.17.0`
+- Vite+ `0.2.6`
+
+## Commands
+
+```sh
+pnpm dev
+pnpm check
+pnpm test
+pnpm build
+pnpm storybook
+pnpm build-storybook
+pnpm api:generate
+```
+
+Vite+ owns development, checking, testing, and production builds. Dependency versions related to Vite+ and Storybook are pinned because Vite+ is still young.
+
+## API generation
+
+The reviewed OpenAPI snapshot is stored at [`openapi/openapi.yaml`](openapi/openapi.yaml). Regenerate the typed contract and fetch operations with the single command:
+
+```sh
+pnpm api:generate
+```
+
+Generated files are written to `src/api/generated/` and must not be edited manually. The generated `openapi-fetch` client has only a small base-URL configuration in `src/api/client.ts`; feature query and mutation behavior will be added manually when a vertical slice is approved.
+
+The schema is an unofficial reverse-engineered draft. Public schedule operations are documented as unauthenticated, while customer operations use bearer JWT authentication. Rate limits, booking idempotency, and booking-conflict response bodies remain unconfirmed.
+
+API timestamps such as `2026-07-28T06:00:00.000Z` must be interpreted as UTC and presented in `Europe/Stockholm` (`08:00` on that date). Date-domain utilities will be introduced with the first relevant feature rather than speculatively.
+
+## Mocking
+
+MSW is configured beneath the generated HTTP client. It is disabled by default and can only start in development:
+
+```sh
+VITE_ENABLE_MSW=true pnpm dev
+```
+
+Handlers and scenarios remain empty until product states are implemented. Storybook initializes MSW so stories can add handlers independently.

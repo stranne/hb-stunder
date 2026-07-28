@@ -1,0 +1,5025 @@
+openapi: 3.0.3
+info:
+  title: BRP Systems API - Hagabadet
+  version: 3.0-draft
+  description: Unofficial, reverse-engineered draft from the Hagabadet Android app.
+    Operations marked with x-reverse-engineering-confidence are approximate.
+servers:
+  - url: https://hagabadet.brpsystems.com/brponline/api/ver3
+security:
+  - bearerAuth: []
+paths:
+  /apps/{id}:
+    get:
+      operationId: getAppsById
+      summary: getAppsById
+      tags:
+        - apps
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: allowMultipleCompaniesAndBusinessUnits
+          in: query
+          schema:
+            type: boolean
+  /bookings/entries/customers/{id}:
+    get:
+      operationId: getBookingsEntriesCustomersById
+      summary: getBookingsEntriesCustomersById
+      tags:
+        - bookings
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: startTimePoint
+          in: query
+          schema:
+            type: string
+            format: date-time
+    delete:
+      operationId: deleteBookingsEntriesCustomersById
+      summary: deleteBookingsEntriesCustomersById
+      tags:
+        - bookings
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /api/ver3:
+    get:
+      operationId: getApiVer3
+      summary: getApiVer3
+      tags:
+        - api
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      parameters:
+        - name: reduxApiUrlResolver
+          in: query
+          schema:
+            type: string
+  /oauth/access_token:
+    post:
+      operationId: getNewTokens
+      summary: getNewTokens
+      tags:
+        - oauth
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                grant_type:
+                  type: string
+                refresh_token:
+                  type: string
+  /apps:
+    get:
+      operationId: getAppUrl
+      summary: getAppUrl
+      tags:
+        - apps
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      parameters:
+        - name: appCode
+          in: query
+          schema:
+            type: string
+  /businessunits:
+    get:
+      operationId: curatedListBusinessUnits
+      summary: List business units
+      tags:
+        - businessunits
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BusinessUnit"
+      security: []
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed in sanitized browser HAR captures,
+        the public web-booking client, and a bounded public runtime check; see docs/har-evidence.md,
+        docs/web-booking-evidence.md, and docs/public-runtime-evidence.md.
+  /messages/{id}:
+    get:
+      operationId: getMessagesInfo
+      summary: getMessagesInfo
+      tags:
+        - messages
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /businessunits/paymentmethods:
+    get:
+      operationId: getPaymentMethods
+      summary: getPaymentMethods
+      tags:
+        - businessunits
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+  /companies:
+    get:
+      operationId: getCompanies
+      summary: getCompanies
+      tags:
+        - companies
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+  /customers/noshows:
+    get:
+      operationId: getCustomerNoShows
+      summary: getCustomerNoShows
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+  /customers/subscriptions/{id}:
+    get:
+      operationId: getCustomerSubscriptionById
+      summary: getCustomerSubscriptionById
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /customers/subscriptions/terminate:
+    get:
+      operationId: getEffectOfTerminatingSubscription
+      summary: getEffectOfTerminatingSubscription
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: terminationReason
+          in: query
+          schema:
+            type: string
+        - name: terminationReasonComment
+          in: query
+          schema:
+            type: string
+    post:
+      operationId: postCustomersSubscriptionsTerminate
+      summary: postCustomersSubscriptionsTerminate
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                terminationReason:
+                  type: string
+                terminationReasonComment:
+                  type: string
+  /customers/subscriptions/terminateundo:
+    post:
+      operationId: postCustomersSubscriptionsTerminateundo
+      summary: postCustomersSubscriptionsTerminateundo
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+  /customertypes:
+    get:
+      operationId: getCustomerTypes
+      summary: getCustomerTypes
+      tags:
+        - customertypes
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      parameters:
+        - name: businessUnit
+          in: query
+          schema:
+            type: string
+        - name: company
+          in: query
+          schema:
+            type: string
+  /services/personlookup:
+    get:
+      operationId: lookupCustomer
+      summary: lookupCustomer
+      tags:
+        - services
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      parameters:
+        - name: businessUnit
+          in: query
+          schema:
+            type: string
+        - name: maskOutput
+          in: query
+          schema:
+            type: string
+  /services/validate/customers:
+    post:
+      operationId: validateCustomer
+      summary: validateCustomer
+      tags:
+        - services
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+  /services/validate/customers/{id}:
+    put:
+      operationId: validateExistingCustomer
+      summary: validateExistingCustomer
+      tags:
+        - services
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /customers:
+    post:
+      operationId: createCustomer
+      summary: createCustomer
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                acceptedRegistrationTerms:
+                  type: boolean
+                allowMassSendEmail:
+                  type: boolean
+                allowMassSendMail:
+                  type: boolean
+                allowMassSendSms:
+                  type: boolean
+                billingAddress:
+                  type: string
+                birthDate:
+                  type: string
+                  format: date-time
+                businessUnit:
+                  type: string
+                consents:
+                  type: string
+                customerType:
+                  type: string
+                email:
+                  type: string
+                firstName:
+                  type: string
+                haveParentalConsent:
+                  type: string
+                lastName:
+                  type: string
+                mobilePhone:
+                  type: string
+                password:
+                  type: string
+  /customers/owndefinedparametervalues:
+    get:
+      operationId: getOwnDefinedParameterValues
+      summary: getOwnDefinedParameterValues
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+    post:
+      operationId: createANewOwnDefinedParameterValue
+      summary: createANewOwnDefinedParameterValue
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                parameter:
+                  type: string
+  /customers/owndefinedparametervalues/{id}:
+    put:
+      operationId: updateOwnDefinedParameterValue
+      summary: updateOwnDefinedParameterValue
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                parameter:
+                  type: string
+  /customers/signaturecases:
+    post:
+      operationId: createSignatureCaseForSubscription
+      summary: createSignatureCaseForSubscription
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                subscription:
+                  type: string
+                subscriptionBooking:
+                  type: string
+    get:
+      operationId: getSignatureCasesForCustomer
+      summary: getSignatureCasesForCustomer
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+  /consents/nodirectdebits/customers/{id}:
+    post:
+      operationId: createNorwegianDirectDebitConsent
+      summary: createNorwegianDirectDebitConsent
+      tags:
+        - consents
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                company:
+                  type: string
+  /consents/sedirectdebits/{id}:
+    put:
+      operationId: updateExistingSwedishDirectDebitConsent
+      summary: updateExistingSwedishDirectDebitConsent
+      tags:
+        - consents
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /customers/invoices:
+    get:
+      operationId: getCustomerInvoices
+      summary: getCustomerInvoices
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: start
+          in: query
+          schema:
+            type: string
+            format: date-time
+  /customers/receipts:
+    get:
+      operationId: getCustomerReceipts
+      summary: getCustomerReceipts
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: start
+          in: query
+          schema:
+            type: string
+            format: date-time
+  /customers/valuecards/{id}:
+    get:
+      operationId: getCustomerSpecificValueCard
+      summary: getCustomerSpecificValueCard
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /customers/devices:
+    get:
+      operationId: getCustomerDevices
+      summary: getCustomerDevices
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+    post:
+      operationId: addCustomerDevice
+      summary: addCustomerDevice
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customer:
+                  type: string
+  /customers/devices/primary:
+    post:
+      operationId: setPrimaryDevice
+      summary: setPrimaryDevice
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+  /customeraccounts/customers/{id}:
+    get:
+      operationId: getCustomerAccount
+      summary: getCustomerAccount
+      tags:
+        - customeraccounts
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /customers/offers/events:
+    get:
+      operationId: getCustomerEventOffers
+      summary: getCustomerEventOffers
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+  /customers/freeze/subscriptions/{id}:
+    get:
+      operationId: getEffectOfFreezingSubscription
+      summary: getEffectOfFreezingSubscription
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: freezeReason
+          in: query
+          schema:
+            type: string
+        - name: freezeReasonComment
+          in: query
+          schema:
+            type: string
+        - name: paymentRequiredBeforeFreeze
+          in: query
+          schema:
+            type: string
+        - name: start
+          in: query
+          schema:
+            type: string
+            format: date-time
+    post:
+      operationId: postCustomersFreezeSubscriptionsById
+      summary: postCustomersFreezeSubscriptionsById
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                freezePeriod:
+                  type: string
+                freezeReason:
+                  type: string
+                freezeReasonComment:
+                  type: string
+                paymentRequiredBeforeFreeze:
+                  type: string
+  /customers/freezerequests/subscriptions/{id}:
+    post:
+      operationId: freezeSubscriptionRequest
+      summary: freezeSubscriptionRequest
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                freezePeriod:
+                  type: string
+                freezeReason:
+                  type: string
+                message:
+                  type: string
+  /customers/files/freezerequests/subscriptions/{id}:
+    post:
+      operationId: addFilesToFreezeRequest
+      summary: addFilesToFreezeRequest
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /customers/freezerules/subscriptions/{id}:
+    get:
+      operationId: getSubscriptionFreezeRules
+      summary: getSubscriptionFreezeRules
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /customers/freezes/subscriptions/{id}:
+    get:
+      operationId: getSubscriptionFreezeList
+      summary: getSubscriptionFreezeList
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /customers/subscriptions/unfreeze:
+    post:
+      operationId: postCustomersSubscriptionsUnfreeze
+      summary: postCustomersSubscriptionsUnfreeze
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                unfreezeDay:
+                  type: string
+  /bookings/groupactivities/bookfamily/customers/{id}:
+    get:
+      operationId: getBookingDetailsForCustomerFamilyMembers
+      summary: getBookingDetailsForCustomerFamilyMembers
+      tags:
+        - bookings
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: familyMember
+          in: query
+          schema:
+            type: string
+        - name: groupActivity
+          in: query
+          schema:
+            type: string
+    post:
+      operationId: setBookingDetailsForCustomerFamilyMembers
+      summary: setBookingDetailsForCustomerFamilyMembers
+      tags:
+        - bookings
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                familyMember:
+                  type: string
+                groupActivity:
+                  type: string
+  /customers/profileimages:
+    post:
+      operationId: postCustomersProfileimages
+      summary: postCustomersProfileimages
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                acceptedProfilePictureTerms:
+                  type: boolean
+                append:
+                  type: string
+                file:
+                  type: string
+                fileName:
+                  type: string
+                type:
+                  type: string
+  /customers/profileimages/{id}:
+    delete:
+      operationId: deleteProfileImage
+      summary: deleteProfileImage
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /customers/useractivities:
+    post:
+      operationId: sendUserActivity
+      summary: sendUserActivity
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                activities:
+                  type: string
+                timestamp:
+                  type: string
+                  format: date-time
+  /products/events:
+    get:
+      operationId: getEventProductsOfWebCategory
+      summary: getEventProductsOfWebCategory
+      tags:
+        - products
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      parameters:
+        - name: businessUnit
+          in: query
+          schema:
+            type: string
+        - name: webCategory
+          in: query
+          schema:
+            type: string
+  /businessunits/events:
+    get:
+      operationId: getEventsList
+      summary: getEventsList
+      tags:
+        - businessunits
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: start
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: webCategory
+          in: query
+          schema:
+            type: string
+  /businessunits/events/{id}:
+    get:
+      operationId: getSpecificEventDetails
+      summary: getSpecificEventDetails
+      tags:
+        - businessunits
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /products/groupactivities:
+    get:
+      operationId: curatedListGroupActivityProducts
+      summary: List group activity products
+      tags:
+        - products
+      parameters:
+        - name: webCategory
+          in: query
+          schema:
+            type: integer
+            example: 2
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GroupActivityProduct"
+      security: []
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed in sanitized browser HAR captures,
+        the public web-booking client, and a bounded public runtime check; see docs/har-evidence.md,
+        docs/web-booking-evidence.md, and docs/public-runtime-evidence.md.
+  /products/services/{id}:
+    get:
+      operationId: getSingleServiceDetails
+      summary: getSingleServiceDetails
+      tags:
+        - products
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /products/services/resources:
+    get:
+      operationId: getServiceResources
+      summary: getServiceResources
+      tags:
+        - products
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      parameters:
+        - name: businessUnit
+          in: query
+          schema:
+            type: string
+        - name: onlyMainResourceRequirement
+          in: query
+          schema:
+            type: boolean
+  /products/services/suggestions:
+    get:
+      operationId: getServiceSuggestions
+      summary: getServiceSuggestions
+      tags:
+        - products
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      parameters:
+        - name: businessUnit
+          in: query
+          schema:
+            type: string
+        - name: renderPrice
+          in: query
+          schema:
+            type: string
+        - name: start
+          in: query
+          schema:
+            type: string
+            format: date-time
+  /products/valuecards:
+    get:
+      operationId: curatedListValueCardProducts
+      summary: List value card products
+      tags:
+        - products
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema: {}
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed across the supplied sanitized authorized
+        browser captures; see docs/har-evidence.md.
+  /products/events/{id}:
+    get:
+      operationId: getBookedEventProduct
+      summary: getBookedEventProduct
+      tags:
+        - products
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /products/valuecards/{id}:
+    get:
+      operationId: getValueCardProductById
+      summary: getValueCardProductById
+      tags:
+        - products
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: businessUnit
+          in: query
+          schema:
+            type: string
+        - name: customer
+          in: query
+          schema:
+            type: string
+  /products/subscriptions:
+    get:
+      operationId: getSubscriptionProducts
+      summary: getSubscriptionProducts
+      tags:
+        - products
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: businessUnit
+          in: query
+          schema:
+            type: string
+        - name: customer
+          in: query
+          schema:
+            type: string
+        - name: customerType
+          in: query
+          schema:
+            type: string
+        - name: webCategory
+          in: query
+          schema:
+            type: string
+  /additions/products/subscriptions/{id}:
+    get:
+      operationId: getProductAdditionsForASubscription
+      summary: getProductAdditionsForASubscription
+      tags:
+        - additions
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: businessUnit
+          in: query
+          schema:
+            type: string
+        - name: customer
+          in: query
+          schema:
+            type: string
+        - name: customerType
+          in: query
+          schema:
+            type: string
+  /products/subscriptions/terminationreasons:
+    get:
+      operationId: fetchSubscriptionTerminationReasons
+      summary: fetchSubscriptionTerminationReasons
+      tags:
+        - products
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+  /freezereasons/products/subscriptions/{id}:
+    get:
+      operationId: fetchSubscriptionFreezeReasons
+      summary: fetchSubscriptionFreezeReasons
+      tags:
+        - freezereasons
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: company
+          in: query
+          schema:
+            type: string
+  /prices:
+    get:
+      operationId: getServiceProductPrice
+      summary: getServiceProductPrice
+      tags:
+        - prices
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      parameters:
+        - name: businessUnit
+          in: query
+          schema:
+            type: string
+        - name: customer
+          in: query
+          schema:
+            type: string
+        - name: quantity
+          in: query
+          schema:
+            type: string
+        - name: resources
+          in: query
+          schema:
+            type: string
+        - name: start
+          in: query
+          schema:
+            type: string
+            format: date-time
+  /products/entries:
+    get:
+      operationId: getEntryProducts
+      summary: getEntryProducts
+      tags:
+        - products
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: businessUnit
+          in: query
+          schema:
+            type: string
+        - name: customer
+          in: query
+          schema:
+            type: string
+        - name: webCategory
+          in: query
+          schema:
+            type: string
+  /additions:
+    get:
+      operationId: getEventProductAdditions
+      summary: getEventProductAdditions
+      tags:
+        - additions
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: businessUnit
+          in: query
+          schema:
+            type: string
+        - name: customer
+          in: query
+          schema:
+            type: string
+        - name: customerType
+          in: query
+          schema:
+            type: string
+  /products/packages:
+    get:
+      operationId: getPackageProducts
+      summary: getPackageProducts
+      tags:
+        - products
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: businessUnit
+          in: query
+          schema:
+            type: string
+        - name: customer
+          in: query
+          schema:
+            type: string
+        - name: webCategory
+          in: query
+          schema:
+            type: string
+  /products/packages/{id}:
+    get:
+      operationId: getSpecificPackageProduct
+      summary: getSpecificPackageProduct
+      tags:
+        - products
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: businessUnit
+          in: query
+          schema:
+            type: string
+        - name: customer
+          in: query
+          schema:
+            type: string
+  /products/entries/resources:
+    get:
+      operationId: getEntryResources
+      summary: getEntryResources
+      tags:
+        - products
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      parameters:
+        - name: businessUnit
+          in: query
+          schema:
+            type: string
+  /products/entries/{id}:
+    get:
+      operationId: getSpecificEntryProduct
+      summary: getSpecificEntryProduct
+      tags:
+        - products
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /products/entries/availability:
+    get:
+      operationId: getEntryProductsAvailability
+      summary: getEntryProductsAvailability
+      tags:
+        - products
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      parameters:
+        - name: businessUnit
+          in: query
+          schema:
+            type: string
+        - name: resource
+          in: query
+          schema:
+            type: string
+        - name: start
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: webCategory
+          in: query
+          schema:
+            type: string
+  /products/entries/suggestions:
+    get:
+      operationId: getEntryProductSuggestions
+      summary: getEntryProductSuggestions
+      tags:
+        - products
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: businessUnit
+          in: query
+          schema:
+            type: string
+        - name: start
+          in: query
+          schema:
+            type: string
+            format: date-time
+  /apps/groupactivities:
+    get:
+      operationId: getGroupActivities
+      summary: getGroupActivities
+      tags:
+        - apps
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: businessUnit
+          in: query
+          schema:
+            type: string
+        - name: customer
+          in: query
+          schema:
+            type: string
+        - name: groupActivitiesFor
+          in: query
+          schema:
+            type: string
+        - name: product
+          in: query
+          schema:
+            type: string
+        - name: resource
+          in: query
+          schema:
+            type: string
+        - name: webCategory
+          in: query
+          schema:
+            type: string
+  /auth/login:
+    post:
+      operationId: login
+      summary: login
+      tags:
+        - auth
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                username:
+                  type: string
+  /auth/validate:
+    post:
+      operationId: curatedValidateAuthentication
+      summary: Validate or refresh authentication
+      tags:
+        - auth
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema: {}
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed in sanitized browser HAR captures and
+        confirmed in the public web-booking client; see docs/har-evidence.md and docs/web-booking-evidence.md.
+  /auth/resetpassword:
+    post:
+      operationId: forgotPassword
+      summary: forgotPassword
+      tags:
+        - auth
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                appId:
+                  type: string
+                email:
+                  type: string
+  /consents/sedirectdebits:
+    get:
+      operationId: fetchDirectDebitSE
+      summary: fetchDirectDebitSE
+      tags:
+        - consents
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+    post:
+      operationId: addDirectDebitForSE
+      summary: addDirectDebitForSE
+      tags:
+        - consents
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                accountNumber:
+                  type: string
+                bankAccount:
+                  type: string
+                clearingNumber:
+                  type: string
+                company:
+                  type: string
+  /consents/nodirectdebits:
+    post:
+      operationId: addDirectDebitForNO
+      summary: addDirectDebitForNO
+      tags:
+        - consents
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bankAccount:
+                  type: string
+  /consents/dkdirectdebits:
+    get:
+      operationId: getDirectDebitForDKConsentsForCustomer
+      summary: getDirectDebitForDKConsentsForCustomer
+      tags:
+        - consents
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+    post:
+      operationId: addDirectDebitForDK
+      summary: addDirectDebitForDK
+      tags:
+        - consents
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bankAccountNumber:
+                  type: string
+                bankRegNumber:
+                  type: string
+                company:
+                  type: string
+  /consents/fidirectdebits:
+    get:
+      operationId: getDirectDebitForFIConsentsForCustomer
+      summary: getDirectDebitForFIConsentsForCustomer
+      tags:
+        - consents
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+    post:
+      operationId: addDirectDebitForFI
+      summary: addDirectDebitForFI
+      tags:
+        - consents
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                businessUnit:
+                  type: string
+  /orders:
+    post:
+      operationId: postOrders
+      summary: postOrders
+      tags:
+        - orders
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                businessUnit:
+                  type: string
+                customer:
+                  type: string
+                customerType:
+                  type: string
+                receiverTarget:
+                  type: string
+    get:
+      operationId: getOrderForCustomer
+      summary: getOrderForCustomer
+      tags:
+        - orders
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: customer
+          in: query
+          schema:
+            type: string
+  /orders/{id}:
+    get:
+      operationId: getOrdersById
+      summary: getOrdersById
+      tags:
+        - orders
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: orderId
+          in: query
+          schema:
+            type: string
+    put:
+      operationId: putOrdersById
+      summary: putOrdersById
+      tags:
+        - orders
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customer:
+                  type: string
+                handleRefreshGroupActivitiesPage:
+                  type: string
+                orderId:
+                  type: string
+    delete:
+      operationId: deleteOrder
+      summary: deleteOrder
+      tags:
+        - orders
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /coupons/orders/{id}:
+    post:
+      operationId: applyCouponOnOrder
+      summary: applyCouponOnOrder
+      tags:
+        - coupons
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                couponName:
+                  type: string
+                orderId:
+                  type: string
+  /orders/valuecardreservations:
+    get:
+      operationId: getReservationsForOrder
+      summary: getReservationsForOrder
+      tags:
+        - orders
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: orderId
+          in: query
+          schema:
+            type: string
+    post:
+      operationId: reserveValueCardForOrder
+      summary: reserveValueCardForOrder
+      tags:
+        - orders
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orderId:
+                  type: string
+                valueCardNumber:
+                  type: string
+  /orders/valuecardreservations/{id}:
+    delete:
+      operationId: removeReservationForOrder
+      summary: removeReservationForOrder
+      tags:
+        - orders
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /items/events:
+    post:
+      operationId: addEventToOrder
+      summary: addEventToOrder
+      tags:
+        - items
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                acceptedRegistrationTerms:
+                  type: boolean
+                event:
+                  type: string
+                externalMessage:
+                  type: string
+                haveParentalConsent:
+                  type: string
+                order:
+                  type: string
+                participants:
+                  type: string
+  /items/subscriptions/orders/{id}:
+    post:
+      operationId: addSubscriptionItemToOrder
+      summary: addSubscriptionItemToOrder
+      tags:
+        - items
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                birthDate:
+                  type: string
+                  format: date-time
+                externalMessage:
+                  type: string
+                order:
+                  type: string
+                startDate:
+                  type: string
+                  format: date-time
+                subscriptionProduct:
+                  type: string
+    delete:
+      operationId: deleteSubscriptionFromOrder
+      summary: deleteSubscriptionFromOrder
+      tags:
+        - items
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /items/articles/orders/{id}:
+    post:
+      operationId: addArticleToOrder
+      summary: addArticleToOrder
+      tags:
+        - items
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                articleProduct:
+                  type: string
+                externalMessage:
+                  type: string
+                order:
+                  type: string
+                priceIncVat:
+                  type: string
+                quantity:
+                  type: string
+    put:
+      operationId: updateArticleItemOnOrder
+      summary: updateArticleItemOnOrder
+      tags:
+        - items
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                articleItemId:
+                  type: string
+                orderId:
+                  type: string
+                quantity:
+                  type: string
+    delete:
+      operationId: deleteArticleFromOrder
+      summary: deleteArticleFromOrder
+      tags:
+        - items
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /products/articles/{id}:
+    get:
+      operationId: getArticleItemDetails
+      summary: getArticleItemDetails
+      tags:
+        - products
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: articleId
+          in: query
+          schema:
+            type: string
+        - name: businessUnit
+          in: query
+          schema:
+            type: string
+        - name: customer
+          in: query
+          schema:
+            type: string
+  /items/valuecards/orders/{id}:
+    post:
+      operationId: addValueCardToOrder
+      summary: addValueCardToOrder
+      tags:
+        - items
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: string
+                externalMessage:
+                  type: string
+                order:
+                  type: string
+                receiverDetails:
+                  type: string
+                senderDetails:
+                  type: string
+                valueCardProduct:
+                  type: string
+    delete:
+      operationId: deleteValueCardFromOrder
+      summary: deleteValueCardFromOrder
+      tags:
+        - items
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /items/services/orders/{id}:
+    delete:
+      operationId: deleteServiceItemFromOrder
+      summary: deleteServiceItemFromOrder
+      tags:
+        - items
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+    post:
+      operationId: addServiceItemToOrder
+      summary: addServiceItemToOrder
+      tags:
+        - items
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                changeTimeOutsideSchedule:
+                  type: string
+                externalMessage:
+                  type: string
+                order:
+                  type: string
+                quantity:
+                  type: string
+                resource:
+                  type: string
+                selectedResources:
+                  type: string
+                serviceProduct:
+                  type: string
+                start:
+                  type: string
+                  format: date-time
+  /items/events/orders/{id}:
+    delete:
+      operationId: deleteEventItemFromOrder
+      summary: deleteEventItemFromOrder
+      tags:
+        - items
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+    post:
+      operationId: addEventItemToOrder
+      summary: addEventItemToOrder
+      tags:
+        - items
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                acceptedRegistrationTerms:
+                  type: boolean
+                event:
+                  type: string
+                externalMessage:
+                  type: string
+                haveParentalConsent:
+                  type: string
+                order:
+                  type: string
+                participants:
+                  type: string
+    put:
+      operationId: updateEventItemOnOrder
+      summary: updateEventItemOnOrder
+      tags:
+        - items
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                acceptedRegistrationTerms:
+                  type: boolean
+                eventId:
+                  type: string
+                haveParentalConsent:
+                  type: string
+                orderId:
+                  type: string
+                participants:
+                  type: string
+  /items/groupactivities/orders/{id}:
+    delete:
+      operationId: deleteItemsGroupactivitiesOrdersById
+      summary: deleteItemsGroupactivitiesOrdersById
+      tags:
+        - items
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /items/entries/orders/{id}:
+    post:
+      operationId: addEntryToOrder
+      summary: addEntryToOrder
+      tags:
+        - items
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                entryProduct:
+                  type: string
+                externalMessage:
+                  type: string
+                order:
+                  type: string
+                period:
+                  type: string
+                quantity:
+                  type: string
+                resource:
+                  type: string
+  /items/groupactivities:
+    post:
+      operationId: postItemsGroupactivities
+      summary: postItemsGroupactivities
+      tags:
+        - items
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                groupActivityItem:
+                  type: string
+                handleRefreshGroupActivitiesPage:
+                  type: string
+                order:
+                  type: string
+  /items/events/participants/orders/{id}:
+    post:
+      operationId: addEventsParticipantsForOrder
+      summary: addEventsParticipantsForOrder
+      tags:
+        - items
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                minimumAge:
+                  type: string
+                orderId:
+                  type: string
+                participants:
+                  type: string
+  /items/entries:
+    post:
+      operationId: addEntryItem
+      summary: addEntryItem
+      tags:
+        - items
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cardNumber:
+                  type: string
+                createOneBookingPerEntry:
+                  type: string
+                entryProduct:
+                  type: string
+                externalMessage:
+                  type: string
+                order:
+                  type: string
+                period:
+                  type: string
+                quantity:
+                  type: string
+                resource:
+                  type: string
+  /items/packages:
+    post:
+      operationId: addPackageItem
+      summary: addPackageItem
+      tags:
+        - items
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                externalMessage:
+                  type: string
+                order:
+                  type: string
+                packageProduct:
+                  type: string
+                period:
+                  type: string
+                productToResource:
+                  type: string
+                quantity:
+                  type: string
+  /items/entries/{id}:
+    delete:
+      operationId: removeEntryFromOrder
+      summary: removeEntryFromOrder
+      tags:
+        - items
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /items/packages/{id}:
+    delete:
+      operationId: removePackageFromOrder
+      summary: removePackageFromOrder
+      tags:
+        - items
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /receipts/{id}:
+    get:
+      operationId: getReceipt
+      summary: getReceipt
+      tags:
+        - receipts
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /services/generatelink/payment:
+    post:
+      operationId: generatePaymentLinkForOrder
+      summary: generatePaymentLinkForOrder
+      tags:
+        - services
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                order:
+                  type: string
+                payerAlias:
+                  type: string
+                paymentMethod:
+                  type: string
+                receiptEmail:
+                  type: string
+                returnUrl:
+                  type: string
+  /services/generatelink/confirmorder:
+    post:
+      operationId: generateLinkToConfirmOrder
+      summary: generateLinkToConfirmOrder
+      tags:
+        - services
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                order:
+                  type: string
+                returnUrl:
+                  type: string
+  /services/generate/paymentcertificate:
+    post:
+      operationId: generateAPaymentCertificate
+      summary: generateAPaymentCertificate
+      tags:
+        - services
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customer:
+                  type: string
+                period:
+                  type: string
+                subscription:
+                  type: string
+  /products/services:
+    get:
+      operationId: getProductsOfServiceWebCategory
+      summary: getProductsOfServiceWebCategory
+      tags:
+        - products
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      parameters:
+        - name: businessUnit
+          in: query
+          schema:
+            type: string
+        - name: customer
+          in: query
+          schema:
+            type: string
+        - name: webCategory
+          in: query
+          schema:
+            type: string
+  /services/validate/ssn:
+    put:
+      operationId: validateSSN
+      summary: validateSSN
+      tags:
+        - services
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                businessUnit:
+                  type: string
+  /services/generatelink/registerdirectdebitconsentno:
+    post:
+      operationId: generateNorwegianDirectDebitRegistrationLink
+      summary: generateNorwegianDirectDebitRegistrationLink
+      tags:
+        - services
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                company:
+                  type: string
+                customer:
+                  type: string
+                returnUrl:
+                  type: string
+  /services/generatelink/registercardconsent:
+    post:
+      operationId: generateCardConsentLink
+      summary: generateCardConsentLink
+      tags:
+        - services
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                businessUnit:
+                  type: string
+                customer:
+                  type: string
+                returnUrl:
+                  type: string
+  /bookingcancellationtypes:
+    get:
+      operationId: getBookingCancellationTypes
+      summary: getBookingCancellationTypes
+      tags:
+        - bookingcancellationtypes
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+  /services/generate/invoicereport:
+    post:
+      operationId: postServicesGenerateInvoicereport
+      summary: postServicesGenerateInvoicereport
+      tags:
+        - services
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                blob:
+                  type: string
+                customer:
+                  type: string
+                invoice:
+                  type: string
+                responseType:
+                  type: string
+  /services/generatelink/payforcustomeraccount:
+    post:
+      operationId: generatePayForCustomerAccountLink
+      summary: generatePayForCustomerAccountLink
+      tags:
+        - services
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customer:
+                  type: string
+                payerAlias:
+                  type: string
+                paymentMethod:
+                  type: string
+                receiptEmail:
+                  type: string
+                returnUrl:
+                  type: string
+  /services/generatelink/exorlive:
+    post:
+      operationId: generateExorliveApplicationLink
+      summary: generateExorliveApplicationLink
+      tags:
+        - services
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customer:
+                  type: string
+  /services/generatelink/vippslogin:
+    post:
+      operationId: generateVippsLoginLink
+      summary: generateVippsLoginLink
+      tags:
+        - services
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                businessUnit:
+                  type: string
+  /services/personlookupwithvipps:
+    get:
+      operationId: lookupWithVipps
+      summary: lookupWithVipps
+      tags:
+        - services
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      parameters:
+        - name: businessUnit
+          in: query
+          schema:
+            type: string
+        - name: code
+          in: query
+          schema:
+            type: string
+  /services/countries:
+    get:
+      operationId: getCountries
+      summary: getCountries
+      tags:
+        - services
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+  /webcategories:
+    get:
+      operationId: getWebcategories
+      summary: getWebcategories
+      tags:
+        - webcategories
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: allowMultipleCompaniesAndBusinessUnits
+          in: query
+          schema:
+            type: boolean
+  /webcategories/{id}:
+    get:
+      operationId: getWebcategoriesById
+      summary: getWebcategoriesById
+      tags:
+        - webcategories
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: allowMultipleCompaniesAndBusinessUnits
+          in: query
+          schema:
+            type: boolean
+  /resources/webcategories/{id}:
+    get:
+      operationId: getResourcesWebcategoriesById
+      summary: getResourcesWebcategoriesById
+      tags:
+        - resources
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /consents/{id}:
+    get:
+      operationId: getConsentDetails
+      summary: getConsentDetails
+      tags:
+        - consents
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /owndefinedparameters:
+    get:
+      operationId: getOwnDefinedParameters
+      summary: getOwnDefinedParameters
+      tags:
+        - owndefinedparameters
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+  /passagereaders:
+    get:
+      operationId: getPassageReaders
+      summary: getPassageReaders
+      tags:
+        - passagereaders
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      parameters:
+        - name: major
+          in: query
+          schema:
+            type: string
+        - name: minor
+          in: query
+          schema:
+            type: string
+  /customers/passagetries:
+    post:
+      operationId: unlockPassageEntry
+      summary: unlockPassageEntry
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cardReader:
+                  type: string
+                passageToken:
+                  type: string
+                printTicket:
+                  type: boolean
+  /services/auth/loyaltyuser:
+    post:
+      operationId: authenticateLoyaltyUser
+      summary: authenticateLoyaltyUser
+      tags:
+        - services
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customer:
+                  type: string
+                loyaltyProgram:
+                  type: string
+  /bookings/employees/substituterequests:
+    post:
+      operationId: createSubstituteRequest
+      summary: createSubstituteRequest
+      tags:
+        - bookings
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                resources:
+                  type: string
+  /employees/{id}:
+    get:
+      operationId: getEmployee
+      summary: getEmployee
+      tags:
+        - employees
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /bookings/groupactivities/employees/{id}:
+    get:
+      operationId: getEmployeeGroupActivitiesList
+      summary: getEmployeeGroupActivitiesList
+      tags:
+        - bookings
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+  /bookings/services/employees/listcancellationfines:
+    get:
+      operationId: getEmployeeBookingServiceCancellationPolicies
+      summary: getEmployeeBookingServiceCancellationPolicies
+      tags:
+        - bookings
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: employee
+          in: query
+          schema:
+            type: string
+        - name: service
+          in: query
+          schema:
+            type: string
+  /bookings/services/employees/{id}:
+    get:
+      operationId: getEmployeeServiceBookings
+      summary: getEmployeeServiceBookings
+      tags:
+        - bookings
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: employee
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+        - name: onlyUnhandled
+          in: query
+          schema:
+            type: boolean
+  /bookings/groupactivities/employees/participantsstatus:
+    get:
+      operationId: getGroupActivityParticipantsList
+      summary: getGroupActivityParticipantsList
+      tags:
+        - bookings
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: employee
+          in: query
+          schema:
+            type: string
+        - name: groupActivity
+          in: query
+          schema:
+            type: string
+  /availableinstructors/bookings/employees/{id}:
+    get:
+      operationId: getAvailableInstructors
+      summary: getAvailableInstructors
+      tags:
+        - availableinstructors
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: employee
+          in: query
+          schema:
+            type: string
+        - name: groupActivity
+          in: query
+          schema:
+            type: string
+  /bookings/groupactivities/employees/markasarrived/participants/{id}:
+    put:
+      operationId: putGroupActivityParticipantStatus
+      summary: putGroupActivityParticipantStatus
+      tags:
+        - bookings
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                employee:
+                  type: string
+                groupActivity:
+                  type: string
+                hasArrived:
+                  type: boolean
+                participant:
+                  type: string
+  /bookings/employees/substituterequests/{id}:
+    delete:
+      operationId: deleteGroupActivitySubstituteRequest
+      summary: deleteGroupActivitySubstituteRequest
+      tags:
+        - bookings
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /bookings/services/checkcancel/employees/{id}:
+    put:
+      operationId: putEmployeeBookingServiceCanCancel
+      summary: putEmployeeBookingServiceCanCancel
+      tags:
+        - bookings
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                employee:
+                  type: string
+                service:
+                  type: string
+  /bookings/services/cancel/employees/{id}:
+    put:
+      operationId: putEmployeeBookingServiceCancelTime
+      summary: putEmployeeBookingServiceCancelTime
+      tags:
+        - bookings
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cancelFine:
+                  type: string
+                cancelType:
+                  type: string
+                employee:
+                  type: string
+                service:
+                  type: string
+  /bookings/services/changetime/employees/{id}:
+    put:
+      operationId: putEmployeeBookingServiceChangeTime
+      summary: putEmployeeBookingServiceChangeTime
+      tags:
+        - bookings
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                changeTimeOutsideSchedule:
+                  type: string
+                newTime:
+                  type: string
+                  format: date-time
+                selectedResources:
+                  type: string
+  /bookings/services/checkdebit/employees/{id}:
+    put:
+      operationId: putEmployeeBookingServiceCheckDebitAction
+      summary: putEmployeeBookingServiceCheckDebitAction
+      tags:
+        - bookings
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                valueCardNumber:
+                  type: string
+  /bookings/services/debit/employees/{id}:
+    put:
+      operationId: putEmployeeBookingServiceDebitService
+      summary: putEmployeeBookingServiceDebitService
+      tags:
+        - bookings
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                valueCardNumber:
+                  type: string
+  /bookings/services/employees/markasperformed:
+    put:
+      operationId: putEmployeeBookingServiceMarkedAsPerformed
+      summary: putEmployeeBookingServiceMarkedAsPerformed
+      tags:
+        - bookings
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                employee:
+                  type: string
+                service:
+                  type: string
+  /employees/listserviceproducts/resources/{id}:
+    get:
+      operationId: getServiceProductsList
+      summary: getServiceProductsList
+      tags:
+        - employees
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: businessUnit
+          in: query
+          schema:
+            type: string
+  /customers/employees/{id}:
+    get:
+      operationId: getEmployeeCustomersList
+      summary: getEmployeeCustomersList
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: businessUnit
+          in: query
+          schema:
+            type: string
+        - name: restrictedToOnlyPersonNumberOrPhoneNumber
+          in: query
+          schema:
+            type: string
+        - name: searchString
+          in: query
+          schema:
+            type: string
+  /confirm/employees/orders/{id}:
+    put:
+      operationId: putEmployeeOrderConfirm
+      summary: putEmployeeOrderConfirm
+      tags:
+        - confirm
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                employee:
+                  type: string
+                order:
+                  type: string
+  /customers/employees/passagetries:
+    get:
+      operationId: getCustomerPassageTries
+      summary: getCustomerPassageTries
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      parameters:
+        - name: businessUnit
+          in: query
+          schema:
+            type: string
+  /customers/employees/vieweddetails:
+    post:
+      operationId: addViewCustomerDetailsLog
+      summary: addViewCustomerDetailsLog
+      tags:
+        - customers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+  /providers/{id}:
+    get:
+      operationId: extractProviderCodeFromUrl
+      summary: extractProviderCodeFromUrl
+      tags:
+        - providers
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: facility
+          in: query
+          schema:
+            type: string
+        - name: includes
+          in: query
+          schema:
+            type: boolean
+        - name: isNaN
+          in: query
+          schema:
+            type: boolean
+        - name: link
+          in: query
+          schema:
+            type: string
+        - name: parseUrl
+          in: query
+          schema:
+            type: string
+        - name: providerCode
+          in: query
+          schema:
+            type: string
+        - name: query
+          in: query
+          schema:
+            type: string
+  /personinformations:
+    get:
+      operationId: getPersonInformation
+      summary: getPersonInformation
+      tags:
+        - personinformations
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+  /bankidentifiercodes:
+    get:
+      operationId: fetchBankIdentifierCodes
+      summary: fetchBankIdentifierCodes
+      tags:
+        - bankidentifiercodes
+      responses:
+        "200":
+          description: Successful response; payload shape not yet determined
+          content:
+            application/json:
+              schema: {}
+        default:
+          description: Unexpected error
+      x-reverse-engineering-confidence: low
+      security: []
+  /apps/272/resources:
+    get:
+      operationId: curatedGetAppResources
+      summary: List application resources
+      tags:
+        - apps
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema: {}
+      security: []
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed in sanitized browser HAR captures and
+        confirmed in the public web-booking client; see docs/har-evidence.md and docs/web-booking-evidence.md.
+  /businessunits/{businessUnit}/groupactivities:
+    get:
+      operationId: curatedListBusinessUnitGroupActivities
+      summary: List scheduled group activities for a business unit
+      tags:
+        - businessunits
+      parameters:
+        - name: businessUnit
+          in: path
+          schema:
+            type: integer
+          required: true
+        - name: period.start
+          in: query
+          description: Start of the requested activity window.
+          schema:
+            type: string
+            format: date-time
+        - name: period.end
+          in: query
+          description: End of the requested activity window used by current clients.
+          schema:
+            type: string
+            format: date-time
+        - name: period.stop
+          in: query
+          deprecated: true
+          description: Legacy alias for period.end; accepted by the deployment in a
+            bounded public check.
+          schema:
+            type: string
+            format: date-time
+        - name: webCategory
+          in: query
+          schema:
+            type: integer
+            example: 2
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ScheduledGroupActivity"
+      security: []
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed in sanitized browser HAR captures,
+        the public web-booking client, historical Hagabadet consumers, and bounded
+        public runtime checks; see docs/har-evidence.md, docs/web-booking-evidence.md,
+        and docs/public-runtime-evidence.md.
+  /businessunits/{businessUnit}/groupactivities/{activityId}:
+    get:
+      operationId: curatedGetBusinessUnitGroupActivity
+      summary: Get a scheduled group activity
+      tags:
+        - businessunits
+      parameters:
+        - name: businessUnit
+          in: path
+          schema:
+            type: integer
+          required: true
+        - name: activityId
+          in: path
+          schema:
+            type: integer
+          required: true
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScheduledGroupActivity"
+      security: []
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed in sanitized browser HAR captures,
+        the public web-booking client, and a bounded public runtime check; see docs/har-evidence.md,
+        docs/web-booking-evidence.md, and docs/public-runtime-evidence.md.
+  /services/bootstrapdata:
+    get:
+      operationId: curatedGetBootstrapData
+      summary: Get public BRP Online bootstrap data
+      tags:
+        - services
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BootstrapData"
+      security: []
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Confirmed in a historical Hagabadet consumer
+        and by a bounded public runtime check; see docs/public-runtime-evidence.md.
+  /services/groupactivityinstructors:
+    get:
+      operationId: curatedListGroupActivityInstructors
+      summary: List public group activity instructors
+      tags:
+        - services
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GroupActivityInstructorResource"
+      security: []
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Confirmed in a historical Hagabadet consumer
+        and by a bounded public runtime check; see docs/public-runtime-evidence.md.
+  /consenttypes:
+    get:
+      operationId: curatedListConsentTypes
+      summary: List consent types
+      tags:
+        - consenttypes
+      parameters:
+        - name: businessUnit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema: {}
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed across the supplied sanitized authorized
+        browser captures; see docs/har-evidence.md.
+  /customers/{customerId}:
+    get:
+      operationId: curatedGetCustomer
+      summary: Get a customer
+      tags:
+        - customers
+      parameters:
+        - name: customerId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema: {}
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed in sanitized browser HAR captures and
+        confirmed in the public web-booking client; see docs/har-evidence.md and docs/web-booking-evidence.md.
+    put:
+      operationId: curatedUpdateCustomer
+      summary: Update a customer
+      tags:
+        - customers
+      parameters:
+        - name: customerId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        default:
+          description: Response status and payload not confirmed
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Confirmed from the Hagabadet public web-booking
+        client source; see docs/web-booking-evidence.md.
+    delete:
+      operationId: curatedDeleteCustomer
+      summary: Delete a customer
+      tags:
+        - customers
+      parameters:
+        - name: customerId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        default:
+          description: Response status and payload not determined
+      x-reverse-engineering-confidence: low
+      x-reverse-engineering-evidence: Hermes function deleteCustomerWithGivenId in
+        data/endpoints_with_context.csv confirms an authenticated DELETE of /customers/{customerId}.
+  /customers/{customerId}/bookings/events:
+    get:
+      operationId: curatedListCustomerEventBookings
+      summary: List customer event bookings
+      tags:
+        - customers
+      parameters:
+        - name: customerId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema: {}
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed across the supplied sanitized authorized
+        browser captures; see docs/har-evidence.md.
+  /customers/{customerId}/bookings/services:
+    get:
+      operationId: curatedListCustomerServiceBookings
+      summary: List customer service bookings
+      tags:
+        - customers
+      parameters:
+        - name: customerId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema: {}
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed across the supplied sanitized authorized
+        browser captures; see docs/har-evidence.md.
+  /customers/{customerId}/bookings/groupactivities:
+    get:
+      operationId: curatedListCustomerGroupActivityBookings
+      summary: List customer group activity bookings
+      tags:
+        - customers
+      parameters:
+        - name: customerId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GroupActivityBooking"
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed in sanitized browser HAR captures and
+        confirmed in the public web-booking client; see docs/har-evidence.md and docs/web-booking-evidence.md.
+    post:
+      operationId: curatedCreateCustomerGroupActivityBooking
+      summary: Create a customer group activity booking
+      tags:
+        - customers
+      parameters:
+        - name: customerId
+          in: path
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateGroupActivityBookingRequest"
+      responses:
+        "201":
+          description: Observed successful response; response body was not retained
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed in sanitized browser HAR captures and
+        confirmed in the public web-booking client; see docs/har-evidence.md and docs/web-booking-evidence.md.
+  /customers/{customerId}/bookings/groupactivities/{bookingId}:
+    delete:
+      operationId: curatedDeleteCustomerGroupActivityBooking
+      summary: Cancel a customer group activity booking
+      tags:
+        - customers
+      parameters:
+        - name: customerId
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: bookingId
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: bookingType
+          in: query
+          description: Booking category used to distinguish ordinary and waiting-list
+            bookings.
+          schema:
+            type: string
+            example: groupActivityBooking
+      responses:
+        2XX:
+          description: Observed successful cancellation with no response body; exact
+            status was not recorded
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Confirmed from the Hagabadet public web-booking
+        client source and an authorized redacted runtime observation with no request
+        or response body; see docs/web-booking-evidence.md and docs/public-runtime-evidence.md.
+  /customers/{customerId}/bookings/services/{bookingId}:
+    delete:
+      operationId: curatedDeleteCustomerServiceBooking
+      summary: Cancel a customer service booking
+      tags:
+        - customers
+      parameters:
+        - name: customerId
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: bookingId
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: tryToRefund
+          in: query
+          schema:
+            type: boolean
+      responses:
+        default:
+          description: Response status and payload not confirmed
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Confirmed from the Hagabadet public web-booking
+        client source; see docs/web-booking-evidence.md.
+  /customers/{customerId}/bookings/events/{bookingId}:
+    delete:
+      operationId: curatedDeleteCustomerEventBooking
+      summary: Cancel a customer event booking
+      tags:
+        - customers
+      parameters:
+        - name: customerId
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: bookingId
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: bookingType
+          in: query
+          schema:
+            type: string
+      responses:
+        default:
+          description: Response status and payload not confirmed
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Confirmed from the Hagabadet public web-booking
+        client source; see docs/web-booking-evidence.md.
+  /customers/{customerId}/consents/cards:
+    get:
+      operationId: curatedListCustomerCardsConsents
+      summary: List customer cards consents
+      tags:
+        - customers
+      parameters:
+        - name: customerId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema: {}
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed across the supplied sanitized authorized
+        browser captures; see docs/har-evidence.md.
+  /customers/{customerId}/consents/dkdirectdebits:
+    get:
+      operationId: curatedListCustomerDkdirectdebitsConsents
+      summary: List customer dkdirectdebits consents
+      tags:
+        - customers
+      parameters:
+        - name: customerId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema: {}
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed across the supplied sanitized authorized
+        browser captures; see docs/har-evidence.md.
+  /customers/{customerId}/consents/nodirectdebits:
+    get:
+      operationId: curatedListCustomerNodirectdebitsConsents
+      summary: List customer nodirectdebits consents
+      tags:
+        - customers
+      parameters:
+        - name: customerId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema: {}
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed across the supplied sanitized authorized
+        browser captures; see docs/har-evidence.md.
+  /customers/{customerId}/consents/sedirectdebits:
+    get:
+      operationId: curatedListCustomerSedirectdebitsConsents
+      summary: List customer sedirectdebits consents
+      tags:
+        - customers
+      parameters:
+        - name: customerId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema: {}
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed across the supplied sanitized authorized
+        browser captures; see docs/har-evidence.md.
+  /customers/{customerId}/profileimages/{profileImageId}:
+    get:
+      operationId: curatedGetCustomerProfileImage
+      summary: Get a customer profile image
+      tags:
+        - customers
+      parameters:
+        - name: customerId
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: profileImageId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Observed successful response
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed across the supplied sanitized authorized
+        browser captures; see docs/har-evidence.md.
+  /customers/{customerId}/receipts/{receiptId}:
+    get:
+      operationId: curatedGetCustomerReceipt
+      summary: Get a customer receipt
+      tags:
+        - customers
+      parameters:
+        - name: customerId
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: receiptId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema: {}
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed across the supplied sanitized authorized
+        browser captures; see docs/har-evidence.md.
+  /customers/{customerId}/subscriptions:
+    get:
+      operationId: curatedListCustomerSubscriptions
+      summary: List customer subscriptions
+      tags:
+        - customers
+      parameters:
+        - name: customerId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema: {}
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed in sanitized browser HAR captures and
+        confirmed in the public web-booking client; see docs/har-evidence.md and docs/web-booking-evidence.md.
+  /customers/{customerId}/valuecards:
+    get:
+      operationId: curatedListCustomerValuecards
+      summary: List customer valuecards
+      tags:
+        - customers
+      parameters:
+        - name: customerId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema: {}
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed in sanitized browser HAR captures and
+        confirmed in the public web-booking client; see docs/har-evidence.md and docs/web-booking-evidence.md.
+  /customers/{customerId}/workouts:
+    get:
+      operationId: curatedListCustomerWorkouts
+      summary: List customer workouts
+      tags:
+        - customers
+      parameters:
+        - name: customerId
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: period.start
+          in: query
+          schema:
+            type: string
+        - name: period.end
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema: {}
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed in sanitized browser HAR captures and
+        confirmed in the public web-booking client; see docs/har-evidence.md and docs/web-booking-evidence.md.
+  /customers/{customerId}/workoutssummary:
+    get:
+      operationId: curatedGetCustomerWorkoutsSummary
+      summary: Get customer workouts summary
+      tags:
+        - customers
+      parameters:
+        - name: customerId
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: period.start
+          in: query
+          schema:
+            type: integer
+        - name: period.end
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema: {}
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed in sanitized browser HAR captures and
+        confirmed in the public web-booking client; see docs/har-evidence.md and docs/web-booking-evidence.md.
+  /products/groupactivities/{activityId}:
+    get:
+      operationId: curatedGetGroupActivityProduct
+      summary: Get a group activity product
+      tags:
+        - products
+      parameters:
+        - name: activityId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema: {}
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed across the supplied sanitized authorized
+        browser captures; see docs/har-evidence.md.
+  /products/subscriptions/{subscriptionId}:
+    get:
+      operationId: curatedGetSubscriptionProduct
+      summary: Get a subscription product
+      tags:
+        - products
+      parameters:
+        - name: subscriptionId
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema: {}
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed across the supplied sanitized authorized
+        browser captures; see docs/har-evidence.md.
+  /receipts:
+    get:
+      operationId: curatedListReceipts
+      summary: List receipts
+      tags:
+        - receipts
+      parameters:
+        - name: customer
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Observed successful response
+          content:
+            application/json:
+              schema: {}
+      x-reverse-engineering-confidence: medium
+      x-reverse-engineering-evidence: Observed across the supplied sanitized authorized
+        browser captures; see docs/har-evidence.md.
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    EntityReference:
+      type: object
+      description: Minimal identifier and display-name shape observed in public BRP
+        responses.
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    BusinessUnitReference:
+      allOf:
+        - $ref: "#/components/schemas/EntityReference"
+        - type: object
+          properties:
+            location:
+              type: string
+            companyNameForInvoice:
+              type: string
+    BusinessUnit:
+      allOf:
+        - $ref: "#/components/schemas/BusinessUnitReference"
+        - type: object
+          description: Public business-unit shape observed from GET /businessunits.
+          properties:
+            company:
+              type: object
+              additionalProperties: true
+            address:
+              type: object
+              additionalProperties: true
+            currency:
+              type: string
+            releaseSuspensionProduct:
+              type: object
+              additionalProperties: true
+            settings:
+              type: object
+              additionalProperties: true
+            hasRegisterUnitForInternet:
+              type: boolean
+    ActivityDuration:
+      type: object
+      properties:
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+    GroupActivityInstructor:
+      allOf:
+        - $ref: "#/components/schemas/EntityReference"
+        - type: object
+          properties:
+            isSubstitute:
+              type: boolean
+    ActivitySlots:
+      type: object
+      properties:
+        total:
+          type: integer
+        totalBookable:
+          type: integer
+        reservedForDropin:
+          type: integer
+        leftToBook:
+          type: integer
+        leftToBookIncDropin:
+          type: integer
+        hasWaitingList:
+          type: boolean
+        inWaitingList:
+          type: integer
+    ScheduledGroupActivity:
+      type: object
+      description: Structure observed across a bounded seven-day public schedule sample
+        for all three business units.
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        duration:
+          $ref: "#/components/schemas/ActivityDuration"
+        groupActivityProduct:
+          $ref: "#/components/schemas/EntityReference"
+        businessUnit:
+          $ref: "#/components/schemas/BusinessUnitReference"
+        locations:
+          type: array
+          items:
+            $ref: "#/components/schemas/EntityReference"
+        instructors:
+          type: array
+          items:
+            $ref: "#/components/schemas/GroupActivityInstructor"
+        bookableEarliest:
+          type: string
+          format: date-time
+          nullable: true
+        bookableLatest:
+          type: string
+          format: date-time
+          nullable: true
+        bookableEarliestExtended:
+          type: string
+          format: date-time
+          nullable: true
+        bookableLatestExtended:
+          type: string
+          format: date-time
+          nullable: true
+        externalMessage:
+          type: string
+          nullable: true
+        internalMessage:
+          type: string
+          nullable: true
+        cancelled:
+          type: boolean
+        slots:
+          $ref: "#/components/schemas/ActivitySlots"
+    Asset:
+      type: object
+      properties:
+        reference:
+          type: string
+        type:
+          type: string
+        theme:
+          type: string
+          nullable: true
+        contentType:
+          type: string
+        contentUrl:
+          type: string
+          format: uri
+        imageWidth:
+          type: integer
+        imageHeight:
+          type: integer
+        focalPointX:
+          type: integer
+        focalPointY:
+          type: integer
+    ProductLabel:
+      allOf:
+        - $ref: "#/components/schemas/EntityReference"
+        - type: object
+          properties:
+            availableFor:
+              type: string
+    GroupActivityProduct:
+      type: object
+      description: Public product shape observed from GET /products/groupactivities?webCategory=2.
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        productNumber:
+          type: string
+        productLabels:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductLabel"
+        businessUnits:
+          type: array
+          items:
+            $ref: "#/components/schemas/BusinessUnitReference"
+        description:
+          type: string
+          nullable: true
+        participantsMustPay:
+          type: boolean
+        assets:
+          type: array
+          items:
+            $ref: "#/components/schemas/Asset"
+        ageLimit:
+          type: integer
+    SystemSetting:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          description: Runtime samples contained boolean, integer, string, and null
+            setting values.
+          nullable: true
+    WebCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        sortOrder:
+          type: integer
+        type:
+          type: string
+        productType:
+          type: string
+        highlight:
+          type: boolean
+        includeInShortcuts:
+          type: boolean
+        company:
+          nullable: true
+        businessUnit:
+          nullable: true
+        assets:
+          type: array
+          items:
+            $ref: "#/components/schemas/Asset"
+        showOnGoActive1ExplorePage:
+          type: boolean
+        moveToHomePage:
+          type: boolean
+    BootstrapData:
+      type: object
+      properties:
+        systemSettings:
+          type: array
+          items:
+            $ref: "#/components/schemas/SystemSetting"
+        webCategories:
+          type: array
+          items:
+            $ref: "#/components/schemas/WebCategory"
+        businessUnits:
+          type: array
+          items:
+            $ref: "#/components/schemas/BusinessUnit"
+    GroupActivityInstructorResource:
+      allOf:
+        - $ref: "#/components/schemas/EntityReference"
+        - type: object
+          description: Public instructor/resource shape observed from GET /services/groupactivityinstructors.
+          properties:
+            type:
+              type: string
+            externalDescription:
+              type: string
+              nullable: true
+            assets:
+              type: array
+              items:
+                $ref: "#/components/schemas/Asset"
+    CustomerReference:
+      type: object
+      properties:
+        id:
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+    OrderReference:
+      type: object
+      properties:
+        id:
+          type: integer
+        lastModified:
+          type: string
+          format: date-time
+        number:
+          type: integer
+    GroupActivityBookingReference:
+      type: object
+      properties:
+        id:
+          type: integer
+        order:
+          $ref: "#/components/schemas/OrderReference"
+    GroupActivityBooking:
+      type: object
+      description: Booking shape observed in a redacted GET customer group-activity
+        bookings response.
+      properties:
+        additionToEventBooking:
+          nullable: true
+          description: Observed as null; its non-null type is not yet known.
+        businessUnit:
+          $ref: "#/components/schemas/BusinessUnitReference"
+        checkedIn:
+          nullable: true
+          description: Observed as null; its non-null type is not yet known.
+        customer:
+          $ref: "#/components/schemas/CustomerReference"
+        duration:
+          $ref: "#/components/schemas/ActivityDuration"
+        groupActivity:
+          $ref: "#/components/schemas/EntityReference"
+        groupActivityBooking:
+          $ref: "#/components/schemas/GroupActivityBookingReference"
+        type:
+          type: string
+    CreateGroupActivityBookingRequest:
+      type: object
+      description: JSON request shape observed in a redacted booking request and the
+        public web client.
+      properties:
+        groupActivity:
+          type: integer
+        allowWaitingList:
+          type: boolean

@@ -3,5 +3,27 @@
     "name": "HB Stunder",
     "foundationReady": "Projektgrunden är klar",
     "unofficial": "Inofficiell och inte ansluten till Hagabadet"
+  },
+  "schedule": {
+    "title": "Klasser",
+    "listLabel": "Schemalagda klasser",
+    "unnamedClass": "Klass",
+    "loading": "Laddar klasser",
+    "empty": "Inga klasser hittades för den här dagen.",
+    "error": "Schemat kunde inte laddas. Försök igen om en stund.",
+    "filters": {
+      "label": "Schemafilter",
+      "date": "Datum",
+      "location": "Plats"
+    },
+    "availability": {
+      "available_one": "{{count}} plats",
+      "available_other": "{{count}} platser",
+      "almostFull_one": "{{count}} plats kvar",
+      "almostFull_other": "{{count}} platser kvar",
+      "waitingList": "Väntelista",
+      "full": "Fullbokad",
+      "cancelled": "Inställd"
+    }
   }
 }

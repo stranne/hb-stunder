@@ -1,10 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import i18n from "../src/i18n";
-
-const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: false } },
-});
 
 export function StoryEnvironment({
   locale,
@@ -15,6 +11,13 @@ export function StoryEnvironment({
   reducedMotion: boolean;
   children: ReactNode;
 }) {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      }),
+  );
+
   useEffect(() => {
     void i18n.changeLanguage(locale);
   }, [locale]);

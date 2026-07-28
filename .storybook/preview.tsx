@@ -1,12 +1,22 @@
 /// <reference types="vite/client" />
 
 import type { Preview } from "@storybook/react-vite";
+// Initialize React Aria before Storybook replaces HTMLElement.prototype.focus with a getter.
+await import("react-aria-components");
+import { setupWorker } from "msw/browser";
 import { mswLoader } from "msw-storybook-addon/csf3";
 import { StoryEnvironment } from "./StoryEnvironment";
+import { handlers } from "../src/mocks/handlers";
 import "../src/app/theme.css";
 
 const preview: Preview = {
-  loaders: [mswLoader()],
+  loaders: [
+    mswLoader(async () => {
+      const worker = setupWorker();
+      await worker.start({ onUnhandledRequest: "error" });
+      return worker;
+    }),
+  ],
   globalTypes: {
     locale: {
       description: "Locale",
@@ -34,6 +44,7 @@ const preview: Preview = {
   decorators: [
     (Story, context) => (
       <StoryEnvironment
+        key={context.id}
         locale={String(context.globals.locale ?? "sv")}
         reducedMotion={context.globals.reducedMotion === "reduce"}
       >
@@ -42,6 +53,7 @@ const preview: Preview = {
     ),
   ],
   parameters: {
+    msw: handlers,
     a11y: { test: "todo" },
     viewport: {
       options: {

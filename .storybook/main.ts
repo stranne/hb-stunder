@@ -1,4 +1,5 @@
 import type { StorybookConfig } from "@storybook/react-vite";
+import { STORYBOOK_API_BASE_URL } from "../src/api/config.ts";
 
 const config: StorybookConfig = {
   stories: ["../src/**/*.stories.@(ts|tsx)"],
@@ -6,6 +7,13 @@ const config: StorybookConfig = {
   framework: {
     name: "@storybook/react-vite",
     options: {},
+  },
+  viteFinal(viteConfig) {
+    viteConfig.define = {
+      ...viteConfig.define,
+      "import.meta.env.VITE_API_BASE_URL": JSON.stringify(STORYBOOK_API_BASE_URL),
+    };
+    return viteConfig;
   },
 };
 

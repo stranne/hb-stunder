@@ -1,4 +1,4 @@
 import type { RequestHandler } from "msw";
+import { scheduleHandlers } from "./handlers/schedule";
 
-// Product scenarios are added here as vertical slices are implemented.
-export const handlers: RequestHandler[] = [];
+export const handlers: RequestHandler[] = [...scheduleHandlers];

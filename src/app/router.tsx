@@ -1,12 +1,14 @@
 import { createRootRoute, createRoute, createRouter } from "@tanstack/react-router";
+import { parseScheduleSearch } from "../features/schedule/model/scheduleSearch";
+import { ScheduleRoute } from "../routes/ScheduleRoute";
 import { AppRoot } from "./AppRoot";
-import { FoundationPage } from "./FoundationPage";
 
 const rootRoute = createRootRoute({ component: AppRoot });
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
-  component: FoundationPage,
+  validateSearch: parseScheduleSearch,
+  component: ScheduleRoute,
 });
 
 const routeTree = rootRoute.addChildren([indexRoute]);

@@ -3,5 +3,27 @@
     "name": "HB Stunder",
     "foundationReady": "Project foundation ready",
     "unofficial": "Unofficial and not affiliated with Hagabadet"
+  },
+  "schedule": {
+    "title": "Classes",
+    "listLabel": "Scheduled classes",
+    "unnamedClass": "Class",
+    "loading": "Loading classes",
+    "empty": "No classes found for this day.",
+    "error": "The schedule could not be loaded. Try again shortly.",
+    "filters": {
+      "label": "Schedule filters",
+      "date": "Date",
+      "location": "Location"
+    },
+    "availability": {
+      "available_one": "{{count}} spot",
+      "available_other": "{{count}} spots",
+      "almostFull_one": "{{count}} spot left",
+      "almostFull_other": "{{count}} spots left",
+      "waitingList": "Waiting list",
+      "full": "Fully booked",
+      "cancelled": "Cancelled"
+    }
   }
 }

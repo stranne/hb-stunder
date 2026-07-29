@@ -9,7 +9,12 @@ const meta = {
   title: "Schedule/SchedulePage",
   component: SchedulePage,
   args: {
-    search: { date: "2026-07-28", location: 1 },
+    search: {
+      date: "2026-07-28",
+      locations: [1, 4128, 3509],
+      instructors: [],
+      activityTypes: [],
+    },
     onSearchChange: () => undefined,
   },
   parameters: { layout: "fullscreen" },
@@ -25,12 +30,16 @@ export const Mobile: Story = {
 };
 
 export const Empty: Story = {
-  args: { search: { date: "2026-07-29", location: 1 } },
+  args: {
+    search: { date: "2026-07-29", locations: [1], instructors: [], activityTypes: [] },
+  },
   parameters: { msw: [http.get(endpoint, () => HttpResponse.json([]))] },
 };
 
 export const ApiError: Story = {
-  args: { search: { date: "2026-07-30", location: 1 } },
+  args: {
+    search: { date: "2026-07-30", locations: [1], instructors: [], activityTypes: [] },
+  },
   parameters: {
     msw: [http.get(endpoint, () => HttpResponse.json({ message: "Unavailable" }, { status: 503 }))],
   },

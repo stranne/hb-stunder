@@ -8,7 +8,12 @@ const meta = {
     tanstack: {
       router: {
         route: indexRoute,
-        query: { date: "2026-07-28", location: 1 },
+        query: {
+          date: "2026-07-28",
+          locations: [1, 4128, 3509],
+          instructors: [],
+          activityTypes: [],
+        },
       },
     },
   },

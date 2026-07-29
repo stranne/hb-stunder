@@ -38,9 +38,18 @@ describe("schedule model", () => {
 
   it("validates route search values", () => {
     expect(isDateString("2026-02-29")).toBe(false);
-    expect(parseScheduleSearch({ date: "2026-07-28", location: "4128" })).toEqual({
+    expect(
+      parseScheduleSearch({
+        date: "2026-07-28",
+        locations: "[1,4128]",
+        instructors: "21,25",
+        activityTypes: [201, "203"],
+      }),
+    ).toEqual({
       date: "2026-07-28",
-      location: 4128,
+      locations: [1, 4128],
+      instructors: [21, 25],
+      activityTypes: [201, 203],
     });
   });
 });

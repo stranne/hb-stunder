@@ -2,14 +2,10 @@ import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../../ui/button/Button";
 import { addDays, todayInStockholm } from "../model/scheduleDate";
+import type { ScheduleFilterOption } from "../api/scheduleFilterQueries";
 import type { ScheduleSearch } from "../model/scheduleSearch";
+import { ScheduleFilterPanel } from "./ScheduleFilterPanel";
 import styles from "./ScheduleFilters.module.css";
-
-const locations = [
-  { id: 1, name: "Haga" },
-  { id: 4128, name: "Drottningtorget" },
-  { id: 3509, name: "Älvstranden" },
-] as const;
 
 const DAYS_PER_PAGE = 7;
 const VISIBLE_DAYS = 21;
@@ -17,13 +13,22 @@ const VISIBLE_DAYS = 21;
 export interface ScheduleFiltersProps {
   search: ScheduleSearch;
   onChange: (search: ScheduleSearch) => void;
+  instructors?: ScheduleFilterOption[];
+  activityTypes?: ScheduleFilterOption[];
+  isLoadingOptions?: boolean;
 }
 
 function dateForFormatting(date: string) {
   return new Date(`${date}T12:00:00Z`);
 }
 
-export function ScheduleFilters({ search, onChange }: ScheduleFiltersProps) {
+export function ScheduleFilters({
+  search,
+  onChange,
+  instructors = [],
+  activityTypes = [],
+  isLoadingOptions = false,
+}: ScheduleFiltersProps) {
   const { t, i18n } = useTranslation();
   const today = todayInStockholm();
   const lastVisibleDate = addDays(today, VISIBLE_DAYS - 1);
@@ -53,19 +58,15 @@ export function ScheduleFilters({ search, onChange }: ScheduleFiltersProps) {
 
   return (
     <div className={styles.filters} role="group" aria-label={t("schedule.filters.label")}>
-      <label className={styles.locationFilter}>
-        <span className={styles.label}>{t("schedule.filters.location")}</span>
-        <select
-          value={search.location}
-          onChange={(event) => onChange({ ...search, location: Number(event.currentTarget.value) })}
-        >
-          {locations.map((location) => (
-            <option key={location.id} value={location.id}>
-              {location.name}
-            </option>
-          ))}
-        </select>
-      </label>
+      <div className={styles.filterToolbar}>
+        <ScheduleFilterPanel
+          search={search}
+          onChange={onChange}
+          instructors={instructors}
+          activityTypes={activityTypes}
+          isLoadingOptions={isLoadingOptions}
+        />
+      </div>
 
       <div className={styles.dateFilter}>
         <div className={styles.dateHeading}>

@@ -5,21 +5,26 @@ import { useState } from "react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vite-plus/test";
 import i18n from "../../../i18n";
 import { addDays, todayInStockholm } from "../model/scheduleDate";
+import type { ScheduleSearch } from "../model/scheduleSearch";
 import { ScheduleFilters } from "./ScheduleFilters";
 
 beforeAll(async () => {
   await i18n.changeLanguage("en");
 });
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  window.localStorage.clear();
+});
 
 const today = todayInStockholm();
-const search = { date: addDays(today, 7), location: 1 };
+const filterSelection = { locations: [1], instructors: [], activityTypes: [] };
+const search = { date: addDays(today, 7), ...filterSelection };
 
 describe("ScheduleFilters", () => {
   it("shows three weeks of named upcoming days and selects a day directly", () => {
     const onChange = vi.fn();
-    render(<ScheduleFilters search={{ date: today, location: 1 }} onChange={onChange} />);
+    render(<ScheduleFilters search={{ date: today, ...filterSelection }} onChange={onChange} />);
 
     const upcomingDays = screen.getByRole("group", { name: "Upcoming days" });
     const dayButtons = within(upcomingDays).getAllByRole("button");
@@ -36,25 +41,28 @@ describe("ScheduleFilters", () => {
     expect(dayButtons.slice(1).every((button) => button.tabIndex === -1)).toBe(true);
 
     fireEvent.click(dayButtons[3]!);
-    expect(onChange).toHaveBeenCalledWith({ date: addDays(today, 3), location: 1 });
+    expect(onChange).toHaveBeenCalledWith({ date: addDays(today, 3), ...filterSelection });
   });
 
-  it("moves between weeks without changing the location", () => {
+  it("moves between weeks without changing the filters", () => {
     const onChange = vi.fn();
     render(<ScheduleFilters search={search} onChange={onChange} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Previous week" }));
     fireEvent.click(screen.getByRole("button", { name: "Next week" }));
 
-    expect(onChange).toHaveBeenNthCalledWith(1, { date: today, location: 1 });
-    expect(onChange).toHaveBeenNthCalledWith(2, { date: addDays(today, 14), location: 1 });
+    expect(onChange).toHaveBeenNthCalledWith(1, { date: today, ...filterSelection });
+    expect(onChange).toHaveBeenNthCalledWith(2, {
+      date: addDays(today, 14),
+      ...filterSelection,
+    });
   });
 
   it("selects and focuses adjacent days with the left and right arrow keys", () => {
     function ControlledFilters() {
-      const [controlledSearch, setControlledSearch] = useState({
+      const [controlledSearch, setControlledSearch] = useState<ScheduleSearch>({
         date: addDays(today, 6),
-        location: 1,
+        ...filterSelection,
       });
 
       return <ScheduleFilters search={controlledSearch} onChange={setControlledSearch} />;
@@ -81,19 +89,63 @@ describe("ScheduleFilters", () => {
     expect(document.activeElement).toBe(dayButtons[6]);
   });
 
-  it("changes the date and location while preserving the other filter", () => {
+  it("searches instructors and keeps favorite quick picks ordered by name", () => {
+    render(
+      <ScheduleFilters
+        search={search}
+        onChange={vi.fn()}
+        instructors={[
+          { id: 20, name: "Aaron Ahl" },
+          { id: 21, name: "Anna Andersson" },
+          { id: 22, name: "Beatrice Berg" },
+        ]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
+    fireEvent.click(screen.getByRole("button", { name: "Add Beatrice Berg to favorites" }));
+    fireEvent.click(screen.getByRole("button", { name: "Add Anna Andersson to favorites" }));
+
+    const favoriteGroup = within(screen.getByRole("group", { name: "Favorites" }));
+    expect(favoriteGroup.getAllByRole("checkbox")).toEqual([
+      favoriteGroup.getByRole("checkbox", { name: "Anna Andersson" }),
+      favoriteGroup.getByRole("checkbox", { name: "Beatrice Berg" }),
+    ]);
+    const allGroup = within(screen.getByRole("group", { name: "All" }));
+    expect(allGroup.getAllByRole("checkbox")).toEqual([
+      allGroup.getByRole("checkbox", { name: "Aaron Ahl" }),
+      allGroup.getByRole("checkbox", { name: "Anna Andersson" }),
+      allGroup.getByRole("checkbox", { name: "Beatrice Berg" }),
+    ]);
+
+    fireEvent.change(screen.getByRole("searchbox", { name: "Search instructors" }), {
+      target: { value: "beatrice" },
+    });
+
+    expect(screen.getByRole("checkbox", { name: "Beatrice Berg" })).toBeTruthy();
+    expect(screen.queryByRole("checkbox", { name: "Anna Andersson" })).toBeNull();
+    expect(window.localStorage.getItem("hb-stunder.schedule-preferences")).toContain("21");
+    expect(window.localStorage.getItem("hb-stunder.schedule-preferences")).toContain("22");
+  });
+
+  it("changes the date and locations while preserving the other filters", () => {
     const onChange = vi.fn();
     render(<ScheduleFilters search={search} onChange={onChange} />);
     const chosenDate = addDays(today, 10);
 
     fireEvent.change(screen.getByLabelText("Choose date…"), { target: { value: chosenDate } });
-    fireEvent.change(screen.getByLabelText("Location"), { target: { value: "4128" } });
+    fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Drottningtorget" }));
+    fireEvent.click(screen.getByRole("button", { name: "Done" }));
     fireEvent.click(
       within(screen.getByRole("group", { name: "Upcoming days" })).getAllByRole("button")[0]!,
     );
 
-    expect(onChange).toHaveBeenNthCalledWith(1, { date: chosenDate, location: 1 });
-    expect(onChange).toHaveBeenNthCalledWith(2, { date: search.date, location: 4128 });
-    expect(onChange).toHaveBeenNthCalledWith(3, { date: today, location: 1 });
+    expect(onChange).toHaveBeenNthCalledWith(1, { date: chosenDate, ...filterSelection });
+    expect(onChange).toHaveBeenNthCalledWith(2, {
+      ...search,
+      locations: [1, 4128],
+    });
+    expect(onChange).toHaveBeenNthCalledWith(3, { date: today, ...filterSelection });
   });
 });

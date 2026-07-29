@@ -1,21 +1,19 @@
 @layer components {
   .filters {
     display: grid;
-    grid-template-columns: minmax(11rem, 16rem) minmax(0, 1fr);
     gap: var(--space-4);
     margin-block-end: var(--space-6);
   }
 
-  .dateFilter,
-  .locationFilter {
-    display: grid;
-    gap: var(--space-1);
-    min-inline-size: 0;
+  .filterToolbar {
+    display: flex;
+    justify-content: flex-end;
   }
 
   .dateFilter {
-    grid-column: 1 / -1;
+    display: grid;
     gap: var(--space-3);
+    min-inline-size: 0;
   }
 
   .label {
@@ -149,26 +147,9 @@
     color: inherit;
   }
 
-  .locationFilter select {
-    min-block-size: 2.75rem;
-    min-inline-size: 0;
-    inline-size: 100%;
-    padding-inline: var(--space-3);
-    border: 1px solid color-mix(in oklch, var(--color-ink) 20%, transparent);
-    border-radius: var(--radius-sm);
-    color: var(--color-ink);
-    background: var(--color-surface);
-    font: inherit;
-
-    &:focus-visible {
-      outline: var(--focus-width) solid var(--color-focus);
-      outline-offset: var(--focus-offset);
-    }
-  }
-
   @media (width < 42rem) {
-    .filters {
-      grid-template-columns: minmax(0, 1fr);
+    .filterToolbar > button {
+      inline-size: 100%;
     }
 
     .weekNavigation {
@@ -189,10 +170,6 @@
     .dayButton[data-visible="false"] {
       display: grid;
       scroll-snap-align: start;
-    }
-
-    .locationFilter select {
-      inline-size: 100%;
     }
   }
 }

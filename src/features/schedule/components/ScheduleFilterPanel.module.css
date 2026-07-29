@@ -1,0 +1,285 @@
+@layer components {
+  .count {
+    display: inline-grid;
+    min-inline-size: 1.5rem;
+    min-block-size: 1.5rem;
+    margin-inline-start: var(--space-2);
+    place-items: center;
+    border-radius: var(--radius-pill);
+    color: var(--color-ink-inverse);
+    background: var(--color-accent);
+    font-size: 0.75rem;
+  }
+
+  .popover {
+    inline-size: min(32rem, calc(100vw - 2rem));
+    max-block-size: min(44rem, calc(100vh - 2rem));
+    overflow: auto;
+    border: 1px solid color-mix(in oklch, var(--color-ink) 14%, transparent);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-raised);
+  }
+
+  .dialog {
+    display: grid;
+    gap: var(--space-6);
+    padding: var(--space-6);
+    outline: none;
+  }
+
+  .footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-inline: calc(-1 * var(--space-6));
+    margin-block: calc(-1 * var(--space-6));
+    padding: var(--space-3) var(--space-6);
+    border-block-start: 1px solid color-mix(in oklch, var(--color-ink) 10%, transparent);
+    background: var(--color-surface);
+  }
+
+  .headingRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+
+    h2 {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: var(--text-lg);
+    }
+  }
+
+  .clearButton {
+    padding: var(--space-2);
+    border: 0;
+    color: var(--color-accent-strong);
+    background: transparent;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+
+    &[data-focus-visible] {
+      outline: var(--focus-width) solid var(--color-focus);
+      outline-offset: var(--focus-offset);
+    }
+  }
+
+  .optionColumns {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .section {
+    display: grid;
+    gap: var(--space-3);
+    min-inline-size: 0;
+
+    h3 {
+      margin: 0;
+      font-size: var(--text-base);
+    }
+  }
+
+  .locationOptions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .locationCheckbox {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: 2.5rem;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid color-mix(in oklch, var(--color-ink) 18%, transparent);
+    border-radius: var(--radius-pill);
+    color: var(--color-ink);
+    background: var(--color-surface);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .locationCheckbox[data-selected] {
+    border-color: var(--color-accent);
+    background: color-mix(in oklch, var(--color-accent) 12%, var(--color-surface));
+  }
+
+  .locationCheckbox[data-focus-visible],
+  .checkbox[data-focus-visible],
+  .starButton[data-focus-visible],
+  .searchField input:focus-visible {
+    outline: var(--focus-width) solid var(--color-focus);
+    outline-offset: var(--focus-offset);
+  }
+
+  .checkboxBox {
+    display: inline-grid;
+    flex: 0 0 1.25rem;
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+    place-items: center;
+    border: 1px solid color-mix(in oklch, var(--color-ink) 35%, transparent);
+    border-radius: 0.3rem;
+    color: var(--color-ink-inverse);
+    font-size: 0.8rem;
+  }
+
+  [data-selected] > .checkboxBox,
+  .checkbox[data-selected] .checkboxBox {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+  }
+
+  .searchField {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+
+    input {
+      min-block-size: 2.75rem;
+      min-inline-size: 0;
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid color-mix(in oklch, var(--color-ink) 20%, transparent);
+      border-radius: var(--radius-sm);
+      color: var(--color-ink);
+      background: var(--color-surface);
+      font: inherit;
+    }
+
+    button {
+      inline-size: 2.75rem;
+      margin-inline-start: -2.75rem;
+      border: 0;
+      color: var(--color-ink-muted);
+      background: transparent;
+      font: inherit;
+      font-size: 1.25rem;
+      cursor: pointer;
+    }
+  }
+
+  .optionList {
+    display: grid;
+    align-content: start;
+    max-block-size: 13rem;
+    overflow-y: auto;
+    border-block: 1px solid color-mix(in oklch, var(--color-ink) 10%, transparent);
+  }
+
+  .optionGroup {
+    display: grid;
+  }
+
+  .optionGroupLabel {
+    position: sticky;
+    z-index: 1;
+    inset-block-start: 0;
+    padding: var(--space-2);
+    border-block-end: 1px solid color-mix(in oklch, var(--color-ink) 10%, transparent);
+    color: var(--color-ink-muted);
+    background: var(--color-surface);
+    font-size: var(--text-sm);
+    font-weight: 700;
+  }
+
+  .optionRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 2.75rem;
+    align-items: center;
+    border-block-end: 1px solid color-mix(in oklch, var(--color-ink) 8%, transparent);
+  }
+
+  .checkbox {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-block-size: 2.75rem;
+    min-inline-size: 0;
+    padding: var(--space-2);
+    cursor: pointer;
+  }
+
+  .starButton {
+    display: grid;
+    inline-size: 2.25rem;
+    block-size: 2.25rem;
+    place-items: center;
+    border: 0;
+    border-radius: var(--radius-pill);
+    color: var(--color-ink-muted);
+    background: transparent;
+    font: inherit;
+    font-size: 1.2rem;
+    cursor: pointer;
+
+    &[data-selected] {
+      color: oklch(67% 0.15 80deg);
+    }
+  }
+
+  .loading,
+  .empty {
+    margin: 0;
+    color: var(--color-ink-muted);
+    font-size: var(--text-sm);
+  }
+
+  @media (width >= 64rem) {
+    .popover {
+      inline-size: min(64rem, calc(100vw - 2rem));
+      overflow: hidden;
+    }
+
+    .dialog {
+      grid-template-rows: auto auto minmax(0, 1fr) auto;
+      max-block-size: inherit;
+      overflow: hidden;
+    }
+
+    .locationSection {
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: center;
+      column-gap: var(--space-6);
+    }
+
+    .optionColumns {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: stretch;
+      min-block-size: 0;
+    }
+
+    .optionColumns > .section {
+      grid-template-rows: auto auto minmax(0, 1fr);
+      min-block-size: 0;
+    }
+
+    .optionList {
+      min-block-size: 0;
+      max-block-size: none;
+    }
+  }
+
+  @media (width < 42rem) {
+    .popover {
+      position: fixed;
+      inset: auto 0 0 !important;
+      inline-size: 100%;
+      max-block-size: 85vh;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+
+    .dialog {
+      padding: var(--space-6) var(--space-4);
+    }
+
+    .footer {
+      position: sticky;
+      inset-block-end: 0;
+      margin-inline: calc(-1 * var(--space-4));
+      margin-block-end: calc(-1 * var(--space-6));
+      padding-inline: var(--space-4);
+    }
+  }
+}

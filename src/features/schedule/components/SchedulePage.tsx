@@ -1,5 +1,6 @@
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { Button } from "../../../ui/button/Button";
 import { activityTypeQueryOptions, instructorQueryOptions } from "../api/scheduleFilterQueries";
 import { scheduleQueryOptions } from "../api/scheduleQueries";
 import type { ScheduleSearch } from "../model/scheduleSearch";
@@ -45,7 +46,18 @@ export function SchedulePage({ search, onSearchChange }: SchedulePageProps) {
     .sort((a, b) => (a.duration?.start ?? "").localeCompare(b.duration?.start ?? ""));
   const isPending = scheduleQueries.some((query) => query.isPending);
   const isFetching = scheduleQueries.some((query) => query.isFetching);
-  const isError = scheduleQueries.every((query) => query.isError);
+  const failedScheduleQueries = scheduleQueries.filter((query) => query.isError);
+  const isError =
+    scheduleQueries.length > 0 && failedScheduleQueries.length === scheduleQueries.length;
+  const isPartialError = failedScheduleQueries.length > 0 && !isError;
+  const failedFilterQueries = [instructors, activityTypes].filter((query) => query.isError);
+
+  const retrySchedule = () => {
+    void Promise.all(failedScheduleQueries.map((query) => query.refetch()));
+  };
+  const retryFilterOptions = () => {
+    void Promise.all(failedFilterQueries.map((query) => query.refetch()));
+  };
 
   return (
     <main className={styles.page}>
@@ -60,6 +72,8 @@ export function SchedulePage({ search, onSearchChange }: SchedulePageProps) {
         instructors={instructors.data}
         activityTypes={activityTypes.data}
         isLoadingOptions={instructors.isPending || activityTypes.isPending}
+        hasOptionsError={failedFilterQueries.length > 0}
+        onRetryOptions={retryFilterOptions}
       />
 
       {isFetching && !isPending ? (
@@ -74,8 +88,21 @@ export function SchedulePage({ search, onSearchChange }: SchedulePageProps) {
             <GymClassCardSkeleton />
           </>
         ) : null}
-        {isError ? <p className={styles.notice}>{t("schedule.error")}</p> : null}
-        {!isPending && !isError && scheduleData.length === 0 ? (
+        {isError ? (
+          <div className={styles.notice} role="alert">
+            <p>{t("schedule.error")}</p>
+            <Button onPress={retrySchedule}>{t("schedule.retry")}</Button>
+          </div>
+        ) : null}
+        {isPartialError ? (
+          <div className={`${styles.notice} ${styles.warning}`} role="status">
+            <p>{t("schedule.partialError", { count: failedScheduleQueries.length })}</p>
+            <Button tone="quiet" onPress={retrySchedule}>
+              {t("schedule.retry")}
+            </Button>
+          </div>
+        ) : null}
+        {!isPending && failedScheduleQueries.length === 0 && scheduleData.length === 0 ? (
           <p className={styles.notice}>{t("schedule.empty")}</p>
         ) : null}
         {scheduleData.map((activity, index) => (

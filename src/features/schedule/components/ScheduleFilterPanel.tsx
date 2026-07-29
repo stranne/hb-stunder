@@ -30,6 +30,8 @@ interface ScheduleFilterPanelProps {
   instructors: ScheduleFilterOption[];
   activityTypes: ScheduleFilterOption[];
   isLoadingOptions?: boolean;
+  hasOptionsError?: boolean;
+  onRetryOptions?: () => void;
 }
 
 function toggleId(ids: number[], id: number) {
@@ -157,6 +159,8 @@ export function ScheduleFilterPanel({
   instructors,
   activityTypes,
   isLoadingOptions = false,
+  hasOptionsError = false,
+  onRetryOptions,
 }: ScheduleFilterPanelProps) {
   const { t } = useTranslation();
   const preferences = readSchedulePreferences();
@@ -202,7 +206,17 @@ export function ScheduleFilterPanel({
           </div>
 
           {isLoadingOptions ? (
-            <p className={styles.loading}>{t("schedule.filters.loadingOptions")}</p>
+            <p className={styles.loading} role="status">
+              {t("schedule.filters.loadingOptions")}
+            </p>
+          ) : null}
+          {hasOptionsError ? (
+            <div className={styles.optionsError} role="alert">
+              <p>{t("schedule.filters.optionsError")}</p>
+              <Button tone="quiet" onPress={onRetryOptions}>
+                {t("schedule.filters.retryOptions")}
+              </Button>
+            </div>
           ) : null}
 
           <section className={`${styles.section} ${styles.locationSection}`}>

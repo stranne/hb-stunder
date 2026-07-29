@@ -128,6 +128,26 @@ describe("ScheduleFilters", () => {
     expect(window.localStorage.getItem("hb-stunder.schedule-preferences")).toContain("22");
   });
 
+  it("announces filter-option failures and retries them", () => {
+    const onRetryOptions = vi.fn();
+    render(
+      <ScheduleFilters
+        search={search}
+        onChange={vi.fn()}
+        hasOptionsError
+        onRetryOptions={onRetryOptions}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
+
+    expect(screen.getByRole("alert").textContent).toContain(
+      "Some filter options could not be loaded.",
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Retry filter options" }));
+    expect(onRetryOptions).toHaveBeenCalledOnce();
+  });
+
   it("changes the date and locations while preserving the other filters", () => {
     const onChange = vi.fn();
     render(<ScheduleFilters search={search} onChange={onChange} />);

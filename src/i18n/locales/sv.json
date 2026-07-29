@@ -11,7 +11,10 @@
     "loading": "Laddar klasser",
     "refreshing": "Uppdaterar schemat…",
     "empty": "Inga klasser hittades för den här dagen.",
-    "error": "Schemat kunde inte laddas. Försök igen om en stund.",
+    "error": "Schemat kunde inte laddas.",
+    "partialError_one": "Klasser från en plats kunde inte laddas.",
+    "partialError_other": "Klasser från {{count}} platser kunde inte laddas.",
+    "retry": "Försök igen",
     "filters": {
       "label": "Schemafilter",
       "date": "Datum",
@@ -36,6 +39,8 @@
       "addFavorite": "Lägg till {{name}} som favorit",
       "removeFavorite": "Ta bort {{name}} från favoriter",
       "loadingOptions": "Laddar filteralternativ…",
+      "optionsError": "Vissa filteralternativ kunde inte laddas.",
+      "retryOptions": "Försök ladda filteralternativ igen",
       "done": "Klar"
     },
     "availability": {

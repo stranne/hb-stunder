@@ -16,6 +16,8 @@ export interface ScheduleFiltersProps {
   instructors?: ScheduleFilterOption[];
   activityTypes?: ScheduleFilterOption[];
   isLoadingOptions?: boolean;
+  hasOptionsError?: boolean;
+  onRetryOptions?: () => void;
 }
 
 function dateForFormatting(date: string) {
@@ -28,6 +30,8 @@ export function ScheduleFilters({
   instructors = [],
   activityTypes = [],
   isLoadingOptions = false,
+  hasOptionsError = false,
+  onRetryOptions,
 }: ScheduleFiltersProps) {
   const { t, i18n } = useTranslation();
   const today = todayInStockholm();
@@ -65,6 +69,8 @@ export function ScheduleFilters({
           instructors={instructors}
           activityTypes={activityTypes}
           isLoadingOptions={isLoadingOptions}
+          hasOptionsError={hasOptionsError}
+          onRetryOptions={onRetryOptions}
         />
       </div>
 

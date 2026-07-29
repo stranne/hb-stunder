@@ -226,6 +226,22 @@
     font-size: var(--text-sm);
   }
 
+  .optionsError {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-sm);
+    color: var(--color-ink-muted);
+    background: color-mix(in oklch, var(--color-accent) 8%, var(--color-surface));
+    font-size: var(--text-sm);
+
+    p {
+      margin: 0;
+    }
+  }
+
   @media (width >= 64rem) {
     .popover {
       inline-size: min(64rem, calc(100vw - 2rem));

@@ -11,7 +11,10 @@
     "loading": "Loading classes",
     "refreshing": "Updating schedule…",
     "empty": "No classes found for this day.",
-    "error": "The schedule could not be loaded. Try again shortly.",
+    "error": "The schedule could not be loaded.",
+    "partialError_one": "Classes from one location could not be loaded.",
+    "partialError_other": "Classes from {{count}} locations could not be loaded.",
+    "retry": "Try again",
     "filters": {
       "label": "Schedule filters",
       "date": "Date",
@@ -36,6 +39,8 @@
       "addFavorite": "Add {{name}} to favorites",
       "removeFavorite": "Remove {{name}} from favorites",
       "loadingOptions": "Loading filter options…",
+      "optionsError": "Some filter options could not be loaded.",
+      "retryOptions": "Retry filter options",
       "done": "Done"
     },
     "availability": {

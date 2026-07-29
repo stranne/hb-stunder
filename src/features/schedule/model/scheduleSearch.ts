@@ -1,6 +1,12 @@
 import { isDateString, todayInStockholm } from "./scheduleDate";
 
-export const LOCATION_IDS = [1, 4128, 3509] as const;
+export const SCHEDULE_LOCATIONS = [
+  { id: 1, name: "Hagabadet i Haga" },
+  { id: 4128, name: "Hagabadet Drottningtorget" },
+  { id: 3509, name: "Hagabadet Älvstranden" },
+] as const;
+
+export const LOCATION_IDS = SCHEDULE_LOCATIONS.map(({ id }) => id);
 
 export interface ScheduleSearch {
   date: string;

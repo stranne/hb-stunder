@@ -22,7 +22,7 @@ export function SchedulePage({ search, onSearchChange }: SchedulePageProps) {
   });
   const instructors = useQuery(instructorQueryOptions());
   const activityTypes = useQuery(activityTypeQueryOptions());
-  const scheduleData = [
+  const availableScheduleData = [
     ...new Map(
       scheduleQueries
         .flatMap((query) => query.data ?? [])
@@ -31,7 +31,22 @@ export function SchedulePage({ search, onSearchChange }: SchedulePageProps) {
           activity,
         ]),
     ).values(),
-  ]
+  ];
+  const availableInstructorIds = new Set(
+    availableScheduleData.flatMap(
+      (activity) => activity.instructors?.flatMap(({ id }) => (id ? [id] : [])) ?? [],
+    ),
+  );
+  const availableActivityTypeIds = new Set(
+    availableScheduleData.flatMap((activity) =>
+      activity.groupActivityProduct?.id ? [activity.groupActivityProduct.id] : [],
+    ),
+  );
+  const availableInstructors = instructors.data?.filter(({ id }) => availableInstructorIds.has(id));
+  const availableActivityTypes = activityTypes.data?.filter(({ id }) =>
+    availableActivityTypeIds.has(id),
+  );
+  const scheduleData = availableScheduleData
     .filter(
       (activity) =>
         (search.instructors.length === 0 ||
@@ -69,8 +84,8 @@ export function SchedulePage({ search, onSearchChange }: SchedulePageProps) {
       <ScheduleFilters
         search={search}
         onChange={onSearchChange}
-        instructors={instructors.data}
-        activityTypes={activityTypes.data}
+        instructors={availableInstructors}
+        activityTypes={availableActivityTypes}
         isLoadingOptions={instructors.isPending || activityTypes.isPending}
         hasOptionsError={failedFilterQueries.length > 0}
         onRetryOptions={retryFilterOptions}

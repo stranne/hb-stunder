@@ -4065,7 +4065,8 @@ paths:
             format: date-time
         - name: period.end
           in: query
-          description: End of the requested activity window used by current clients.
+          description: End of the requested activity window used by current clients. The
+            interval must be shorter than 14 days.
           schema:
             type: string
             format: date-time
@@ -4788,7 +4789,7 @@ components:
           type: integer
     ScheduledGroupActivity:
       type: object
-      description: Structure observed across a bounded seven-day public schedule sample
+      description: Structure observed across a bounded thirteen-day public schedule sample
         for all three business units.
       properties:
         id:
@@ -4803,6 +4804,8 @@ components:
           $ref: "#/components/schemas/BusinessUnitReference"
         locations:
           type: array
+          description: Rooms or areas assigned to the activity. Each item's `name` is
+            the room display name, distinct from the containing business unit name.
           items:
             $ref: "#/components/schemas/EntityReference"
         instructors:

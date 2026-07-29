@@ -155,7 +155,7 @@ describe("ScheduleFilters", () => {
 
     fireEvent.change(screen.getByLabelText("Choose date…"), { target: { value: chosenDate } });
     fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
-    fireEvent.click(screen.getByRole("checkbox", { name: "Drottningtorget" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Hagabadet Drottningtorget" }));
     fireEvent.click(screen.getByRole("button", { name: "Done" }));
     fireEvent.click(
       within(screen.getByRole("group", { name: "Upcoming days" })).getAllByRole("button")[0]!,

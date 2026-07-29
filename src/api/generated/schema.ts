@@ -2846,13 +2846,14 @@ export interface components {
             hasWaitingList?: boolean;
             inWaitingList?: number;
         };
-        /** @description Structure observed across a bounded seven-day public schedule sample for all three business units. */
+        /** @description Structure observed across a bounded thirteen-day public schedule sample for all three business units. */
         ScheduledGroupActivity: {
             id?: number;
             name?: string;
             duration?: components["schemas"]["ActivityDuration"];
             groupActivityProduct?: components["schemas"]["EntityReference"];
             businessUnit?: components["schemas"]["BusinessUnitReference"];
+            /** @description Rooms or areas assigned to the activity. Each item's `name` is the room display name, distinct from the containing business unit name. */
             locations?: components["schemas"]["EntityReference"][];
             instructors?: components["schemas"]["GroupActivityInstructor"][];
             /** Format: date-time */
@@ -8010,7 +8011,7 @@ export interface operations {
             query?: {
                 /** @description Start of the requested activity window. */
                 "period.start"?: string;
-                /** @description End of the requested activity window used by current clients. */
+                /** @description End of the requested activity window used by current clients. The interval must be shorter than 14 days. */
                 "period.end"?: string;
                 /**
                  * @deprecated

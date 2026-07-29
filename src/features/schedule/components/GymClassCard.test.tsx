@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, render } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it } from "vite-plus/test";
 import i18n from "../../../i18n";
 import { scheduleFixtures } from "../../../mocks/fixtures/schedule";
@@ -13,6 +13,13 @@ beforeAll(async () => {
 afterEach(cleanup);
 
 describe("GymClassCard", () => {
+  it("shows the room name rather than the business unit name", () => {
+    render(<GymClassCard activity={scheduleFixtures.available} />);
+
+    expect(screen.getByText(/Yogastudio/)).toBeTruthy();
+    expect(screen.queryByText(/Hagabadet i Haga/)).toBeNull();
+  });
+
   it("animates only the number in the direction of the availability change", () => {
     const { container, rerender } = render(<GymClassCard activity={scheduleFixtures.available} />);
     const availabilityNumber = () => container.querySelector("[data-availability-value]");

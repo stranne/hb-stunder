@@ -15,14 +15,8 @@ import {
 import { Button } from "../../../ui/button/Button";
 import type { ScheduleFilterOption } from "../api/scheduleFilterQueries";
 import { readSchedulePreferences, writeFavoriteFilters } from "../model/schedulePreferences";
-import { LOCATION_IDS, type ScheduleSearch } from "../model/scheduleSearch";
+import { LOCATION_IDS, SCHEDULE_LOCATIONS, type ScheduleSearch } from "../model/scheduleSearch";
 import styles from "./ScheduleFilterPanel.module.css";
-
-const locations: ScheduleFilterOption[] = [
-  { id: 1, name: "Haga" },
-  { id: 4128, name: "Drottningtorget" },
-  { id: 3509, name: "Älvstranden" },
-];
 
 interface ScheduleFilterPanelProps {
   search: ScheduleSearch;
@@ -233,7 +227,7 @@ export function ScheduleFilterPanel({
                 });
               }}
             >
-              {locations.map((location) => (
+              {SCHEDULE_LOCATIONS.map((location) => (
                 <Checkbox
                   className={styles.locationCheckbox}
                   key={location.id}

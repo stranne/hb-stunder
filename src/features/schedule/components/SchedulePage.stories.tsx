@@ -11,11 +11,7 @@ const endpoint = `${API_BASE_URL}/businessunits/:businessUnit/groupactivities`;
 const instructorEndpoint = `${API_BASE_URL}/services/groupactivityinstructors`;
 
 function mockSchedule(businessUnit: number) {
-  return scheduleForDate("2026-07-28").map((activity) => ({
-    ...activity,
-    id: (activity.id ?? 0) + businessUnit,
-    businessUnit: { id: businessUnit, name: "Hagabadet" },
-  }));
+  return scheduleForDate("2026-07-28", businessUnit);
 }
 
 function BackgroundRefreshDemo(props: ComponentProps<typeof SchedulePage>) {

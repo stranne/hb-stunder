@@ -65,7 +65,7 @@ afterEach(() => {
 
 afterAll(() => server.close());
 
-describe("SchedulePage failures", () => {
+describe("SchedulePage", () => {
   it("keeps successful locations visible and retries only a failed location", async () => {
     let failedLocationRequests = 0;
     server.use(
@@ -92,6 +92,42 @@ describe("SchedulePage failures", () => {
       expect(screen.queryByText("Classes from one location could not be loaded.")).toBeNull();
     });
     expect(failedLocationRequests).toBe(2);
+  });
+
+  it("only offers filters available at the selected locations", async () => {
+    server.use(
+      http.get(scheduleEndpoint, () =>
+        HttpResponse.json([
+          {
+            ...activity(1, "Haga class"),
+            instructors: [{ id: 21, name: "Local instructor" }],
+            groupActivityProduct: { id: 201, name: "Local class type" },
+          },
+        ]),
+      ),
+      http.get(`${REAL_API_BASE_URL}/services/groupactivityinstructors`, () =>
+        HttpResponse.json([
+          { id: 21, name: "Local instructor" },
+          { id: 22, name: "Other instructor" },
+        ]),
+      ),
+      http.get(`${REAL_API_BASE_URL}/products/groupactivities`, () =>
+        HttpResponse.json([
+          { id: 201, name: "Local class type" },
+          { id: 202, name: "Other class type" },
+        ]),
+      ),
+    );
+
+    renderPage([1]);
+
+    expect(await screen.findByText("Haga class")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
+
+    expect(await screen.findByRole("checkbox", { name: "Local instructor" })).toBeTruthy();
+    expect(screen.queryByRole("checkbox", { name: "Other instructor" })).toBeNull();
+    expect(screen.getByRole("checkbox", { name: "Local class type" })).toBeTruthy();
+    expect(screen.queryByRole("checkbox", { name: "Other class type" })).toBeNull();
   });
 
   it("offers recovery when the complete schedule request fails", async () => {

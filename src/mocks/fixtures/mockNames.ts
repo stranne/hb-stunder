@@ -1,5 +1,27 @@
-const firstNames = ["Astrid", "Søren", "Freja", "Björn", "Eirik"] as const;
-const lastNames = ["Andersson", "Hansen", "Nielsen", "Bergström", "Lundqvist"] as const;
+const firstNames = [
+  "Astrid",
+  "Søren",
+  "Freja",
+  "Björn",
+  "Eirik",
+  "Linnea",
+  "Noah",
+  "Maja",
+  "Elias",
+  "Alma",
+] as const;
+const lastNames = [
+  "Andersson",
+  "Hansen",
+  "Nielsen",
+  "Bergström",
+  "Lundqvist",
+  "Johansson",
+  "Dahl",
+  "Lindberg",
+  "Holm",
+  "Vikström",
+] as const;
 
 /** Creates a stable synthetic name without using names returned by the real API. */
 export function stableMockInstructorName(seed: number) {

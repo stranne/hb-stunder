@@ -11,10 +11,10 @@ const instructors = [
   { id: 24, name: "Fatima Farah" },
 ];
 const activityTypes = [
-  { id: 201, name: "Yoga" },
-  { id: 202, name: "Strength" },
-  { id: 203, name: "Pilates" },
-  { id: 204, name: "Boxing" },
+  { id: 3392, name: "Yinyoga, 55 min" },
+  { id: 743, name: "Body pump, 60 min" },
+  { id: 4128, name: "Pilates, 55 min" },
+  { id: 12449, name: "BoxFight Small Group, 55 min" },
 ];
 
 function InteractiveFilters({

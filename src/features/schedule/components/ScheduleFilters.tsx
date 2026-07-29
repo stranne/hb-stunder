@@ -128,12 +128,11 @@ export function ScheduleFilters({ search, onChange }: ScheduleFiltersProps) {
                     changeDate(nextDate);
                   }}
                 >
-                  <span className={styles.weekday}>{weekdayFormatter.format(formattedDate)}</span>
-                  <strong className={styles.dayNumber}>{formattedDate.getUTCDate()}</strong>
-                  <span className={styles.month}>
-                    {monthFormatter.format(formattedDate)}
-                    {isToday ? ` · ${t("schedule.filters.today")}` : ""}
+                  <span className={styles.weekday}>
+                    {isToday ? t("schedule.filters.today") : weekdayFormatter.format(formattedDate)}
                   </span>
+                  <strong className={styles.dayNumber}>{formattedDate.getUTCDate()}</strong>
+                  <span className={styles.month}>{monthFormatter.format(formattedDate)}</span>
                 </button>
               );
             })}

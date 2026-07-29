@@ -27,6 +27,11 @@ describe("ScheduleFilters", () => {
     expect(dayButtons).toHaveLength(21);
     expect(dayButtons.filter((button) => button.dataset.visible === "true")).toHaveLength(7);
     expect(dayButtons[0]?.getAttribute("aria-current")).toBe("date");
+    expect(dayButtons[0]?.querySelector("span:first-child")?.textContent?.trim()).toBe("Today");
+    expect(dayButtons[0]?.querySelector("strong")?.textContent).toBe(
+      String(Number(today.slice(-2))),
+    );
+    expect(dayButtons[0]?.querySelector("span:last-child")?.textContent).not.toContain("Today");
     expect(dayButtons[0]?.tabIndex).toBe(0);
     expect(dayButtons.slice(1).every((button) => button.tabIndex === -1)).toBe(true);
 

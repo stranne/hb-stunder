@@ -38,7 +38,8 @@
   }
 
   .availability {
-    min-inline-size: 7rem;
+    inline-size: 8.5rem;
+    min-block-size: 2.25rem;
     padding: var(--space-2) var(--space-3);
     border-radius: var(--radius-pill);
     color: var(--color-accent-strong);
@@ -47,6 +48,63 @@
     font-weight: 750;
     text-align: center;
     font-variant-numeric: tabular-nums;
+  }
+
+  .availabilityNumber {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: bottom;
+  }
+
+  .currentNumber,
+  .previousNumber {
+    display: block;
+  }
+
+  .previousNumber {
+    position: absolute;
+    inset: 0;
+  }
+
+  .availabilityNumber[data-direction="increase"] .currentNumber {
+    animation: number-enter-from-top var(--motion-standard) var(--ease-out) both;
+  }
+
+  .availabilityNumber[data-direction="increase"] .previousNumber {
+    animation: number-exit-to-bottom var(--motion-standard) var(--ease-out) both;
+  }
+
+  .availabilityNumber[data-direction="decrease"] .currentNumber {
+    animation: number-enter-from-bottom var(--motion-standard) var(--ease-out) both;
+  }
+
+  .availabilityNumber[data-direction="decrease"] .previousNumber {
+    animation: number-exit-to-top var(--motion-standard) var(--ease-out) both;
+  }
+
+  @keyframes number-enter-from-top {
+    from {
+      transform: translateY(-100%);
+    }
+  }
+
+  @keyframes number-enter-from-bottom {
+    from {
+      transform: translateY(100%);
+    }
+  }
+
+  @keyframes number-exit-to-top {
+    to {
+      transform: translateY(-100%);
+    }
+  }
+
+  @keyframes number-exit-to-bottom {
+    to {
+      transform: translateY(100%);
+    }
   }
 
   .card[data-availability="almostFull"] .availability,

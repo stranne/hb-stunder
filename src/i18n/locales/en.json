@@ -19,8 +19,12 @@
     "availability": {
       "available_one": "{{count}} spot",
       "available_other": "{{count}} spots",
+      "availableText_one": "spot",
+      "availableText_other": "spots",
       "almostFull_one": "{{count}} spot left",
       "almostFull_other": "{{count}} spots left",
+      "almostFullText_one": "spot left",
+      "almostFullText_other": "spots left",
       "waitingList": "Waiting list",
       "full": "Fully booked",
       "cancelled": "Cancelled"

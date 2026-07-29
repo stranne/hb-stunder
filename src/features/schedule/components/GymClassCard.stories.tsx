@@ -1,6 +1,26 @@
 import type { Meta, StoryObj } from "@storybook/tanstack-react";
+import { useState } from "react";
+import { expect, userEvent, within } from "storybook/test";
 import { scheduleFixtures } from "../../../mocks/fixtures/schedule";
+import { Button } from "../../../ui/button/Button";
 import { GymClassCard, GymClassCardSkeleton } from "./GymClassCard";
+
+function AvailabilityChangeDemo() {
+  const [remaining, setRemaining] = useState(8);
+  const activity = {
+    ...scheduleFixtures.available,
+    slots: { ...scheduleFixtures.available.slots, leftToBook: remaining },
+  };
+
+  return (
+    <div style={{ display: "grid", gap: "1rem" }}>
+      <GymClassCard activity={activity} />
+      <Button onPress={() => setRemaining((current) => (current === 8 ? 7 : 8))}>
+        Simulate availability refresh
+      </Button>
+    </div>
+  );
+}
 
 const meta = {
   title: "Schedule/GymClassCard",
@@ -27,6 +47,18 @@ export const Cancelled: Story = { args: { activity: scheduleFixtures.cancelled }
 export const English: Story = { globals: { locale: "en" } };
 export const Mobile: Story = { parameters: { viewport: { defaultViewport: "mobile" } } };
 export const ReducedMotion: Story = { globals: { reducedMotion: "reduce" } };
+
+export const AvailabilityChanged: Story = {
+  render: () => <AvailabilityChangeDemo />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: "Simulate availability refresh" }));
+    await expect(canvasElement.querySelector("[data-availability-value]")).toHaveAttribute(
+      "data-updated",
+      "true",
+    );
+  },
+};
 
 export const Loading: Story = {
   render: () => <GymClassCardSkeleton />,

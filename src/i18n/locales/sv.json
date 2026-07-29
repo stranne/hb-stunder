@@ -19,8 +19,12 @@
     "availability": {
       "available_one": "{{count}} plats",
       "available_other": "{{count}} platser",
+      "availableText_one": "plats",
+      "availableText_other": "platser",
       "almostFull_one": "{{count}} plats kvar",
       "almostFull_other": "{{count}} platser kvar",
+      "almostFullText_one": "plats kvar",
+      "almostFullText_other": "platser kvar",
       "waitingList": "Väntelista",
       "full": "Fullbokad",
       "cancelled": "Inställd"

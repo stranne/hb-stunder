@@ -20,6 +20,10 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
+export const Mobile: Story = {
+  globals: { viewport: { value: "mobile", isRotated: false } },
+};
+
 export const Empty: Story = {
   args: { search: { date: "2026-07-29", location: 1 } },
   parameters: { msw: [http.get(endpoint, () => HttpResponse.json([]))] },

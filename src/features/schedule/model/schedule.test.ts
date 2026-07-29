@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 import { getAvailability } from "./schedule";
-import { getStockholmDayPeriod, isDateString } from "./scheduleDate";
+import { addDays, getStockholmDayPeriod, isDateString } from "./scheduleDate";
 import { parseScheduleSearch } from "./scheduleSearch";
 
 describe("schedule model", () => {
@@ -17,6 +17,12 @@ describe("schedule model", () => {
       kind: "waitingList",
     });
     expect(getAvailability({ cancelled: true })).toEqual({ kind: "cancelled" });
+  });
+
+  it("moves between calendar days across month, year, and daylight-saving boundaries", () => {
+    expect(addDays("2024-02-28", 1)).toBe("2024-02-29");
+    expect(addDays("2026-12-31", 1)).toBe("2027-01-01");
+    expect(addDays("2026-03-29", -1)).toBe("2026-03-28");
   });
 
   it("creates Stockholm day boundaries across daylight-saving changes", () => {

@@ -33,6 +33,7 @@ export function scheduleQueryOptions(filters: ScheduleFilters) {
 
       return data;
     },
+    placeholderData: (previousData) => previousData,
     staleTime: 20_000,
     refetchInterval: 60_000,
   });

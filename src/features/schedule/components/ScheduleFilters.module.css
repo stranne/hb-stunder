@@ -1,0 +1,198 @@
+@layer components {
+  .filters {
+    display: grid;
+    grid-template-columns: minmax(11rem, 16rem) minmax(0, 1fr);
+    gap: var(--space-4);
+    margin-block-end: var(--space-6);
+  }
+
+  .dateFilter,
+  .locationFilter {
+    display: grid;
+    gap: var(--space-1);
+    min-inline-size: 0;
+  }
+
+  .dateFilter {
+    grid-column: 1 / -1;
+    gap: var(--space-3);
+  }
+
+  .label {
+    color: var(--color-ink-muted);
+    font-size: var(--text-sm);
+    font-weight: 700;
+  }
+
+  .dateHeading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-1) var(--space-3);
+  }
+
+  .datePickerInput {
+    min-block-size: 2.25rem;
+    min-inline-size: 8.5rem;
+    max-inline-size: 10rem;
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    color: var(--color-ink-muted);
+    background: transparent;
+    font: inherit;
+    font-size: var(--text-sm);
+    cursor: pointer;
+
+    &:hover {
+      border-color: color-mix(in oklch, var(--color-ink) 15%, transparent);
+      color: var(--color-ink);
+      background: var(--color-surface-strong);
+    }
+
+    &:focus-visible {
+      outline: var(--focus-width) solid var(--color-focus);
+      outline-offset: var(--focus-offset);
+    }
+
+    &::-webkit-calendar-picker-indicator {
+      cursor: pointer;
+    }
+  }
+
+  .weekNavigation {
+    display: grid;
+    grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem;
+    align-items: stretch;
+    gap: var(--space-2);
+
+    > button {
+      padding-inline: 0;
+      border-radius: var(--radius-sm);
+      font-size: 1.15rem;
+    }
+  }
+
+  .dayStrip {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(4.5rem, 1fr));
+    gap: var(--space-2);
+    min-inline-size: 0;
+    overflow-x: auto;
+    padding: var(--focus-width);
+    scrollbar-width: thin;
+  }
+
+  .dayButton {
+    display: grid;
+    place-items: center;
+    gap: 0.1rem;
+    min-block-size: 5.5rem;
+    padding: var(--space-2);
+    border: 1px solid color-mix(in oklch, var(--color-ink) 15%, transparent);
+    border-radius: var(--radius-sm);
+    color: var(--color-ink);
+    background: var(--color-surface);
+    font: inherit;
+    cursor: pointer;
+    transition:
+      transform var(--motion-fast) var(--ease-out),
+      border-color var(--motion-fast) var(--ease-out),
+      background-color var(--motion-fast) var(--ease-out);
+
+    &:hover {
+      border-color: color-mix(in oklch, var(--color-accent) 55%, transparent);
+      background: var(--color-surface-strong);
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+
+    &:focus-visible {
+      outline: var(--focus-width) solid var(--color-focus);
+      outline-offset: var(--focus-offset);
+    }
+
+    &[aria-pressed="true"] {
+      border-color: var(--color-accent);
+      color: var(--color-ink-inverse);
+      background: var(--color-accent);
+    }
+  }
+
+  .dayButton[data-visible="false"] {
+    display: none;
+  }
+
+  .weekday {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-transform: capitalize;
+  }
+
+  .dayNumber {
+    font-size: 1.4rem;
+    line-height: 1;
+  }
+
+  .month {
+    color: var(--color-ink-muted);
+    font-size: 0.75rem;
+    text-transform: capitalize;
+    white-space: nowrap;
+  }
+
+  .dayButton[aria-pressed="true"] .month {
+    color: inherit;
+  }
+
+  .locationFilter select {
+    min-block-size: 2.75rem;
+    min-inline-size: 0;
+    inline-size: 100%;
+    padding-inline: var(--space-3);
+    border: 1px solid color-mix(in oklch, var(--color-ink) 20%, transparent);
+    border-radius: var(--radius-sm);
+    color: var(--color-ink);
+    background: var(--color-surface);
+    font: inherit;
+
+    &:focus-visible {
+      outline: var(--focus-width) solid var(--color-focus);
+      outline-offset: var(--focus-offset);
+    }
+  }
+
+  @media (width < 42rem) {
+    .filters {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .weekNavigation {
+      grid-template-columns: minmax(0, 1fr);
+
+      > button {
+        display: none;
+      }
+    }
+
+    .dayStrip {
+      grid-template-columns: repeat(21, minmax(4.5rem, 1fr));
+      gap: var(--space-1);
+      scroll-snap-type: inline proximity;
+    }
+
+    .dayButton,
+    .dayButton[data-visible="false"] {
+      display: grid;
+      scroll-snap-align: start;
+    }
+
+    .locationFilter select {
+      inline-size: 100%;
+    }
+  }
+}

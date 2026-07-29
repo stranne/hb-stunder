@@ -9,12 +9,18 @@
     "listLabel": "Schemalagda klasser",
     "unnamedClass": "Klass",
     "loading": "Laddar klasser",
+    "refreshing": "Uppdaterar schemat…",
     "empty": "Inga klasser hittades för den här dagen.",
     "error": "Schemat kunde inte laddas. Försök igen om en stund.",
     "filters": {
       "label": "Schemafilter",
       "date": "Datum",
-      "location": "Plats"
+      "location": "Plats",
+      "upcomingDays": "Kommande dagar",
+      "previousWeek": "Föregående vecka",
+      "nextWeek": "Nästa vecka",
+      "chooseDate": "Välj datum…",
+      "today": "Idag"
     },
     "availability": {
       "available_one": "{{count}} plats",

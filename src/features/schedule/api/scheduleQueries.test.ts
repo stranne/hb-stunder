@@ -9,8 +9,14 @@ describe("schedule queries", () => {
     expect(scheduleQueryOptions(filters).queryKey).toEqual(["classes", "list", filters]);
   });
 
-  it("configures the initial refresh policy", () => {
+  it("configures the initial refresh policy and preserves visible results", () => {
     const options = scheduleQueryOptions(filters);
+    const previousData = [{ id: 42 }];
+
+    expect(options.placeholderData).toBeTypeOf("function");
+    if (typeof options.placeholderData === "function") {
+      expect(options.placeholderData(previousData, undefined as never)).toBe(previousData);
+    }
     expect(options.staleTime).toBe(20_000);
     expect(options.refetchInterval).toBe(60_000);
   });

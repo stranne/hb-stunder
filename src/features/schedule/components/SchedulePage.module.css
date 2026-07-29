@@ -29,35 +29,12 @@
     text-transform: uppercase;
   }
 
-  .filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3);
-    margin-block-end: var(--space-6);
-
-    label {
-      display: grid;
-      gap: var(--space-1);
-      color: var(--color-ink-muted);
-      font-size: var(--text-sm);
-      font-weight: 700;
-    }
-
-    input,
-    select {
-      min-block-size: 2.75rem;
-      padding-inline: var(--space-3);
-      border: 1px solid color-mix(in oklch, var(--color-ink) 20%, transparent);
-      border-radius: var(--radius-sm);
-      color: var(--color-ink);
-      background: var(--color-surface);
-      font: inherit;
-
-      &:focus-visible {
-        outline: var(--focus-width) solid var(--color-focus);
-        outline-offset: var(--focus-offset);
-      }
-    }
+  .refreshing {
+    min-block-size: 1.25rem;
+    margin: calc(var(--space-3) * -1) 0 var(--space-2);
+    color: var(--color-ink-muted);
+    font-size: var(--text-sm);
+    text-align: end;
   }
 
   .list {

@@ -9,12 +9,18 @@
     "listLabel": "Scheduled classes",
     "unnamedClass": "Class",
     "loading": "Loading classes",
+    "refreshing": "Updating schedule…",
     "empty": "No classes found for this day.",
     "error": "The schedule could not be loaded. Try again shortly.",
     "filters": {
       "label": "Schedule filters",
       "date": "Date",
-      "location": "Location"
+      "location": "Location",
+      "upcomingDays": "Upcoming days",
+      "previousWeek": "Previous week",
+      "nextWeek": "Next week",
+      "chooseDate": "Choose date…",
+      "today": "Today"
     },
     "availability": {
       "available_one": "{{count}} spot",

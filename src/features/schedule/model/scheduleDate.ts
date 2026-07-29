@@ -52,6 +52,18 @@ export function todayInStockholm(now = new Date()) {
   return `${parts.year}-${parts.month}-${parts.day}`;
 }
 
+export function addDays(date: string, days: number) {
+  if (!isDateString(date)) throw new Error("Invalid schedule date");
+
+  const [year, month, day] = date.split("-").map(Number);
+  const shifted = new Date(Date.UTC(year!, month! - 1, day! + days));
+  return [
+    shifted.getUTCFullYear(),
+    String(shifted.getUTCMonth() + 1).padStart(2, "0"),
+    String(shifted.getUTCDate()).padStart(2, "0"),
+  ].join("-");
+}
+
 export function getStockholmDayPeriod(date: string) {
   if (!isDateString(date)) throw new Error("Invalid schedule date");
 

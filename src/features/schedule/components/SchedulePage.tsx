@@ -3,13 +3,8 @@ import { useTranslation } from "react-i18next";
 import { scheduleQueryOptions } from "../api/scheduleQueries";
 import type { ScheduleSearch } from "../model/scheduleSearch";
 import { GymClassCard, GymClassCardSkeleton } from "./GymClassCard";
+import { ScheduleFilters } from "./ScheduleFilters";
 import styles from "./SchedulePage.module.css";
-
-const locations = [
-  { id: 1, name: "Haga" },
-  { id: 4128, name: "Drottningtorget" },
-  { id: 3509, name: "Älvstranden" },
-] as const;
 
 export interface SchedulePageProps {
   search: ScheduleSearch;
@@ -29,36 +24,18 @@ export function SchedulePage({ search, onSearchChange }: SchedulePageProps) {
         <h1>{t("schedule.title")}</h1>
       </header>
 
-      <div className={styles.filters} aria-label={t("schedule.filters.label")}>
-        <label>
-          <span>{t("schedule.filters.date")}</span>
-          <input
-            type="date"
-            value={search.date}
-            onChange={(event) => {
-              const date = event.currentTarget.value;
-              if (date) onSearchChange({ ...search, date });
-            }}
-          />
-        </label>
-        <label>
-          <span>{t("schedule.filters.location")}</span>
-          <select
-            value={search.location}
-            onChange={(event) =>
-              onSearchChange({ ...search, location: Number(event.currentTarget.value) })
-            }
-          >
-            {locations.map((location) => (
-              <option key={location.id} value={location.id}>
-                {location.name}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
+      <ScheduleFilters search={search} onChange={onSearchChange} />
 
-      <section className={styles.list} aria-label={t("schedule.listLabel")}>
+      {schedule.isFetching && !schedule.isPending ? (
+        <p className={styles.refreshing} role="status">
+          {t("schedule.refreshing")}
+        </p>
+      ) : null}
+      <section
+        className={styles.list}
+        aria-label={t("schedule.listLabel")}
+        aria-busy={schedule.isFetching}
+      >
         {schedule.isPending ? (
           <>
             <GymClassCardSkeleton />

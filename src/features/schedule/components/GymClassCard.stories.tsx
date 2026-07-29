@@ -45,7 +45,9 @@ export const FullyBooked: Story = { args: { activity: scheduleFixtures.full } };
 export const WaitingList: Story = { args: { activity: scheduleFixtures.waitingList } };
 export const Cancelled: Story = { args: { activity: scheduleFixtures.cancelled } };
 export const English: Story = { globals: { locale: "en" } };
-export const Mobile: Story = { parameters: { viewport: { defaultViewport: "mobile" } } };
+export const Mobile: Story = {
+  globals: { viewport: { value: "mobile", isRotated: false } },
+};
 export const ReducedMotion: Story = { globals: { reducedMotion: "reduce" } };
 
 export const AvailabilityChanged: Story = {

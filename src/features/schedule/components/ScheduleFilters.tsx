@@ -39,10 +39,16 @@ export function ScheduleFilters({ search, onChange }: ScheduleFiltersProps) {
     month: "long",
   });
   const selectedDayRef = useRef<HTMLButtonElement>(null);
+  const pendingFocusDateRef = useRef<string>(null);
   const changeDate = (date: string) => onChange({ ...search, date });
 
   useEffect(() => {
     selectedDayRef.current?.scrollIntoView?.({ block: "nearest", inline: "center" });
+
+    if (pendingFocusDateRef.current === search.date) {
+      selectedDayRef.current?.focus();
+      pendingFocusDateRef.current = null;
+    }
   }, [search.date]);
 
   return (
@@ -105,10 +111,22 @@ export function ScheduleFilters({ search, onChange }: ScheduleFiltersProps) {
                   type="button"
                   className={styles.dayButton}
                   data-visible={Math.floor(index / DAYS_PER_PAGE) === pageIndex}
+                  tabIndex={isSelected ? 0 : -1}
                   aria-label={fullDateFormatter.format(formattedDate)}
                   aria-pressed={isSelected}
                   aria-current={isSelected ? "date" : undefined}
                   onClick={() => changeDate(date)}
+                  onKeyDown={(event) => {
+                    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+
+                    const nextIndex = index + (event.key === "ArrowLeft" ? -1 : 1);
+                    const nextDate = visibleDates[nextIndex];
+                    if (!nextDate) return;
+
+                    event.preventDefault();
+                    pendingFocusDateRef.current = nextDate;
+                    changeDate(nextDate);
+                  }}
                 >
                   <span className={styles.weekday}>{weekdayFormatter.format(formattedDate)}</span>
                   <strong className={styles.dayNumber}>{formattedDate.getUTCDate()}</strong>

@@ -1,13 +1,14 @@
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { SchedulePage } from "../features/schedule/components/SchedulePage";
-import { getMockCustomerId } from "../mocks/mockSession";
+import { useSession } from "../features/auth/sessionContext";
 import {
   readSchedulePreferences,
   writeLastUsedFilters,
 } from "../features/schedule/model/schedulePreferences";
 
 export function ScheduleRoute() {
+  const { customer } = useSession();
   const routeSearch = useSearch({ from: "/" });
   const navigate = useNavigate({ from: "/" });
   const [restoredSearch, setRestoredSearch] = useState(() => {
@@ -35,7 +36,7 @@ export function ScheduleRoute() {
     <SchedulePage
       search={search}
       onSearchChange={(nextSearch) => void navigate({ search: nextSearch, replace: true })}
-      customerId={getMockCustomerId()}
+      customerId={customer?.customerId}
     />
   );
 }

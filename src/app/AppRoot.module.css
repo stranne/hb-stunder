@@ -1,0 +1,46 @@
+@layer components {
+  .shellHeader {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-6);
+    align-items: center;
+    justify-content: space-between;
+    inline-size: min(100% - 2rem, 72rem);
+    margin-inline: auto;
+    padding-block: var(--space-4);
+    border-block-end: 1px solid color-mix(in oklch, var(--color-ink) 10%, transparent);
+  }
+
+  .nav,
+  .account {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    align-items: center;
+  }
+
+  .nav a {
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-pill);
+    color: var(--color-ink-muted);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .nav a:hover,
+  .nav a:focus-visible,
+  .nav a[aria-current="page"] {
+    color: var(--color-accent-strong);
+    background: color-mix(in oklch, var(--color-accent) 12%, transparent);
+  }
+
+  .nav a:focus-visible {
+    outline: var(--focus-width) solid var(--color-focus);
+    outline-offset: var(--focus-offset);
+  }
+
+  .customerName {
+    color: var(--color-ink-muted);
+    font-size: var(--text-sm);
+  }
+}

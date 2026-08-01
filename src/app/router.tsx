@@ -1,5 +1,6 @@
 import { createRootRoute, createRoute, createRouter } from "@tanstack/react-router";
 import { parseScheduleSearch } from "../features/schedule/model/scheduleSearch";
+import { BookingsRoute } from "../routes/BookingsRoute";
 import { ScheduleRoute } from "../routes/ScheduleRoute";
 import { AppRoot } from "./AppRoot";
 
@@ -11,7 +12,13 @@ export const indexRoute = createRoute({
   component: ScheduleRoute,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute]);
+const bookingsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/bookings",
+  component: BookingsRoute,
+});
+
+const routeTree = rootRoute.addChildren([indexRoute, bookingsRoute]);
 
 export const router = createRouter({ routeTree });
 

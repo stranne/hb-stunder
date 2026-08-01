@@ -4,6 +4,30 @@
     "foundationReady": "Project foundation ready",
     "unofficial": "Unofficial and not affiliated with Hagabadet"
   },
+  "navigation": {
+    "label": "Main navigation",
+    "schedule": "Classes",
+    "bookings": "My bookings"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signOut": "Sign out"
+  },
+  "bookings": {
+    "title": "My bookings",
+    "description": "All group activity bookings returned for your account, independent of schedule filters.",
+    "listLabel": "Current bookings",
+    "signedOut": "Sign in to see your current bookings.",
+    "signInUnavailable": "Sign-in is not connected to the real service yet. Run the development app with MSW to use the safe demo sign-in.",
+    "loading": "Loading your bookings…",
+    "error": "Your bookings could not be loaded.",
+    "retry": "Try again",
+    "empty": "You have no current group activity bookings.",
+    "unnamedClass": "Class",
+    "timeUnknown": "Time unavailable",
+    "booked": "Booked",
+    "waitingList": "On waiting list"
+  },
   "schedule": {
     "title": "Classes",
     "listLabel": "Scheduled classes",

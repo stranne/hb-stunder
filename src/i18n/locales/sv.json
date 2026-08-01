@@ -4,6 +4,30 @@
     "foundationReady": "Projektgrunden är klar",
     "unofficial": "Inofficiell och inte ansluten till Hagabadet"
   },
+  "navigation": {
+    "label": "Huvudnavigering",
+    "schedule": "Klasser",
+    "bookings": "Mina bokningar"
+  },
+  "auth": {
+    "signIn": "Logga in",
+    "signOut": "Logga ut"
+  },
+  "bookings": {
+    "title": "Mina bokningar",
+    "description": "Alla gruppträningsbokningar som returneras för ditt konto, oberoende av schemafilter.",
+    "listLabel": "Aktuella bokningar",
+    "signedOut": "Logga in för att se dina aktuella bokningar.",
+    "signInUnavailable": "Inloggning är ännu inte ansluten till den riktiga tjänsten. Kör utvecklingsappen med MSW för att använda den säkra demoinloggningen.",
+    "loading": "Laddar dina bokningar…",
+    "error": "Dina bokningar kunde inte laddas.",
+    "retry": "Försök igen",
+    "empty": "Du har inga aktuella gruppträningsbokningar.",
+    "unnamedClass": "Klass",
+    "timeUnknown": "Tid saknas",
+    "booked": "Bokad",
+    "waitingList": "På väntelistan"
+  },
   "schedule": {
     "title": "Klasser",
     "listLabel": "Schemalagda klasser",

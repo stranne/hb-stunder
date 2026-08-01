@@ -10,7 +10,7 @@ Evidence reviewed:
 - `openapi/openapi.yaml` and generated `src/api/generated/schema.ts`
 - `src/api/client.ts`, `src/api/config.ts`, and `src/api/errors.ts`
 - The schedule query, model, tests, fixtures, and MSW handlers under `src/features/schedule/` and `src/mocks/`
-- Git history through the implemented booking slices, especially `cd70438` (initial API foundation), `2a23850` (public schedule evidence), `ff6ba7b` (create-booking mock state), and `7b934c5` (ordinary confirmation flow)
+- Git history through the implemented booking slices, especially `cd70438` (initial API foundation), `2a23850` (public schedule evidence), `ff6ba7b` (create-booking mock state), `7b934c5` (ordinary confirmation flow), and `cbd0c4b` (ordinary cancellation flow)
 
 The OpenAPI file is explicitly an unofficial reverse-engineered draft. Several medium-confidence annotations cite `docs/har-evidence.md`, `docs/web-booking-evidence.md`, and `docs/public-runtime-evidence.md`, but those files are not present in this repository or its history. The annotations are useful provenance notes, but their underlying evidence cannot currently be audited here.
 
@@ -52,7 +52,7 @@ Their path/method and basic success shapes are medium-confidence, but they are *
 
 ## MSW-first booking vertical slice
 
-Build one narrow, non-production slice around an injected **mock signed-in customer**; do not add credential collection, token persistence, or real API authentication.
+Build one narrow, non-production slice around an explicit **mock customer sign-in**; do not add credential collection, token persistence, or real API authentication. Keep the session boundary replaceable so the UI can later consume an evidenced real identity without coupling pages to a token format.
 
 ### Implemented slices
 
@@ -60,7 +60,7 @@ Build one narrow, non-production slice around an injected **mock signed-in custo
 
 - Added customer-scoped booking query keys/options that call the generated `GET /customers/{customerId}/bookings/groupactivities` operation.
 - Added schema-typed ordinary-booking fixtures and an MSW handler, including a booking for the current schedule and an upcoming booking.
-- Injected the mock customer only when development MSW is explicitly enabled; without that injection, the booking query is disabled and cannot contact the real API.
+- Made the mock customer identity available only when development MSW is explicitly enabled; without an explicit demo sign-in, the booking query is disabled and cannot contact the real API.
 - Indexed bookings by `groupActivity.id`, reconciled them with schedule activity IDs, and added Swedish/English `already booked` card state.
 - Added tests for query scoping and disabling, the exact generated request path through MSW, ID reconciliation, and the resulting card state. Tests use `onUnhandledRequest: "error"` so an unexpected live request fails the slice.
 
@@ -94,15 +94,24 @@ Build one narrow, non-production slice around an injected **mock signed-in custo
 - Preserves the booking after generic failure, prevents duplicate submission, announces pending/error states, offers deliberate retry, and restores focus to the trigger or updated card.
 - Added mutation, component, and MSW integration coverage plus Swedish/English copy and Storybook cancellation confirmation, pending, failure, and completed states.
 
+#### Slice 6 — explicit mock sign-in and account-wide bookings
+
+- Replaced automatic mock identity injection with an explicit, development/MSW-only sign-in session. The demo session survives refresh, supports sign-out, and cannot be activated when MSW is disabled.
+- Added persistent top-level navigation and a dedicated `My bookings` route. It loads the complete customer group-activity booking response independently of date, location, instructor, and activity-type schedule filters.
+- Shows ordinary and waiting-list status, Stockholm-local date/time, location, loading, empty, generic error, and deliberate retry states. The list sorts by the returned start time but does not invent an upcoming/past filter that the API contract does not document.
+- Kept credential collection and token handling out of the frontend. A replaceable session provider is the boundary for a future evidenced real-auth implementation.
+- Signing out clears customer booking data from the query cache. Added English/Swedish copy and integration coverage proving no customer request is made before explicit sign-in and that all returned bookings are listed.
+
 ### Remaining implementation slices
 
-1. **Mutation coverage and polish:** review the complete create/waiting-list/cancellation flow for any remaining keyboard, focus, copy, announcement, and visual-state gaps. Keep all mutation handlers development/test-only.
-2. **Real integration (blocked):** replace the injected mock identity only after the authentication/customer-identity contract is evidenced. Then resolve CORS, API permission, idempotency/rate limits, conflict and expiry responses, and cancellation semantics before enabling any browser mutation against the real API.
+1. **Mutation coverage and polish:** review the complete create/waiting-list/cancellation flow and the new account shell for any remaining keyboard, focus, copy, announcement, responsive, and visual-state gaps. Keep all mutation handlers and sign-in development/test-only.
+2. **Real integration (blocked):** replace the mock session provider only after the authentication/customer-identity contract is evidenced. Then resolve CORS, API permission, idempotency/rate limits, conflict and expiry responses, and cancellation semantics before enabling any browser mutation against the real API.
 
 ### Acceptance criteria
 
 - The slice runs entirely through the generated client and MSW with no credentials or live mutation traffic.
-- A mock customer can load upcoming group-activity bookings, and an existing booking is matched to its schedule activity by ID.
+- A customer must explicitly use the development/MSW demo sign-in before any customer request is made.
+- A signed-in mock customer can load all returned group-activity bookings on a dedicated page, independently of schedule filters, and an existing booking is matched to its schedule activity by ID.
 - An available class requires confirmation before the typed create request is sent.
 - Waiting-list placement requires separate, explicit confirmation before `allowWaitingList` is sent.
 - A successful create refetches bookings and schedule and then displays the server-mocked booked/waiting state.
@@ -123,6 +132,6 @@ Build one narrow, non-production slice around an injected **mock signed-in custo
 
 ## Recommended next task
 
-Complete **mutation coverage and polish**. Review the combined ordinary booking, waiting-list, and cancellation interactions for remaining Swedish/English copy, announcement, keyboard, focus-restoration, and Storybook gaps while keeping every mutation development/test-only. Do not add conflict-specific, expired-session, or waiting-list cancellation behavior until those wire contracts are evidenced.
+Complete **account and mutation coverage polish**. Review the navigation, mock sign-in/sign-out, account-wide booking list, ordinary booking, waiting-list, and cancellation interactions for remaining Swedish/English copy, announcement, keyboard, focus-restoration, responsive, and Storybook gaps while keeping sign-in and every mutation development/test-only. In particular, add account-page cancellation only by extracting and reusing the proven confirmation interaction; do not duplicate it or add waiting-list cancellation. Do not add real credentials, conflict-specific behavior, or expired-session behavior until those wire contracts are evidenced.
 
 Keep this document as the implementation checklist. Remove it only after the complete booking flow is implemented and the real-integration blockers above have either been resolved with auditable evidence or moved into permanent project documentation.

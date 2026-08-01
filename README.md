@@ -46,4 +46,6 @@ MSW is configured beneath the generated HTTP client. It is disabled by default a
 VITE_ENABLE_MSW=true pnpm dev
 ```
 
-Handlers and scenarios remain empty until product states are implemented. Storybook initializes MSW so stories can add handlers independently.
+With MSW enabled, use the visible **Sign in** action to start the persisted mock customer session, then open **My bookings** to view the complete mocked customer booking response independently of schedule filters. Sign-out removes customer booking data from the query cache. No credential form or real authentication request is used.
+
+Storybook initializes MSW so stories can add handlers independently.

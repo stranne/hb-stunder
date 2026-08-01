@@ -20,6 +20,10 @@ vi.mock("@tanstack/react-router", () => ({
   useSearch: () => mocks.routeSearch,
 }));
 
+vi.mock("../features/auth/sessionContext", () => ({
+  useSession: () => ({ customer: undefined }),
+}));
+
 vi.mock("../features/schedule/components/SchedulePage", () => ({
   SchedulePage: ({ search }: { search: ScheduleSearch }) => {
     mocks.renderedSearch = search;

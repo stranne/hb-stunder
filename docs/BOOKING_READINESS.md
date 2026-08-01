@@ -10,7 +10,7 @@ Evidence reviewed:
 - `openapi/openapi.yaml` and generated `src/api/generated/schema.ts`
 - `src/api/client.ts`, `src/api/config.ts`, and `src/api/errors.ts`
 - The schedule query, model, tests, fixtures, and MSW handlers under `src/features/schedule/` and `src/mocks/`
-- Git history through `2a23850`, especially `cd70438` (initial API foundation) and `2a23850` (public schedule evidence)
+- Git history through `ff6ba7b`, especially `cd70438` (initial API foundation), `2a23850` (public schedule evidence), and `ff6ba7b` (create-booking mock state)
 
 The OpenAPI file is explicitly an unofficial reverse-engineered draft. Several medium-confidence annotations cite `docs/har-evidence.md`, `docs/web-booking-evidence.md`, and `docs/public-runtime-evidence.md`, but those files are not present in this repository or its history. The annotations are useful provenance notes, but their underlying evidence cannot currently be audited here.
 
@@ -71,13 +71,19 @@ Build one narrow, non-production slice around an injected **mock signed-in custo
 - Made mutation success invalidate and refetch the customer's group-activity bookings and all cached schedule lists. No optimistic booking state is written.
 - Added tests for the exact customer path/body, refetching, state reconciliation through `GET`, generic `ApiError`, no retry, preserved cached data on failure, and unhandled-request isolation.
 
+#### Slice 3 — ordinary book confirmation UI
+
+- Added ordinary booking controls only for signed-in, ID-backed activities with available spots; waiting-list, full, cancelled, and already-booked cards do not expose this action.
+- Added an accessible modal confirmation that always sends `allowWaitingList: false`, traps interaction while open, disables dismissal and controls while pending, and restores focus to the trigger or updated card when it closes.
+- Kept the existing availability visible on failure, announced pending and generic error states, and changed the confirmation action to a deliberate retry after failure.
+- Added component and MSW integration tests for confirmation, cancellation, focus restoration, duplicate-submit prevention, pending/error announcements, deliberate retry, the exact request body, refetch reconciliation, and waiting-list exclusion.
+
 ### Remaining implementation slices
 
-1. **Book confirmation UI:** add keyboard-accessible confirmation and focus restoration for an available class. Disable controls while pending, announce pending/error states, preserve the prior card state on failure, and offer only deliberate retry.
-2. **Explicit waiting-list flow:** when schedule availability reports a waiting list, use a separate confirmation that clearly opts in before sending `allowWaitingList: true`. Reconcile the result from refetched mock state rather than interpreting an unknown response body.
-3. **Ordinary cancellation:** add a typed, stateful `DELETE` handler and mutation using the observed booking ID/type. Require confirmation, prevent duplicate submission, and refetch bookings and schedule after success. Keep waiting-list cancellation blocked.
-4. **Mutation coverage and polish:** assert exact paths and schema-backed bodies, invalidation, no retries, duplicate-submit prevention, generic failures, Swedish/English copy, announcements, keyboard operation, and focus restoration. Keep all mutation handlers development/test-only.
-5. **Real integration (blocked):** replace the injected mock identity only after the authentication/customer-identity contract is evidenced. Then resolve CORS, API permission, idempotency/rate limits, conflict and expiry responses, and cancellation semantics before enabling any browser mutation against the real API.
+1. **Explicit waiting-list flow:** when schedule availability reports a waiting list, use a separate confirmation that clearly opts in before sending `allowWaitingList: true`. Reconcile the result from refetched mock state rather than interpreting an unknown response body.
+2. **Ordinary cancellation:** add a typed, stateful `DELETE` handler and mutation using the observed booking ID/type. Require confirmation, prevent duplicate submission, and refetch bookings and schedule after success. Keep waiting-list cancellation blocked.
+3. **Mutation coverage and polish:** assert exact paths and schema-backed bodies, invalidation, no retries, duplicate-submit prevention, generic failures, Swedish/English copy, announcements, keyboard operation, and focus restoration. Keep all mutation handlers development/test-only.
+4. **Real integration (blocked):** replace the injected mock identity only after the authentication/customer-identity contract is evidenced. Then resolve CORS, API permission, idempotency/rate limits, conflict and expiry responses, and cancellation semantics before enabling any browser mutation against the real API.
 
 ### Acceptance criteria
 
@@ -103,6 +109,6 @@ Build one narrow, non-production slice around an injected **mock signed-in custo
 
 ## Recommended next task
 
-Implement the **book confirmation UI** for an available class. Require an explicit, keyboard-accessible confirmation before invoking the ordinary-booking mutation with `allowWaitingList: false`; disable duplicate submission while pending; announce pending and generic error states; preserve the prior card state on failure; provide only deliberate retry; and restore focus when the confirmation closes. Keep waiting-list controls out of this slice so their separate opt-in can be implemented next.
+Implement the **explicit waiting-list flow**. Offer it only when schedule availability reports a waiting list, require a separate confirmation that clearly communicates the opt-in, and invoke the create mutation with `allowWaitingList: true` only after confirmation. Preserve the waiting-list card state on failure, prevent duplicate submission, announce pending/error states, provide deliberate retry, restore focus when the confirmation closes, and reconcile success only from the refetched mock booking state.
 
 Keep this document as the implementation checklist. Remove it only after the complete booking flow is implemented and the real-integration blockers above have either been resolved with auditable evidence or moved into permanent project documentation.

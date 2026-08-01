@@ -1,5 +1,6 @@
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { createGroupActivityBookingMutationOptions } from "../../bookings/api/bookingMutations";
 import { customerGroupActivityBookingsQueryOptions } from "../../bookings/api/bookingQueries";
 import { bookingsByActivityId } from "../../bookings/model/bookings";
 import { Button } from "../../../ui/button/Button";
@@ -18,6 +19,8 @@ export interface SchedulePageProps {
 
 export function SchedulePage({ search, onSearchChange, customerId }: SchedulePageProps) {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const createBooking = useMutation(createGroupActivityBookingMutationOptions(queryClient));
   const scheduleQueries = useQueries({
     queries: search.locations.map((businessUnit) =>
       scheduleQueryOptions({ businessUnit, date: search.date }),
@@ -130,6 +133,16 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
             key={activity.id ?? `${activity.duration?.start}-${index}`}
             activity={activity}
             booking={activity.id === undefined ? undefined : bookingsByActivity.get(activity.id)}
+            onBook={
+              customerId === undefined || activity.id === undefined
+                ? undefined
+                : () =>
+                    createBooking.mutateAsync({
+                      customerId,
+                      groupActivity: activity.id!,
+                      allowWaitingList: false,
+                    })
+            }
           />
         ))}
       </section>

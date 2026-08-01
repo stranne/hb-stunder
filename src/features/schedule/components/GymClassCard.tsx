@@ -1,6 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Dialog, DialogTrigger, Heading, Modal } from "react-aria-components";
 import type { GroupActivityBooking } from "../../bookings/model/bookings";
+import { Button } from "../../../ui/button/Button";
 import type { ScheduledActivity } from "../model/schedule";
 import { getAvailability } from "../model/schedule";
 import styles from "./GymClassCard.module.css";
@@ -8,6 +10,7 @@ import styles from "./GymClassCard.module.css";
 export interface GymClassCardProps {
   activity: ScheduledActivity;
   booking?: GroupActivityBooking;
+  onBook?: () => Promise<void>;
 }
 
 function usePrevious<T>(value: T) {
@@ -20,8 +23,12 @@ function usePrevious<T>(value: T) {
   return previousValue.current;
 }
 
-export function GymClassCard({ activity, booking }: GymClassCardProps) {
+export function GymClassCard({ activity, booking, onBook }: GymClassCardProps) {
   const { i18n, t } = useTranslation();
+  const [isBooking, setIsBooking] = useState(false);
+  const [bookingFailed, setBookingFailed] = useState(false);
+  const bookingTriggerRef = useRef<HTMLButtonElement>(null);
+  const cardRef = useRef<HTMLElement>(null);
   const availability = getAvailability(activity);
   const remaining = "remaining" in availability ? availability.remaining : undefined;
   const previousRemaining = usePrevious(remaining);
@@ -53,9 +60,35 @@ export function GymClassCard({ activity, booking }: GymClassCardProps) {
   const availabilityText = hasRemaining
     ? t(`schedule.availability.${availability.kind}Text`, { count: availability.remaining })
     : undefined;
+  const canBook = !booking && hasRemaining && onBook !== undefined;
+
+  const closeConfirmation = (close: () => void) => {
+    close();
+    setTimeout(() => (bookingTriggerRef.current ?? cardRef.current)?.focus(), 0);
+  };
+
+  const confirmBooking = async (close: () => void) => {
+    if (!onBook || isBooking) return;
+
+    setBookingFailed(false);
+    setIsBooking(true);
+    try {
+      await onBook();
+      closeConfirmation(close);
+    } catch {
+      setBookingFailed(true);
+    } finally {
+      setIsBooking(false);
+    }
+  };
 
   return (
-    <article className={styles.card} data-availability={booking ? "booked" : availability.kind}>
+    <article
+      ref={cardRef}
+      className={styles.card}
+      data-availability={booking ? "booked" : availability.kind}
+      tabIndex={-1}
+    >
       <div className={styles.time}>
         {start && end ? `${timeFormatter.format(start)}–${timeFormatter.format(end)}` : "—"}
       </div>
@@ -65,37 +98,85 @@ export function GymClassCard({ activity, booking }: GymClassCardProps) {
           <p>{[instructor, location].filter(Boolean).join(" · ")}</p>
         ) : null}
       </div>
-      <div className={styles.availability} aria-live="polite" aria-atomic="true">
-        {booking ? (
-          t("schedule.availability.booked")
-        ) : hasRemaining ? (
-          <>
-            <span
-              className={styles.availabilityNumber}
-              data-availability-value
-              data-direction={availabilityChanged ? availabilityDirection : undefined}
-              data-updated={availabilityChanged || undefined}
-            >
+      <div className={styles.actions}>
+        <div className={styles.availability} aria-live="polite" aria-atomic="true">
+          {booking ? (
+            t("schedule.availability.booked")
+          ) : hasRemaining ? (
+            <>
               <span
-                key={availability.remaining}
-                className={styles.currentNumber}
-                data-current-value
+                className={styles.availabilityNumber}
+                data-availability-value
+                data-direction={availabilityChanged ? availabilityDirection : undefined}
+                data-updated={availabilityChanged || undefined}
               >
-                {availability.remaining}
-              </span>
-              {availabilityChanged ? (
-                <span className={styles.previousNumber} data-previous-value aria-hidden="true">
-                  {previousRemaining}
+                <span
+                  key={availability.remaining}
+                  className={styles.currentNumber}
+                  data-current-value
+                >
+                  {availability.remaining}
                 </span>
-              ) : null}
-            </span>{" "}
-            <span className={styles.availabilityText} data-availability-text>
-              {availabilityText}
-            </span>
-          </>
-        ) : (
-          availabilityLabel
-        )}
+                {availabilityChanged ? (
+                  <span className={styles.previousNumber} data-previous-value aria-hidden="true">
+                    {previousRemaining}
+                  </span>
+                ) : null}
+              </span>{" "}
+              <span className={styles.availabilityText} data-availability-text>
+                {availabilityText}
+              </span>
+            </>
+          ) : (
+            availabilityLabel
+          )}
+        </div>
+        {canBook ? (
+          <DialogTrigger>
+            <Button ref={bookingTriggerRef} onPress={() => setBookingFailed(false)}>
+              {t("schedule.booking.book")}
+            </Button>
+            <Modal className={styles.modal} isDismissable={!isBooking}>
+              <Dialog className={styles.dialog}>
+                {({ close }) => (
+                  <>
+                    <Heading slot="title">{t("schedule.booking.confirmTitle")}</Heading>
+                    <p>
+                      {t("schedule.booking.confirmMessage", {
+                        name: activity.name ?? t("schedule.unnamedClass"),
+                      })}
+                    </p>
+                    <div className={styles.dialogActions}>
+                      <Button
+                        tone="quiet"
+                        isDisabled={isBooking}
+                        onPress={() => closeConfirmation(close)}
+                      >
+                        {t("schedule.booking.cancel")}
+                      </Button>
+                      <Button isDisabled={isBooking} onPress={() => void confirmBooking(close)}>
+                        {bookingFailed
+                          ? t("schedule.booking.retry")
+                          : t("schedule.booking.confirm")}
+                      </Button>
+                    </div>
+                    {isBooking || bookingFailed ? (
+                      <p
+                        className={styles.bookingStatus}
+                        role={bookingFailed ? "alert" : "status"}
+                        aria-live={bookingFailed ? "assertive" : "polite"}
+                      >
+                        {bookingFailed
+                          ? t("schedule.booking.error")
+                          : t("schedule.booking.pending")}
+                      </p>
+                    ) : null}
+                  </>
+                )}
+              </Dialog>
+            </Modal>
+          </DialogTrigger>
+        ) : null}
       </div>
     </article>
   );

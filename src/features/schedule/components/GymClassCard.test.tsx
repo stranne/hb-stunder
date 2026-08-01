@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, beforeAll, describe, expect, it } from "vite-plus/test";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vite-plus/test";
 import i18n from "../../../i18n";
 import { scheduleFixtures } from "../../../mocks/fixtures/schedule";
 import { GymClassCard } from "./GymClassCard";
@@ -31,6 +31,79 @@ describe("GymClassCard", () => {
     expect(screen.getByText("Already booked")).toBeTruthy();
     expect(container.querySelector("[data-availability='booked']")).toBeTruthy();
     expect(screen.queryByText("8 spots")).toBeNull();
+  });
+
+  it("requires confirmation and restores focus when cancelled", async () => {
+    const onBook = vi.fn(async () => undefined);
+    render(<GymClassCard activity={scheduleFixtures.available} onBook={onBook} />);
+
+    const trigger = screen.getByRole("button", { name: "Book" });
+    trigger.focus();
+    fireEvent.keyDown(trigger, { key: "Enter", code: "Enter" });
+    fireEvent.keyUp(trigger, { key: "Enter", code: "Enter" });
+
+    expect(screen.getByRole("dialog")).toBeTruthy();
+    expect(onBook).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it("prevents duplicate submission and announces pending state", async () => {
+    let resolveBooking: (() => void) | undefined;
+    const onBook = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveBooking = resolve;
+        }),
+    );
+    render(<GymClassCard activity={scheduleFixtures.available} onBook={onBook} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Book" }));
+    const confirm = screen.getByRole("button", { name: "Confirm booking" });
+    fireEvent.click(confirm);
+    fireEvent.click(confirm);
+
+    expect(onBook).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("status").textContent).toBe("Booking in progress…");
+    expect(confirm.hasAttribute("data-disabled")).toBe(true);
+
+    resolveBooking?.();
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  });
+
+  it("preserves availability after failure and offers deliberate retry", async () => {
+    const onBook = vi
+      .fn<() => Promise<void>>()
+      .mockRejectedValueOnce(new Error("Unavailable"))
+      .mockResolvedValueOnce(undefined);
+    const { container } = render(
+      <GymClassCard activity={scheduleFixtures.available} onBook={onBook} />,
+    );
+
+    const trigger = screen.getByRole("button", { name: "Book" });
+    trigger.focus();
+    fireEvent.click(trigger);
+    fireEvent.click(screen.getByRole("button", { name: "Confirm booking" }));
+
+    expect((await screen.findByRole("alert")).textContent).toContain("could not be booked");
+    expect(container.querySelector("[data-availability='available']")).toBeTruthy();
+    expect(container.querySelector("[data-current-value]")?.textContent).toBe("8");
+    expect(onBook).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole("button", { name: "Try booking again" }));
+
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(onBook).toHaveBeenCalledTimes(2);
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it("does not offer ordinary booking for waiting-list availability", () => {
+    render(<GymClassCard activity={scheduleFixtures.waitingList} onBook={vi.fn()} />);
+
+    expect(screen.queryByRole("button", { name: "Book" })).toBeNull();
   });
 
   it("animates only the number in the direction of the availability change", () => {

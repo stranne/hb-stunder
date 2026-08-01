@@ -15,6 +15,16 @@
     "partialError_one": "Klasser från en plats kunde inte laddas.",
     "partialError_other": "Klasser från {{count}} platser kunde inte laddas.",
     "retry": "Försök igen",
+    "booking": {
+      "book": "Boka",
+      "confirmTitle": "Bekräfta bokning",
+      "confirmMessage": "Vill du boka {{name}}?",
+      "confirm": "Bekräfta bokning",
+      "cancel": "Avbryt",
+      "pending": "Bokningen pågår…",
+      "error": "Klassen kunde inte bokas. Ditt schema har inte ändrats.",
+      "retry": "Försök boka igen"
+    },
     "filters": {
       "label": "Schemafilter",
       "date": "Datum",

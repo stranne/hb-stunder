@@ -15,6 +15,16 @@
     "partialError_one": "Classes from one location could not be loaded.",
     "partialError_other": "Classes from {{count}} locations could not be loaded.",
     "retry": "Try again",
+    "booking": {
+      "book": "Book",
+      "confirmTitle": "Confirm booking",
+      "confirmMessage": "Do you want to book {{name}}?",
+      "confirm": "Confirm booking",
+      "cancel": "Cancel",
+      "pending": "Booking in progress…",
+      "error": "The class could not be booked. Your schedule has not changed.",
+      "retry": "Try booking again"
+    },
     "filters": {
       "label": "Schedule filters",
       "date": "Date",

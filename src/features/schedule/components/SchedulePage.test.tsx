@@ -87,6 +87,45 @@ describe("SchedulePage", () => {
     expect(await screen.findByText("Already booked")).toBeTruthy();
   });
 
+  it("books only after confirmation and reconciles the refetched booking", async () => {
+    let bookingCreated = false;
+    let postRequests = 0;
+    server.use(
+      http.get(scheduleEndpoint, () => HttpResponse.json([activity(101, "Available class")])),
+      http.get(`${REAL_API_BASE_URL}/customers/:customerId/bookings/groupactivities`, () =>
+        HttpResponse.json(
+          bookingCreated
+            ? [{ groupActivity: { id: 101 }, groupActivityBooking: { id: 700001 } }]
+            : [],
+        ),
+      ),
+      http.post(
+        `${REAL_API_BASE_URL}/customers/:customerId/bookings/groupactivities`,
+        async ({ params, request }) => {
+          postRequests += 1;
+          expect(params.customerId).toBe("900001");
+          expect(await request.json()).toEqual({
+            groupActivity: 101,
+            allowWaitingList: false,
+          });
+          bookingCreated = true;
+          return new HttpResponse(null, { status: 201 });
+        },
+      ),
+    );
+
+    renderPage([1], "900001");
+
+    const book = await screen.findByRole("button", { name: "Book" });
+    fireEvent.click(book);
+    expect(postRequests).toBe(0);
+    fireEvent.click(screen.getByRole("button", { name: "Confirm booking" }));
+
+    expect(await screen.findByText("Already booked")).toBeTruthy();
+    expect(postRequests).toBe(1);
+    expect(screen.queryByRole("button", { name: "Book" })).toBeNull();
+  });
+
   it("keeps successful locations visible and retries only a failed location", async () => {
     let failedLocationRequests = 0;
     server.use(

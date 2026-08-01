@@ -69,6 +69,8 @@ describe("GymClassCard", () => {
     expect(onBook).toHaveBeenCalledTimes(1);
     expect(screen.getByRole("status").textContent).toBe("Booking in progress…");
     expect(confirm.hasAttribute("data-disabled")).toBe(true);
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape", code: "Escape" });
+    expect(screen.getByRole("dialog")).toBeTruthy();
 
     resolveBooking?.();
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());

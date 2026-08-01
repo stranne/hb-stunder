@@ -102,10 +102,16 @@ Build one narrow, non-production slice around an explicit **mock customer sign-i
 - Kept credential collection and token handling out of the frontend. A replaceable session provider is the boundary for a future evidenced real-auth implementation.
 - Signing out clears customer booking data from the query cache. Added English/Swedish copy and integration coverage proving no customer request is made before explicit sign-in and that all returned bookings are listed.
 
+#### Slice 7 — account cancellation and shared confirmation polish
+
+- Extracted the proven async confirmation interaction so schedule booking, waiting-list, schedule cancellation, and account cancellation share pending, generic error, deliberate retry, duplicate-submit prevention, dismissal locking, and focus restoration behavior.
+- Added cancellation to account-page rows only for ID-backed ordinary bookings. Waiting-list rows and bookings without an evidenced booking ID remain action-free.
+- Reused the generated cancellation mutation and its bookings/schedule refetch behavior; a successful account cancellation removes the reconciled row and moves focus to the page heading when its trigger no longer exists.
+- Added account-specific English/Swedish failure copy, responsive action layout, route-level MSW coverage for the exact delete request, failure/retry and waiting-list exclusion, and Storybook confirmation, error, and completed states.
+
 ### Remaining implementation slices
 
-1. **Mutation coverage and polish:** review the complete create/waiting-list/cancellation flow and the new account shell for any remaining keyboard, focus, copy, announcement, responsive, and visual-state gaps. Keep all mutation handlers and sign-in development/test-only.
-2. **Real integration (blocked):** replace the mock session provider only after the authentication/customer-identity contract is evidenced. Then resolve CORS, API permission, idempotency/rate limits, conflict and expiry responses, and cancellation semantics before enabling any browser mutation against the real API.
+1. **Real integration (blocked):** replace the mock session provider only after the authentication/customer-identity contract is evidenced. Then resolve CORS, API permission, idempotency/rate limits, conflict and expiry responses, and cancellation semantics before enabling any browser mutation against the real API.
 
 ### Acceptance criteria
 
@@ -132,6 +138,6 @@ Build one narrow, non-production slice around an explicit **mock customer sign-i
 
 ## Recommended next task
 
-Complete **account and mutation coverage polish**. Review the navigation, mock sign-in/sign-out, account-wide booking list, ordinary booking, waiting-list, and cancellation interactions for remaining Swedish/English copy, announcement, keyboard, focus-restoration, responsive, and Storybook gaps while keeping sign-in and every mutation development/test-only. In particular, add account-page cancellation only by extracting and reusing the proven confirmation interaction; do not duplicate it or add waiting-list cancellation. Do not add real credentials, conflict-specific behavior, or expired-session behavior until those wire contracts are evidenced.
+Resolve the **real-integration evidence blockers** before adding another production-facing slice. Obtain authorized, auditable contracts for authentication and customer identity, CORS and API usage permission, mutation idempotency/rate limits, booking conflict and session-expiry errors, and cancellation semantics. Keep the current mock sign-in and every mutation development/test-only; do not add real credentials, conflict-specific behavior, expired-session behavior, or waiting-list cancellation until those contracts are evidenced.
 
 Keep this document as the implementation checklist. Remove it only after the complete booking flow is implemented and the real-integration blockers above have either been resolved with auditable evidence or moved into permanent project documentation.

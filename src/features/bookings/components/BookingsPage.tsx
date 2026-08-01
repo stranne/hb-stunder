@@ -1,6 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../../ui/button/Button";
+import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
+import { cancelGroupActivityBookingMutationOptions } from "../api/bookingMutations";
 import { customerGroupActivityBookingsQueryOptions } from "../api/bookingQueries";
 import type { GroupActivityBooking } from "../model/bookings";
 import styles from "./BookingsPage.module.css";
@@ -30,6 +33,9 @@ export function BookingsPage({
   onSignIn: () => void;
 }) {
   const { i18n, t } = useTranslation();
+  const queryClient = useQueryClient();
+  const cancellation = useMutation(cancelGroupActivityBookingMutationOptions(queryClient));
+  const pageHeadingRef = useRef<HTMLHeadingElement>(null);
   const bookings = useQuery(customerGroupActivityBookingsQueryOptions(customerId));
   const sortedBookings = [...(bookings.data ?? [])].sort((left, right) =>
     (left.duration?.start ?? "").localeCompare(right.duration?.start ?? ""),
@@ -38,7 +44,9 @@ export function BookingsPage({
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <h1>{t("bookings.title")}</h1>
+        <h1 ref={pageHeadingRef} tabIndex={-1}>
+          {t("bookings.title")}
+        </h1>
         <p>{t("bookings.description")}</p>
       </header>
 
@@ -62,6 +70,7 @@ export function BookingsPage({
         <ul className={styles.list} aria-label={t("bookings.listLabel")}>
           {sortedBookings.map((booking, index) => {
             const isWaiting = booking.type === "groupActivityWaitingListBooking";
+            const isOrdinary = booking.type === "groupActivityBooking";
             const bookingId = booking.groupActivityBooking?.id;
             const name = booking.groupActivity?.name ?? t("bookings.unnamedClass");
             const location = booking.businessUnit?.name ?? booking.businessUnit?.location;
@@ -80,9 +89,26 @@ export function BookingsPage({
                   <h2>{name}</h2>
                   {location ? <p className={styles.details}>{location}</p> : null}
                 </div>
-                <span className={`${styles.status} ${isWaiting ? styles.waiting : ""}`}>
-                  {t(isWaiting ? "bookings.waitingList" : "bookings.booked")}
-                </span>
+                <div className={styles.actions}>
+                  <span className={`${styles.status} ${isWaiting ? styles.waiting : ""}`}>
+                    {t(isWaiting ? "bookings.waitingList" : "bookings.booked")}
+                  </span>
+                  {isOrdinary && bookingId !== undefined && customerId ? (
+                    <AsyncConfirmationAction
+                      triggerLabel={t("schedule.cancellation.cancelBooking")}
+                      title={t("schedule.cancellation.confirmTitle")}
+                      message={t("schedule.cancellation.confirmMessage", { name })}
+                      cancelLabel={t("schedule.cancellation.keepBooking")}
+                      confirmLabel={t("schedule.cancellation.confirm")}
+                      retryLabel={t("schedule.cancellation.retry")}
+                      pendingMessage={t("schedule.cancellation.pending")}
+                      errorMessage={t("bookings.cancellationError")}
+                      onConfirm={() => cancellation.mutateAsync({ customerId, bookingId })}
+                      focusFallbackRef={pageHeadingRef}
+                      tone="quiet"
+                    />
+                  ) : null}
+                </div>
               </li>
             );
           })}

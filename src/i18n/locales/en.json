@@ -26,7 +26,8 @@
     "unnamedClass": "Class",
     "timeUnknown": "Time unavailable",
     "booked": "Booked",
-    "waitingList": "On waiting list"
+    "waitingList": "On waiting list",
+    "cancellationError": "The booking could not be cancelled. Your bookings have not changed."
   },
   "schedule": {
     "title": "Classes",

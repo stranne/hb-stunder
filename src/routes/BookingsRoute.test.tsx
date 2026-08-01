@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vite-plus/test";
@@ -83,6 +83,101 @@ describe("BookingsRoute", () => {
     const items = screen.getAllByRole("listitem");
     expect(items[0]?.textContent).toContain("Today strength");
     expect(items[1]?.textContent).toContain("Tomorrow yoga");
+  });
+
+  it("cancels an ordinary booking after confirmation and keeps waiting-list cancellation blocked", async () => {
+    let bookings = [
+      {
+        groupActivity: { id: 101, name: "Today strength" },
+        groupActivityBooking: { id: 701 },
+        duration: { start: "2026-07-28T06:00:00.000Z" },
+        type: "groupActivityBooking",
+      },
+      {
+        groupActivity: { id: 102, name: "Tomorrow yoga" },
+        groupActivityBooking: { id: 702 },
+        duration: { start: "2026-07-29T08:00:00.000Z" },
+        type: "groupActivityWaitingListBooking",
+      },
+      {
+        groupActivity: { id: 103, name: "Unknown booking type" },
+        groupActivityBooking: { id: 703 },
+        duration: { start: "2026-07-30T08:00:00.000Z" },
+        type: "unexpectedBookingType",
+      },
+    ];
+    let cancellationRequests = 0;
+    server.use(
+      http.get(`${REAL_API_BASE_URL}/customers/:customerId/bookings/groupactivities`, () =>
+        HttpResponse.json(bookings),
+      ),
+      http.delete(
+        `${REAL_API_BASE_URL}/customers/:customerId/bookings/groupactivities/:bookingId`,
+        ({ params, request }) => {
+          cancellationRequests += 1;
+          expect(params.customerId).toBe("900001");
+          expect(params.bookingId).toBe("701");
+          expect(new URL(request.url).searchParams.get("bookingType")).toBe("groupActivityBooking");
+          bookings = bookings.filter(
+            ({ groupActivityBooking }) => groupActivityBooking.id !== Number(params.bookingId),
+          );
+          return new HttpResponse(null, { status: 204 });
+        },
+      ),
+    );
+
+    renderRoute(true);
+
+    expect(await screen.findByText("Today strength")).toBeTruthy();
+    expect(screen.getAllByRole("button", { name: "Cancel booking" })).toHaveLength(1);
+    fireEvent.click(screen.getByRole("button", { name: "Cancel booking" }));
+    expect(cancellationRequests).toBe(0);
+    expect(screen.getByRole("heading", { name: "Confirm cancellation" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Cancel booking" }));
+
+    await waitFor(() => expect(screen.queryByText("Today strength")).toBeNull());
+    expect(screen.getByText("Tomorrow yoga")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Cancel booking" })).toBeNull();
+    expect(cancellationRequests).toBe(1);
+    await waitFor(() =>
+      expect(document.activeElement).toBe(screen.getByRole("heading", { name: "My bookings" })),
+    );
+  });
+
+  it("preserves an ordinary booking after cancellation failure and offers deliberate retry", async () => {
+    let attempts = 0;
+    server.use(
+      http.get(`${REAL_API_BASE_URL}/customers/:customerId/bookings/groupactivities`, () =>
+        HttpResponse.json([
+          {
+            groupActivity: { id: 101, name: "Today strength" },
+            groupActivityBooking: { id: 701 },
+            duration: { start: "2026-07-28T06:00:00.000Z" },
+            type: "groupActivityBooking",
+          },
+        ]),
+      ),
+      http.delete(
+        `${REAL_API_BASE_URL}/customers/:customerId/bookings/groupactivities/:bookingId`,
+        () => {
+          attempts += 1;
+          return HttpResponse.json({ message: "Unavailable" }, { status: 503 });
+        },
+      ),
+    );
+
+    renderRoute(true);
+    expect(await screen.findByText("Today strength")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Cancel booking" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cancel booking" }));
+
+    expect((await screen.findByRole("alert")).textContent).toContain(
+      "Your bookings have not changed",
+    );
+    expect(screen.getByText("Today strength")).toBeTruthy();
+    expect(attempts).toBe(1);
+    fireEvent.click(screen.getByRole("button", { name: "Try cancelling again" }));
+    await waitFor(() => expect(attempts).toBe(2));
   });
 
   it("offers retry without hiding the account page", async () => {

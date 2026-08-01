@@ -26,7 +26,8 @@
     "unnamedClass": "Klass",
     "timeUnknown": "Tid saknas",
     "booked": "Bokad",
-    "waitingList": "På väntelistan"
+    "waitingList": "På väntelistan",
+    "cancellationError": "Bokningen kunde inte avbokas. Dina bokningar har inte ändrats."
   },
   "schedule": {
     "title": "Klasser",

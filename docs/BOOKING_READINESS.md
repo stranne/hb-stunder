@@ -10,7 +10,7 @@ Evidence reviewed:
 - `openapi/openapi.yaml` and generated `src/api/generated/schema.ts`
 - `src/api/client.ts`, `src/api/config.ts`, and `src/api/errors.ts`
 - The schedule query, model, tests, fixtures, and MSW handlers under `src/features/schedule/` and `src/mocks/`
-- Git history through `ff6ba7b`, especially `cd70438` (initial API foundation), `2a23850` (public schedule evidence), and `ff6ba7b` (create-booking mock state)
+- Git history through the implemented booking slices, especially `cd70438` (initial API foundation), `2a23850` (public schedule evidence), `ff6ba7b` (create-booking mock state), and `7b934c5` (ordinary confirmation flow)
 
 The OpenAPI file is explicitly an unofficial reverse-engineered draft. Several medium-confidence annotations cite `docs/har-evidence.md`, `docs/web-booking-evidence.md`, and `docs/public-runtime-evidence.md`, but those files are not present in this repository or its history. The annotations are useful provenance notes, but their underlying evidence cannot currently be audited here.
 
@@ -78,12 +78,19 @@ Build one narrow, non-production slice around an injected **mock signed-in custo
 - Kept the existing availability visible on failure, announced pending and generic error states, and changed the confirmation action to a deliberate retry after failure.
 - Added component and MSW integration tests for confirmation, cancellation, focus restoration, duplicate-submit prevention, pending/error announcements, deliberate retry, the exact request body, refetch reconciliation, and waiting-list exclusion.
 
+#### Slice 4 — explicit waiting-list flow
+
+- Added a separate waiting-list action and confirmation only for signed-in, ID-backed activities whose schedule availability explicitly reports a waiting list.
+- Clearly communicates that opting in does not book a class spot and sends `allowWaitingList: true` only after confirmation; ordinary booking continues to send `false`.
+- Reconciles the stateful mock response through refetched bookings and distinguishes `On waiting list` from an ordinary booking without interpreting the unknown create response body.
+- Preserves waiting-list availability after generic failures, prevents duplicate submission, announces pending/error states, offers deliberate retry, and restores focus using the shared confirmation behavior.
+- Added English/Swedish copy, component and MSW integration coverage, and Storybook stories for ordinary and waiting-list confirmations plus joined, pending, and error states.
+
 ### Remaining implementation slices
 
-1. **Explicit waiting-list flow:** when schedule availability reports a waiting list, use a separate confirmation that clearly opts in before sending `allowWaitingList: true`. Reconcile the result from refetched mock state rather than interpreting an unknown response body.
-2. **Ordinary cancellation:** add a typed, stateful `DELETE` handler and mutation using the observed booking ID/type. Require confirmation, prevent duplicate submission, and refetch bookings and schedule after success. Keep waiting-list cancellation blocked.
-3. **Mutation coverage and polish:** assert exact paths and schema-backed bodies, invalidation, no retries, duplicate-submit prevention, generic failures, Swedish/English copy, announcements, keyboard operation, and focus restoration. Keep all mutation handlers development/test-only.
-4. **Real integration (blocked):** replace the injected mock identity only after the authentication/customer-identity contract is evidenced. Then resolve CORS, API permission, idempotency/rate limits, conflict and expiry responses, and cancellation semantics before enabling any browser mutation against the real API.
+1. **Ordinary cancellation:** add a typed, stateful `DELETE` handler and mutation using the observed booking ID/type. Require confirmation, prevent duplicate submission, and refetch bookings and schedule after success. Keep waiting-list cancellation blocked.
+2. **Mutation coverage and polish:** assert exact paths and schema-backed bodies, invalidation, no retries, duplicate-submit prevention, generic failures, Swedish/English copy, announcements, keyboard operation, and focus restoration. Keep all mutation handlers development/test-only and add Storybook stories for visual states.
+3. **Real integration (blocked):** replace the injected mock identity only after the authentication/customer-identity contract is evidenced. Then resolve CORS, API permission, idempotency/rate limits, conflict and expiry responses, and cancellation semantics before enabling any browser mutation against the real API.
 
 ### Acceptance criteria
 
@@ -109,6 +116,6 @@ Build one narrow, non-production slice around an injected **mock signed-in custo
 
 ## Recommended next task
 
-Implement the **explicit waiting-list flow**. Offer it only when schedule availability reports a waiting list, require a separate confirmation that clearly communicates the opt-in, and invoke the create mutation with `allowWaitingList: true` only after confirmation. Preserve the waiting-list card state on failure, prevent duplicate submission, announce pending/error states, provide deliberate retry, restore focus when the confirmation closes, and reconcile success only from the refetched mock booking state.
+Implement **ordinary cancellation**. Add a generated-client mutation and stateful development/test-only `DELETE` handler using the observed booking ID and `bookingType=groupActivityBooking`. Offer cancellation only for reconciled ordinary bookings, require confirmation, prevent duplicate submission, preserve the booking after generic failure, announce pending/error states, offer deliberate retry, restore focus, and refetch bookings and schedule after success. Keep waiting-list cancellation blocked and add Storybook stories for the cancellation confirmation, pending, failure, and completed states.
 
 Keep this document as the implementation checklist. Remove it only after the complete booking flow is implemented and the real-integration blockers above have either been resolved with auditable evidence or moved into permanent project documentation.

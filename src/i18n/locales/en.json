@@ -25,6 +25,15 @@
       "error": "The class could not be booked. Your schedule has not changed.",
       "retry": "Try booking again"
     },
+    "waitingList": {
+      "book": "Join waiting list",
+      "confirmTitle": "Confirm waiting list",
+      "confirmMessage": "Do you want to join the waiting list for {{name}}? This does not book a spot in the class.",
+      "confirm": "Join waiting list",
+      "pending": "Joining waiting list…",
+      "error": "The waiting list could not be joined. Your schedule has not changed.",
+      "retry": "Try joining again"
+    },
     "filters": {
       "label": "Schedule filters",
       "date": "Date",
@@ -63,6 +72,7 @@
       "almostFullText_one": "spot left",
       "almostFullText_other": "spots left",
       "waitingList": "Waiting list",
+      "waitingListBooked": "On waiting list",
       "booked": "Already booked",
       "full": "Fully booked",
       "cancelled": "Cancelled"

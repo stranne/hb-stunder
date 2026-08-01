@@ -100,10 +100,51 @@ describe("GymClassCard", () => {
     expect(document.activeElement).toBe(trigger);
   });
 
-  it("does not offer ordinary booking for waiting-list availability", () => {
-    render(<GymClassCard activity={scheduleFixtures.waitingList} onBook={vi.fn()} />);
+  it("requires explicit waiting-list confirmation before opting in", async () => {
+    const onBook = vi.fn(async () => undefined);
+    render(<GymClassCard activity={scheduleFixtures.waitingList} onBook={onBook} />);
 
     expect(screen.queryByRole("button", { name: "Book" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Join waiting list" }));
+
+    expect(onBook).not.toHaveBeenCalled();
+    expect(screen.getByRole("heading", { name: "Confirm waiting list" })).toBeTruthy();
+    expect(screen.getByText(/This does not book a spot/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Join waiting list" }));
+
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(onBook).toHaveBeenCalledTimes(1);
+  });
+
+  it("preserves waiting-list state on failure and offers a deliberate retry", async () => {
+    const onBook = vi.fn<() => Promise<void>>().mockRejectedValue(new Error("Unavailable"));
+    const { container } = render(
+      <GymClassCard activity={scheduleFixtures.waitingList} onBook={onBook} />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Join waiting list" }));
+    fireEvent.click(screen.getByRole("button", { name: "Join waiting list" }));
+
+    expect((await screen.findByRole("alert")).textContent).toContain("could not be joined");
+    expect(container.querySelector("[data-availability='waitingList']")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Try joining again" })).toBeTruthy();
+    expect(onBook).toHaveBeenCalledTimes(1);
+  });
+
+  it("distinguishes a reconciled waiting-list booking", () => {
+    const { container } = render(
+      <GymClassCard
+        activity={scheduleFixtures.waitingList}
+        booking={{
+          groupActivity: { id: scheduleFixtures.waitingList.id },
+          type: "groupActivityWaitingListBooking",
+        }}
+      />,
+    );
+
+    expect(screen.getByText("On waiting list")).toBeTruthy();
+    expect(container.querySelector("[data-availability='waitingListBooked']")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Join waiting list" })).toBeNull();
   });
 
   it("animates only the number in the direction of the availability change", () => {

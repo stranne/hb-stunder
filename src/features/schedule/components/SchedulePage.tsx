@@ -6,6 +6,7 @@ import { bookingsByActivityId } from "../../bookings/model/bookings";
 import { Button } from "../../../ui/button/Button";
 import { activityTypeQueryOptions, instructorQueryOptions } from "../api/scheduleFilterQueries";
 import { scheduleQueryOptions } from "../api/scheduleQueries";
+import { getAvailability } from "../model/schedule";
 import type { ScheduleSearch } from "../model/scheduleSearch";
 import { GymClassCard, GymClassCardSkeleton } from "./GymClassCard";
 import { ScheduleFilters } from "./ScheduleFilters";
@@ -140,7 +141,7 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
                     createBooking.mutateAsync({
                       customerId,
                       groupActivity: activity.id!,
-                      allowWaitingList: false,
+                      allowWaitingList: getAvailability(activity).kind === "waitingList",
                     })
             }
           />

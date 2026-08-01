@@ -25,7 +25,10 @@ function AvailabilityChangeDemo() {
 const meta = {
   title: "Schedule/GymClassCard",
   component: GymClassCard,
-  args: { activity: scheduleFixtures.available },
+  args: {
+    activity: scheduleFixtures.available,
+    onBook: async (): Promise<void> => undefined,
+  },
   decorators: [
     (Story) => (
       <div style={{ containerType: "inline-size", width: "min(48rem, calc(100vw - 2rem))" }}>
@@ -43,6 +46,79 @@ export const Available: Story = {};
 export const AlmostFull: Story = { args: { activity: scheduleFixtures.almostFull } };
 export const FullyBooked: Story = { args: { activity: scheduleFixtures.full } };
 export const WaitingList: Story = { args: { activity: scheduleFixtures.waitingList } };
+export const ExistingBooking: Story = {
+  args: {
+    booking: { groupActivity: { id: scheduleFixtures.available.id }, type: "groupActivityBooking" },
+  },
+};
+export const WaitingListJoined: Story = {
+  args: {
+    activity: scheduleFixtures.waitingList,
+    booking: {
+      groupActivity: { id: scheduleFixtures.waitingList.id },
+      type: "groupActivityWaitingListBooking",
+    },
+  },
+};
+export const OrdinaryBookingConfirmation: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const page = within(canvasElement.ownerDocument.body);
+    await userEvent.click(canvas.getByRole("button", { name: "Boka" }));
+    await expect(page.getByRole("dialog")).toBeVisible();
+  },
+};
+export const WaitingListConfirmation: Story = {
+  args: { activity: scheduleFixtures.waitingList },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const page = within(canvasElement.ownerDocument.body);
+    await userEvent.click(canvas.getByRole("button", { name: "Ställ dig i kö" }));
+    await expect(page.getByRole("dialog")).toBeVisible();
+  },
+};
+export const WaitingListEnglish: Story = {
+  args: { activity: scheduleFixtures.waitingList },
+  globals: { locale: "en" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const page = within(canvasElement.ownerDocument.body);
+    await userEvent.click(canvas.getByRole("button", { name: "Join waiting list" }));
+    await expect(page.getByText(/This does not book a spot/)).toBeVisible();
+  },
+};
+export const WaitingListPending: Story = {
+  args: {
+    activity: scheduleFixtures.waitingList,
+    onBook: () => new Promise<void>(() => undefined),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const page = within(canvasElement.ownerDocument.body);
+    await userEvent.click(canvas.getByRole("button", { name: "Ställ dig i kö" }));
+    await userEvent.click(
+      within(page.getByRole("dialog")).getByRole("button", { name: "Ställ dig i kö" }),
+    );
+    await expect(page.getByRole("status")).toHaveTextContent("Ställer dig i kö…");
+  },
+};
+export const WaitingListError: Story = {
+  args: {
+    activity: scheduleFixtures.waitingList,
+    onBook: async () => {
+      throw new Error("Mock waiting-list failure");
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const page = within(canvasElement.ownerDocument.body);
+    await userEvent.click(canvas.getByRole("button", { name: "Ställ dig i kö" }));
+    await userEvent.click(
+      within(page.getByRole("dialog")).getByRole("button", { name: "Ställ dig i kö" }),
+    );
+    await expect(page.getByRole("alert")).toBeVisible();
+  },
+};
 export const Cancelled: Story = { args: { activity: scheduleFixtures.cancelled } };
 export const English: Story = { globals: { locale: "en" } };
 export const Mobile: Story = {

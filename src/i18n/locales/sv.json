@@ -25,6 +25,15 @@
       "error": "Klassen kunde inte bokas. Ditt schema har inte ändrats.",
       "retry": "Försök boka igen"
     },
+    "waitingList": {
+      "book": "Ställ dig i kö",
+      "confirmTitle": "Bekräfta köplats",
+      "confirmMessage": "Vill du ställa dig i kö till {{name}}? Det här bokar inte en plats på klassen.",
+      "confirm": "Ställ dig i kö",
+      "pending": "Ställer dig i kö…",
+      "error": "Det gick inte att ställa dig i kö. Ditt schema har inte ändrats.",
+      "retry": "Försök ställa dig i kö igen"
+    },
     "filters": {
       "label": "Schemafilter",
       "date": "Datum",
@@ -63,6 +72,7 @@
       "almostFullText_one": "plats kvar",
       "almostFullText_other": "platser kvar",
       "waitingList": "Väntelista",
+      "waitingListBooked": "På väntelistan",
       "booked": "Redan bokad",
       "full": "Fullbokad",
       "cancelled": "Inställd"

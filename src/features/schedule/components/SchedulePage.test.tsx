@@ -126,6 +126,58 @@ describe("SchedulePage", () => {
     expect(screen.queryByRole("button", { name: "Book" })).toBeNull();
   });
 
+  it("joins a waiting list only after confirmation and reconciles the refetched state", async () => {
+    let waitingListJoined = false;
+    let postRequests = 0;
+    server.use(
+      http.get(scheduleEndpoint, () =>
+        HttpResponse.json([
+          {
+            ...activity(102, "Wait-listed class"),
+            slots: { leftToBook: 0, hasWaitingList: true },
+          },
+        ]),
+      ),
+      http.get(`${REAL_API_BASE_URL}/customers/:customerId/bookings/groupactivities`, () =>
+        HttpResponse.json(
+          waitingListJoined
+            ? [
+                {
+                  groupActivity: { id: 102 },
+                  groupActivityBooking: { id: 700002 },
+                  type: "groupActivityWaitingListBooking",
+                },
+              ]
+            : [],
+        ),
+      ),
+      http.post(
+        `${REAL_API_BASE_URL}/customers/:customerId/bookings/groupactivities`,
+        async ({ request }) => {
+          postRequests += 1;
+          expect(await request.json()).toEqual({
+            groupActivity: 102,
+            allowWaitingList: true,
+          });
+          waitingListJoined = true;
+          return new HttpResponse(null, { status: 201 });
+        },
+      ),
+    );
+
+    renderPage([1], "900001");
+
+    const join = await screen.findByRole("button", { name: "Join waiting list" });
+    fireEvent.click(join);
+    expect(postRequests).toBe(0);
+    expect(screen.getByText(/This does not book a spot/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Join waiting list" }));
+
+    expect(await screen.findByText("On waiting list")).toBeTruthy();
+    expect(postRequests).toBe(1);
+    expect(screen.queryByRole("button", { name: "Join waiting list" })).toBeNull();
+  });
+
   it("keeps successful locations visible and retries only a failed location", async () => {
     let failedLocationRequests = 0;
     server.use(

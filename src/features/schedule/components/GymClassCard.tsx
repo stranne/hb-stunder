@@ -54,13 +54,16 @@ export function GymClassCard({ activity, booking, onBook }: GymClassCardProps) {
     .filter(Boolean)
     .join(", ");
   const hasRemaining = availability.kind === "available" || availability.kind === "almostFull";
+  const isWaitingList = availability.kind === "waitingList";
+  const isWaitingListBooking = booking?.type === "groupActivityWaitingListBooking";
+  const bookingCopy = isWaitingList ? "schedule.waitingList" : "schedule.booking";
   const availabilityLabel = hasRemaining
     ? t(`schedule.availability.${availability.kind}`, { count: availability.remaining })
     : t(`schedule.availability.${availability.kind}`);
   const availabilityText = hasRemaining
     ? t(`schedule.availability.${availability.kind}Text`, { count: availability.remaining })
     : undefined;
-  const canBook = !booking && hasRemaining && onBook !== undefined;
+  const canBook = !booking && (hasRemaining || isWaitingList) && onBook !== undefined;
 
   const closeConfirmation = (close: () => void) => {
     close();
@@ -86,7 +89,9 @@ export function GymClassCard({ activity, booking, onBook }: GymClassCardProps) {
     <article
       ref={cardRef}
       className={styles.card}
-      data-availability={booking ? "booked" : availability.kind}
+      data-availability={
+        booking ? (isWaitingListBooking ? "waitingListBooked" : "booked") : availability.kind
+      }
       tabIndex={-1}
     >
       <div className={styles.time}>
@@ -101,7 +106,11 @@ export function GymClassCard({ activity, booking, onBook }: GymClassCardProps) {
       <div className={styles.actions}>
         <div className={styles.availability} aria-live="polite" aria-atomic="true">
           {booking ? (
-            t("schedule.availability.booked")
+            t(
+              isWaitingListBooking
+                ? "schedule.availability.waitingListBooked"
+                : "schedule.availability.booked",
+            )
           ) : hasRemaining ? (
             <>
               <span
@@ -134,15 +143,15 @@ export function GymClassCard({ activity, booking, onBook }: GymClassCardProps) {
         {canBook ? (
           <DialogTrigger>
             <Button ref={bookingTriggerRef} onPress={() => setBookingFailed(false)}>
-              {t("schedule.booking.book")}
+              {t(`${bookingCopy}.book`)}
             </Button>
             <Modal className={styles.modal} isDismissable={!isBooking}>
               <Dialog className={styles.dialog}>
                 {({ close }) => (
                   <>
-                    <Heading slot="title">{t("schedule.booking.confirmTitle")}</Heading>
+                    <Heading slot="title">{t(`${bookingCopy}.confirmTitle`)}</Heading>
                     <p>
-                      {t("schedule.booking.confirmMessage", {
+                      {t(`${bookingCopy}.confirmMessage`, {
                         name: activity.name ?? t("schedule.unnamedClass"),
                       })}
                     </p>
@@ -155,9 +164,7 @@ export function GymClassCard({ activity, booking, onBook }: GymClassCardProps) {
                         {t("schedule.booking.cancel")}
                       </Button>
                       <Button isDisabled={isBooking} onPress={() => void confirmBooking(close)}>
-                        {bookingFailed
-                          ? t("schedule.booking.retry")
-                          : t("schedule.booking.confirm")}
+                        {bookingFailed ? t(`${bookingCopy}.retry`) : t(`${bookingCopy}.confirm`)}
                       </Button>
                     </div>
                     {isBooking || bookingFailed ? (
@@ -166,9 +173,7 @@ export function GymClassCard({ activity, booking, onBook }: GymClassCardProps) {
                         role={bookingFailed ? "alert" : "status"}
                         aria-live={bookingFailed ? "assertive" : "polite"}
                       >
-                        {bookingFailed
-                          ? t("schedule.booking.error")
-                          : t("schedule.booking.pending")}
+                        {bookingFailed ? t(`${bookingCopy}.error`) : t(`${bookingCopy}.pending`)}
                       </p>
                     ) : null}
                   </>

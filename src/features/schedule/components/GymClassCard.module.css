@@ -114,7 +114,8 @@
   }
 
   .card[data-availability="almostFull"] .availability,
-  .card[data-availability="waitingList"] .availability {
+  .card[data-availability="waitingList"] .availability,
+  .card[data-availability="waitingListBooked"] .availability {
     color: oklch(43% 0.12 65deg);
     background: oklch(94% 0.045 75deg);
   }

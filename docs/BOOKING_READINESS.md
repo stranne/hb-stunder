@@ -54,7 +54,9 @@ Their path/method and basic success shapes are medium-confidence, but they are *
 
 Build one narrow, non-production slice around an injected **mock signed-in customer**; do not add credential collection, token persistence, or real API authentication.
 
-### Implemented: slice 1 — customer bookings read path
+### Implemented slices
+
+#### Slice 1 — customer bookings read path
 
 - Added customer-scoped booking query keys/options that call the generated `GET /customers/{customerId}/bookings/groupactivities` operation.
 - Added schema-typed ordinary-booking fixtures and an MSW handler, including a booking for the current schedule and an upcoming booking.
@@ -62,14 +64,20 @@ Build one narrow, non-production slice around an injected **mock signed-in custo
 - Indexed bookings by `groupActivity.id`, reconciled them with schedule activity IDs, and added Swedish/English `already booked` card state.
 - Added tests for query scoping and disabling, the exact generated request path through MSW, ID reconciliation, and the resulting card state. Tests use `onUnhandledRequest: "error"` so an unexpected live request fails the slice.
 
+#### Slice 2 — create-booking MSW state
+
+- Added generated-client mutation options that require an explicit `allowWaitingList` decision, send only the observed request fields, and disable automatic retries.
+- Added a stateful development/test MSW `POST` handler that validates the exact mock request shape, updates customer booking state, and returns an empty `201`.
+- Made mutation success invalidate and refetch the customer's group-activity bookings and all cached schedule lists. No optimistic booking state is written.
+- Added tests for the exact customer path/body, refetching, state reconciliation through `GET`, generic `ApiError`, no retry, preserved cached data on failure, and unhandled-request isolation.
+
 ### Remaining implementation slices
 
-1. **Create-booking MSW state:** add a typed, stateful `POST` handler and mutation options with retries disabled. Refetch customer bookings and every affected schedule list/detail after success; do not optimistically mark a booking as successful.
-2. **Book confirmation UI:** add keyboard-accessible confirmation and focus restoration for an available class. Disable controls while pending, announce pending/error states, preserve the prior card state on failure, and offer only deliberate retry.
-3. **Explicit waiting-list flow:** when schedule availability reports a waiting list, use a separate confirmation that clearly opts in before sending `allowWaitingList: true`. Reconcile the result from refetched mock state rather than interpreting an unknown response body.
-4. **Ordinary cancellation:** add a typed, stateful `DELETE` handler and mutation using the observed booking ID/type. Require confirmation, prevent duplicate submission, and refetch bookings and schedule after success. Keep waiting-list cancellation blocked.
-5. **Mutation coverage and polish:** assert exact paths and schema-backed bodies, invalidation, no retries, duplicate-submit prevention, generic failures, Swedish/English copy, announcements, keyboard operation, and focus restoration. Keep all mutation handlers development/test-only.
-6. **Real integration (blocked):** replace the injected mock identity only after the authentication/customer-identity contract is evidenced. Then resolve CORS, API permission, idempotency/rate limits, conflict and expiry responses, and cancellation semantics before enabling any browser mutation against the real API.
+1. **Book confirmation UI:** add keyboard-accessible confirmation and focus restoration for an available class. Disable controls while pending, announce pending/error states, preserve the prior card state on failure, and offer only deliberate retry.
+2. **Explicit waiting-list flow:** when schedule availability reports a waiting list, use a separate confirmation that clearly opts in before sending `allowWaitingList: true`. Reconcile the result from refetched mock state rather than interpreting an unknown response body.
+3. **Ordinary cancellation:** add a typed, stateful `DELETE` handler and mutation using the observed booking ID/type. Require confirmation, prevent duplicate submission, and refetch bookings and schedule after success. Keep waiting-list cancellation blocked.
+4. **Mutation coverage and polish:** assert exact paths and schema-backed bodies, invalidation, no retries, duplicate-submit prevention, generic failures, Swedish/English copy, announcements, keyboard operation, and focus restoration. Keep all mutation handlers development/test-only.
+5. **Real integration (blocked):** replace the injected mock identity only after the authentication/customer-identity contract is evidenced. Then resolve CORS, API permission, idempotency/rate limits, conflict and expiry responses, and cancellation semantics before enabling any browser mutation against the real API.
 
 ### Acceptance criteria
 
@@ -95,6 +103,6 @@ Build one narrow, non-production slice around an injected **mock signed-in custo
 
 ## Recommended next task
 
-Implement **create-booking MSW state and mutation options** without UI first. The handler should accept only `groupActivity` and the explicit `allowWaitingList` decision, update mock server state, return the observed empty `201`, and force the mutation to establish success by invalidating/refetching customer bookings and affected schedule queries. Cover exact request shape, invalidation, disabled retries, generic `ApiError`, and isolation from live traffic before adding confirmation controls.
+Implement the **book confirmation UI** for an available class. Require an explicit, keyboard-accessible confirmation before invoking the ordinary-booking mutation with `allowWaitingList: false`; disable duplicate submission while pending; announce pending and generic error states; preserve the prior card state on failure; provide only deliberate retry; and restore focus when the confirmation closes. Keep waiting-list controls out of this slice so their separate opt-in can be implemented next.
 
 Keep this document as the implementation checklist. Remove it only after the complete booking flow is implemented and the real-integration blockers above have either been resolved with auditable evidence or moved into permanent project documentation.

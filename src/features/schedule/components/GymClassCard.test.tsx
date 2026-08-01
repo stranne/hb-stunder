@@ -147,6 +147,84 @@ describe("GymClassCard", () => {
     expect(screen.queryByRole("button", { name: "Join waiting list" })).toBeNull();
   });
 
+  it("offers cancellation only for an ID-backed ordinary booking and requires confirmation", async () => {
+    const onCancel = vi.fn(async () => undefined);
+    render(
+      <GymClassCard
+        activity={scheduleFixtures.available}
+        booking={{
+          groupActivity: { id: scheduleFixtures.available.id },
+          groupActivityBooking: { id: 700001 },
+          type: "groupActivityBooking",
+        }}
+        onCancel={onCancel}
+      />,
+    );
+
+    const trigger = screen.getByRole("button", { name: "Cancel booking" });
+    trigger.focus();
+    fireEvent.click(trigger);
+    expect(onCancel).not.toHaveBeenCalled();
+    expect(screen.getByRole("heading", { name: "Confirm cancellation" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Cancel booking" }));
+
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(onCancel).toHaveBeenCalledTimes(1);
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it("prevents duplicate cancellation and preserves the booking on failure for retry", async () => {
+    let rejectCancellation: ((reason: Error) => void) | undefined;
+    const onCancel = vi.fn(
+      () =>
+        new Promise<void>((_resolve, reject) => {
+          rejectCancellation = reject;
+        }),
+    );
+    const { container } = render(
+      <GymClassCard
+        activity={scheduleFixtures.available}
+        booking={{
+          groupActivity: { id: scheduleFixtures.available.id },
+          groupActivityBooking: { id: 700001 },
+          type: "groupActivityBooking",
+        }}
+        onCancel={onCancel}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Cancel booking" }));
+    const confirm = screen.getByRole("button", { name: "Cancel booking" });
+    fireEvent.click(confirm);
+    fireEvent.click(confirm);
+
+    expect(onCancel).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("status").textContent).toBe("Cancelling booking…");
+    expect(confirm.hasAttribute("data-disabled")).toBe(true);
+
+    rejectCancellation?.(new Error("Unavailable"));
+    expect((await screen.findByRole("alert")).textContent).toContain("could not be cancelled");
+    expect(container.querySelector("[data-availability='booked']")).toBeTruthy();
+    expect(screen.getByText("Already booked")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Try cancelling again" })).toBeTruthy();
+  });
+
+  it("keeps waiting-list cancellation blocked", () => {
+    render(
+      <GymClassCard
+        activity={scheduleFixtures.waitingList}
+        booking={{
+          groupActivity: { id: scheduleFixtures.waitingList.id },
+          groupActivityBooking: { id: 700002 },
+          type: "groupActivityWaitingListBooking",
+        }}
+        onCancel={vi.fn(async () => undefined)}
+      />,
+    );
+
+    expect(screen.queryByRole("button", { name: "Cancel booking" })).toBeNull();
+  });
+
   it("animates only the number in the direction of the availability change", () => {
     const { container, rerender } = render(<GymClassCard activity={scheduleFixtures.available} />);
     const availabilityNumber = () => container.querySelector("[data-availability-value]");

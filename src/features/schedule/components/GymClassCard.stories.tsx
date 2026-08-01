@@ -5,6 +5,25 @@ import { scheduleFixtures } from "../../../mocks/fixtures/schedule";
 import { Button } from "../../../ui/button/Button";
 import { GymClassCard, GymClassCardSkeleton } from "./GymClassCard";
 
+const ordinaryBooking = {
+  groupActivity: { id: scheduleFixtures.available.id },
+  groupActivityBooking: { id: 700001 },
+  type: "groupActivityBooking",
+};
+
+function CancellationCompletedDemo() {
+  const [booking, setBooking] = useState<typeof ordinaryBooking | undefined>(ordinaryBooking);
+
+  return (
+    <GymClassCard
+      activity={scheduleFixtures.available}
+      booking={booking}
+      onBook={async () => undefined}
+      onCancel={async () => setBooking(undefined)}
+    />
+  );
+}
+
 function AvailabilityChangeDemo() {
   const [remaining, setRemaining] = useState(8);
   const activity = {
@@ -51,6 +70,41 @@ export const ExistingBooking: Story = {
     booking: { groupActivity: { id: scheduleFixtures.available.id }, type: "groupActivityBooking" },
   },
 };
+export const CancellationConfirmation: Story = {
+  args: { booking: ordinaryBooking, onCancel: async () => undefined },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const page = within(canvasElement.ownerDocument.body);
+    await userEvent.click(canvas.getByRole("button", { name: "Avboka" }));
+    await expect(page.getByRole("dialog")).toBeVisible();
+  },
+};
+export const CancellationPending: Story = {
+  args: { booking: ordinaryBooking, onCancel: () => new Promise<void>(() => undefined) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const page = within(canvasElement.ownerDocument.body);
+    await userEvent.click(canvas.getByRole("button", { name: "Avboka" }));
+    await userEvent.click(within(page.getByRole("dialog")).getByRole("button", { name: "Avboka" }));
+    await expect(page.getByRole("status")).toHaveTextContent("Avbokningen pågår…");
+  },
+};
+export const CancellationError: Story = {
+  args: {
+    booking: ordinaryBooking,
+    onCancel: async () => {
+      throw new Error("Mock cancellation failure");
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const page = within(canvasElement.ownerDocument.body);
+    await userEvent.click(canvas.getByRole("button", { name: "Avboka" }));
+    await userEvent.click(within(page.getByRole("dialog")).getByRole("button", { name: "Avboka" }));
+    await expect(page.getByRole("alert")).toBeVisible();
+  },
+};
+export const CancellationCompleted: Story = { render: () => <CancellationCompletedDemo /> };
 export const WaitingListJoined: Story = {
   args: {
     activity: scheduleFixtures.waitingList,

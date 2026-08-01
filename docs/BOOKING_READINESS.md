@@ -86,11 +86,18 @@ Build one narrow, non-production slice around an injected **mock signed-in custo
 - Preserves waiting-list availability after generic failures, prevents duplicate submission, announces pending/error states, offers deliberate retry, and restores focus using the shared confirmation behavior.
 - Added English/Swedish copy, component and MSW integration coverage, and Storybook stories for ordinary and waiting-list confirmations plus joined, pending, and error states.
 
+#### Slice 5 — ordinary cancellation
+
+- Added a generated-client cancellation mutation that sends the reconciled booking ID with the observed `bookingType=groupActivityBooking`, disables retries, and invalidates customer bookings and schedule lists after success.
+- Added a stateful development/test-only MSW `DELETE` handler that accepts only the mock customer and an existing ordinary booking, removes it, and returns an empty `204`.
+- Offers cancellation only for ID-backed ordinary bookings, keeps waiting-list cancellation blocked, and requires confirmation before sending the request.
+- Preserves the booking after generic failure, prevents duplicate submission, announces pending/error states, offers deliberate retry, and restores focus to the trigger or updated card.
+- Added mutation, component, and MSW integration coverage plus Swedish/English copy and Storybook cancellation confirmation, pending, failure, and completed states.
+
 ### Remaining implementation slices
 
-1. **Ordinary cancellation:** add a typed, stateful `DELETE` handler and mutation using the observed booking ID/type. Require confirmation, prevent duplicate submission, and refetch bookings and schedule after success. Keep waiting-list cancellation blocked.
-2. **Mutation coverage and polish:** assert exact paths and schema-backed bodies, invalidation, no retries, duplicate-submit prevention, generic failures, Swedish/English copy, announcements, keyboard operation, and focus restoration. Keep all mutation handlers development/test-only and add Storybook stories for visual states.
-3. **Real integration (blocked):** replace the injected mock identity only after the authentication/customer-identity contract is evidenced. Then resolve CORS, API permission, idempotency/rate limits, conflict and expiry responses, and cancellation semantics before enabling any browser mutation against the real API.
+1. **Mutation coverage and polish:** review the complete create/waiting-list/cancellation flow for any remaining keyboard, focus, copy, announcement, and visual-state gaps. Keep all mutation handlers development/test-only.
+2. **Real integration (blocked):** replace the injected mock identity only after the authentication/customer-identity contract is evidenced. Then resolve CORS, API permission, idempotency/rate limits, conflict and expiry responses, and cancellation semantics before enabling any browser mutation against the real API.
 
 ### Acceptance criteria
 
@@ -116,6 +123,6 @@ Build one narrow, non-production slice around an injected **mock signed-in custo
 
 ## Recommended next task
 
-Implement **ordinary cancellation**. Add a generated-client mutation and stateful development/test-only `DELETE` handler using the observed booking ID and `bookingType=groupActivityBooking`. Offer cancellation only for reconciled ordinary bookings, require confirmation, prevent duplicate submission, preserve the booking after generic failure, announce pending/error states, offer deliberate retry, restore focus, and refetch bookings and schedule after success. Keep waiting-list cancellation blocked and add Storybook stories for the cancellation confirmation, pending, failure, and completed states.
+Complete **mutation coverage and polish**. Review the combined ordinary booking, waiting-list, and cancellation interactions for remaining Swedish/English copy, announcement, keyboard, focus-restoration, and Storybook gaps while keeping every mutation development/test-only. Do not add conflict-specific, expired-session, or waiting-list cancellation behavior until those wire contracts are evidenced.
 
 Keep this document as the implementation checklist. Remove it only after the complete booking flow is implemented and the real-integration blockers above have either been resolved with auditable evidence or moved into permanent project documentation.

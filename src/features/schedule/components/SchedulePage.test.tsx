@@ -178,6 +178,49 @@ describe("SchedulePage", () => {
     expect(screen.queryByRole("button", { name: "Join waiting list" })).toBeNull();
   });
 
+  it("cancels an ordinary booking only after confirmation and reconciles refetched state", async () => {
+    let bookingExists = true;
+    let deleteRequests = 0;
+    server.use(
+      http.get(scheduleEndpoint, () => HttpResponse.json([activity(101, "Booked class")])),
+      http.get(`${REAL_API_BASE_URL}/customers/:customerId/bookings/groupactivities`, () =>
+        HttpResponse.json(
+          bookingExists
+            ? [
+                {
+                  groupActivity: { id: 101 },
+                  groupActivityBooking: { id: 700001 },
+                  type: "groupActivityBooking",
+                },
+              ]
+            : [],
+        ),
+      ),
+      http.delete(
+        `${REAL_API_BASE_URL}/customers/:customerId/bookings/groupactivities/:bookingId`,
+        ({ params, request }) => {
+          deleteRequests += 1;
+          expect(params.customerId).toBe("900001");
+          expect(params.bookingId).toBe("700001");
+          expect(new URL(request.url).searchParams.get("bookingType")).toBe("groupActivityBooking");
+          bookingExists = false;
+          return new HttpResponse(null, { status: 204 });
+        },
+      ),
+    );
+
+    renderPage([1], "900001");
+
+    const cancel = await screen.findByRole("button", { name: "Cancel booking" });
+    fireEvent.click(cancel);
+    expect(deleteRequests).toBe(0);
+    fireEvent.click(screen.getByRole("button", { name: "Cancel booking" }));
+
+    expect(await screen.findByRole("button", { name: "Book" })).toBeTruthy();
+    expect(deleteRequests).toBe(1);
+    expect(screen.queryByText("Already booked")).toBeNull();
+  });
+
   it("keeps successful locations visible and retries only a failed location", async () => {
     let failedLocationRequests = 0;
     server.use(

@@ -34,6 +34,16 @@
       "error": "The waiting list could not be joined. Your schedule has not changed.",
       "retry": "Try joining again"
     },
+    "cancellation": {
+      "cancelBooking": "Cancel booking",
+      "confirmTitle": "Confirm cancellation",
+      "confirmMessage": "Do you want to cancel your booking for {{name}}?",
+      "keepBooking": "Keep booking",
+      "confirm": "Cancel booking",
+      "pending": "Cancelling booking…",
+      "error": "The booking could not be cancelled. Your schedule has not changed.",
+      "retry": "Try cancelling again"
+    },
     "filters": {
       "label": "Schedule filters",
       "date": "Date",

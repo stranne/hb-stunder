@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 import { Dialog, DialogTrigger, Heading, Modal } from "react-aria-components";
 import type { GroupActivityBooking } from "../../bookings/model/bookings";
@@ -11,6 +11,7 @@ export interface GymClassCardProps {
   activity: ScheduledActivity;
   booking?: GroupActivityBooking;
   onBook?: () => Promise<void>;
+  onCancel?: () => Promise<void>;
 }
 
 function usePrevious<T>(value: T) {
@@ -23,11 +24,14 @@ function usePrevious<T>(value: T) {
   return previousValue.current;
 }
 
-export function GymClassCard({ activity, booking, onBook }: GymClassCardProps) {
+export function GymClassCard({ activity, booking, onBook, onCancel }: GymClassCardProps) {
   const { i18n, t } = useTranslation();
   const [isBooking, setIsBooking] = useState(false);
   const [bookingFailed, setBookingFailed] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [cancellationFailed, setCancellationFailed] = useState(false);
   const bookingTriggerRef = useRef<HTMLButtonElement>(null);
+  const cancellationTriggerRef = useRef<HTMLButtonElement>(null);
   const cardRef = useRef<HTMLElement>(null);
   const availability = getAvailability(activity);
   const remaining = "remaining" in availability ? availability.remaining : undefined;
@@ -64,10 +68,17 @@ export function GymClassCard({ activity, booking, onBook }: GymClassCardProps) {
     ? t(`schedule.availability.${availability.kind}Text`, { count: availability.remaining })
     : undefined;
   const canBook = !booking && (hasRemaining || isWaitingList) && onBook !== undefined;
+  const canCancel =
+    booking?.type === "groupActivityBooking" &&
+    booking.groupActivityBooking?.id !== undefined &&
+    onCancel !== undefined;
 
-  const closeConfirmation = (close: () => void) => {
+  const closeConfirmation = (
+    close: () => void,
+    triggerRef: RefObject<HTMLButtonElement | null>,
+  ) => {
     close();
-    setTimeout(() => (bookingTriggerRef.current ?? cardRef.current)?.focus(), 0);
+    setTimeout(() => (triggerRef.current ?? cardRef.current)?.focus(), 0);
   };
 
   const confirmBooking = async (close: () => void) => {
@@ -77,11 +88,26 @@ export function GymClassCard({ activity, booking, onBook }: GymClassCardProps) {
     setIsBooking(true);
     try {
       await onBook();
-      closeConfirmation(close);
+      closeConfirmation(close, bookingTriggerRef);
     } catch {
       setBookingFailed(true);
     } finally {
       setIsBooking(false);
+    }
+  };
+
+  const confirmCancellation = async (close: () => void) => {
+    if (!onCancel || isCancelling) return;
+
+    setCancellationFailed(false);
+    setIsCancelling(true);
+    try {
+      await onCancel();
+      closeConfirmation(close, cancellationTriggerRef);
+    } catch {
+      setCancellationFailed(true);
+    } finally {
+      setIsCancelling(false);
     }
   };
 
@@ -159,7 +185,7 @@ export function GymClassCard({ activity, booking, onBook }: GymClassCardProps) {
                       <Button
                         tone="quiet"
                         isDisabled={isBooking}
-                        onPress={() => closeConfirmation(close)}
+                        onPress={() => closeConfirmation(close, bookingTriggerRef)}
                       >
                         {t("schedule.booking.cancel")}
                       </Button>
@@ -174,6 +200,59 @@ export function GymClassCard({ activity, booking, onBook }: GymClassCardProps) {
                         aria-live={bookingFailed ? "assertive" : "polite"}
                       >
                         {bookingFailed ? t(`${bookingCopy}.error`) : t(`${bookingCopy}.pending`)}
+                      </p>
+                    ) : null}
+                  </>
+                )}
+              </Dialog>
+            </Modal>
+          </DialogTrigger>
+        ) : null}
+        {canCancel ? (
+          <DialogTrigger>
+            <Button
+              ref={cancellationTriggerRef}
+              tone="quiet"
+              onPress={() => setCancellationFailed(false)}
+            >
+              {t("schedule.cancellation.cancelBooking")}
+            </Button>
+            <Modal className={styles.modal} isDismissable={!isCancelling}>
+              <Dialog className={styles.dialog}>
+                {({ close }) => (
+                  <>
+                    <Heading slot="title">{t("schedule.cancellation.confirmTitle")}</Heading>
+                    <p>
+                      {t("schedule.cancellation.confirmMessage", {
+                        name: activity.name ?? t("schedule.unnamedClass"),
+                      })}
+                    </p>
+                    <div className={styles.dialogActions}>
+                      <Button
+                        tone="quiet"
+                        isDisabled={isCancelling}
+                        onPress={() => closeConfirmation(close, cancellationTriggerRef)}
+                      >
+                        {t("schedule.cancellation.keepBooking")}
+                      </Button>
+                      <Button
+                        isDisabled={isCancelling}
+                        onPress={() => void confirmCancellation(close)}
+                      >
+                        {cancellationFailed
+                          ? t("schedule.cancellation.retry")
+                          : t("schedule.cancellation.confirm")}
+                      </Button>
+                    </div>
+                    {isCancelling || cancellationFailed ? (
+                      <p
+                        className={styles.bookingStatus}
+                        role={cancellationFailed ? "alert" : "status"}
+                        aria-live={cancellationFailed ? "assertive" : "polite"}
+                      >
+                        {cancellationFailed
+                          ? t("schedule.cancellation.error")
+                          : t("schedule.cancellation.pending")}
                       </p>
                     ) : null}
                   </>

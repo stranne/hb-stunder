@@ -39,6 +39,30 @@ export const bookingHandlers = [
 
     return HttpResponse.json(customerBookings);
   }),
+  http.delete(
+    `${API_BASE_URL}/customers/:customerId/bookings/groupactivities/:bookingId`,
+    ({ request, params }) => {
+      if (params.customerId !== MOCK_CUSTOMER_ID) {
+        return HttpResponse.json({ message: "Mock customer not found" }, { status: 404 });
+      }
+
+      if (new URL(request.url).searchParams.get("bookingType") !== "groupActivityBooking") {
+        return HttpResponse.json({ message: "Invalid booking type" }, { status: 400 });
+      }
+
+      const bookingIndex = customerBookings.findIndex(
+        (booking) =>
+          booking.type === "groupActivityBooking" &&
+          String(booking.groupActivityBooking?.id) === params.bookingId,
+      );
+      if (bookingIndex === -1) {
+        return HttpResponse.json({ message: "Mock booking not found" }, { status: 404 });
+      }
+
+      customerBookings.splice(bookingIndex, 1);
+      return new HttpResponse(null, { status: 204 });
+    },
+  ),
   http.post(
     `${API_BASE_URL}/customers/:customerId/bookings/groupactivities`,
     async ({ request, params }) => {

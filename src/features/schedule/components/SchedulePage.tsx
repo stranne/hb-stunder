@@ -1,6 +1,9 @@
 import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { createGroupActivityBookingMutationOptions } from "../../bookings/api/bookingMutations";
+import {
+  cancelGroupActivityBookingMutationOptions,
+  createGroupActivityBookingMutationOptions,
+} from "../../bookings/api/bookingMutations";
 import { customerGroupActivityBookingsQueryOptions } from "../../bookings/api/bookingQueries";
 import { bookingsByActivityId } from "../../bookings/model/bookings";
 import { Button } from "../../../ui/button/Button";
@@ -22,6 +25,7 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const createBooking = useMutation(createGroupActivityBookingMutationOptions(queryClient));
+  const cancelBooking = useMutation(cancelGroupActivityBookingMutationOptions(queryClient));
   const scheduleQueries = useQueries({
     queries: search.locations.map((businessUnit) =>
       scheduleQueryOptions({ businessUnit, date: search.date }),
@@ -129,23 +133,36 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
         {!isPending && failedScheduleQueries.length === 0 && scheduleData.length === 0 ? (
           <p className={styles.notice}>{t("schedule.empty")}</p>
         ) : null}
-        {scheduleData.map((activity, index) => (
-          <GymClassCard
-            key={activity.id ?? `${activity.duration?.start}-${index}`}
-            activity={activity}
-            booking={activity.id === undefined ? undefined : bookingsByActivity.get(activity.id)}
-            onBook={
-              customerId === undefined || activity.id === undefined
-                ? undefined
-                : () =>
-                    createBooking.mutateAsync({
-                      customerId,
-                      groupActivity: activity.id!,
-                      allowWaitingList: getAvailability(activity).kind === "waitingList",
-                    })
-            }
-          />
-        ))}
+        {scheduleData.map((activity, index) => {
+          const booking =
+            activity.id === undefined ? undefined : bookingsByActivity.get(activity.id);
+          const bookingId = booking?.groupActivityBooking?.id;
+          const onCancel =
+            customerId !== undefined &&
+            booking?.type === "groupActivityBooking" &&
+            bookingId !== undefined
+              ? () => cancelBooking.mutateAsync({ customerId, bookingId })
+              : undefined;
+
+          return (
+            <GymClassCard
+              key={activity.id ?? `${activity.duration?.start}-${index}`}
+              activity={activity}
+              booking={booking}
+              onBook={
+                customerId === undefined || activity.id === undefined
+                  ? undefined
+                  : () =>
+                      createBooking.mutateAsync({
+                        customerId,
+                        groupActivity: activity.id!,
+                        allowWaitingList: getAvailability(activity).kind === "waitingList",
+                      })
+              }
+              onCancel={onCancel}
+            />
+          );
+        })}
       </section>
     </main>
   );

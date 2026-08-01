@@ -34,6 +34,16 @@
       "error": "Det gick inte att ställa dig i kö. Ditt schema har inte ändrats.",
       "retry": "Försök ställa dig i kö igen"
     },
+    "cancellation": {
+      "cancelBooking": "Avboka",
+      "confirmTitle": "Bekräfta avbokning",
+      "confirmMessage": "Vill du avboka {{name}}?",
+      "keepBooking": "Behåll bokning",
+      "confirm": "Avboka",
+      "pending": "Avbokningen pågår…",
+      "error": "Bokningen kunde inte avbokas. Ditt schema har inte ändrats.",
+      "retry": "Försök avboka igen"
+    },
     "filters": {
       "label": "Schemafilter",
       "date": "Datum",

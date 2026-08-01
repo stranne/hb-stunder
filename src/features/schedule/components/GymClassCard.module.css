@@ -37,6 +37,62 @@
     }
   }
 
+  .information {
+    margin-block-start: var(--space-3);
+    font-size: var(--text-sm);
+
+    summary {
+      inline-size: fit-content;
+      color: var(--color-accent-strong);
+      font-weight: 750;
+      cursor: pointer;
+    }
+
+    summary::marker {
+      color: var(--color-accent);
+    }
+
+    summary:focus-visible {
+      border-radius: var(--radius-sm);
+      outline: var(--focus-width) solid var(--color-focus);
+      outline-offset: var(--focus-offset);
+    }
+  }
+
+  .messages {
+    display: grid;
+    gap: var(--space-3);
+    margin-block-start: var(--space-3);
+  }
+
+  .message {
+    padding: var(--space-3);
+    border-inline-start: 0.25rem solid var(--color-accent);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    background: color-mix(in oklch, var(--color-accent) 7%, var(--color-surface));
+
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h3 {
+      margin-block-end: var(--space-1);
+      font-size: var(--text-sm);
+    }
+
+    p {
+      color: var(--color-ink);
+      line-height: 1.55;
+      white-space: pre-line;
+    }
+  }
+
+  .message[data-message-type="external"] {
+    border-inline-start-color: oklch(67% 0.14 75deg);
+    background: oklch(97% 0.025 80deg);
+  }
+
   .actions {
     display: grid;
     gap: var(--space-2);

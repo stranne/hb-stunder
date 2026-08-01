@@ -40,6 +40,11 @@
     "partialError_one": "Classes from one location could not be loaded.",
     "partialError_other": "Classes from {{count}} locations could not be loaded.",
     "retry": "Try again",
+    "information": {
+      "title": "Class information",
+      "forThisClass": "For this class",
+      "aboutClass": "About the class"
+    },
     "booking": {
       "book": "Book",
       "confirmTitle": "Confirm booking",

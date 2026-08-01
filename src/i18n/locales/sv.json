@@ -40,6 +40,11 @@
     "partialError_one": "Klasser från en plats kunde inte laddas.",
     "partialError_other": "Klasser från {{count}} platser kunde inte laddas.",
     "retry": "Försök igen",
+    "information": {
+      "title": "Klassinformation",
+      "forThisClass": "För det här tillfället",
+      "aboutClass": "Om klassen"
+    },
     "booking": {
       "book": "Boka",
       "confirmTitle": "Bekräfta bokning",

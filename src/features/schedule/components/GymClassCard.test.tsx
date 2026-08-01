@@ -20,6 +20,32 @@ describe("GymClassCard", () => {
     expect(screen.queryByText(/Hagabadet i Haga/)).toBeNull();
   });
 
+  it("discloses activity-specific information and the class description", () => {
+    const { container } = render(<GymClassCard activity={scheduleFixtures.withMessages} />);
+
+    const disclosure = screen.getByText("Class information");
+    expect(disclosure.closest("details")?.hasAttribute("open")).toBe(false);
+
+    fireEvent.click(disclosure);
+
+    expect(screen.getByRole("heading", { name: "For this class" })).toBeTruthy();
+    expect(screen.getByText("Klassen hålls på lättförståelig engelska.")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "About the class" })).toBeTruthy();
+    expect(screen.getByText(/Hathayoga fokuserar på att skapa balans/)).toBeTruthy();
+    expect(container.querySelector("[data-message-type='external']")).toBeTruthy();
+    expect(container.querySelector("[data-message-type='internal']")).toBeTruthy();
+  });
+
+  it("does not show class information for blank messages", () => {
+    render(
+      <GymClassCard
+        activity={{ ...scheduleFixtures.available, externalMessage: "  ", internalMessage: null }}
+      />,
+    );
+
+    expect(screen.queryByText("Class information")).toBeNull();
+  });
+
   it("shows an existing customer booking instead of schedule availability", () => {
     const { container } = render(
       <GymClassCard

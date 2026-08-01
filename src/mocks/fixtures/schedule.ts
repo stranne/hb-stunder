@@ -19,6 +19,18 @@ export const scheduleFixtures = {
     duration: { start: "2026-07-28T06:00:00.000Z", end: "2026-07-28T07:00:00.000Z" },
     slots: { totalBookable: 18, leftToBook: 8, hasWaitingList: false },
   },
+  withMessages: {
+    ...baseActivity,
+    id: 106,
+    name: "Hot Hathayoga, 55 min",
+    groupActivityProduct: { id: 5328, name: "Hot Hathayoga, 55 min" },
+    instructors: [{ id: 24, name: stableMockInstructorName(24) }],
+    duration: { start: "2026-07-28T08:00:00.000Z", end: "2026-07-28T08:55:00.000Z" },
+    externalMessage: "Klassen hålls på lättförståelig engelska.",
+    internalMessage:
+      "Hathayoga fokuserar på att skapa balans i kropp och sinne.\nI den här klassen praktiserar vi i en varm sal.",
+    slots: { totalBookable: 18, leftToBook: 5, hasWaitingList: false },
+  },
   almostFull: {
     ...baseActivity,
     id: 102,

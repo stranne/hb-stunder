@@ -50,6 +50,9 @@ export function GymClassCard({ activity, booking, onBook, onCancel }: GymClassCa
     ?.map(({ name }) => name)
     .filter(Boolean)
     .join(", ");
+  const externalMessage = activity.externalMessage?.trim();
+  const internalMessage = activity.internalMessage?.trim();
+  const hasMessages = Boolean(externalMessage || internalMessage);
   const hasRemaining = availability.kind === "available" || availability.kind === "almostFull";
   const isWaitingList = availability.kind === "waitingList";
   const isWaitingListBooking = booking?.type === "groupActivityWaitingListBooking";
@@ -82,6 +85,25 @@ export function GymClassCard({ activity, booking, onBook, onCancel }: GymClassCa
         <h2>{activity.name ?? t("schedule.unnamedClass")}</h2>
         {instructor || location ? (
           <p>{[instructor, location].filter(Boolean).join(" · ")}</p>
+        ) : null}
+        {hasMessages ? (
+          <details className={styles.information}>
+            <summary>{t("schedule.information.title")}</summary>
+            <div className={styles.messages}>
+              {externalMessage ? (
+                <section className={styles.message} data-message-type="external">
+                  <h3>{t("schedule.information.forThisClass")}</h3>
+                  <p>{externalMessage}</p>
+                </section>
+              ) : null}
+              {internalMessage ? (
+                <section className={styles.message} data-message-type="internal">
+                  <h3>{t("schedule.information.aboutClass")}</h3>
+                  <p>{internalMessage}</p>
+                </section>
+              ) : null}
+            </div>
+          </details>
         ) : null}
       </div>
       <div className={styles.actions}>

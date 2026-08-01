@@ -62,6 +62,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Available: Story = {};
+export const WithClassInformation: Story = { args: { activity: scheduleFixtures.withMessages } };
 export const AlmostFull: Story = { args: { activity: scheduleFixtures.almostFull } };
 export const FullyBooked: Story = { args: { activity: scheduleFixtures.full } };
 export const WaitingList: Story = { args: { activity: scheduleFixtures.waitingList } };

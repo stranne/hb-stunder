@@ -1,11 +1,13 @@
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import type { GroupActivityBooking } from "../../bookings/model/bookings";
 import type { ScheduledActivity } from "../model/schedule";
 import { getAvailability } from "../model/schedule";
 import styles from "./GymClassCard.module.css";
 
 export interface GymClassCardProps {
   activity: ScheduledActivity;
+  booking?: GroupActivityBooking;
 }
 
 function usePrevious<T>(value: T) {
@@ -18,7 +20,7 @@ function usePrevious<T>(value: T) {
   return previousValue.current;
 }
 
-export function GymClassCard({ activity }: GymClassCardProps) {
+export function GymClassCard({ activity, booking }: GymClassCardProps) {
   const { i18n, t } = useTranslation();
   const availability = getAvailability(activity);
   const remaining = "remaining" in availability ? availability.remaining : undefined;
@@ -53,7 +55,7 @@ export function GymClassCard({ activity }: GymClassCardProps) {
     : undefined;
 
   return (
-    <article className={styles.card} data-availability={availability.kind}>
+    <article className={styles.card} data-availability={booking ? "booked" : availability.kind}>
       <div className={styles.time}>
         {start && end ? `${timeFormatter.format(start)}–${timeFormatter.format(end)}` : "—"}
       </div>
@@ -64,7 +66,9 @@ export function GymClassCard({ activity }: GymClassCardProps) {
         ) : null}
       </div>
       <div className={styles.availability} aria-live="polite" aria-atomic="true">
-        {hasRemaining ? (
+        {booking ? (
+          t("schedule.availability.booked")
+        ) : hasRemaining ? (
           <>
             <span
               className={styles.availabilityNumber}

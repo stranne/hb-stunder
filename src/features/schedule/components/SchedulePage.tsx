@@ -1,5 +1,7 @@
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { customerGroupActivityBookingsQueryOptions } from "../../bookings/api/bookingQueries";
+import { bookingsByActivityId } from "../../bookings/model/bookings";
 import { Button } from "../../../ui/button/Button";
 import { activityTypeQueryOptions, instructorQueryOptions } from "../api/scheduleFilterQueries";
 import { scheduleQueryOptions } from "../api/scheduleQueries";
@@ -11,9 +13,10 @@ import styles from "./SchedulePage.module.css";
 export interface SchedulePageProps {
   search: ScheduleSearch;
   onSearchChange: (search: ScheduleSearch) => void;
+  customerId?: string;
 }
 
-export function SchedulePage({ search, onSearchChange }: SchedulePageProps) {
+export function SchedulePage({ search, onSearchChange, customerId }: SchedulePageProps) {
   const { t } = useTranslation();
   const scheduleQueries = useQueries({
     queries: search.locations.map((businessUnit) =>
@@ -22,6 +25,8 @@ export function SchedulePage({ search, onSearchChange }: SchedulePageProps) {
   });
   const instructors = useQuery(instructorQueryOptions());
   const activityTypes = useQuery(activityTypeQueryOptions());
+  const bookings = useQuery(customerGroupActivityBookingsQueryOptions(customerId));
+  const bookingsByActivity = bookingsByActivityId(bookings.data ?? []);
   const availableScheduleData = [
     ...new Map(
       scheduleQueries
@@ -124,6 +129,7 @@ export function SchedulePage({ search, onSearchChange }: SchedulePageProps) {
           <GymClassCard
             key={activity.id ?? `${activity.duration?.start}-${index}`}
             activity={activity}
+            booking={activity.id === undefined ? undefined : bookingsByActivity.get(activity.id)}
           />
         ))}
       </section>

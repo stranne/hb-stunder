@@ -28,7 +28,7 @@ function activity(id: number, name: string) {
   };
 }
 
-function renderPage(locations: number[]) {
+function renderPage(locations: number[], customerId?: string) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
@@ -44,6 +44,7 @@ function renderPage(locations: number[]) {
           activityTypes: [],
         }}
         onSearchChange={() => undefined}
+        customerId={customerId}
       />
     </QueryClientProvider>,
   );
@@ -66,6 +67,26 @@ afterEach(() => {
 afterAll(() => server.close());
 
 describe("SchedulePage", () => {
+  it("reconciles a customer booking to its schedule card by activity ID", async () => {
+    server.use(
+      http.get(scheduleEndpoint, () => HttpResponse.json([activity(101, "Booked class")])),
+      http.get(
+        `${REAL_API_BASE_URL}/customers/:customerId/bookings/groupactivities`,
+        ({ params }) => {
+          expect(params.customerId).toBe("900001");
+          return HttpResponse.json([
+            { groupActivity: { id: 101 }, groupActivityBooking: { id: 700001 } },
+          ]);
+        },
+      ),
+    );
+
+    renderPage([1], "900001");
+
+    expect(await screen.findByText("Booked class")).toBeTruthy();
+    expect(await screen.findByText("Already booked")).toBeTruthy();
+  });
+
   it("keeps successful locations visible and retries only a failed location", async () => {
     let failedLocationRequests = 0;
     server.use(

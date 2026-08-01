@@ -53,6 +53,7 @@
       "almostFullText_one": "spot left",
       "almostFullText_other": "spots left",
       "waitingList": "Waiting list",
+      "booked": "Already booked",
       "full": "Fully booked",
       "cancelled": "Cancelled"
     }

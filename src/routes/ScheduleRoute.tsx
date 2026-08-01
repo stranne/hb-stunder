@@ -1,6 +1,7 @@
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { SchedulePage } from "../features/schedule/components/SchedulePage";
+import { getMockCustomerId } from "../mocks/mockSession";
 import {
   readSchedulePreferences,
   writeLastUsedFilters,
@@ -34,6 +35,7 @@ export function ScheduleRoute() {
     <SchedulePage
       search={search}
       onSearchChange={(nextSearch) => void navigate({ search: nextSearch, replace: true })}
+      customerId={getMockCustomerId()}
     />
   );
 }

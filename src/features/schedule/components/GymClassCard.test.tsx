@@ -20,6 +20,19 @@ describe("GymClassCard", () => {
     expect(screen.queryByText(/Hagabadet i Haga/)).toBeNull();
   });
 
+  it("shows an existing customer booking instead of schedule availability", () => {
+    const { container } = render(
+      <GymClassCard
+        activity={scheduleFixtures.available}
+        booking={{ groupActivity: { id: scheduleFixtures.available.id } }}
+      />,
+    );
+
+    expect(screen.getByText("Already booked")).toBeTruthy();
+    expect(container.querySelector("[data-availability='booked']")).toBeTruthy();
+    expect(screen.queryByText("8 spots")).toBeNull();
+  });
+
   it("animates only the number in the direction of the availability change", () => {
     const { container, rerender } = render(<GymClassCard activity={scheduleFixtures.available} />);
     const availabilityNumber = () => container.querySelector("[data-availability-value]");

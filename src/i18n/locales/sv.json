@@ -53,6 +53,7 @@
       "almostFullText_one": "plats kvar",
       "almostFullText_other": "platser kvar",
       "waitingList": "Väntelista",
+      "booked": "Redan bokad",
       "full": "Fullbokad",
       "cancelled": "Inställd"
     }

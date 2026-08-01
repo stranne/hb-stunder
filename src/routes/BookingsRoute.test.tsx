@@ -73,6 +73,11 @@ describe("BookingsRoute", () => {
     expect(screen.getByText("Sign in to see your current bookings.")).toBeTruthy();
     expect(requests).toBe(0);
     fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Username" }), {
+      target: { value: "demo" },
+    });
+    fireEvent.change(screen.getByLabelText("Password"), { target: { value: "password" } });
+    fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
 
     expect(await screen.findByText("Today strength")).toBeTruthy();
     expect(screen.getByText("Tomorrow yoga")).toBeTruthy();

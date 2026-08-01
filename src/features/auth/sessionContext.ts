@@ -1,4 +1,5 @@
 import { createContext, useContext } from "react";
+import type { LoginCredentials } from "./api/auth";
 
 export interface CustomerSession {
   customerId: string;
@@ -8,7 +9,7 @@ export interface CustomerSession {
 export interface SessionContextValue {
   customer?: CustomerSession;
   canSignIn: boolean;
-  signIn: () => void;
+  signIn: (credentials: LoginCredentials) => Promise<void>;
   signOut: () => void;
 }
 

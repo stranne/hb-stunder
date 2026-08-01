@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { SignInAction } from "../../auth/SignInAction";
+import type { LoginCredentials } from "../../auth/api/auth";
 import { Button } from "../../../ui/button/Button";
 import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
 import { cancelGroupActivityBookingMutationOptions } from "../api/bookingMutations";
@@ -30,7 +32,7 @@ export function BookingsPage({
 }: {
   customerId?: string;
   canSignIn: boolean;
-  onSignIn: () => void;
+  onSignIn: (credentials: LoginCredentials) => Promise<void> | void;
 }) {
   const { i18n, t } = useTranslation();
   const queryClient = useQueryClient();
@@ -53,7 +55,7 @@ export function BookingsPage({
       {!customerId ? (
         <div className={styles.notice}>
           <p>{t(canSignIn ? "bookings.signedOut" : "bookings.signInUnavailable")}</p>
-          {canSignIn ? <Button onPress={onSignIn}>{t("auth.signIn")}</Button> : null}
+          {canSignIn ? <SignInAction onSignIn={onSignIn} /> : null}
         </div>
       ) : bookings.isPending ? (
         <p className={styles.notice} role="status">

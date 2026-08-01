@@ -11,14 +11,20 @@
   },
   "auth": {
     "signIn": "Sign in",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "title": "Sign in to Hagabadet",
+    "username": "Username",
+    "password": "Password",
+    "cancel": "Cancel",
+    "pending": "Signing in…",
+    "error": "Sign-in failed. Check your username and password and try again."
   },
   "bookings": {
     "title": "My bookings",
     "description": "All group activity bookings returned for your account, independent of schedule filters.",
     "listLabel": "Current bookings",
     "signedOut": "Sign in to see your current bookings.",
-    "signInUnavailable": "Sign-in is not connected to the real service yet. Run the development app with MSW to use the safe demo sign-in.",
+    "signInUnavailable": "Sign-in is currently unavailable.",
     "loading": "Loading your bookings…",
     "error": "Your bookings could not be loaded.",
     "retry": "Try again",

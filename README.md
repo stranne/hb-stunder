@@ -38,7 +38,9 @@ The schema is an unofficial reverse-engineered draft. Public schedule operations
 
 API timestamps such as `2026-07-28T06:00:00.000Z` must be interpreted as UTC and presented in `Europe/Stockholm` (`08:00` on that date). Date-domain utilities will be introduced with the first relevant feature rather than speculatively.
 
-## Mocking
+## Authentication and mocking
+
+`pnpm dev` uses the real API. Sign in with your Hagabadet username and password; the returned access token and customer identity are kept in browser session storage and authenticated requests include the bearer token. Sign-out clears the session and customer booking cache.
 
 MSW is configured beneath the generated HTTP client. It is disabled by default and can only start in development:
 
@@ -46,6 +48,6 @@ MSW is configured beneath the generated HTTP client. It is disabled by default a
 VITE_ENABLE_MSW=true pnpm dev
 ```
 
-With MSW enabled, use the visible **Sign in** action to start the persisted mock customer session, then open **My bookings** to view the complete mocked customer booking response independently of schedule filters. Sign-out removes customer booking data from the query cache. No credential form or real authentication request is used.
+With MSW enabled, the sign-in form starts the persisted mock customer session without sending its values to the API. Open **My bookings** to view the complete mocked customer booking response independently of schedule filters.
 
 Storybook initializes MSW so stories can add handlers independently.

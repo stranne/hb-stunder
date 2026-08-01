@@ -11,7 +11,7 @@ function SessionStatus() {
     <>
       <p>{customer?.customerId ?? "signed-out"}</p>
       <p>{canSignIn ? "available" : "unavailable"}</p>
-      <button type="button" onClick={signIn}>
+      <button type="button" onClick={() => void signIn({ username: "demo", password: "password" })}>
         Sign in
       </button>
       <button type="button" onClick={signOut}>
@@ -24,6 +24,7 @@ function SessionStatus() {
 afterEach(() => {
   cleanup();
   window.localStorage.clear();
+  window.sessionStorage.clear();
 });
 
 describe("SessionProvider", () => {
@@ -50,15 +51,14 @@ describe("SessionProvider", () => {
     expect(screen.getByText("signed-out")).toBeTruthy();
   });
 
-  it("cannot sign in when mock mode is unavailable", () => {
+  it("makes real sign-in available when mock mode is disabled", () => {
     render(
       <SessionProvider mockEnabled={false}>
         <SessionStatus />
       </SessionProvider>,
     );
 
-    expect(screen.getByText("unavailable")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
+    expect(screen.getByText("available")).toBeTruthy();
     expect(screen.getByText("signed-out")).toBeTruthy();
   });
 });

@@ -3,6 +3,7 @@ import { Link, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { useTranslation } from "react-i18next";
 import { bookingKeys } from "../features/bookings/api/bookingQueries";
+import { SignInAction } from "../features/auth/SignInAction";
 import { useSession } from "../features/auth/sessionContext";
 import { parseScheduleSearch } from "../features/schedule/model/scheduleSearch";
 import { Button } from "../ui/button/Button";
@@ -41,7 +42,7 @@ export function AppRoot() {
               </Button>
             </>
           ) : canSignIn ? (
-            <Button onPress={signIn}>{t("auth.signIn")}</Button>
+            <SignInAction onSignIn={signIn} />
           ) : null}
         </div>
       </header>

@@ -96,7 +96,7 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
   };
 
   return (
-    <main className={styles.page}>
+    <main className={`${styles.page} ${view === "rooms" ? styles.roomsPage : ""}`}>
       <ScheduleFilters
         search={search}
         onChange={onSearchChange}
@@ -122,6 +122,7 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
       ) : null}
       <section
         className={styles.list}
+        data-view={view}
         aria-label={t(view === "rooms" ? "rooms.calendarLabel" : "schedule.listLabel")}
         aria-busy={isFetching}
       >
@@ -143,6 +144,7 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
         {!isPending && !isError && scheduleData.length > 0 && view === "rooms" ? (
           <RoomCalendar
             activities={scheduleData}
+            date={search.date}
             bookingsByActivity={bookingsByActivity}
             customerId={customerId}
             onBook={(activity) =>

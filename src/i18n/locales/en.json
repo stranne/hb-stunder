@@ -142,6 +142,7 @@
     "calendarLabel": "Room calendar",
     "empty": "No rooms have activities matching these filters.",
     "unnamedRoom": "Room",
+    "currentTime": "Current time: {{time}}",
     "openDetails": "Open details for {{name}}",
     "closeDetails": "Close details"
   }

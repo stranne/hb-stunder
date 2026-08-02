@@ -1,6 +1,7 @@
 @layer components {
   .scroller {
-    max-block-size: min(70vh, 48rem);
+    block-size: 100%;
+    min-block-size: 20rem;
     overflow: auto;
     overscroll-behavior: contain;
     border: 1px solid color-mix(in oklch, var(--color-ink) 10%, transparent);
@@ -68,6 +69,15 @@
       color-mix(in oklch, var(--color-ink) 10%, transparent) calc(var(--hour-height) - 1px)
         var(--hour-height)
     );
+  }
+
+  .currentTimeLine {
+    position: absolute;
+    z-index: 2;
+    inset-block-start: var(--current-time-top);
+    inset-inline: 0;
+    border-block-start: 2px solid oklch(57% 0.22 27deg);
+    pointer-events: none;
   }
 
   .block {

@@ -1,10 +1,11 @@
-import { useState, type CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { Dialog, Heading, Modal } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 import type { GroupActivityBooking } from "../../bookings/model/bookings";
 import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
 import type { ScheduledActivity } from "../model/schedule";
 import { getAvailability } from "../model/schedule";
+import { todayInStockholm } from "../model/scheduleDate";
 import styles from "./RoomCalendar.module.css";
 
 interface RoomActivity {
@@ -17,6 +18,7 @@ interface RoomActivity {
 
 export interface RoomCalendarProps {
   activities: ScheduledActivity[];
+  date: string;
   bookingsByActivity: Map<number, GroupActivityBooking>;
   customerId?: string;
   onBook: (activity: ScheduledActivity) => Promise<void>;
@@ -50,6 +52,7 @@ function timeLabel(value: string | undefined, language: string) {
 /** One block is rendered for every assigned room, including activities assigned to multiple rooms. */
 export function RoomCalendar({
   activities,
+  date,
   bookingsByActivity,
   customerId,
   onBook,
@@ -58,6 +61,12 @@ export function RoomCalendar({
   const { i18n, t } = useTranslation();
   const locale = i18n.resolvedLanguage ?? i18n.language;
   const [detail, setDetail] = useState<RoomActivity | undefined>();
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const interval = window.setInterval(() => setNow(new Date()), 30_000);
+    return () => window.clearInterval(interval);
+  }, []);
   const roomActivities = activities.flatMap((activity) =>
     (activity.locations ?? []).flatMap((room) => {
       if (room.id === undefined) return [];
@@ -89,8 +98,17 @@ export function RoomCalendar({
     minutesInStockholm(activity.duration?.start)!,
   );
   const ends = timedActivities.map(({ activity }) => minutesInStockholm(activity.duration?.end)!);
-  const startMinute = Math.floor((Math.min(...starts, 8 * 60) - 30) / 60) * 60;
-  const endMinute = Math.ceil((Math.max(...ends, 20 * 60) + 30) / 60) * 60;
+  const currentMinute =
+    date === todayInStockholm(now) ? minutesInStockholm(now.toISOString()) : undefined;
+  const visibleMinutes = currentMinute === undefined ? [] : [currentMinute];
+  const startMinute = Math.max(
+    0,
+    Math.floor((Math.min(...starts, ...visibleMinutes, 8 * 60) - 30) / 60) * 60,
+  );
+  const endMinute = Math.min(
+    24 * 60,
+    Math.ceil((Math.max(...ends, ...visibleMinutes, 20 * 60) + 30) / 60) * 60,
+  );
   const hourHeight = 72;
   const height = Math.max(hourHeight * 4, ((endMinute - startMinute) / 60) * hourHeight);
   const gridStyle = {
@@ -98,6 +116,12 @@ export function RoomCalendar({
     "--calendar-height": `${height}px`,
     "--hour-height": `${hourHeight}px`,
   } as CSSProperties;
+  const currentTimeStyle =
+    currentMinute === undefined
+      ? undefined
+      : ({
+          "--current-time-top": `${((currentMinute - startMinute) / 60) * hourHeight}px`,
+        } as CSSProperties);
 
   if (rooms.length === 0) return <p className={styles.empty}>{t("rooms.empty")}</p>;
 
@@ -117,8 +141,20 @@ export function RoomCalendar({
               <span key={index}>{String((startMinute / 60 + index) % 24).padStart(2, "0")}:00</span>
             ))}
           </div>
-          {rooms.map((room) => (
+          {rooms.map((room, roomIndex) => (
             <div className={styles.roomTrack} key={room.roomKey}>
+              {currentTimeStyle ? (
+                <div
+                  className={styles.currentTimeLine}
+                  style={currentTimeStyle}
+                  aria-label={
+                    roomIndex === 0
+                      ? t("rooms.currentTime", { time: timeLabel(now.toISOString(), locale) })
+                      : undefined
+                  }
+                  aria-hidden={roomIndex === 0 ? undefined : true}
+                />
+              ) : null}
               {timedActivities
                 .filter((item) => item.roomKey === room.roomKey)
                 .map((item) => {

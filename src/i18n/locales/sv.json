@@ -142,6 +142,7 @@
     "calendarLabel": "Rumskalender",
     "empty": "Inga rum har aktiviteter som matchar dessa filter.",
     "unnamedRoom": "Rum",
+    "currentTime": "Nuvarande tid: {{time}}",
     "openDetails": "Öppna detaljer för {{name}}",
     "closeDetails": "Stäng detaljer"
   }

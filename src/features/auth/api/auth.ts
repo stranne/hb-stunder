@@ -66,6 +66,29 @@ function bearerToken(data: unknown, response: Response) {
   return findString(data, ["access_token", "accessToken", "token", "jwt"]);
 }
 
+function customerDisplayName(data: unknown): string | undefined {
+  const firstName = findString(data, ["firstName", "given_name"]);
+  const lastName = findString(data, ["lastName", "family_name"]);
+
+  return (
+    [firstName, lastName].filter(Boolean).join(" ") ||
+    findString(data, ["displayName", "fullName", "name"])
+  );
+}
+
+export async function loadCustomerDisplayName(customerId: string): Promise<string | undefined> {
+  try {
+    const { data, error, response } = await apiClient.GET("/customers/{customerId}", {
+      params: { path: { customerId } },
+    });
+
+    if (error || !response.ok) return undefined;
+    return customerDisplayName(data);
+  } catch {
+    return undefined;
+  }
+}
+
 function customerSession(data: unknown, token: string): CustomerSession | undefined {
   const jwt = decodeJwtPayload(token);
   const responseCustomer = isObject(data) ? data.customer : undefined;
@@ -86,15 +109,9 @@ function customerSession(data: unknown, token: string): CustomerSession | undefi
 
   if (!customerId) return undefined;
 
-  const firstName = findString(data, ["firstName", "given_name"]);
-  const lastName = findString(data, ["lastName", "family_name"]);
-  const displayName =
-    [firstName, lastName].filter(Boolean).join(" ") ||
-    findString(data, ["displayName", "fullName", "name"]) ||
-    findString(jwt, ["name", "preferred_username"]) ||
-    customerId;
+  const displayName = customerDisplayName(data) ?? findString(jwt, ["name", "preferred_username"]);
 
-  return { customerId, displayName };
+  return displayName ? { customerId, displayName } : { customerId };
 }
 
 export async function login(credentials: LoginCredentials): Promise<AuthenticatedSession> {
@@ -117,5 +134,7 @@ export async function login(credentials: LoginCredentials): Promise<Authenticate
   }
 
   setApiAccessToken(accessToken);
-  return { ...customer, accessToken };
+  const displayName = customer.displayName ?? (await loadCustomerDisplayName(customer.customerId));
+
+  return displayName ? { ...customer, displayName, accessToken } : { ...customer, accessToken };
 }

@@ -3,6 +3,7 @@ import { setApiAccessToken } from "../../api/client";
 import { MOCK_CUSTOMER_ID } from "../../mocks/mockSession";
 import {
   accessTokenExpiresAt,
+  loadCustomerDisplayName,
   login,
   type AuthenticatedSession,
   type LoginCredentials,
@@ -83,10 +84,39 @@ export function SessionProvider({
     return () => window.clearTimeout(timeout);
   }, [session]);
 
+  useEffect(() => {
+    if (
+      !session ||
+      !("accessToken" in session) ||
+      (session.displayName && session.displayName !== session.customerId)
+    )
+      return;
+
+    let cancelled = false;
+    void loadCustomerDisplayName(session.customerId).then((displayName) => {
+      if (cancelled || !displayName) return;
+
+      const updatedSession = { ...session, displayName };
+      const storage = window.localStorage.getItem(REAL_SESSION_STORAGE_KEY)
+        ? window.localStorage
+        : window.sessionStorage;
+      storage.setItem(REAL_SESSION_STORAGE_KEY, JSON.stringify(updatedSession));
+      setSession(updatedSession);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [session]);
+
   const value = useMemo<SessionContextValue>(
     () => ({
       customer: session
-        ? { customerId: session.customerId, displayName: session.displayName }
+        ? {
+            customerId: session.customerId,
+            displayName:
+              session.displayName !== session.customerId ? session.displayName : undefined,
+          }
         : undefined,
       canSignIn: true,
       signIn: async (credentials: LoginCredentials, remember = false) => {

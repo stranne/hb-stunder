@@ -15,6 +15,9 @@ const server = setupServer(
       customer: { id: 42, firstName: "Test", lastName: "Member" },
     }),
   ),
+  http.get(`${REAL_API_BASE_URL}/customers/42`, () =>
+    HttpResponse.json({ id: 42, firstName: "Test", lastName: "Member" }),
+  ),
 );
 
 function jwtWithExpiry(expiresAt: number) {
@@ -30,6 +33,7 @@ function SessionStatus() {
   return (
     <>
       <p>{customer?.customerId ?? "signed-out"}</p>
+      <p>{customer?.displayName ?? "no-name"}</p>
       <p>{canSignIn ? "available" : "unavailable"}</p>
       <button type="button" onClick={() => void signIn({ username: "demo", password: "password" })}>
         Sign in
@@ -99,6 +103,30 @@ describe("SessionProvider", () => {
       </SessionProvider>,
     );
     expect(screen.getByText("42")).toBeTruthy();
+  });
+
+  it("loads a name for a stored session that only has an identification number", async () => {
+    window.localStorage.setItem(
+      "hb-stunder.session",
+      JSON.stringify({
+        accessToken: jwtWithExpiry(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        customerId: "42",
+        displayName: "42",
+      }),
+    );
+
+    render(
+      <SessionProvider mockEnabled={false}>
+        <SessionStatus />
+      </SessionProvider>,
+    );
+
+    expect(screen.getByText("no-name")).toBeTruthy();
+    await waitFor(() => expect(screen.getByText("Test Member")).toBeTruthy());
+    expect(JSON.parse(window.localStorage.getItem("hb-stunder.session") ?? "{}")).toMatchObject({
+      customerId: "42",
+      displayName: "Test Member",
+    });
   });
 
   it("keeps real sessions temporary by default", async () => {

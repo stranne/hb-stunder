@@ -28,12 +28,6 @@
     }
   }
 
-  .triggerName {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
   .popover {
     inline-size: min(18rem, calc(100vw - 2rem));
     padding: var(--space-2);
@@ -62,6 +56,11 @@
     button {
       margin-block-start: var(--space-2);
     }
+  }
+
+  .identity {
+    display: grid;
+    gap: var(--space-1);
   }
 
   .label {
@@ -103,10 +102,6 @@
       padding: 0;
       border-radius: var(--radius-sm);
       font-size: var(--text-sm);
-    }
-
-    .triggerName {
-      max-inline-size: 5rem;
     }
   }
 }

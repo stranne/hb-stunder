@@ -3,7 +3,7 @@ import type { LoginCredentials } from "./api/auth";
 
 export interface CustomerSession {
   customerId: string;
-  displayName: string;
+  displayName?: string;
 }
 
 export interface SessionContextValue {

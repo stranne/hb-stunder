@@ -14,7 +14,8 @@
   "auth": {
     "signIn": "Sign in",
     "signOut": "Sign out",
-    "openUserMenu": "Open user menu for {{name}}",
+    "openUserMenu": "Open user menu",
+    "openUserMenuFor": "Open user menu for {{name}}",
     "signedInAs": "Signed in as",
     "title": "Sign in to Hagabadet",
     "username": "Username",

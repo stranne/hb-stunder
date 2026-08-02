@@ -23,12 +23,29 @@ describe("UserMenu", () => {
       />,
     );
 
+    expect(screen.queryByText("Anna Andersson")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Open user menu for Anna Andersson" }));
 
     expect(screen.getByText("Signed in as")).toBeTruthy();
-    expect(screen.getAllByText("Anna Andersson")).toHaveLength(2);
+    expect(screen.getByText("Anna Andersson")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Sign out" }));
     expect(onSignOut).toHaveBeenCalledOnce();
+  });
+
+  it("does not show an identification number when a name is unavailable", () => {
+    render(
+      <UserMenu
+        customer={{ customerId: "900001" }}
+        canSignIn
+        onSignIn={vi.fn()}
+        onSignOut={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Open user menu" }));
+    expect(screen.queryByText("900001")).toBeNull();
+    expect(screen.queryByText("Signed in as")).toBeNull();
+    expect(screen.getByRole("button", { name: "Sign out" })).toBeTruthy();
   });
 
   it("offers sign-in directly when there is no customer", () => {

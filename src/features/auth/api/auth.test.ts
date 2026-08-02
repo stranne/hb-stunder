@@ -46,6 +46,38 @@ describe("login", () => {
     expect(result.response.ok).toBe(true);
   });
 
+  it("loads the customer's name when the sign-in response only identifies them", async () => {
+    server.use(
+      http.post(`${REAL_API_BASE_URL}/auth/login`, () =>
+        HttpResponse.json({ access_token: "test-access-token", customerId: 42 }),
+      ),
+      http.get(`${REAL_API_BASE_URL}/customers/42`, ({ request }) => {
+        expect(request.headers.get("authorization")).toBe("Bearer test-access-token");
+        return HttpResponse.json({ id: 42, firstName: "Test", lastName: "Member" });
+      }),
+    );
+
+    await expect(login({ username: "member", password: "secret" })).resolves.toEqual({
+      accessToken: "test-access-token",
+      customerId: "42",
+      displayName: "Test Member",
+    });
+  });
+
+  it("does not use the customer identification number as a display name", async () => {
+    server.use(
+      http.post(`${REAL_API_BASE_URL}/auth/login`, () =>
+        HttpResponse.json({ access_token: "test-access-token", customerId: 42 }),
+      ),
+      http.get(`${REAL_API_BASE_URL}/customers/42`, () => new HttpResponse(null, { status: 503 })),
+    );
+
+    await expect(login({ username: "member", password: "secret" })).resolves.toEqual({
+      accessToken: "test-access-token",
+      customerId: "42",
+    });
+  });
+
   it("rejects a successful response without authentication data", async () => {
     server.use(
       http.post(`${REAL_API_BASE_URL}/auth/login`, () => HttpResponse.json({ success: true })),

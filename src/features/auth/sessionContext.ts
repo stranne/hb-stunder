@@ -9,7 +9,7 @@ export interface CustomerSession {
 export interface SessionContextValue {
   customer?: CustomerSession;
   canSignIn: boolean;
-  signIn: (credentials: LoginCredentials) => Promise<void>;
+  signIn: (credentials: LoginCredentials, remember?: boolean) => Promise<void>;
   signOut: () => void;
 }
 

@@ -37,6 +37,17 @@ export const DialogOpen: Story = {
   },
 };
 
+export const Remembered: Story = {
+  play: async ({ canvasElement }) => {
+    const dialog = within(await openDialog(canvasElement));
+    const remember = dialog.getByRole("checkbox", {
+      name: /Håll mig inloggad på den här enheten/,
+    });
+    await userEvent.click(remember);
+    await expect(remember).toBeChecked();
+  },
+};
+
 export const Pending: Story = {
   args: { onSignIn: () => new Promise<void>(() => undefined) },
   play: async ({ canvasElement }) => {

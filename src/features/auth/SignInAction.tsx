@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import {
+  Checkbox,
   Dialog,
   DialogTrigger,
   Heading,
@@ -17,7 +18,7 @@ export function SignInAction({
   onSignIn,
   tone,
 }: {
-  onSignIn: (credentials: LoginCredentials) => Promise<void> | void;
+  onSignIn: (credentials: LoginCredentials, remember: boolean) => Promise<void> | void;
   tone?: "accent" | "quiet";
 }) {
   const { t } = useTranslation();
@@ -31,14 +32,18 @@ export function SignInAction({
     const form = new FormData(event.currentTarget);
     const username = form.get("username");
     const password = form.get("password");
+    const remember = form.get("remember") === "on";
     setHasFailed(false);
     setIsPending(true);
 
     try {
-      await onSignIn({
-        username: typeof username === "string" ? username : "",
-        password: typeof password === "string" ? password : "",
-      });
+      await onSignIn(
+        {
+          username: typeof username === "string" ? username : "",
+          password: typeof password === "string" ? password : "",
+        },
+        remember,
+      );
       close();
     } catch {
       setHasFailed(true);
@@ -69,6 +74,13 @@ export function SignInAction({
                 <Label>{t("auth.password")}</Label>
                 <Input autoComplete="current-password" />
               </TextField>
+              <Checkbox className={styles.remember} name="remember">
+                <span className={styles.checkbox} aria-hidden="true" />
+                <span>
+                  {t("auth.remember")}
+                  <small>{t("auth.rememberWarning")}</small>
+                </span>
+              </Checkbox>
               <div className={styles.actions}>
                 <Button type="button" tone="quiet" isDisabled={isPending} onPress={close}>
                   {t("auth.cancel")}

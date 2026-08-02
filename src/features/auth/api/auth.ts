@@ -35,15 +35,27 @@ function findString(value: unknown, keys: string[], depth = 0): string | undefin
 }
 
 function decodeJwtPayload(token: string): unknown {
-  const payload = token.split(".")[1];
-  if (!payload) return undefined;
+  const parts = token.split(".");
+  if (parts.length !== 3 || !parts[1]) return undefined;
 
   try {
-    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
-    return JSON.parse(atob(base64.padEnd(Math.ceil(base64.length / 4) * 4, "=")));
+    const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const bytes = Uint8Array.from(
+      atob(base64.padEnd(Math.ceil(base64.length / 4) * 4, "=")),
+      (character) => character.charCodeAt(0),
+    );
+    return JSON.parse(new TextDecoder().decode(bytes));
   } catch {
     return undefined;
   }
+}
+
+export function accessTokenExpiresAt(token: string): number | undefined {
+  const payload = decodeJwtPayload(token);
+  if (!isObject(payload) || typeof payload.exp !== "number" || !Number.isFinite(payload.exp))
+    return undefined;
+
+  return payload.exp * 1000;
 }
 
 function bearerToken(data: unknown, response: Response) {

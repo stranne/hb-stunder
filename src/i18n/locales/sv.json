@@ -15,6 +15,8 @@
     "title": "Logga in på Hagabadet",
     "username": "Användarnamn",
     "password": "Lösenord",
+    "remember": "Håll mig inloggad på den här enheten",
+    "rememberWarning": "Använd inte alternativet på en delad enhet.",
     "cancel": "Avbryt",
     "pending": "Loggar in…",
     "error": "Inloggningen misslyckades. Kontrollera användarnamn och lösenord och försök igen."

@@ -11,6 +11,28 @@ export type Availability =
   | { kind: "available" | "almostFull"; remaining: number }
   | { kind: "waitingList" | "full" | "cancelled" };
 
+export interface TimeGroup {
+  start: string;
+  activities: ScheduledActivity[];
+}
+
+/** Groups a sorted schedule by the exact API start timestamp. */
+export function groupActivitiesByStart(activities: ScheduledActivity[]): TimeGroup[] {
+  const groups = new Map<string, ScheduledActivity[]>();
+
+  for (const activity of activities) {
+    const start = activity.duration?.start ?? "";
+    const group = groups.get(start);
+    if (group) group.push(activity);
+    else groups.set(start, [activity]);
+  }
+
+  return [...groups].map(([start, groupedActivities]) => ({
+    start,
+    activities: groupedActivities,
+  }));
+}
+
 export function getAvailability(activity: ScheduledActivity): Availability {
   if (activity.cancelled) return { kind: "cancelled" };
 

@@ -52,6 +52,31 @@ export const Mobile: Story = {
   globals: { viewport: { value: "mobile", isRotated: false } },
 };
 
+export const Rooms: Story = {
+  args: {
+    search: {
+      date: "2026-07-28",
+      locations: [1, 4128, 3509],
+      instructors: [],
+      activityTypes: [],
+      view: "rooms",
+    },
+  },
+};
+
+export const RoomsMobile: Story = {
+  args: {
+    search: {
+      date: "2026-07-28",
+      locations: [1, 4128, 3509],
+      instructors: [],
+      activityTypes: [],
+      view: "rooms",
+    },
+  },
+  globals: { viewport: { value: "mobile", isRotated: false } },
+};
+
 export const Empty: Story = {
   args: {
     search: { date: "2026-07-29", locations: [1], instructors: [], activityTypes: [] },

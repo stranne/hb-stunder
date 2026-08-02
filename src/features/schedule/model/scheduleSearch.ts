@@ -8,11 +8,15 @@ export const SCHEDULE_LOCATIONS = [
 
 export const LOCATION_IDS = SCHEDULE_LOCATIONS.map(({ id }) => id);
 
+export type ScheduleView = "classes" | "rooms";
+
 export interface ScheduleSearch {
   date: string;
   locations: number[];
   instructors: number[];
   activityTypes: number[];
+  /** Omitted links remain compatible and open the classes view. */
+  view?: ScheduleView;
 }
 
 function parseIds(value: unknown): number[] {
@@ -44,5 +48,6 @@ export function parseScheduleSearch(search: Record<string, unknown>): ScheduleSe
     locations: locations.length > 0 ? locations : [...LOCATION_IDS],
     instructors: parseIds(search.instructors),
     activityTypes: parseIds(search.activityTypes),
+    view: search.view === "rooms" ? "rooms" : "classes",
   };
 }

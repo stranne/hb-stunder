@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { GroupActivityBooking } from "../../bookings/model/bookings";
 import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
@@ -11,6 +11,9 @@ export interface GymClassCardProps {
   booking?: GroupActivityBooking;
   onBook?: () => Promise<void>;
   onCancel?: () => Promise<void>;
+  /** A time-group heading supplies the start time when this is false. */
+  showTime?: boolean;
+  headingLevel?: 2 | 3;
 }
 
 function usePrevious<T>(value: T) {
@@ -23,8 +26,17 @@ function usePrevious<T>(value: T) {
   return previousValue.current;
 }
 
-export function GymClassCard({ activity, booking, onBook, onCancel }: GymClassCardProps) {
+export function GymClassCard({
+  activity,
+  booking,
+  onBook,
+  onCancel,
+  showTime = true,
+  headingLevel = 2,
+}: GymClassCardProps) {
   const { i18n, t } = useTranslation();
+  const [isExpanded, setIsExpanded] = useState(false);
+  const detailsId = useId();
   const cardRef = useRef<HTMLElement>(null);
   const availability = getAvailability(activity);
   const remaining = "remaining" in availability ? availability.remaining : undefined;
@@ -68,42 +80,56 @@ export function GymClassCard({ activity, booking, onBook, onCancel }: GymClassCa
     booking?.type === "groupActivityBooking" &&
     booking.groupActivityBooking?.id !== undefined &&
     onCancel !== undefined;
+  const Heading = `h${headingLevel}` as const;
+  const durationLabel =
+    start && end
+      ? `${timeFormatter.format(start)}–${timeFormatter.format(end)}`
+      : t("schedule.timeUnknown");
 
   return (
     <article
       ref={cardRef}
-      className={styles.card}
+      className={`${styles.card} ${!showTime ? styles.grouped : ""}`}
       data-availability={
         booking ? (isWaitingListBooking ? "waitingListBooked" : "booked") : availability.kind
       }
       tabIndex={-1}
     >
-      <div className={styles.time}>
-        {start && end ? `${timeFormatter.format(start)}–${timeFormatter.format(end)}` : "—"}
-      </div>
+      {showTime ? <div className={styles.time}>{durationLabel}</div> : null}
       <div className={styles.content}>
-        <h2>{activity.name ?? t("schedule.unnamedClass")}</h2>
+        <Heading>{activity.name ?? t("schedule.unnamedClass")}</Heading>
         {instructor || location ? (
           <p>{[instructor, location].filter(Boolean).join(" · ")}</p>
         ) : null}
-        {hasMessages ? (
-          <details className={styles.information}>
-            <summary>{t("schedule.information.title")}</summary>
-            <div className={styles.messages}>
-              {externalMessage ? (
-                <section className={styles.message} data-message-type="external">
-                  <h3>{t("schedule.information.forThisClass")}</h3>
-                  <p>{externalMessage}</p>
-                </section>
-              ) : null}
-              {internalMessage ? (
-                <section className={styles.message} data-message-type="internal">
-                  <h3>{t("schedule.information.aboutClass")}</h3>
-                  <p>{internalMessage}</p>
-                </section>
-              ) : null}
-            </div>
-          </details>
+        <button
+          type="button"
+          className={styles.expand}
+          aria-expanded={isExpanded}
+          aria-controls={detailsId}
+          onClick={() => setIsExpanded((expanded) => !expanded)}
+        >
+          {t(isExpanded ? "schedule.details.hide" : "schedule.details.show")}
+        </button>
+        {isExpanded ? (
+          <div className={styles.information} id={detailsId}>
+            <p className={styles.duration}>{t("schedule.details.time", { time: durationLabel })}</p>
+            {hasMessages ? (
+              <div className={styles.messages}>
+                {externalMessage ? (
+                  <section className={styles.message} data-message-type="external">
+                    <h3>{t("schedule.information.forThisClass")}</h3>
+                    <p>{externalMessage}</p>
+                  </section>
+                ) : null}
+                {internalMessage ? (
+                  <section className={styles.message} data-message-type="internal">
+                    <h3>{t("schedule.information.aboutClass")}</h3>
+                    <p>{internalMessage}</p>
+                  </section>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
         ) : null}
       </div>
       <div className={styles.actions}>

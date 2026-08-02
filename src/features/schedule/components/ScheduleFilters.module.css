@@ -2,7 +2,7 @@
   .filters {
     display: grid;
     gap: var(--space-4);
-    margin-block-end: var(--space-6);
+    margin-block-end: 0;
   }
 
   .filterToolbar {

@@ -7,6 +7,8 @@
   "navigation": {
     "label": "Huvudnavigering",
     "schedule": "Klasser",
+    "classes": "Klasser",
+    "rooms": "Rum",
     "bookings": "Mina bokningar"
   },
   "auth": {
@@ -41,6 +43,7 @@
     "title": "Klasser",
     "listLabel": "Schemalagda klasser",
     "unnamedClass": "Klass",
+    "timeUnknown": "Tid saknas",
     "loading": "Laddar klasser",
     "refreshing": "Uppdaterar schemat…",
     "empty": "Inga klasser hittades för den här dagen.",
@@ -48,6 +51,11 @@
     "partialError_one": "Klasser från en plats kunde inte laddas.",
     "partialError_other": "Klasser från {{count}} platser kunde inte laddas.",
     "retry": "Försök igen",
+    "details": {
+      "show": "Visa detaljer",
+      "hide": "Dölj detaljer",
+      "time": "Tid: {{time}}"
+    },
     "information": {
       "title": "Klassinformation",
       "forThisClass": "För det här tillfället",
@@ -125,5 +133,13 @@
       "full": "Fullbokad",
       "cancelled": "Inställd"
     }
+  },
+  "rooms": {
+    "title": "Rum",
+    "calendarLabel": "Rumskalender",
+    "empty": "Inga rum har aktiviteter som matchar dessa filter.",
+    "unnamedRoom": "Rum",
+    "openDetails": "Öppna detaljer för {{name}}",
+    "closeDetails": "Stäng detaljer"
   }
 }

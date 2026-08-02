@@ -23,10 +23,11 @@ describe("GymClassCard", () => {
   it("discloses activity-specific information and the class description", () => {
     const { container } = render(<GymClassCard activity={scheduleFixtures.withMessages} />);
 
-    const disclosure = screen.getByText("Class information");
-    expect(disclosure.closest("details")?.hasAttribute("open")).toBe(false);
+    const disclosure = screen.getByRole("button", { name: "Show details" });
+    expect(disclosure.getAttribute("aria-expanded")).toBe("false");
 
     fireEvent.click(disclosure);
+    expect(disclosure.getAttribute("aria-expanded")).toBe("true");
 
     expect(screen.getByRole("heading", { name: "For this class" })).toBeTruthy();
     expect(screen.getByText("Klassen hålls på lättförståelig engelska.")).toBeTruthy();
@@ -43,7 +44,8 @@ describe("GymClassCard", () => {
       />,
     );
 
-    expect(screen.queryByText("Class information")).toBeNull();
+    expect(screen.getByRole("button", { name: "Show details" })).toBeTruthy();
+    expect(screen.queryByText("For this class")).toBeNull();
   });
 
   it("shows an existing customer booking instead of schedule availability", () => {

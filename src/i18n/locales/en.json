@@ -7,6 +7,8 @@
   "navigation": {
     "label": "Main navigation",
     "schedule": "Classes",
+    "classes": "Classes",
+    "rooms": "Rooms",
     "bookings": "My bookings"
   },
   "auth": {
@@ -41,6 +43,7 @@
     "title": "Classes",
     "listLabel": "Scheduled classes",
     "unnamedClass": "Class",
+    "timeUnknown": "Time unavailable",
     "loading": "Loading classes",
     "refreshing": "Updating schedule…",
     "empty": "No classes found for this day.",
@@ -48,6 +51,11 @@
     "partialError_one": "Classes from one location could not be loaded.",
     "partialError_other": "Classes from {{count}} locations could not be loaded.",
     "retry": "Try again",
+    "details": {
+      "show": "Show details",
+      "hide": "Hide details",
+      "time": "Time: {{time}}"
+    },
     "information": {
       "title": "Class information",
       "forThisClass": "For this class",
@@ -125,5 +133,13 @@
       "full": "Fully booked",
       "cancelled": "Cancelled"
     }
+  },
+  "rooms": {
+    "title": "Rooms",
+    "calendarLabel": "Room calendar",
+    "empty": "No rooms have activities matching these filters.",
+    "unnamedRoom": "Room",
+    "openDetails": "Open details for {{name}}",
+    "closeDetails": "Close details"
   }
 }

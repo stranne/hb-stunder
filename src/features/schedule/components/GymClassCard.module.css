@@ -17,6 +17,7 @@
   }
 
   .content {
+    position: relative;
     min-inline-size: 0;
 
     h2,
@@ -24,7 +25,8 @@
       margin: 0;
     }
 
-    h2 {
+    h2,
+    h3 {
       font-family: var(--font-display);
       font-size: var(--text-lg);
       font-weight: 600;
@@ -37,26 +39,42 @@
     }
   }
 
+  .expand {
+    margin-block-start: var(--space-2);
+    padding: 0;
+    border: 0;
+    color: var(--color-accent-strong);
+    background: transparent;
+    font: inherit;
+    font-size: var(--text-sm);
+    font-weight: 750;
+    cursor: pointer;
+  }
+
+  .expand::after {
+    position: absolute;
+    inset: calc(var(--space-2) * -1);
+    border-radius: var(--radius-sm);
+    content: "";
+  }
+
+  .expand:focus-visible {
+    outline: none;
+  }
+
+  .content:has(.expand:focus-visible) {
+    border-radius: var(--radius-sm);
+    outline: var(--focus-width) solid var(--color-focus);
+    outline-offset: var(--focus-offset);
+  }
+
   .information {
     margin-block-start: var(--space-3);
     font-size: var(--text-sm);
+  }
 
-    summary {
-      inline-size: fit-content;
-      color: var(--color-accent-strong);
-      font-weight: 750;
-      cursor: pointer;
-    }
-
-    summary::marker {
-      color: var(--color-accent);
-    }
-
-    summary:focus-visible {
-      border-radius: var(--radius-sm);
-      outline: var(--focus-width) solid var(--color-focus);
-      outline-offset: var(--focus-offset);
-    }
+  .duration {
+    color: var(--color-ink);
   }
 
   .messages {
@@ -91,6 +109,10 @@
   .message[data-message-type="external"] {
     border-inline-start-color: oklch(67% 0.14 75deg);
     background: oklch(97% 0.025 80deg);
+  }
+
+  .grouped {
+    grid-template-columns: 1fr auto;
   }
 
   .actions {

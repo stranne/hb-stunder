@@ -9,10 +9,11 @@ import { bookingsByActivityId } from "../../bookings/model/bookings";
 import { Button } from "../../../ui/button/Button";
 import { activityTypeQueryOptions, instructorQueryOptions } from "../api/scheduleFilterQueries";
 import { scheduleQueryOptions } from "../api/scheduleQueries";
-import { getAvailability } from "../model/schedule";
+import { getAvailability, groupActivitiesByStart } from "../model/schedule";
 import type { ScheduleSearch } from "../model/scheduleSearch";
 import { GymClassCard, GymClassCardSkeleton } from "./GymClassCard";
 import { ScheduleFilters } from "./ScheduleFilters";
+import { RoomCalendar } from "./RoomCalendar";
 import styles from "./SchedulePage.module.css";
 
 export interface SchedulePageProps {
@@ -22,7 +23,7 @@ export interface SchedulePageProps {
 }
 
 export function SchedulePage({ search, onSearchChange, customerId }: SchedulePageProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const createBooking = useMutation(createGroupActivityBookingMutationOptions(queryClient));
   const cancelBooking = useMutation(cancelGroupActivityBookingMutationOptions(queryClient));
@@ -72,6 +73,13 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
             : false)),
     )
     .sort((a, b) => (a.duration?.start ?? "").localeCompare(b.duration?.start ?? ""));
+  const timeFormatter = new Intl.DateTimeFormat(i18n.resolvedLanguage, {
+    timeZone: "Europe/Stockholm",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const groupedSchedule = groupActivitiesByStart(scheduleData);
+  const view = search.view ?? "classes";
   const isPending = scheduleQueries.some((query) => query.isPending);
   const isFetching = scheduleQueries.some((query) => query.isFetching);
   const failedScheduleQueries = scheduleQueries.filter((query) => query.isError);
@@ -90,8 +98,7 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <p className={styles.eyebrow}>{t("app.name")}</p>
-        <h1>{t("schedule.title")}</h1>
+        <h1>{t(view === "rooms" ? "rooms.title" : "schedule.title")}</h1>
       </header>
 
       <ScheduleFilters
@@ -104,12 +111,22 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
         onRetryOptions={retryFilterOptions}
       />
 
-      {isFetching && !isPending ? (
-        <p className={styles.refreshing} role="status">
-          {t("schedule.refreshing")}
-        </p>
-      ) : null}
-      <section className={styles.list} aria-label={t("schedule.listLabel")} aria-busy={isFetching}>
+      <div className={styles.statusRegion} aria-live="polite">
+        {isFetching && !isPending ? <span>{t("schedule.refreshing")}</span> : null}
+        {isPartialError ? (
+          <span>
+            {t("schedule.partialError", { count: failedScheduleQueries.length })}{" "}
+            <Button tone="quiet" onPress={retrySchedule}>
+              {t("schedule.retry")}
+            </Button>
+          </span>
+        ) : null}
+      </div>
+      <section
+        className={styles.list}
+        aria-label={t(view === "rooms" ? "rooms.calendarLabel" : "schedule.listLabel")}
+        aria-busy={isFetching}
+      >
         {isPending ? (
           <>
             <GymClassCardSkeleton />
@@ -122,47 +139,75 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
             <Button onPress={retrySchedule}>{t("schedule.retry")}</Button>
           </div>
         ) : null}
-        {isPartialError ? (
-          <div className={`${styles.notice} ${styles.warning}`} role="status">
-            <p>{t("schedule.partialError", { count: failedScheduleQueries.length })}</p>
-            <Button tone="quiet" onPress={retrySchedule}>
-              {t("schedule.retry")}
-            </Button>
-          </div>
+        {!isPending && !isError && scheduleData.length === 0 ? (
+          <p className={styles.notice}>{t(view === "rooms" ? "rooms.empty" : "schedule.empty")}</p>
         ) : null}
-        {!isPending && failedScheduleQueries.length === 0 && scheduleData.length === 0 ? (
-          <p className={styles.notice}>{t("schedule.empty")}</p>
+        {!isPending && !isError && scheduleData.length > 0 && view === "rooms" ? (
+          <RoomCalendar
+            activities={scheduleData}
+            bookingsByActivity={bookingsByActivity}
+            customerId={customerId}
+            onBook={(activity) =>
+              createBooking.mutateAsync({
+                customerId: customerId!,
+                groupActivity: activity.id!,
+                allowWaitingList: getAvailability(activity).kind === "waitingList",
+              })
+            }
+            onCancel={(bookingId) =>
+              cancelBooking.mutateAsync({ customerId: customerId!, bookingId })
+            }
+          />
         ) : null}
-        {scheduleData.map((activity, index) => {
-          const booking =
-            activity.id === undefined ? undefined : bookingsByActivity.get(activity.id);
-          const bookingId = booking?.groupActivityBooking?.id;
-          const onCancel =
-            customerId !== undefined &&
-            booking?.type === "groupActivityBooking" &&
-            bookingId !== undefined
-              ? () => cancelBooking.mutateAsync({ customerId, bookingId })
-              : undefined;
-
-          return (
-            <GymClassCard
-              key={activity.id ?? `${activity.duration?.start}-${index}`}
-              activity={activity}
-              booking={booking}
-              onBook={
-                customerId === undefined || activity.id === undefined
-                  ? undefined
-                  : () =>
-                      createBooking.mutateAsync({
-                        customerId,
-                        groupActivity: activity.id!,
-                        allowWaitingList: getAvailability(activity).kind === "waitingList",
-                      })
-              }
-              onCancel={onCancel}
-            />
-          );
-        })}
+        {!isPending && !isError && view === "classes"
+          ? groupedSchedule.map((group) => (
+              <section
+                className={styles.timeGroup}
+                key={group.start || "unknown"}
+                aria-labelledby={`time-${group.start || "unknown"}`}
+              >
+                <h2 id={`time-${group.start || "unknown"}`}>
+                  {group.start
+                    ? timeFormatter.format(new Date(group.start))
+                    : t("schedule.timeUnknown")}
+                </h2>
+                <div className={styles.groupCards}>
+                  {group.activities.map((activity, index) => {
+                    const booking =
+                      activity.id === undefined ? undefined : bookingsByActivity.get(activity.id);
+                    const bookingId = booking?.groupActivityBooking?.id;
+                    const onCancel =
+                      customerId !== undefined &&
+                      booking?.type === "groupActivityBooking" &&
+                      bookingId !== undefined
+                        ? () => cancelBooking.mutateAsync({ customerId, bookingId })
+                        : undefined;
+                    return (
+                      <GymClassCard
+                        key={activity.id ?? `${activity.duration?.start}-${index}`}
+                        activity={activity}
+                        booking={booking}
+                        showTime={false}
+                        headingLevel={3}
+                        onBook={
+                          customerId === undefined || activity.id === undefined
+                            ? undefined
+                            : () =>
+                                createBooking.mutateAsync({
+                                  customerId,
+                                  groupActivity: activity.id!,
+                                  allowWaitingList:
+                                    getAvailability(activity).kind === "waitingList",
+                                })
+                        }
+                        onCancel={onCancel}
+                      />
+                    );
+                  })}
+                </div>
+              </section>
+            ))
+          : null}
       </section>
     </main>
   );

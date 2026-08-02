@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { getAvailability } from "./schedule";
+import { getAvailability, groupActivitiesByStart } from "./schedule";
 import { addDays, getStockholmDayPeriod, isDateString } from "./scheduleDate";
 import { parseScheduleSearch } from "./scheduleSearch";
 
@@ -50,6 +50,22 @@ describe("schedule model", () => {
       locations: [1, 4128],
       instructors: [21, 25],
       activityTypes: [201, 203],
+      view: "classes",
     });
+    expect(parseScheduleSearch({ view: "rooms" }).view).toBe("rooms");
+  });
+
+  it("groups classes by their exact start time without changing order inside a group", () => {
+    const grouped = groupActivitiesByStart([
+      { id: 1, duration: { start: "2026-07-28T08:00:00.000Z" } },
+      { id: 2, duration: { start: "2026-07-28T08:00:00.000Z" } },
+      { id: 3, duration: { start: "2026-07-28T09:00:00.000Z" } },
+    ]);
+    expect(grouped.map(({ start, activities }) => [start, activities.map(({ id }) => id)])).toEqual(
+      [
+        ["2026-07-28T08:00:00.000Z", [1, 2]],
+        ["2026-07-28T09:00:00.000Z", [3]],
+      ],
+    );
   });
 });

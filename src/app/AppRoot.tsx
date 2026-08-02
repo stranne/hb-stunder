@@ -26,10 +26,17 @@ export function AppRoot() {
         <nav className={styles.nav} aria-label={t("navigation.label")}>
           <Link
             to="/"
-            search={(previous) => parseScheduleSearch(previous)}
+            search={(previous) => ({ ...parseScheduleSearch(previous), view: "classes" })}
             activeOptions={{ exact: true }}
           >
-            {t("navigation.schedule")}
+            {t("navigation.classes")}
+          </Link>
+          <Link
+            to="/"
+            search={(previous) => ({ ...parseScheduleSearch(previous), view: "rooms" })}
+            activeOptions={{ exact: true }}
+          >
+            {t("navigation.rooms")}
           </Link>
           <Link to="/bookings">{t("navigation.bookings")}</Link>
         </nav>
@@ -46,7 +53,9 @@ export function AppRoot() {
           ) : null}
         </div>
       </header>
-      <Outlet />
+      <div className={styles.content}>
+        <Outlet />
+      </div>
       {import.meta.env.DEV ? <TanStackRouterDevtools position="bottom-right" /> : null}
     </>
   );

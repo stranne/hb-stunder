@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { GroupActivityBooking } from "../../bookings/model/bookings";
 import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
 import type { ScheduledActivity } from "../model/schedule";
-import { getAvailability } from "../model/schedule";
+import { getAvailability, hasActivityStarted } from "../model/schedule";
 import styles from "./GymClassCard.module.css";
 
 export interface GymClassCardProps {
@@ -75,7 +75,11 @@ export function GymClassCard({
   const availabilityText = hasRemaining
     ? t(`schedule.availability.${availability.kind}Text`, { count: availability.remaining })
     : undefined;
-  const canBook = !booking && (hasRemaining || isWaitingList) && onBook !== undefined;
+  const canBook =
+    !booking &&
+    !hasActivityStarted(activity) &&
+    (hasRemaining || isWaitingList) &&
+    onBook !== undefined;
   const canCancel =
     booking?.type === "groupActivityBooking" &&
     booking.groupActivityBooking?.id !== undefined &&

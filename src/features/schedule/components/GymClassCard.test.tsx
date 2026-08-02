@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vite-plus/test";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import i18n from "../../../i18n";
 import { scheduleFixtures } from "../../../mocks/fixtures/schedule";
 import { GymClassCard } from "./GymClassCard";
@@ -10,7 +10,14 @@ beforeAll(async () => {
   await i18n.changeLanguage("en");
 });
 
-afterEach(cleanup);
+beforeEach(() => {
+  vi.spyOn(Date, "now").mockReturnValue(Date.parse("2026-07-28T05:00:00.000Z"));
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  cleanup();
+});
 
 describe("GymClassCard", () => {
   it("shows the room name rather than the business unit name", () => {
@@ -59,6 +66,17 @@ describe("GymClassCard", () => {
     expect(screen.getByText("Already booked")).toBeTruthy();
     expect(container.querySelector("[data-availability='booked']")).toBeTruthy();
     expect(screen.queryByText("8 spots")).toBeNull();
+  });
+
+  it("does not offer booking or waiting-list actions after an activity starts", () => {
+    const onBook = vi.fn(async () => undefined);
+    vi.mocked(Date.now).mockReturnValue(Date.parse("2026-07-28T17:00:00.000Z"));
+
+    render(<GymClassCard activity={scheduleFixtures.waitingList} onBook={onBook} />);
+
+    expect(screen.queryByRole("button", { name: "Book" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Join waiting list" })).toBeNull();
+    expect(screen.getByText("Waiting list")).toBeTruthy();
   });
 
   it("requires confirmation and restores focus when cancelled", async () => {

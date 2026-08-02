@@ -4,7 +4,16 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
-import { afterAll, afterEach, beforeAll, describe, expect, it } from "vite-plus/test";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import { REAL_API_BASE_URL } from "../../../api/config";
 import i18n from "../../../i18n";
 
@@ -58,7 +67,12 @@ beforeAll(async () => {
   await i18n.changeLanguage("en");
 });
 
+beforeEach(() => {
+  vi.spyOn(Date, "now").mockReturnValue(Date.parse("2026-07-28T05:00:00.000Z"));
+});
+
 afterEach(() => {
+  vi.restoreAllMocks();
   cleanup();
   clients.splice(0).forEach((client) => client.clear());
   server.resetHandlers();

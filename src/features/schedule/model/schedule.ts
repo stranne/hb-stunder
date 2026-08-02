@@ -33,6 +33,11 @@ export function groupActivitiesByStart(activities: ScheduledActivity[]): TimeGro
   }));
 }
 
+export function hasActivityStarted(activity: ScheduledActivity, now = Date.now()): boolean {
+  const start = activity.duration?.start;
+  return start !== undefined && Date.parse(start) <= now;
+}
+
 export function getAvailability(activity: ScheduledActivity): Availability {
   if (activity.cancelled) return { kind: "cancelled" };
 

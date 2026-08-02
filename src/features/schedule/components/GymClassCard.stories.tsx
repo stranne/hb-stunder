@@ -3,7 +3,24 @@ import { useState } from "react";
 import { expect, userEvent, within } from "storybook/test";
 import { scheduleFixtures } from "../../../mocks/fixtures/schedule";
 import { Button } from "../../../ui/button/Button";
+import type { ScheduledActivity } from "../model/schedule";
 import { GymClassCard, GymClassCardSkeleton } from "./GymClassCard";
+
+function scheduledInYear(activity: ScheduledActivity, year: number): ScheduledActivity {
+  const duration = activity.duration;
+  if (!duration?.start || !duration.end) return activity;
+
+  return {
+    ...activity,
+    duration: {
+      start: duration.start.replace(/^\d{4}/, String(year)),
+      end: duration.end.replace(/^\d{4}/, String(year)),
+    },
+  };
+}
+
+const upcomingAvailable = scheduledInYear(scheduleFixtures.available, 2099);
+const upcomingWaitingList = scheduledInYear(scheduleFixtures.waitingList, 2099);
 
 const ordinaryBooking = {
   groupActivity: { id: scheduleFixtures.available.id },
@@ -45,7 +62,7 @@ const meta = {
   title: "Schedule/GymClassCard",
   component: GymClassCard,
   args: {
-    activity: scheduleFixtures.available,
+    activity: upcomingAvailable,
     onBook: async (): Promise<void> => undefined,
   },
   decorators: [
@@ -62,10 +79,19 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Available: Story = {};
-export const WithClassInformation: Story = { args: { activity: scheduleFixtures.withMessages } };
-export const AlmostFull: Story = { args: { activity: scheduleFixtures.almostFull } };
-export const FullyBooked: Story = { args: { activity: scheduleFixtures.full } };
-export const WaitingList: Story = { args: { activity: scheduleFixtures.waitingList } };
+export const Started: Story = {
+  args: { activity: scheduledInYear(scheduleFixtures.available, 2000) },
+};
+export const WithClassInformation: Story = {
+  args: { activity: scheduledInYear(scheduleFixtures.withMessages, 2099) },
+};
+export const AlmostFull: Story = {
+  args: { activity: scheduledInYear(scheduleFixtures.almostFull, 2099) },
+};
+export const FullyBooked: Story = {
+  args: { activity: scheduledInYear(scheduleFixtures.full, 2099) },
+};
+export const WaitingList: Story = { args: { activity: upcomingWaitingList } };
 export const ExistingBooking: Story = {
   args: {
     booking: { groupActivity: { id: scheduleFixtures.available.id }, type: "groupActivityBooking" },
@@ -108,7 +134,7 @@ export const CancellationError: Story = {
 export const CancellationCompleted: Story = { render: () => <CancellationCompletedDemo /> };
 export const WaitingListJoined: Story = {
   args: {
-    activity: scheduleFixtures.waitingList,
+    activity: upcomingWaitingList,
     booking: {
       groupActivity: { id: scheduleFixtures.waitingList.id },
       type: "groupActivityWaitingListBooking",
@@ -124,7 +150,7 @@ export const OrdinaryBookingConfirmation: Story = {
   },
 };
 export const WaitingListConfirmation: Story = {
-  args: { activity: scheduleFixtures.waitingList },
+  args: { activity: upcomingWaitingList },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const page = within(canvasElement.ownerDocument.body);
@@ -133,7 +159,7 @@ export const WaitingListConfirmation: Story = {
   },
 };
 export const WaitingListEnglish: Story = {
-  args: { activity: scheduleFixtures.waitingList },
+  args: { activity: upcomingWaitingList },
   globals: { locale: "en" },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -144,7 +170,7 @@ export const WaitingListEnglish: Story = {
 };
 export const WaitingListPending: Story = {
   args: {
-    activity: scheduleFixtures.waitingList,
+    activity: upcomingWaitingList,
     onBook: () => new Promise<void>(() => undefined),
   },
   play: async ({ canvasElement }) => {
@@ -159,7 +185,7 @@ export const WaitingListPending: Story = {
 };
 export const WaitingListError: Story = {
   args: {
-    activity: scheduleFixtures.waitingList,
+    activity: upcomingWaitingList,
     onBook: async () => {
       throw new Error("Mock waiting-list failure");
     },

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { getAvailability, groupActivitiesByStart } from "./schedule";
+import { getAvailability, groupActivitiesByStart, hasActivityStarted } from "./schedule";
 import { addDays, getStockholmDayPeriod, isDateString } from "./scheduleDate";
 import { parseScheduleSearch } from "./scheduleSearch";
 
@@ -17,6 +17,13 @@ describe("schedule model", () => {
       kind: "waitingList",
     });
     expect(getAvailability({ cancelled: true })).toEqual({ kind: "cancelled" });
+  });
+
+  it("recognizes activities as started at their exact start time", () => {
+    const activity = { duration: { start: "2026-07-28T08:00:00.000Z" } };
+
+    expect(hasActivityStarted(activity, Date.parse("2026-07-28T07:59:59.999Z"))).toBe(false);
+    expect(hasActivityStarted(activity, Date.parse("2026-07-28T08:00:00.000Z"))).toBe(true);
   });
 
   it("moves between calendar days across month, year, and daylight-saving boundaries", () => {

@@ -97,10 +97,6 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
 
   return (
     <main className={styles.page}>
-      <header className={styles.header}>
-        <h1>{t(view === "rooms" ? "rooms.title" : "schedule.title")}</h1>
-      </header>
-
       <ScheduleFilters
         search={search}
         onChange={onSearchChange}
@@ -111,17 +107,19 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
         onRetryOptions={retryFilterOptions}
       />
 
-      <div className={styles.statusRegion} aria-live="polite">
-        {isFetching && !isPending ? <span>{t("schedule.refreshing")}</span> : null}
-        {isPartialError ? (
-          <span>
-            {t("schedule.partialError", { count: failedScheduleQueries.length })}{" "}
-            <Button tone="quiet" onPress={retrySchedule}>
-              {t("schedule.retry")}
-            </Button>
-          </span>
-        ) : null}
-      </div>
+      {(isFetching && !isPending) || isPartialError ? (
+        <div className={styles.statusRegion} aria-live="polite">
+          {isFetching && !isPending ? <span>{t("schedule.refreshing")}</span> : null}
+          {isPartialError ? (
+            <span>
+              {t("schedule.partialError", { count: failedScheduleQueries.length })}{" "}
+              <Button tone="quiet" onPress={retrySchedule}>
+                {t("schedule.retry")}
+              </Button>
+            </span>
+          ) : null}
+        </div>
+      ) : null}
       <section
         className={styles.list}
         aria-label={t(view === "rooms" ? "rooms.calendarLabel" : "schedule.listLabel")}

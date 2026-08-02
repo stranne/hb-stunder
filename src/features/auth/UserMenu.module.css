@@ -1,0 +1,112 @@
+@layer components {
+  .trigger,
+  .signedOut {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-inline-size: 0;
+  }
+
+  .signedOut > button,
+  .trigger {
+    min-block-size: 2.5rem;
+    padding-inline: var(--space-2);
+  }
+
+  .icon {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    inline-size: 1.4rem;
+    block-size: 1.4rem;
+    font-size: 1.2rem;
+    line-height: 1;
+
+    svg {
+      inline-size: 100%;
+      block-size: 100%;
+    }
+  }
+
+  .triggerName {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .popover {
+    inline-size: min(18rem, calc(100vw - 2rem));
+    padding: var(--space-2);
+    border: 1px solid color-mix(in oklch, var(--color-ink) 12%, transparent);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: 0 0.75rem 2rem oklch(24% 0.035 245deg / 14%);
+
+    &[data-entering],
+    &[data-exiting] {
+      opacity: 0;
+      transform: translateY(-0.25rem);
+    }
+  }
+
+  .dialog {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    outline: none;
+
+    p {
+      margin: 0;
+    }
+
+    button {
+      margin-block-start: var(--space-2);
+    }
+  }
+
+  .label {
+    color: var(--color-ink-muted);
+    font-size: var(--text-sm);
+  }
+
+  .name {
+    overflow-wrap: anywhere;
+    font-weight: 750;
+  }
+
+  @media (width < 40rem) {
+    .signedOut,
+    .trigger {
+      justify-content: center;
+      inline-size: 100%;
+    }
+
+    .signedOut {
+      display: grid;
+      grid-template-rows: 1.25rem auto;
+      justify-items: center;
+      gap: 0;
+
+      > button {
+        min-block-size: auto;
+        padding: 0;
+        font-size: var(--text-sm);
+      }
+    }
+
+    .trigger {
+      display: grid;
+      grid-template-rows: 1.25rem auto;
+      justify-items: center;
+      gap: 0;
+      min-block-size: auto;
+      padding: 0;
+      border-radius: var(--radius-sm);
+      font-size: var(--text-sm);
+    }
+
+    .triggerName {
+      max-inline-size: 5rem;
+    }
+  }
+}

@@ -30,7 +30,6 @@ const meta = {
   args: {
     customerId: MOCK_CUSTOMER_ID,
     canSignIn: true,
-    onSignIn: () => undefined,
   },
   parameters: {
     layout: "fullscreen",

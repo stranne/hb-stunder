@@ -63,6 +63,18 @@ export function ScheduleFilters({
   return (
     <div className={styles.filters} role="group" aria-label={t("schedule.filters.label")}>
       <div className={styles.filterToolbar}>
+        <input
+          className={styles.datePickerInput}
+          aria-label={t("schedule.filters.chooseDate")}
+          type="date"
+          min={today}
+          max={lastVisibleDate}
+          value={search.date}
+          onChange={(event) => {
+            const date = event.currentTarget.value;
+            if (date) changeDate(date);
+          }}
+        />
         <ScheduleFilterPanel
           search={search}
           onChange={onChange}
@@ -74,86 +86,68 @@ export function ScheduleFilters({
         />
       </div>
 
-      <div className={styles.dateFilter}>
-        <div className={styles.dateHeading}>
-          <span className={styles.label}>{t("schedule.filters.upcomingDays")}</span>
-          <input
-            className={styles.datePickerInput}
-            aria-label={t("schedule.filters.chooseDate")}
-            type="date"
-            min={today}
-            max={lastVisibleDate}
-            value={search.date}
-            onChange={(event) => {
-              const date = event.currentTarget.value;
-              if (date) changeDate(date);
-            }}
-          />
+      <div className={styles.weekNavigation}>
+        <Button
+          tone="quiet"
+          aria-label={t("schedule.filters.previousWeek")}
+          isDisabled={pageIndex === 0}
+          onPress={() => changeDate(addDays(search.date, -DAYS_PER_PAGE))}
+        >
+          <span aria-hidden="true">←</span>
+        </Button>
+
+        <div
+          className={styles.dayStrip}
+          role="group"
+          aria-label={t("schedule.filters.upcomingDays")}
+        >
+          {visibleDates.map((date, index) => {
+            const formattedDate = dateForFormatting(date);
+            const isSelected = date === search.date;
+            const isToday = date === today;
+
+            return (
+              <button
+                key={date}
+                ref={isSelected ? selectedDayRef : undefined}
+                type="button"
+                className={styles.dayButton}
+                data-visible={Math.floor(index / DAYS_PER_PAGE) === pageIndex}
+                tabIndex={isSelected ? 0 : -1}
+                aria-label={fullDateFormatter.format(formattedDate)}
+                aria-pressed={isSelected}
+                aria-current={isSelected ? "date" : undefined}
+                onClick={() => changeDate(date)}
+                onKeyDown={(event) => {
+                  if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+
+                  const nextIndex = index + (event.key === "ArrowLeft" ? -1 : 1);
+                  const nextDate = visibleDates[nextIndex];
+                  if (!nextDate) return;
+
+                  event.preventDefault();
+                  pendingFocusDateRef.current = nextDate;
+                  changeDate(nextDate);
+                }}
+              >
+                <span className={styles.weekday}>
+                  {isToday ? t("schedule.filters.today") : weekdayFormatter.format(formattedDate)}
+                </span>
+                <strong className={styles.dayNumber}>{formattedDate.getUTCDate()}</strong>
+                <span className={styles.month}>{monthFormatter.format(formattedDate)}</span>
+              </button>
+            );
+          })}
         </div>
 
-        <div className={styles.weekNavigation}>
-          <Button
-            tone="quiet"
-            aria-label={t("schedule.filters.previousWeek")}
-            isDisabled={pageIndex === 0}
-            onPress={() => changeDate(addDays(search.date, -DAYS_PER_PAGE))}
-          >
-            <span aria-hidden="true">←</span>
-          </Button>
-
-          <div
-            className={styles.dayStrip}
-            role="group"
-            aria-label={t("schedule.filters.upcomingDays")}
-          >
-            {visibleDates.map((date, index) => {
-              const formattedDate = dateForFormatting(date);
-              const isSelected = date === search.date;
-              const isToday = date === today;
-
-              return (
-                <button
-                  key={date}
-                  ref={isSelected ? selectedDayRef : undefined}
-                  type="button"
-                  className={styles.dayButton}
-                  data-visible={Math.floor(index / DAYS_PER_PAGE) === pageIndex}
-                  tabIndex={isSelected ? 0 : -1}
-                  aria-label={fullDateFormatter.format(formattedDate)}
-                  aria-pressed={isSelected}
-                  aria-current={isSelected ? "date" : undefined}
-                  onClick={() => changeDate(date)}
-                  onKeyDown={(event) => {
-                    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
-
-                    const nextIndex = index + (event.key === "ArrowLeft" ? -1 : 1);
-                    const nextDate = visibleDates[nextIndex];
-                    if (!nextDate) return;
-
-                    event.preventDefault();
-                    pendingFocusDateRef.current = nextDate;
-                    changeDate(nextDate);
-                  }}
-                >
-                  <span className={styles.weekday}>
-                    {isToday ? t("schedule.filters.today") : weekdayFormatter.format(formattedDate)}
-                  </span>
-                  <strong className={styles.dayNumber}>{formattedDate.getUTCDate()}</strong>
-                  <span className={styles.month}>{monthFormatter.format(formattedDate)}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          <Button
-            tone="quiet"
-            aria-label={t("schedule.filters.nextWeek")}
-            isDisabled={pageIndex === VISIBLE_DAYS / DAYS_PER_PAGE - 1}
-            onPress={() => changeDate(addDays(search.date, DAYS_PER_PAGE))}
-          >
-            <span aria-hidden="true">→</span>
-          </Button>
-        </div>
+        <Button
+          tone="quiet"
+          aria-label={t("schedule.filters.nextWeek")}
+          isDisabled={pageIndex === VISIBLE_DAYS / DAYS_PER_PAGE - 1}
+          onPress={() => changeDate(addDays(search.date, DAYS_PER_PAGE))}
+        >
+          <span aria-hidden="true">→</span>
+        </Button>
       </div>
     </div>
   );

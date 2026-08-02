@@ -1,34 +1,44 @@
 @layer components {
   .shellHeader {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3) var(--space-6);
-    align-items: center;
-    justify-content: space-between;
-    inline-size: min(100% - 2rem, 72rem);
-    margin-inline: auto;
-    padding-block: var(--space-4);
     border-block-end: 1px solid color-mix(in oklch, var(--color-ink) 10%, transparent);
+    background: var(--color-canvas);
   }
 
-  .nav,
-  .account {
+  .navigationBar {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
     align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    inline-size: min(100% - 2rem, 72rem);
+    min-block-size: 3.25rem;
+    margin-inline: auto;
+  }
+
+  .nav {
+    display: flex;
+    align-self: stretch;
+    align-items: center;
+    gap: var(--space-1);
   }
 
   .nav a {
+    display: grid;
+    place-items: center;
+    min-block-size: 2.5rem;
     padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-sm);
     color: var(--color-ink-muted);
-    font-weight: 700;
+    font-size: var(--text-sm);
+    font-weight: 750;
     text-decoration: none;
   }
 
   .nav a:hover,
-  .nav a:focus-visible,
+  .nav a:focus-visible {
+    color: var(--color-ink);
+    background: var(--color-surface-strong);
+  }
+
   .nav a[aria-current="page"] {
     color: var(--color-accent-strong);
     background: color-mix(in oklch, var(--color-accent) 12%, transparent);
@@ -39,42 +49,53 @@
     outline-offset: var(--focus-offset);
   }
 
-  .customerName {
-    color: var(--color-ink-muted);
-    font-size: var(--text-sm);
+  .account {
+    min-inline-size: 0;
+    padding-inline-start: var(--space-2);
+    border-inline-start: 1px solid color-mix(in oklch, var(--color-ink) 10%, transparent);
   }
 
   @media (width < 40rem) {
     .shellHeader {
-      min-block-size: 3.5rem;
-      padding-block: var(--space-2);
+      min-block-size: 0;
+      border: 0;
     }
 
-    .nav {
+    .navigationBar {
       position: fixed;
       z-index: 20;
       inset-inline: 0;
       inset-block-end: 0;
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: minmax(0, 3fr) minmax(4.5rem, 1fr);
       gap: 0;
-      padding: var(--space-2) var(--space-3) calc(var(--space-2) + env(safe-area-inset-bottom));
+      inline-size: 100%;
+      min-block-size: 3.75rem;
+      padding: var(--space-1) var(--space-2) calc(var(--space-1) + env(safe-area-inset-bottom));
       border-block-start: 1px solid color-mix(in oklch, var(--color-ink) 12%, transparent);
-      background: var(--color-surface);
+      background: color-mix(in oklch, var(--color-surface) 96%, transparent);
       box-shadow: 0 -0.25rem 1rem oklch(24% 0.035 245deg / 8%);
+      backdrop-filter: blur(0.75rem);
+    }
+
+    .nav {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0;
     }
 
     .nav a {
-      padding: var(--space-2);
+      min-block-size: auto;
+      padding: var(--space-2) var(--space-1);
       font-size: var(--text-sm);
+      line-height: 1.1;
       text-align: center;
     }
 
     .account {
-      margin-inline-start: auto;
-    }
-    .customerName {
-      display: none;
+      display: grid;
+      align-items: center;
+      padding-inline-start: var(--space-1);
     }
 
     .content {

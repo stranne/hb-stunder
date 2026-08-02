@@ -3,10 +3,9 @@ import { Link, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { useTranslation } from "react-i18next";
 import { bookingKeys } from "../features/bookings/api/bookingQueries";
-import { SignInAction } from "../features/auth/SignInAction";
 import { useSession } from "../features/auth/sessionContext";
+import { UserMenu } from "../features/auth/UserMenu";
 import { parseScheduleSearch } from "../features/schedule/model/scheduleSearch";
-import { Button } from "../ui/button/Button";
 import styles from "./AppRoot.module.css";
 
 export function AppRoot() {
@@ -23,34 +22,32 @@ export function AppRoot() {
   return (
     <>
       <header className={styles.shellHeader}>
-        <nav className={styles.nav} aria-label={t("navigation.label")}>
-          <Link
-            to="/"
-            search={(previous) => ({ ...parseScheduleSearch(previous), view: "classes" })}
-            activeOptions={{ exact: true }}
-          >
-            {t("navigation.classes")}
-          </Link>
-          <Link
-            to="/"
-            search={(previous) => ({ ...parseScheduleSearch(previous), view: "rooms" })}
-            activeOptions={{ exact: true }}
-          >
-            {t("navigation.rooms")}
-          </Link>
-          <Link to="/bookings">{t("navigation.bookings")}</Link>
-        </nav>
-        <div className={styles.account}>
-          {customer ? (
-            <>
-              <span className={styles.customerName}>{customer.displayName}</span>
-              <Button tone="quiet" onPress={handleSignOut}>
-                {t("auth.signOut")}
-              </Button>
-            </>
-          ) : canSignIn ? (
-            <SignInAction onSignIn={signIn} />
-          ) : null}
+        <div className={styles.navigationBar}>
+          <nav className={styles.nav} aria-label={t("navigation.label")}>
+            <Link
+              to="/"
+              search={(previous) => ({ ...parseScheduleSearch(previous), view: "classes" })}
+              activeOptions={{ exact: true }}
+            >
+              {t("navigation.classes")}
+            </Link>
+            <Link
+              to="/"
+              search={(previous) => ({ ...parseScheduleSearch(previous), view: "rooms" })}
+              activeOptions={{ exact: true }}
+            >
+              {t("navigation.rooms")}
+            </Link>
+            <Link to="/bookings">{t("navigation.bookings")}</Link>
+          </nav>
+          <div className={styles.account}>
+            <UserMenu
+              customer={customer}
+              canSignIn={canSignIn}
+              onSignIn={signIn}
+              onSignOut={handleSignOut}
+            />
+          </div>
         </div>
       </header>
       <div className={styles.content}>

@@ -40,7 +40,7 @@ afterEach(() => {
 afterAll(() => server.close());
 
 describe("BookingsRoute", () => {
-  it("requires an explicit demo sign-in before loading all customer bookings", async () => {
+  it("loads bookings only for a signed-in customer", async () => {
     let requests = 0;
     server.use(
       http.get(
@@ -71,13 +71,11 @@ describe("BookingsRoute", () => {
     renderRoute();
 
     expect(screen.getByText("Sign in to see your current bookings.")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Sign in" })).toBeNull();
     expect(requests).toBe(0);
-    fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
-    fireEvent.change(screen.getByRole("textbox", { name: "Username" }), {
-      target: { value: "demo" },
-    });
-    fireEvent.change(screen.getByLabelText("Password"), { target: { value: "password" } });
-    fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
+
+    cleanup();
+    renderRoute(true);
 
     expect(await screen.findByText("Today strength")).toBeTruthy();
     expect(screen.getByText("Tomorrow yoga")).toBeTruthy();

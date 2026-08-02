@@ -48,7 +48,6 @@
     "unnamedClass": "Class",
     "timeUnknown": "Time unavailable",
     "loading": "Loading classes",
-    "refreshing": "Updating schedule…",
     "empty": "No classes found for this day.",
     "error": "The schedule could not be loaded.",
     "partialError_one": "Classes from one location could not be loaded.",

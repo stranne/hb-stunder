@@ -107,17 +107,14 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
         onRetryOptions={retryFilterOptions}
       />
 
-      {(isFetching && !isPending) || isPartialError ? (
+      {isPartialError ? (
         <div className={styles.statusRegion} aria-live="polite">
-          {isFetching && !isPending ? <span>{t("schedule.refreshing")}</span> : null}
-          {isPartialError ? (
-            <span>
-              {t("schedule.partialError", { count: failedScheduleQueries.length })}{" "}
-              <Button tone="quiet" onPress={retrySchedule}>
-                {t("schedule.retry")}
-              </Button>
-            </span>
-          ) : null}
+          <span>
+            {t("schedule.partialError", { count: failedScheduleQueries.length })}{" "}
+            <Button tone="quiet" onPress={retrySchedule}>
+              {t("schedule.retry")}
+            </Button>
+          </span>
         </div>
       ) : null}
       <section

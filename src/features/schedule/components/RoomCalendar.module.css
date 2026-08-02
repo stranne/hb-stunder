@@ -13,6 +13,7 @@
     display: grid;
     inline-size: max-content;
     min-inline-size: 100%;
+    margin-inline: auto;
   }
 
   .corner,
@@ -84,7 +85,6 @@
     position: absolute;
     inset-inline: var(--space-1);
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
     overflow: hidden;
     border-radius: var(--radius-sm);
     color: var(--color-accent-strong);
@@ -117,13 +117,6 @@
   .close:focus-visible {
     outline: var(--focus-width) solid var(--color-focus);
     outline-offset: var(--focus-offset);
-  }
-
-  .block > button:not(.blockDetails) {
-    align-self: end;
-    margin: var(--space-1);
-    padding: var(--space-1) var(--space-2);
-    font-size: 0.75rem;
   }
 
   .empty {

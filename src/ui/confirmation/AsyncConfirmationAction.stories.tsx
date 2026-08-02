@@ -56,4 +56,13 @@ export const Error: Story = {
   },
 };
 
+export const InlineConfirmation: Story = {
+  args: { presentation: "inline" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: "Delete booking" }));
+    await expect(canvas.getByRole("group", { name: "Delete booking?" })).toBeVisible();
+  },
+};
+
 export const QuietTrigger: Story = { args: { tone: "quiet" } };

@@ -8,6 +8,7 @@
   .roomsPage {
     display: flex;
     flex-direction: column;
+    inline-size: calc(100% - 2rem);
     min-block-size: calc(100dvh - 3.25rem);
     padding-block-end: 0;
   }

@@ -48,7 +48,6 @@
     "unnamedClass": "Klass",
     "timeUnknown": "Tid saknas",
     "loading": "Laddar klasser",
-    "refreshing": "Uppdaterar schemat…",
     "empty": "Inga klasser hittades för den här dagen.",
     "error": "Schemat kunde inte laddas.",
     "partialError_one": "Klasser från en plats kunde inte laddas.",

@@ -162,10 +162,6 @@ export function RoomCalendar({
                   const end = minutesInStockholm(item.activity.duration?.end)!;
                   const top = ((start - startMinute) / 60) * hourHeight;
                   const blockHeight = Math.max(32, ((end - start) / 60) * hourHeight);
-                  const booking =
-                    item.activity.id === undefined
-                      ? undefined
-                      : bookingsByActivity.get(item.activity.id);
                   return (
                     <div
                       key={item.key}
@@ -181,15 +177,7 @@ export function RoomCalendar({
                         })}
                       >
                         <strong>{item.activity.name ?? t("schedule.unnamedClass")}</strong>
-                        <span>{timeLabel(item.activity.duration?.start, locale)}</span>
                       </button>
-                      <RoomBookingAction
-                        activity={item.activity}
-                        booking={booking}
-                        customerId={customerId}
-                        onBook={onBook}
-                        onCancel={onCancel}
-                      />
                     </div>
                   );
                 })}
@@ -280,6 +268,7 @@ function RoomBookingAction({
         errorMessage={t("schedule.cancellation.error")}
         onConfirm={() => onCancel(bookingId)}
         tone="quiet"
+        presentation="inline"
       />
     );
   }
@@ -306,6 +295,7 @@ function RoomBookingAction({
       pendingMessage={t(waiting ? "schedule.waitingList.pending" : "schedule.booking.pending")}
       errorMessage={t(waiting ? "schedule.waitingList.error" : "schedule.booking.error")}
       onConfirm={() => onBook(activity)}
+      presentation="inline"
     />
   );
 }

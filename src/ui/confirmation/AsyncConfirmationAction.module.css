@@ -27,6 +27,17 @@
     }
   }
 
+  .inlineConfirmation {
+    margin-block-start: var(--space-4);
+    padding-block-start: var(--space-4);
+    border-block-start: 1px solid color-mix(in oklch, var(--color-ink) 10%, transparent);
+
+    h3,
+    p {
+      margin-block-start: 0;
+    }
+  }
+
   .actions {
     display: flex;
     gap: var(--space-3);

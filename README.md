@@ -42,6 +42,8 @@ API timestamps such as `2026-07-28T06:00:00.000Z` must be interpreted as UTC and
 
 `pnpm dev` uses the real API. Sign in with your Hagabadet username and password; the returned access token and customer identity are kept in browser session storage and authenticated requests include the bearer token. Sign-out clears the session and customer booking cache.
 
+The complete ordinary group-activity happy path—sign in, create a booking, list it under **My bookings**, cancel it, and observe its removal—has been manually verified against the real API on localhost. Waiting-list mutations, failure-specific responses, token renewal, deployed-origin CORS, idempotency/rate limits, and API usage permission remain unverified.
+
 MSW is configured beneath the generated HTTP client. It is disabled by default and can only start in development:
 
 ```sh

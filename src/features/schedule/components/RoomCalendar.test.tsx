@@ -45,7 +45,7 @@ describe("RoomCalendar", () => {
     );
 
     const activity = screen.getByRole("button", { name: "Open details for Yinyoga, 55 min" });
-    expect(activity.textContent).toBe("Yinyoga, 55 min");
+    expect(within(activity).getByText("Yinyoga, 55 min")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Book" })).toBeNull();
 
     fireEvent.click(activity);
@@ -57,6 +57,32 @@ describe("RoomCalendar", () => {
     expect(within(details).getByRole("group", { name: "Confirm booking" })).toBeTruthy();
     fireEvent.click(within(details).getByRole("button", { name: "Cancel" }));
     expect(within(details).getByRole("button", { name: "Book" })).toBeTruthy();
+  });
+
+  it("shows every instructor assigned to an activity", () => {
+    const activityWithMultipleInstructors = {
+      ...scheduleFixtures.available,
+      instructors: [
+        { id: 201, name: "Alex Example" },
+        { id: 202, name: "Sam Example" },
+      ],
+    };
+
+    render(
+      <RoomCalendar
+        date="2026-07-28"
+        activities={[activityWithMultipleInstructors]}
+        bookingsByActivity={new Map()}
+        onBook={async () => undefined}
+        onCancel={async () => undefined}
+      />,
+    );
+
+    const activity = screen.getByRole("button", { name: "Open details for Yinyoga, 55 min" });
+    expect(within(activity).getByText("Alex Example, Sam Example")).toBeTruthy();
+
+    fireEvent.click(activity);
+    expect(within(screen.getByRole("dialog")).getByText("Alex Example, Sam Example")).toBeTruthy();
   });
 
   it("marks the current time when showing today", () => {

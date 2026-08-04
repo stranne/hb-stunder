@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/tanstack-react";
-import { userEvent, within } from "storybook/test";
+import { expect, userEvent, within } from "storybook/test";
 import { scheduleFixtures } from "../../../mocks/fixtures/schedule";
 import { todayInStockholm } from "../model/scheduleDate";
 import { RoomCalendar } from "./RoomCalendar";
@@ -29,6 +29,22 @@ export const ActivityDetails: Story = {
     await userEvent.click(
       within(canvasElement).getByRole("button", { name: "Open details for Yinyoga, 55 min" }),
     );
+  },
+};
+export const MultipleInstructors: Story = {
+  args: {
+    activities: [
+      {
+        ...scheduleFixtures.available,
+        instructors: [
+          { id: 201, name: "Alex Example" },
+          { id: 202, name: "Sam Example" },
+        ],
+      },
+    ],
+  },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByText("Alex Example, Sam Example")).toBeVisible();
   },
 };
 export const CurrentTime: Story = { args: { date: todayInStockholm() } };

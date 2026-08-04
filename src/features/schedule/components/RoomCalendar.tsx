@@ -49,6 +49,13 @@ function timeLabel(value: string | undefined, language: string) {
   }).format(new Date(value));
 }
 
+function instructorNames(activity: ScheduledActivity) {
+  return activity.instructors
+    ?.map(({ name }) => name)
+    .filter(Boolean)
+    .join(", ");
+}
+
 /** One block is rendered for every assigned room, including activities assigned to multiple rooms. */
 export function RoomCalendar({
   activities,
@@ -122,6 +129,7 @@ export function RoomCalendar({
       : ({
           "--current-time-top": `${((currentMinute - startMinute) / 60) * hourHeight}px`,
         } as CSSProperties);
+  const detailInstructors = detail ? instructorNames(detail.activity) : undefined;
 
   if (rooms.length === 0) return <p className={styles.empty}>{t("rooms.empty")}</p>;
 
@@ -162,6 +170,7 @@ export function RoomCalendar({
                   const end = minutesInStockholm(item.activity.duration?.end)!;
                   const top = ((start - startMinute) / 60) * hourHeight;
                   const blockHeight = Math.max(32, ((end - start) / 60) * hourHeight);
+                  const instructors = instructorNames(item.activity);
                   return (
                     <div
                       key={item.key}
@@ -177,6 +186,9 @@ export function RoomCalendar({
                         })}
                       >
                         <strong>{item.activity.name ?? t("schedule.unnamedClass")}</strong>
+                        {instructors ? (
+                          <span className={styles.instructors}>{instructors}</span>
+                        ) : null}
                       </button>
                     </div>
                   );
@@ -211,14 +223,7 @@ export function RoomCalendar({
                     time: `${timeLabel(detail.activity.duration?.start, locale)}–${timeLabel(detail.activity.duration?.end, locale)}`,
                   })}
                 </p>
-                {detail.activity.instructors?.length ? (
-                  <p>
-                    {detail.activity.instructors
-                      .map(({ name }) => name)
-                      .filter(Boolean)
-                      .join(", ")}
-                  </p>
-                ) : null}
+                {detailInstructors ? <p>{detailInstructors}</p> : null}
                 {detail.activity.externalMessage ? <p>{detail.activity.externalMessage}</p> : null}
                 <RoomBookingAction
                   activity={detail.activity}

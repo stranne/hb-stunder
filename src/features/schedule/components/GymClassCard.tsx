@@ -54,11 +54,11 @@ export function GymClassCard({
   });
   const start = activity.duration?.start ? new Date(activity.duration.start) : undefined;
   const end = activity.duration?.end ? new Date(activity.duration.end) : undefined;
-  const instructor = activity.instructors
+  const instructors = activity.instructors
     ?.map(({ name }) => name)
     .filter(Boolean)
     .join(", ");
-  const location = activity.locations
+  const locations = activity.locations
     ?.map(({ name }) => name)
     .filter(Boolean)
     .join(", ");
@@ -102,8 +102,8 @@ export function GymClassCard({
       {showTime ? <div className={styles.time}>{durationLabel}</div> : null}
       <div className={styles.content}>
         <Heading>{activity.name ?? t("schedule.unnamedClass")}</Heading>
-        {instructor || location ? (
-          <p>{[instructor, location].filter(Boolean).join(" · ")}</p>
+        {instructors || locations ? (
+          <p>{[instructors, locations].filter(Boolean).join(" · ")}</p>
         ) : null}
         <button
           type="button"

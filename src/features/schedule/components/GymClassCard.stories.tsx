@@ -79,6 +79,36 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Available: Story = {};
+export const MultipleInstructors: Story = {
+  args: {
+    activity: {
+      ...upcomingAvailable,
+      instructors: [
+        { id: 201, name: "Alex Example" },
+        { id: 202, name: "Sam Example" },
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getByText("Alex Example, Sam Example · Yogastudio"),
+    ).toBeVisible();
+  },
+};
+export const MultipleLocations: Story = {
+  args: {
+    activity: {
+      ...upcomingAvailable,
+      locations: [
+        { id: 18, name: "Yogastudio" },
+        { id: 10, name: "Hotyogastudio" },
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByText(/Yogastudio, Hotyogastudio/)).toBeVisible();
+  },
+};
 export const Started: Story = {
   args: { activity: scheduledInYear(scheduleFixtures.available, 2000) },
 };

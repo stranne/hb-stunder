@@ -110,6 +110,11 @@
     }
   }
 
+  .instructors {
+    color: var(--color-ink-muted);
+    overflow-wrap: anywhere;
+  }
+
   .block:hover {
     background: color-mix(in oklch, var(--color-accent) 28%, var(--color-surface));
   }

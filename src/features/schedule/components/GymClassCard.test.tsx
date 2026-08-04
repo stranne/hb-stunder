@@ -27,6 +27,38 @@ describe("GymClassCard", () => {
     expect(screen.queryByText(/Hagabadet i Haga/)).toBeNull();
   });
 
+  it("shows every instructor assigned to an activity", () => {
+    render(
+      <GymClassCard
+        activity={{
+          ...scheduleFixtures.available,
+          instructors: [
+            { id: 201, name: "Alex Example" },
+            { id: 202, name: "Sam Example" },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Alex Example, Sam Example · Yogastudio")).toBeTruthy();
+  });
+
+  it("shows every location assigned to an activity", () => {
+    render(
+      <GymClassCard
+        activity={{
+          ...scheduleFixtures.available,
+          locations: [
+            { id: 18, name: "Yogastudio" },
+            { id: 10, name: "Hotyogastudio" },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByText(/Yogastudio, Hotyogastudio/)).toBeTruthy();
+  });
+
   it("discloses activity-specific information and the class description", () => {
     const { container } = render(<GymClassCard activity={scheduleFixtures.withMessages} />);
 

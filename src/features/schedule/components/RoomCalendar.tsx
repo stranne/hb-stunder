@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Dialog, Heading, Modal } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 import type { GroupActivityBooking } from "../../bookings/model/bookings";
@@ -69,6 +69,7 @@ export function RoomCalendar({
   const locale = i18n.resolvedLanguage ?? i18n.language;
   const [detail, setDetail] = useState<RoomActivity | undefined>();
   const [now, setNow] = useState(() => new Date());
+  const roomHeadersRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const interval = window.setInterval(() => setNow(new Date()), 30_000);
@@ -123,6 +124,9 @@ export function RoomCalendar({
     "--calendar-height": `${height}px`,
     "--hour-height": `${hourHeight}px`,
   } as CSSProperties;
+  const roomHeaderStyle = {
+    gridTemplateColumns: `repeat(${rooms.length}, minmax(12rem, 1fr))`,
+  } as CSSProperties;
   const currentTimeStyle =
     currentMinute === undefined
       ? undefined
@@ -135,66 +139,83 @@ export function RoomCalendar({
 
   return (
     <>
-      <div className={styles.scroller}>
-        <div className={styles.calendar} style={gridStyle} aria-label={t("rooms.calendarLabel")}>
+      <div className={styles.calendarFrame} aria-label={t("rooms.calendarLabel")}>
+        <div className={styles.stickyHeader}>
           <div className={styles.corner} />
-          {rooms.map((room) => (
-            <div className={styles.roomHeader} key={room.roomKey}>
-              <strong>{room.roomName}</strong>
-              {room.businessUnitName ? <span>{room.businessUnitName}</span> : null}
+          <div className={styles.headerViewport}>
+            <div ref={roomHeadersRef} className={styles.roomHeaders} style={roomHeaderStyle}>
+              {rooms.map((room) => (
+                <div className={styles.roomHeader} key={room.roomKey}>
+                  <strong>{room.roomName}</strong>
+                  {room.businessUnitName ? <span>{room.businessUnitName}</span> : null}
+                </div>
+              ))}
             </div>
-          ))}
-          <div className={styles.timeGutter} aria-hidden="true">
-            {Array.from({ length: Math.ceil((endMinute - startMinute) / 60) + 1 }, (_, index) => (
-              <span key={index}>{String((startMinute / 60 + index) % 24).padStart(2, "0")}:00</span>
+          </div>
+        </div>
+        <div
+          className={styles.scroller}
+          onScroll={(event) => {
+            if (roomHeadersRef.current) {
+              roomHeadersRef.current.style.transform = `translateX(-${event.currentTarget.scrollLeft}px)`;
+            }
+          }}
+        >
+          <div className={styles.calendar} style={gridStyle}>
+            <div className={styles.timeGutter} aria-hidden="true">
+              {Array.from({ length: Math.ceil((endMinute - startMinute) / 60) + 1 }, (_, index) => (
+                <span key={index}>
+                  {String((startMinute / 60 + index) % 24).padStart(2, "0")}:00
+                </span>
+              ))}
+            </div>
+            {rooms.map((room, roomIndex) => (
+              <div className={styles.roomTrack} key={room.roomKey}>
+                {currentTimeStyle ? (
+                  <div
+                    className={styles.currentTimeLine}
+                    style={currentTimeStyle}
+                    aria-label={
+                      roomIndex === 0
+                        ? t("rooms.currentTime", { time: timeLabel(now.toISOString(), locale) })
+                        : undefined
+                    }
+                    aria-hidden={roomIndex === 0 ? undefined : true}
+                  />
+                ) : null}
+                {timedActivities
+                  .filter((item) => item.roomKey === room.roomKey)
+                  .map((item) => {
+                    const start = minutesInStockholm(item.activity.duration?.start)!;
+                    const end = minutesInStockholm(item.activity.duration?.end)!;
+                    const top = ((start - startMinute) / 60) * hourHeight;
+                    const blockHeight = Math.max(32, ((end - start) / 60) * hourHeight);
+                    const instructors = instructorNames(item.activity);
+                    return (
+                      <div
+                        key={item.key}
+                        className={styles.block}
+                        style={{ top, height: blockHeight }}
+                      >
+                        <button
+                          type="button"
+                          className={styles.blockDetails}
+                          onClick={() => setDetail(item)}
+                          aria-label={t("rooms.openDetails", {
+                            name: item.activity.name ?? t("schedule.unnamedClass"),
+                          })}
+                        >
+                          <strong>{item.activity.name ?? t("schedule.unnamedClass")}</strong>
+                          {instructors ? (
+                            <span className={styles.instructors}>{instructors}</span>
+                          ) : null}
+                        </button>
+                      </div>
+                    );
+                  })}
+              </div>
             ))}
           </div>
-          {rooms.map((room, roomIndex) => (
-            <div className={styles.roomTrack} key={room.roomKey}>
-              {currentTimeStyle ? (
-                <div
-                  className={styles.currentTimeLine}
-                  style={currentTimeStyle}
-                  aria-label={
-                    roomIndex === 0
-                      ? t("rooms.currentTime", { time: timeLabel(now.toISOString(), locale) })
-                      : undefined
-                  }
-                  aria-hidden={roomIndex === 0 ? undefined : true}
-                />
-              ) : null}
-              {timedActivities
-                .filter((item) => item.roomKey === room.roomKey)
-                .map((item) => {
-                  const start = minutesInStockholm(item.activity.duration?.start)!;
-                  const end = minutesInStockholm(item.activity.duration?.end)!;
-                  const top = ((start - startMinute) / 60) * hourHeight;
-                  const blockHeight = Math.max(32, ((end - start) / 60) * hourHeight);
-                  const instructors = instructorNames(item.activity);
-                  return (
-                    <div
-                      key={item.key}
-                      className={styles.block}
-                      style={{ top, height: blockHeight }}
-                    >
-                      <button
-                        type="button"
-                        className={styles.blockDetails}
-                        onClick={() => setDetail(item)}
-                        aria-label={t("rooms.openDetails", {
-                          name: item.activity.name ?? t("schedule.unnamedClass"),
-                        })}
-                      >
-                        <strong>{item.activity.name ?? t("schedule.unnamedClass")}</strong>
-                        {instructors ? (
-                          <span className={styles.instructors}>{instructors}</span>
-                        ) : null}
-                      </button>
-                    </div>
-                  );
-                })}
-            </div>
-          ))}
         </div>
       </div>
       <Modal

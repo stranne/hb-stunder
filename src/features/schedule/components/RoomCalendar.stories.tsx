@@ -48,5 +48,14 @@ export const MultipleInstructors: Story = {
   },
 };
 export const CurrentTime: Story = { args: { date: todayInStockholm() } };
+export const HorizontalOverflow: Story = {
+  args: {
+    activities: Array.from({ length: 8 }, (_, index) => ({
+      ...scheduleFixtures.available,
+      id: 10_000 + index,
+      locations: [{ id: 100 + index, name: `Room ${index + 1}` }],
+    })),
+  },
+};
 export const Mobile: Story = { globals: { viewport: { value: "mobile", isRotated: false } } };
 export const Empty: Story = { args: { activities: [] } };

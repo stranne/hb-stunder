@@ -1,4 +1,5 @@
 import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useLayoutEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
   cancelGroupActivityBookingMutationOptions,
@@ -24,7 +25,26 @@ export interface SchedulePageProps {
 
 export function SchedulePage({ search, onSearchChange, customerId }: SchedulePageProps) {
   const { t, i18n } = useTranslation();
+  const pageRef = useRef<HTMLElement>(null);
+  const stickyControlsRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
+
+  useLayoutEffect(() => {
+    const controls = stickyControlsRef.current;
+    const page = pageRef.current;
+    if (!controls || !page) return;
+
+    const updateStickyOffset = () => {
+      page.style.setProperty("--schedule-sticky-offset", `${controls.offsetHeight}px`);
+    };
+
+    updateStickyOffset();
+    if (typeof ResizeObserver === "undefined") return;
+
+    const observer = new ResizeObserver(updateStickyOffset);
+    observer.observe(controls);
+    return () => observer.disconnect();
+  }, []);
   const createBooking = useMutation(createGroupActivityBookingMutationOptions(queryClient));
   const cancelBooking = useMutation(cancelGroupActivityBookingMutationOptions(queryClient));
   const scheduleQueries = useQueries({
@@ -96,16 +116,18 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
   };
 
   return (
-    <main className={`${styles.page} ${view === "rooms" ? styles.roomsPage : ""}`}>
-      <ScheduleFilters
-        search={search}
-        onChange={onSearchChange}
-        instructors={availableInstructors}
-        activityTypes={availableActivityTypes}
-        isLoadingOptions={instructors.isPending || activityTypes.isPending}
-        hasOptionsError={failedFilterQueries.length > 0}
-        onRetryOptions={retryFilterOptions}
-      />
+    <main ref={pageRef} className={`${styles.page} ${view === "rooms" ? styles.roomsPage : ""}`}>
+      <div ref={stickyControlsRef} className={styles.stickyControls}>
+        <ScheduleFilters
+          search={search}
+          onChange={onSearchChange}
+          instructors={availableInstructors}
+          activityTypes={availableActivityTypes}
+          isLoadingOptions={instructors.isPending || activityTypes.isPending}
+          hasOptionsError={failedFilterQueries.length > 0}
+          onRetryOptions={retryFilterOptions}
+        />
+      </div>
 
       {isPartialError ? (
         <div className={styles.statusRegion} aria-live="polite">

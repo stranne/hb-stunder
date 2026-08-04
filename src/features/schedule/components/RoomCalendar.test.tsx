@@ -5,6 +5,7 @@ import { afterEach, beforeAll, describe, expect, it, vi } from "vite-plus/test";
 import i18n from "../../../i18n";
 import { scheduleFixtures } from "../../../mocks/fixtures/schedule";
 import { RoomCalendar } from "./RoomCalendar";
+import styles from "./RoomCalendar.module.css";
 
 beforeAll(async () => i18n.changeLanguage("en"));
 afterEach(() => {
@@ -30,6 +31,29 @@ describe("RoomCalendar", () => {
     expect(screen.getByText("Yogastudio")).toBeTruthy();
     expect(screen.getByText("Ägget")).toBeTruthy();
     expect(screen.queryByText("Hotyogastudio")).toBeNull();
+  });
+
+  it("keeps room headers aligned with horizontal calendar scrolling", () => {
+    render(
+      <RoomCalendar
+        date="2026-07-28"
+        activities={[
+          scheduleFixtures.available,
+          { ...scheduleFixtures.almostFull, locations: [{ id: 12, name: "Ägget" }] },
+        ]}
+        bookingsByActivity={new Map()}
+        onBook={async () => undefined}
+        onCancel={async () => undefined}
+      />,
+    );
+
+    const calendar = screen.getByLabelText("Room calendar");
+    const scroller = calendar.querySelector<HTMLElement>(`.${styles.scroller}`)!;
+    const headers = calendar.querySelector<HTMLElement>(`.${styles.roomHeaders}`)!;
+    scroller.scrollLeft = 160;
+    fireEvent.scroll(scroller);
+
+    expect(headers.style.transform).toBe("translateX(-160px)");
   });
 
   it("shows time and booking controls only in the activity details", () => {

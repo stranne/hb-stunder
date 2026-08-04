@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Check, FilterList, Star, Xmark } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import {
   Button as AriaButton,
@@ -78,7 +79,7 @@ function SearchableOptions({
           {({ isSelected }) => (
             <>
               <span className={styles.checkboxBox} aria-hidden="true">
-                {isSelected ? "✓" : ""}
+                {isSelected ? <Check /> : null}
               </span>
               <span>{option.name}</span>
             </>
@@ -93,7 +94,7 @@ function SearchableOptions({
           )}
           onChange={() => onFavoriteChange(toggleId(favoriteIds, option.id))}
         >
-          <span aria-hidden="true">{isFavorite ? "★" : "☆"}</span>
+          <Star aria-hidden="true" fill={isFavorite ? "currentColor" : "none"} />
         </ToggleButton>
       </div>
     );
@@ -109,7 +110,11 @@ function SearchableOptions({
         onChange={setQuery}
       >
         <Input aria-label={searchLabel} placeholder={searchLabel} />
-        {query ? <AriaButton aria-label={t("schedule.filters.clearSearch")}>×</AriaButton> : null}
+        {query ? (
+          <AriaButton aria-label={t("schedule.filters.clearSearch")}>
+            <Xmark aria-hidden="true" />
+          </AriaButton>
+        ) : null}
       </SearchField>
 
       {filteredOptions.length > 0 ? (
@@ -177,6 +182,7 @@ export function ScheduleFilterPanel({
   return (
     <DialogTrigger>
       <Button tone="quiet" aria-label={t("schedule.filters.openFilters")}>
+        <FilterList className={styles.filterIcon} aria-hidden="true" />
         {t("schedule.filters.filters")}
         {activeFilterCount > 0 ? <span className={styles.count}>{activeFilterCount}</span> : null}
       </Button>
@@ -236,7 +242,7 @@ export function ScheduleFilterPanel({
                   {({ isSelected }) => (
                     <>
                       <span className={styles.checkboxBox} aria-hidden="true">
-                        {isSelected ? "✓" : ""}
+                        {isSelected ? <Check /> : null}
                       </span>
                       {location.name}
                     </>

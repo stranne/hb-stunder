@@ -203,6 +203,12 @@
     font-size: 1.5rem;
     line-height: 1;
     cursor: pointer;
+
+    svg {
+      inline-size: 1.1rem;
+      block-size: 1.1rem;
+      vertical-align: middle;
+    }
   }
 
   @media (width < 40rem) {

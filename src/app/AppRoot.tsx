@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { Calendar, CalendarCheck, ViewGrid } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import { bookingKeys } from "../features/bookings/api/bookingQueries";
 import { useSession } from "../features/auth/sessionContext";
@@ -29,16 +30,21 @@ export function AppRoot() {
               search={(previous) => ({ ...parseScheduleSearch(previous), view: "classes" })}
               activeOptions={{ exact: true }}
             >
-              {t("navigation.classes")}
+              <Calendar aria-hidden="true" />
+              <span>{t("navigation.classes")}</span>
             </Link>
             <Link
               to="/"
               search={(previous) => ({ ...parseScheduleSearch(previous), view: "rooms" })}
               activeOptions={{ exact: true }}
             >
-              {t("navigation.rooms")}
+              <ViewGrid aria-hidden="true" />
+              <span>{t("navigation.rooms")}</span>
             </Link>
-            <Link to="/bookings">{t("navigation.bookings")}</Link>
+            <Link to="/bookings">
+              <CalendarCheck aria-hidden="true" />
+              <span>{t("navigation.bookings")}</span>
+            </Link>
           </nav>
           <div className={styles.account}>
             <UserMenu

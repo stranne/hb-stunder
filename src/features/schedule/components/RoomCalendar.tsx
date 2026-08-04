@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Dialog, Heading, Modal } from "react-aria-components";
+import { Xmark } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import type { GroupActivityBooking } from "../../bookings/model/bookings";
 import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
@@ -236,7 +237,7 @@ export function RoomCalendar({
                   onClick={close}
                   aria-label={t("rooms.closeDetails")}
                 >
-                  ×
+                  <Xmark aria-hidden="true" />
                 </button>
                 <Heading slot="title">{detail.activity.name ?? t("schedule.unnamedClass")}</Heading>
                 <p>

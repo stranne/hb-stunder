@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { NavArrowLeft, NavArrowRight } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../../ui/button/Button";
 import { addDays, todayInStockholm } from "../model/scheduleDate";
@@ -93,7 +94,7 @@ export function ScheduleFilters({
           isDisabled={pageIndex === 0}
           onPress={() => changeDate(addDays(search.date, -DAYS_PER_PAGE))}
         >
-          <span aria-hidden="true">←</span>
+          <NavArrowLeft aria-hidden="true" />
         </Button>
 
         <div
@@ -146,7 +147,7 @@ export function ScheduleFilters({
           isDisabled={pageIndex === VISIBLE_DAYS / DAYS_PER_PAGE - 1}
           onPress={() => changeDate(addDays(search.date, DAYS_PER_PAGE))}
         >
-          <span aria-hidden="true">→</span>
+          <NavArrowRight aria-hidden="true" />
         </Button>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { Dialog, DialogTrigger, Popover } from "react-aria-components";
+import { User } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../ui/button/Button";
 import type { LoginCredentials } from "./api/auth";
@@ -20,10 +21,7 @@ export function UserMenu({ customer, canSignIn, onSignIn, onSignOut }: UserMenuP
     return canSignIn ? (
       <div className={styles.signedOut}>
         <span className={styles.icon} aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-            <circle cx="12" cy="8" r="3.25" />
-            <path d="M5.5 20c.45-4.1 2.6-6.15 6.5-6.15S18.05 15.9 18.5 20" />
-          </svg>
+          <User />
         </span>
         <SignInAction onSignIn={onSignIn} tone="quiet" />
       </div>
@@ -40,10 +38,7 @@ export function UserMenu({ customer, canSignIn, onSignIn, onSignOut }: UserMenuP
         })}
       >
         <span className={styles.icon} aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-            <circle cx="12" cy="8" r="3.25" />
-            <path d="M5.5 20c.45-4.1 2.6-6.15 6.5-6.15S18.05 15.9 18.5 20" />
-          </svg>
+          <User />
         </span>
       </Button>
       <Popover className={styles.popover} placement="bottom end">

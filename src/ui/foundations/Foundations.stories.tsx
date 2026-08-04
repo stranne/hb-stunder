@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/tanstack-react";
+import { Calendar, CalendarCheck, FilterList, User, ViewGrid } from "iconoir-react";
 
 function Foundations() {
   return (
@@ -30,10 +31,41 @@ function Foundations() {
         ))}
       </div>
       <h2>Typography</h2>
-      <p style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-lg)" }}>
-        Display typography
+      <p
+        style={{
+          marginBlock: "1rem 0.25rem",
+          fontFamily: "var(--font-display)",
+          fontSize: "2.75rem",
+          fontWeight: 520,
+          lineHeight: 1,
+        }}
+      >
+        Rörelse, vila & återhämtning
       </p>
-      <p>Body typography for clear, accessible interfaces.</p>
+      <p style={{ marginBlock: 0, maxWidth: "42rem", lineHeight: 1.6 }}>
+        Commissioner keeps schedules, controls, and descriptions clear. 08:30–17:45 · 12 platser
+        kvar
+      </p>
+      <h2>Icons</h2>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "1.5rem" }}>
+        {(
+          [
+            ["Classes", Calendar],
+            ["Rooms", ViewGrid],
+            ["Bookings", CalendarCheck],
+            ["Filters", FilterList],
+            ["Account", User],
+          ] as const
+        ).map(([label, Icon]) => (
+          <div
+            key={String(label)}
+            style={{ display: "grid", justifyItems: "center", gap: "0.5rem", minWidth: "4rem" }}
+          >
+            <Icon aria-hidden="true" width={24} height={24} />
+            <span style={{ fontSize: "var(--text-sm)" }}>{String(label)}</span>
+          </div>
+        ))}
+      </div>
       <h2>Motion</h2>
       <p>
         Fast: {"var(--motion-fast)"} · Standard: {"var(--motion-standard)"}

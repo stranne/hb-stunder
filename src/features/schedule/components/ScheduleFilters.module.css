@@ -52,6 +52,12 @@
       padding-inline: 0;
       border-radius: var(--radius-sm);
       font-size: 1.1rem;
+
+      svg {
+        inline-size: 1.2rem;
+        block-size: 1.2rem;
+        vertical-align: middle;
+      }
     }
   }
 

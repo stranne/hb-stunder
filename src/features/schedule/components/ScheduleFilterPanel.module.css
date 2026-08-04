@@ -1,4 +1,11 @@
 @layer components {
+  .filterIcon {
+    inline-size: 1.15rem;
+    block-size: 1.15rem;
+    margin-inline-end: var(--space-2);
+    vertical-align: -0.2em;
+  }
+
   .count {
     display: inline-grid;
     min-inline-size: 1.5rem;
@@ -125,6 +132,12 @@
     border-radius: 0.3rem;
     color: var(--color-ink-inverse);
     font-size: 0.8rem;
+
+    svg {
+      inline-size: 0.9rem;
+      block-size: 0.9rem;
+      stroke-width: 2;
+    }
   }
 
   [data-selected] > .checkboxBox,
@@ -157,6 +170,11 @@
       font: inherit;
       font-size: 1.25rem;
       cursor: pointer;
+
+      svg {
+        inline-size: 1.1rem;
+        block-size: 1.1rem;
+      }
     }
   }
 
@@ -213,6 +231,11 @@
     font: inherit;
     font-size: 1.2rem;
     cursor: pointer;
+
+    svg {
+      inline-size: 1.15rem;
+      block-size: 1.15rem;
+    }
 
     &[data-selected] {
       color: oklch(67% 0.15 80deg);

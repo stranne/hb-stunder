@@ -25,7 +25,7 @@ function cancellationHandlers(fails = false) {
 }
 
 const meta = {
-  title: "Bookings/BookingsPage",
+  title: "Application/Pages/My bookings/States",
   component: BookingsPage,
   args: {
     customerId: MOCK_CUSTOMER_ID,

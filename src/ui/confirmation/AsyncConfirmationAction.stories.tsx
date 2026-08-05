@@ -3,7 +3,7 @@ import { expect, userEvent, within } from "storybook/test";
 import { AsyncConfirmationAction } from "./AsyncConfirmationAction";
 
 const meta = {
-  title: "UI primitives/AsyncConfirmationAction",
+  title: "Design system/Components/Async confirmation action",
   component: AsyncConfirmationAction,
   args: {
     triggerLabel: "Delete booking",

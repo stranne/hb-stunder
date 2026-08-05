@@ -18,7 +18,7 @@ async function submitCredentials(canvasElement: HTMLElement) {
 }
 
 const meta = {
-  title: "Auth/SignInAction",
+  title: "Features/Authentication/Components/Sign in action",
   component: SignInAction,
   args: {
     onSignIn: async (): Promise<void> => undefined,

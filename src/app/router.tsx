@@ -12,7 +12,7 @@ export const indexRoute = createRoute({
   component: ScheduleRoute,
 });
 
-const bookingsRoute = createRoute({
+export const bookingsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/bookings",
   component: BookingsRoute,

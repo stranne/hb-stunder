@@ -72,12 +72,16 @@ const preview: Preview = {
         reducedMotion={context.globals.reducedMotion === "reduce"}
         themeStudy={String(context.globals.themeStudy ?? "limestone")}
         colorMode={String(context.globals.colorMode ?? "light")}
+        initiallySignedIn={context.parameters.session?.initiallySignedIn === true}
       >
         <Story />
       </StoryEnvironment>
     ),
   ],
   parameters: {
+    options: {
+      storySort: { order: ["Application", "Features", "Design system"] },
+    },
     msw: handlers,
     a11y: { test: "todo" },
     viewport: {

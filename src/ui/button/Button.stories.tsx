@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/tanstack-react";
 import { Button } from "./Button";
 
 const meta = {
-  title: "UI primitives/Button",
+  title: "Design system/Components/Button",
   component: Button,
   args: { children: "Continue" },
   parameters: { layout: "centered" },

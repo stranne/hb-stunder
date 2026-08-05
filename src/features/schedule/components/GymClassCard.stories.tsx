@@ -59,7 +59,7 @@ function AvailabilityChangeDemo() {
 }
 
 const meta = {
-  title: "Schedule/GymClassCard",
+  title: "Features/Schedule/Components/Class card",
   component: GymClassCard,
   args: {
     activity: upcomingAvailable,

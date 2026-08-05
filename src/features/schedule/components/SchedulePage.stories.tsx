@@ -29,7 +29,7 @@ function BackgroundRefreshDemo(props: ComponentProps<typeof SchedulePage>) {
 }
 
 const meta = {
-  title: "Schedule/SchedulePage",
+  title: "Application/Pages/Schedule/States",
   component: SchedulePage,
   args: {
     search: {

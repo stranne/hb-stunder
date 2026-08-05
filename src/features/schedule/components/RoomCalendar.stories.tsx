@@ -5,7 +5,7 @@ import { todayInStockholm } from "../model/scheduleDate";
 import { RoomCalendar } from "./RoomCalendar";
 
 const meta = {
-  title: "Schedule/RoomCalendar",
+  title: "Features/Schedule/Components/Room calendar",
   component: RoomCalendar,
   args: {
     date: "2026-07-28",

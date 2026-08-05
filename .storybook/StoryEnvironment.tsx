@@ -8,12 +8,14 @@ export function StoryEnvironment({
   reducedMotion,
   themeStudy,
   colorMode,
+  initiallySignedIn,
   children,
 }: {
   locale: string;
   reducedMotion: boolean;
   themeStudy: string;
   colorMode: string;
+  initiallySignedIn: boolean;
   children: ReactNode;
 }) {
   const [queryClient] = useState(
@@ -40,7 +42,7 @@ export function StoryEnvironment({
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SessionProvider mockEnabled initiallySignedIn={false}>
+      <SessionProvider mockEnabled initiallySignedIn={initiallySignedIn}>
         <div data-reduced-motion={reducedMotion || undefined}>{children}</div>
       </SessionProvider>
     </QueryClientProvider>

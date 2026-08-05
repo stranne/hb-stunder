@@ -53,3 +53,11 @@ VITE_ENABLE_MSW=true pnpm dev
 With MSW enabled, the sign-in form starts the persisted mock customer session without sending its values to the API. Open **My bookings** to view the complete mocked customer booking response independently of schedule filters.
 
 Storybook initializes MSW so stories can add handlers independently.
+
+## Storybook organization
+
+The sidebar is organized by what you are looking for rather than by source-file location:
+
+- **Application / Pages** — every complete screen in one place. Each page groups its routed **In application** stories and isolated **States** such as loading, empty, and error views. Start here to browse Classes, Rooms, and My bookings. Navigation links inside the routed stories are functional.
+- **Features** — feature-owned components, grouped by Authentication and Schedule.
+- **Design system** — shared foundations and reusable components that are not owned by one product feature.

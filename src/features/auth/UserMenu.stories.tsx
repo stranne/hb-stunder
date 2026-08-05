@@ -3,7 +3,7 @@ import { fn } from "storybook/test";
 import { UserMenu } from "./UserMenu";
 
 const meta = {
-  title: "Auth/UserMenu",
+  title: "Features/Authentication/Components/User menu",
   component: UserMenu,
   args: {
     customer: { customerId: "900001", displayName: "Anna Andersson" },

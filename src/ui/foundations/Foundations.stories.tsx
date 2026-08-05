@@ -223,7 +223,7 @@ function AllStudies() {
 }
 
 const meta = {
-  title: "Foundations/Overview",
+  title: "Design system/Foundations/Overview",
   component: Foundations,
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof Foundations>;

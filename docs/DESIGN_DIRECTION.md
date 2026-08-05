@@ -104,7 +104,7 @@ Three experimental directions are available from the Storybook toolbar in indepe
 2. **Plaster + oxblood** — a more historic and editorial direction, with a separate green availability color.
 3. **Pale mineral + blue-green** — a cooler, more architectural direction intended to favor dense schedule legibility.
 
-The dark studies are not direct inversions. They use dark stone or tile-like canvases, independently tuned elevated and recessed surfaces, brighter interactive colors, warmer brass, stronger borders, and deeper overlays. The `Foundations/Overview/Comparison` story shows all six studies together; toolbar controls apply each study to the existing representative component and route stories.
+The dark studies are not direct inversions. They use dark stone or tile-like canvases, independently tuned elevated and recessed surfaces, brighter interactive colors, warmer brass, stronger borders, and deeper overlays. The `Design system/Foundations/Overview/Comparison` story shows all six studies together; toolbar controls apply each study to the existing representative component and route stories.
 
 These studies remain Storybook-only. Their role-based surface and semantic tokens can support a final theme, but no color direction or application-level dark mode has been adopted yet.
 

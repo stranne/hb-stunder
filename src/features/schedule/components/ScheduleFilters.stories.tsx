@@ -38,7 +38,7 @@ function InteractiveFilters({
 }
 
 const meta = {
-  title: "Schedule/ScheduleFilters",
+  title: "Features/Schedule/Components/Filters",
   component: ScheduleFilters,
   args: {
     search: {

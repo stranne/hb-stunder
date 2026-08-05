@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../../ui/button/Button";
 import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
+import { ErrorMessage } from "../../../ui/feedback/ErrorMessage";
 import { cancelGroupActivityBookingMutationOptions } from "../api/bookingMutations";
 import { customerGroupActivityBookingsQueryOptions } from "../api/bookingQueries";
 import type { GroupActivityBooking } from "../model/bookings";
@@ -54,10 +55,11 @@ export function BookingsPage({
           {t("bookings.loading")}
         </p>
       ) : bookings.isError ? (
-        <div className={styles.notice} role="alert">
-          <p>{t("bookings.error")}</p>
-          <Button onPress={() => void bookings.refetch()}>{t("bookings.retry")}</Button>
-        </div>
+        <ErrorMessage
+          action={<Button onPress={() => void bookings.refetch()}>{t("bookings.retry")}</Button>}
+        >
+          {t("bookings.error")}
+        </ErrorMessage>
       ) : sortedBookings.length === 0 ? (
         <p className={styles.notice}>{t("bookings.empty")}</p>
       ) : (

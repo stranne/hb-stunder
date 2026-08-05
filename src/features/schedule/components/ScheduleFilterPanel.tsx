@@ -14,6 +14,7 @@ import {
   ToggleButton,
 } from "react-aria-components";
 import { Button } from "../../../ui/button/Button";
+import { ErrorMessage } from "../../../ui/feedback/ErrorMessage";
 import type { ScheduleFilterOption } from "../api/scheduleFilterQueries";
 import { readSchedulePreferences, writeFavoriteFilters } from "../model/schedulePreferences";
 import { LOCATION_IDS, SCHEDULE_LOCATIONS, type ScheduleSearch } from "../model/scheduleSearch";
@@ -211,12 +212,15 @@ export function ScheduleFilterPanel({
             </p>
           ) : null}
           {hasOptionsError ? (
-            <div className={styles.optionsError} role="alert">
-              <p>{t("schedule.filters.optionsError")}</p>
-              <Button tone="quiet" onPress={onRetryOptions}>
-                {t("schedule.filters.retryOptions")}
-              </Button>
-            </div>
+            <ErrorMessage
+              action={
+                <Button tone="quiet" onPress={onRetryOptions}>
+                  {t("schedule.filters.retryOptions")}
+                </Button>
+              }
+            >
+              {t("schedule.filters.optionsError")}
+            </ErrorMessage>
           ) : null}
 
           <section className={`${styles.section} ${styles.locationSection}`}>

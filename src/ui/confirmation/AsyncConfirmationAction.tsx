@@ -1,6 +1,7 @@
 import { useRef, useState, type RefObject } from "react";
 import { Dialog, DialogTrigger, Heading, Modal } from "react-aria-components";
 import { Button } from "../button/Button";
+import { ErrorMessage } from "../feedback/ErrorMessage";
 import styles from "./AsyncConfirmationAction.module.css";
 
 export interface AsyncConfirmationActionProps {
@@ -70,13 +71,10 @@ export function AsyncConfirmationAction({
           {hasFailed ? retryLabel : confirmLabel}
         </Button>
       </div>
-      {isPending || hasFailed ? (
-        <p
-          className={styles.status}
-          role={hasFailed ? "alert" : "status"}
-          aria-live={hasFailed ? "assertive" : "polite"}
-        >
-          {hasFailed ? errorMessage : pendingMessage}
+      {hasFailed ? <ErrorMessage>{errorMessage}</ErrorMessage> : null}
+      {isPending ? (
+        <p className={styles.status} role="status" aria-live="polite">
+          {pendingMessage}
         </p>
       ) : null}
     </>

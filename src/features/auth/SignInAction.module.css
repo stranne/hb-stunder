@@ -98,8 +98,12 @@
     margin-block-start: var(--space-6);
   }
 
-  .status {
+  .status,
+  form > [role="alert"] {
     margin-block: var(--space-4) 0;
+  }
+
+  .status {
     color: var(--color-ink-muted);
   }
 }

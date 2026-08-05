@@ -11,6 +11,7 @@ import {
 } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../ui/button/Button";
+import { ErrorMessage } from "../../ui/feedback/ErrorMessage";
 import type { LoginCredentials } from "./api/auth";
 import styles from "./SignInAction.module.css";
 
@@ -89,9 +90,10 @@ export function SignInAction({
                   {t("auth.signIn")}
                 </Button>
               </div>
-              {isPending || hasFailed ? (
-                <p className={styles.status} role={hasFailed ? "alert" : "status"}>
-                  {t(hasFailed ? "auth.error" : "auth.pending")}
+              {hasFailed ? <ErrorMessage>{t("auth.error")}</ErrorMessage> : null}
+              {isPending ? (
+                <p className={styles.status} role="status">
+                  {t("auth.pending")}
                 </p>
               ) : null}
             </form>

@@ -44,8 +44,13 @@
     justify-content: flex-end;
   }
 
-  .status {
+  .status,
+  .dialog > [role="alert"],
+  .inlineConfirmation > [role="alert"] {
     margin-block: var(--space-4) 0;
+  }
+
+  .status {
     color: var(--color-ink-muted);
   }
 }

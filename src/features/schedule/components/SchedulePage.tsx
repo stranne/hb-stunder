@@ -8,6 +8,7 @@ import {
 import { customerGroupActivityBookingsQueryOptions } from "../../bookings/api/bookingQueries";
 import { bookingsByActivityId } from "../../bookings/model/bookings";
 import { Button } from "../../../ui/button/Button";
+import { ErrorMessage } from "../../../ui/feedback/ErrorMessage";
 import { activityTypeQueryOptions, instructorQueryOptions } from "../api/scheduleFilterQueries";
 import { scheduleQueryOptions } from "../api/scheduleQueries";
 import { getAvailability, groupActivitiesByStart } from "../model/schedule";
@@ -130,13 +131,16 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
       </div>
 
       {isPartialError ? (
-        <div className={styles.statusRegion} aria-live="polite">
-          <span>
-            {t("schedule.partialError", { count: failedScheduleQueries.length })}{" "}
-            <Button tone="quiet" onPress={retrySchedule}>
-              {t("schedule.retry")}
-            </Button>
-          </span>
+        <div className={styles.statusRegion}>
+          <ErrorMessage
+            action={
+              <Button tone="quiet" onPress={retrySchedule}>
+                {t("schedule.retry")}
+              </Button>
+            }
+          >
+            {t("schedule.partialError", { count: failedScheduleQueries.length })}
+          </ErrorMessage>
         </div>
       ) : null}
       <section
@@ -152,10 +156,9 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
           </>
         ) : null}
         {isError ? (
-          <div className={styles.notice} role="alert">
-            <p>{t("schedule.error")}</p>
-            <Button onPress={retrySchedule}>{t("schedule.retry")}</Button>
-          </div>
+          <ErrorMessage action={<Button onPress={retrySchedule}>{t("schedule.retry")}</Button>}>
+            {t("schedule.error")}
+          </ErrorMessage>
         ) : null}
         {!isPending && !isError && scheduleData.length === 0 ? (
           <p className={styles.notice}>{t(view === "rooms" ? "rooms.empty" : "schedule.empty")}</p>

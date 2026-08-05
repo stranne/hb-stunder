@@ -1,0 +1,47 @@
+@layer components {
+  .message {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-3);
+    inline-size: 100%;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid color-mix(in oklch, var(--color-error) 38%, transparent);
+    border-radius: var(--radius-md);
+    color: var(--color-error-strong);
+    background: var(--color-error-soft);
+  }
+
+  .icon {
+    align-self: start;
+    inline-size: 1.35rem;
+    block-size: 1.35rem;
+    margin-block-start: 0.1rem;
+    stroke-width: 2;
+  }
+
+  .content {
+    min-inline-size: 0;
+    font-weight: 650;
+    line-height: 1.45;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  .action {
+    justify-self: end;
+  }
+
+  @media (width < 30rem) {
+    .message:has(.action) {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .action {
+      grid-column: 2;
+      justify-self: start;
+    }
+  }
+}

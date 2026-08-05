@@ -14,6 +14,7 @@
     --color-ink-inverse: oklch(98% 0.01 75deg);
     --color-accent: oklch(53% 0.13 165deg);
     --color-accent-strong: oklch(44% 0.12 165deg);
+    --color-current-time: var(--color-accent-strong);
     --color-focus: oklch(58% 0.18 250deg);
     --color-surface-recessed: var(--color-surface-strong);
     --color-surface-elevated: var(--color-surface);

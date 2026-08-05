@@ -107,7 +107,7 @@
     z-index: 2;
     inset-block-start: var(--current-time-top);
     inset-inline: 0;
-    border-block-start: 2px solid var(--color-error);
+    border-block-start: 2px solid var(--color-current-time);
     pointer-events: none;
   }
 

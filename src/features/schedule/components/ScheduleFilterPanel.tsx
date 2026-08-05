@@ -1,4 +1,12 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type ReactNode,
+} from "react";
 import { Check, FilterList, MapPin, Star, User, Xmark } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -42,8 +50,6 @@ const OPTION_LIST_OVERSCAN = 3;
 interface VirtualRange {
   start: number;
   end: number;
-  paddingBefore: number;
-  paddingAfter: number;
 }
 
 function getVirtualRange(
@@ -65,12 +71,7 @@ function getVirtualRange(
     ),
   );
 
-  return {
-    start,
-    end,
-    paddingBefore: start * OPTION_ROW_HEIGHT,
-    paddingAfter: (itemCount - end) * OPTION_ROW_HEIGHT,
-  };
+  return { start, end };
 }
 
 function normalized(value: string) {
@@ -109,7 +110,10 @@ function SearchableOptions({
   const [query, setQuery] = useState("");
   const [scrollTop, setScrollTop] = useState(0);
   const [viewportHeight, setViewportHeight] = useState(OPTION_LIST_FALLBACK_HEIGHT);
+  const [pendingFocusIndex, setPendingFocusIndex] = useState<number | null>(null);
   const optionListRef = useRef<HTMLDivElement>(null);
+  const optionCountId = useId();
+  const optionInstructionsId = useId();
   const normalizedQuery = normalized(query);
   const preparedOptions = useMemo(
     () =>
@@ -126,6 +130,7 @@ function SearchableOptions({
     [normalizedQuery, preparedOptions],
   );
   const favoriteIdSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
+  const selectedIdSet = useMemo(() => new Set(selectedIds), [selectedIds]);
   const favorites = useMemo(
     () => preparedOptions.map(({ option }) => option).filter(({ id }) => favoriteIdSet.has(id)),
     [favoriteIdSet, preparedOptions],
@@ -171,17 +176,40 @@ function SearchableOptions({
     return () => observer.disconnect();
   }, [filteredOptions.length]);
 
+  useEffect(() => {
+    if (pendingFocusIndex === null) return;
+
+    const checkboxContainer = optionListRef.current?.querySelector<HTMLElement>(
+      `[data-navigation-index="${pendingFocusIndex}"]`,
+    );
+    const checkbox = checkboxContainer?.querySelector<HTMLElement>('input[type="checkbox"]');
+    if (!checkbox) return;
+
+    checkbox.focus();
+    setPendingFocusIndex(null);
+  }, [pendingFocusIndex, scrollTop]);
+
   function changeQuery(nextQuery: string) {
     setQuery(nextQuery);
     setScrollTop(0);
+    setPendingFocusIndex(null);
     if (optionListRef.current) optionListRef.current.scrollTop = 0;
   }
 
-  function optionRow(option: ScheduleFilterOption) {
+  function optionRow(
+    option: ScheduleFilterOption,
+    key: string,
+    navigationIndex: number,
+  ) {
     const isFavorite = favoriteIdSet.has(option.id);
     return (
-      <div className={styles.optionRow} key={option.id}>
-        <Checkbox className={styles.checkbox} value={String(option.id)}>
+      <div className={styles.optionRow} key={key} onKeyDown={handleOptionKeyDown}>
+        <Checkbox
+          className={styles.checkbox}
+          value={String(option.id)}
+          data-navigation-index={navigationIndex}
+          aria-keyshortcuts="ArrowUp ArrowDown Home End"
+        >
           {({ isSelected }) => (
             <>
               <span className={styles.checkboxBox} aria-hidden="true">
@@ -206,6 +234,92 @@ function SearchableOptions({
     );
   }
 
+  function virtualizedRows(
+    rows: ScheduleFilterOption[],
+    range: VirtualRange,
+    keyPrefix: string,
+    navigationOffset: number,
+    keepSelectedMounted: boolean,
+  ) {
+    const renderedIndexes = new Set<number>();
+    for (let index = range.start; index < range.end; index += 1) renderedIndexes.add(index);
+    if (keepSelectedMounted) {
+      rows.forEach((option, index) => {
+        if (selectedIdSet.has(option.id)) renderedIndexes.add(index);
+      });
+    }
+
+    const indexes = [...renderedIndexes].sort((a, b) => a - b);
+    const renderedRows: ReactNode[] = [];
+    let nextIndex = 0;
+
+    indexes.forEach((index) => {
+      if (index > nextIndex) {
+        renderedRows.push(
+          <div
+            className={styles.virtualSpacer}
+            style={{ blockSize: (index - nextIndex) * OPTION_ROW_HEIGHT }}
+            aria-hidden="true"
+            key={`${keyPrefix}-spacer-${nextIndex}`}
+          />,
+        );
+      }
+      renderedRows.push(
+        optionRow(rows[index]!, `${keyPrefix}-${rows[index]!.id}`, navigationOffset + index),
+      );
+      nextIndex = index + 1;
+    });
+
+    if (nextIndex < rows.length) {
+      renderedRows.push(
+        <div
+          className={styles.virtualSpacer}
+          style={{ blockSize: (rows.length - nextIndex) * OPTION_ROW_HEIGHT }}
+          aria-hidden="true"
+          key={`${keyPrefix}-spacer-${nextIndex}`}
+        />,
+      );
+    }
+
+    return renderedRows;
+  }
+
+  function handleOptionKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+
+    const target = event.target instanceof HTMLElement ? event.target : null;
+    const currentIndex = Number(target?.closest<HTMLElement>("[data-navigation-index]")?.dataset.navigationIndex);
+    const optionCount = query ? filteredOptions.length : favorites.length + filteredOptions.length;
+    if (!Number.isInteger(currentIndex) || optionCount === 0) return;
+
+    event.preventDefault();
+    let nextIndex = currentIndex;
+    if (event.key === "ArrowDown") nextIndex = Math.min(optionCount - 1, currentIndex + 1);
+    if (event.key === "ArrowUp") nextIndex = Math.max(0, currentIndex - 1);
+    if (event.key === "Home") nextIndex = 0;
+    if (event.key === "End") nextIndex = optionCount - 1;
+
+    const rowTop = query
+      ? nextIndex * OPTION_ROW_HEIGHT
+      : nextIndex < favorites.length
+        ? OPTION_GROUP_LABEL_HEIGHT + nextIndex * OPTION_ROW_HEIGHT
+        : allRowsOffset + (nextIndex - favorites.length) * OPTION_ROW_HEIGHT;
+    const optionList = optionListRef.current;
+    if (!optionList) return;
+
+    let nextScrollTop = optionList.scrollTop;
+    if (rowTop < nextScrollTop + OPTION_GROUP_LABEL_HEIGHT) {
+      nextScrollTop = Math.max(0, rowTop - OPTION_GROUP_LABEL_HEIGHT);
+    } else if (rowTop + OPTION_ROW_HEIGHT > nextScrollTop + viewportHeight) {
+      nextScrollTop = rowTop + OPTION_ROW_HEIGHT - viewportHeight;
+    }
+
+    optionList.scrollTop = nextScrollTop;
+    setScrollTop(nextScrollTop);
+    setPendingFocusIndex(nextIndex);
+  }
+
   return (
     <section className={styles.section}>
       <h3 className={styles.sectionHeading}>
@@ -226,45 +340,31 @@ function SearchableOptions({
         ) : null}
       </SearchField>
 
+      <p className={styles.optionSummary} id={optionCountId} aria-live="polite" aria-atomic="true">
+        {t("schedule.filters.optionCount", { count: filteredOptions.length })}
+      </p>
+      <p className={styles.visuallyHidden} id={optionInstructionsId}>
+        {t("schedule.filters.optionInstructions")}
+      </p>
+
       {filteredOptions.length > 0 ? (
         <CheckboxGroup
           ref={optionListRef}
           className={styles.optionList}
           aria-label={label}
+          aria-describedby={`${optionCountId} ${optionInstructionsId}`}
           value={selectedIds.map(String)}
           onChange={(values) => onSelectedChange(values.map(Number))}
           onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
         >
           {query ? (
-            <>
-              <div
-                className={styles.virtualSpacer}
-                style={{ blockSize: filteredRange.paddingBefore }}
-                aria-hidden="true"
-              />
-              {filteredOptions.slice(filteredRange.start, filteredRange.end).map(optionRow)}
-              <div
-                className={styles.virtualSpacer}
-                style={{ blockSize: filteredRange.paddingAfter }}
-                aria-hidden="true"
-              />
-            </>
+            virtualizedRows(filteredOptions, filteredRange, "filtered", 0, true)
           ) : (
             <>
               {favorites.length > 0 ? (
                 <div className={styles.optionGroup} role="group" aria-label={favoriteLabel}>
                   <span className={styles.optionGroupLabel}>{favoriteLabel}</span>
-                  <div
-                    className={styles.virtualSpacer}
-                    style={{ blockSize: favoriteRange.paddingBefore }}
-                    aria-hidden="true"
-                  />
-                  {favorites.slice(favoriteRange.start, favoriteRange.end).map(optionRow)}
-                  <div
-                    className={styles.virtualSpacer}
-                    style={{ blockSize: favoriteRange.paddingAfter }}
-                    aria-hidden="true"
-                  />
+                  {virtualizedRows(favorites, favoriteRange, "favorite", 0, true)}
                 </div>
               ) : null}
               <div
@@ -273,17 +373,13 @@ function SearchableOptions({
                 aria-label={t("schedule.filters.all")}
               >
                 <span className={styles.optionGroupLabel}>{t("schedule.filters.all")}</span>
-                <div
-                  className={styles.virtualSpacer}
-                  style={{ blockSize: allRange.paddingBefore }}
-                  aria-hidden="true"
-                />
-                {filteredOptions.slice(allRange.start, allRange.end).map(optionRow)}
-                <div
-                  className={styles.virtualSpacer}
-                  style={{ blockSize: allRange.paddingAfter }}
-                  aria-hidden="true"
-                />
+                {virtualizedRows(
+                  filteredOptions,
+                  allRange,
+                  "all",
+                  favorites.length,
+                  true,
+                )}
               </div>
             </>
           )}

@@ -139,8 +139,22 @@ describe("ScheduleFilters", () => {
 
     const instructorList = screen.getByRole("group", { name: "Instructor" });
     const allGroup = within(screen.getByRole("group", { name: "All" }));
+    expect(screen.getByText("85 options")).toBeTruthy();
+    expect(instructorList.getAttribute("aria-describedby")).toBeTruthy();
     expect(allGroup.getAllByRole("checkbox")).toHaveLength(7);
     expect(allGroup.queryByRole("checkbox", { name: "Instructor 070" })).toBeNull();
+
+    const firstInstructor = allGroup.getByRole("checkbox", { name: "Instructor 001" });
+    firstInstructor.focus();
+    fireEvent.keyDown(firstInstructor, { key: "End" });
+    expect(document.activeElement).toBe(
+      allGroup.getByRole("checkbox", { name: "Instructor 085" }),
+    );
+
+    fireEvent.keyDown(document.activeElement!, { key: "Home" });
+    expect(document.activeElement).toBe(
+      allGroup.getByRole("checkbox", { name: "Instructor 001" }),
+    );
 
     instructorList.scrollTop = 70 * 44;
     fireEvent.scroll(instructorList);
@@ -153,6 +167,29 @@ describe("ScheduleFilters", () => {
       target: { value: "Instructor 085" },
     });
     expect(screen.getByRole("checkbox", { name: "Instructor 085" })).toBeTruthy();
+    expect(screen.getByText("1 option")).toBeTruthy();
+  });
+
+  it("keeps selected virtual options available to assistive technology", () => {
+    const instructors = Array.from({ length: 85 }, (_, index) => ({
+      id: index + 1,
+      name: `Instructor ${String(index + 1).padStart(3, "0")}`,
+    }));
+    render(
+      <ScheduleFilters
+        search={{ ...search, instructors: [85] }}
+        onChange={vi.fn()}
+        instructors={instructors}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
+
+    const allGroup = within(screen.getByRole("group", { name: "All" }));
+    expect(
+      (allGroup.getByRole("checkbox", { name: "Instructor 085" }) as HTMLInputElement).checked,
+    ).toBe(true);
+    expect(allGroup.getAllByRole("checkbox").length).toBeLessThan(15);
   });
 
   it("announces filter-option failures and retries them", () => {

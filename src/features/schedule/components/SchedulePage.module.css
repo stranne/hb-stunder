@@ -16,11 +16,15 @@
     position: sticky;
     z-index: 10;
     inset-block-start: 0;
+    inline-size: 100vw;
+    margin-inline: calc(50% - 50vw);
+    margin-block-end: var(--space-3);
+    background: var(--color-canvas);
+  }
+
+  .stickyControls > * {
     inline-size: min(100%, 64rem);
     margin-inline: auto;
-    margin-block-end: var(--space-3);
-    background: color-mix(in oklch, var(--color-canvas) 94%, transparent);
-    backdrop-filter: blur(0.75rem);
   }
 
   .statusRegion {

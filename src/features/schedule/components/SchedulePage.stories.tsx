@@ -40,7 +40,15 @@ const meta = {
     },
     onSearchChange: () => undefined,
   },
-  parameters: { layout: "fullscreen" },
+  parameters: {
+    layout: "fullscreen",
+    docs: {
+      description: {
+        component:
+          "The sticky day-selection backdrop spans the full viewport so scrolled content and shadows cannot appear at its sides, while the controls retain a readable maximum width.",
+      },
+    },
+  },
 } satisfies Meta<typeof SchedulePage>;
 
 export default meta;

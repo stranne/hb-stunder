@@ -93,12 +93,17 @@ describe("GymClassCard", () => {
     expect(screen.queryByText("For this class")).toBeNull();
   });
 
-  it("uses only the title for the class-list duration", () => {
+  it.each([
+    ["Yinyoga, 55 min", "Yinyoga", "55 min"],
+    ["Yinyoga 55 min", "Yinyoga", "55 min"],
+    ["Lång workshop, 2,5 timmar", "Lång workshop", "2,5 timmar"],
+    ["Lång workshop 2,5 timmar", "Lång workshop", "2,5 timmar"],
+  ])("uses the title duration for %s", (name, title, expectedDuration) => {
     render(
       <GymClassCard
         activity={{
           ...scheduleFixtures.available,
-          name: "Yinyoga, 55 min",
+          name,
           duration: {
             start: "2026-07-28T06:00:00.000Z",
             end: "2026-07-28T07:30:00.000Z",
@@ -108,8 +113,8 @@ describe("GymClassCard", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { name: "Yinyoga" })).toBeTruthy();
-    expect(screen.getByText("55 min")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: title })).toBeTruthy();
+    expect(screen.getByText(expectedDuration)).toBeTruthy();
     expect(screen.queryByText("90 min")).toBeNull();
   });
 

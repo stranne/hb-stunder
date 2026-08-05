@@ -82,6 +82,13 @@ export const Available: Story = {};
 export const ClassListItem: Story = {
   args: { showTime: false, headingLevel: 3 },
 };
+export const LongClassListItem: Story = {
+  args: {
+    activity: { ...upcomingAvailable, name: "Yinyoga 2,5 timmar" },
+    showTime: false,
+    headingLevel: 3,
+  },
+};
 export const MultipleInstructors: Story = {
   args: {
     activity: {

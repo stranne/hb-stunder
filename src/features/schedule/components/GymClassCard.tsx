@@ -18,7 +18,9 @@ export interface GymClassCardProps {
 }
 
 function classTitleParts(name: string) {
-  const match = name.match(/^(.*?)(?:,\s*|\s+)(\d+\s*min(?:uter)?)\s*$/i);
+  const match = name.match(
+    /^(.*?)(?:,\s*|\s+)(\d+(?:[.,]\d+)?\s*(?:min(?:uter)?|tim(?:me|mar)))\s*$/i,
+  );
   if (!match) return { title: name };
 
   return { title: match[1]!.trim(), duration: match[2]!.replace(/\s+/g, " ") };

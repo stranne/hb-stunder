@@ -1,0 +1,143 @@
+@layer components {
+  .trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: 2.5rem;
+    padding-inline: var(--space-2);
+  }
+
+  .icon {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    inline-size: 1.4rem;
+    block-size: 1.4rem;
+
+    svg {
+      inline-size: 100%;
+      block-size: 100%;
+    }
+  }
+
+  .popover {
+    inline-size: min(19rem, calc(100vw - 2rem));
+    padding: var(--space-2);
+    border: 1px solid color-mix(in oklch, var(--color-ink) 12%, transparent);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: 0 0.75rem 2rem var(--color-shadow);
+
+    &[data-entering],
+    &[data-exiting] {
+      opacity: 0;
+      transform: translateY(-0.25rem);
+    }
+  }
+
+  .dialog {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-2);
+    outline: none;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  .languageGroup {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .sectionLabel {
+    color: var(--color-ink-muted);
+    font-size: var(--text-sm);
+    font-weight: 700;
+  }
+
+  .options {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-block-size: 2.5rem;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+
+    &[data-hovered] {
+      background: var(--color-surface-recessed);
+    }
+
+    &[data-focus-visible] {
+      outline: var(--focus-width) solid var(--color-focus);
+      outline-offset: var(--focus-offset);
+    }
+  }
+
+  .check {
+    display: grid;
+    inline-size: 1.2rem;
+    block-size: 1.2rem;
+    place-items: center;
+    color: var(--color-accent-strong);
+    opacity: 0;
+
+    svg {
+      inline-size: 100%;
+      block-size: 100%;
+      stroke-width: 2.25;
+    }
+  }
+
+  .option[data-selected] .check {
+    opacity: 1;
+  }
+
+  .accountSection {
+    display: grid;
+    gap: var(--space-2);
+    padding-block-start: var(--space-3);
+    border-block-start: 1px solid var(--color-border);
+
+    button {
+      justify-self: stretch;
+      margin-block-start: var(--space-1);
+    }
+  }
+
+  .identity {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-recessed);
+  }
+
+  .identityLabel,
+  .unavailable {
+    color: var(--color-ink-muted);
+    font-size: var(--text-sm);
+  }
+
+  .name {
+    overflow-wrap: anywhere;
+    font-weight: 750;
+  }
+
+  @media (width < 40rem) {
+    .trigger {
+      justify-content: center;
+      inline-size: 100%;
+      min-block-size: 2.5rem;
+      padding: var(--space-2) var(--space-1);
+      border-radius: var(--radius-sm);
+    }
+  }
+}

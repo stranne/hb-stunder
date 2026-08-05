@@ -5,7 +5,7 @@ import { Calendar, CalendarCheck, ViewGrid } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import { bookingKeys } from "../features/bookings/api/bookingQueries";
 import { useSession } from "../features/auth/sessionContext";
-import { UserMenu } from "../features/auth/UserMenu";
+import { AppMenu } from "./AppMenu";
 import { parseScheduleSearch } from "../features/schedule/model/scheduleSearch";
 import styles from "./AppRoot.module.css";
 
@@ -47,7 +47,7 @@ export function AppRoot() {
             </Link>
           </nav>
           <div className={styles.account}>
-            <UserMenu
+            <AppMenu
               customer={customer}
               canSignIn={canSignIn}
               onSignIn={signIn}

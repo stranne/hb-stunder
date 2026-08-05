@@ -11,11 +11,17 @@
     "rooms": "Rooms",
     "bookings": "My bookings"
   },
+  "menu": {
+    "label": "Menu",
+    "open": "Open menu",
+    "openFor": "Open menu for {{name}}",
+    "language": "Language",
+    "account": "Account"
+  },
   "auth": {
     "signIn": "Sign in",
     "signOut": "Sign out",
-    "openUserMenu": "Open user menu",
-    "openUserMenuFor": "Open user menu for {{name}}",
+    "signInUnavailable": "Sign-in is currently unavailable.",
     "signedInAs": "Signed in as",
     "title": "Sign in to Hagabadet",
     "username": "Username",

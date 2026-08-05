@@ -11,11 +11,17 @@
     "rooms": "Rum",
     "bookings": "Mina bokningar"
   },
+  "menu": {
+    "label": "Meny",
+    "open": "Öppna menyn",
+    "openFor": "Öppna menyn för {{name}}",
+    "language": "Språk",
+    "account": "Konto"
+  },
   "auth": {
     "signIn": "Logga in",
     "signOut": "Logga ut",
-    "openUserMenu": "Öppna användarmenyn",
-    "openUserMenuFor": "Öppna användarmenyn för {{name}}",
+    "signInUnavailable": "Inloggning är inte tillgänglig just nu.",
     "signedInAs": "Inloggad som",
     "title": "Logga in på Hagabadet",
     "username": "Användarnamn",

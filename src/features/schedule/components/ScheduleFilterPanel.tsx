@@ -52,6 +52,11 @@ interface VirtualRange {
   end: number;
 }
 
+interface PendingOptionFocus {
+  index: number;
+  control: "checkbox" | "favorite";
+}
+
 function getVirtualRange(
   itemCount: number,
   itemOffset: number,
@@ -110,8 +115,8 @@ function SearchableOptions({
   const [query, setQuery] = useState("");
   const [scrollTop, setScrollTop] = useState(0);
   const [viewportHeight, setViewportHeight] = useState(OPTION_LIST_FALLBACK_HEIGHT);
-  const [pendingFocusIndex, setPendingFocusIndex] = useState<number | null>(null);
-  const [hasSectionFocus, setHasSectionFocus] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [pendingFocus, setPendingFocus] = useState<PendingOptionFocus | null>(null);
   const optionListRef = useRef<HTMLDivElement>(null);
   const optionCountId = useId();
   const optionInstructionsId = useId();
@@ -172,34 +177,66 @@ function SearchableOptions({
   }, [filteredOptions.length]);
 
   useEffect(() => {
-    if (pendingFocusIndex === null) return;
+    if (!pendingFocus) return;
 
-    const checkboxContainer = optionListRef.current?.querySelector<HTMLElement>(
-      `[data-navigation-index="${pendingFocusIndex}"]`,
+    const rowTop = query
+      ? pendingFocus.index * OPTION_ROW_HEIGHT
+      : pendingFocus.index < favorites.length
+        ? OPTION_GROUP_LABEL_HEIGHT + pendingFocus.index * OPTION_ROW_HEIGHT
+        : allRowsOffset + (pendingFocus.index - favorites.length) * OPTION_ROW_HEIGHT;
+    const optionList = optionListRef.current;
+    if (!optionList) return;
+
+    let nextScrollTop = optionList.scrollTop;
+    if (rowTop < nextScrollTop + OPTION_GROUP_LABEL_HEIGHT) {
+      nextScrollTop = Math.max(0, rowTop - OPTION_GROUP_LABEL_HEIGHT);
+    } else if (rowTop + OPTION_ROW_HEIGHT > nextScrollTop + viewportHeight) {
+      nextScrollTop = rowTop + OPTION_ROW_HEIGHT - viewportHeight;
+    }
+    optionList.scrollTop = nextScrollTop;
+    setScrollTop(nextScrollTop);
+
+    const row = optionList.querySelector<HTMLElement>(
+      `[data-navigation-index="${pendingFocus.index}"]`,
     );
-    const checkbox = checkboxContainer?.querySelector<HTMLElement>('input[type="checkbox"]');
-    if (!checkbox) return;
+    const control = row?.querySelector<HTMLElement>(
+      pendingFocus.control === "checkbox" ? 'input[type="checkbox"]' : "button",
+    );
+    if (!control) return;
 
-    checkbox.focus();
-    setPendingFocusIndex(null);
-  }, [pendingFocusIndex, scrollTop]);
+    control.focus({ preventScroll: true });
+    setPendingFocus(null);
+  }, [allRowsOffset, favorites.length, pendingFocus, query, viewportHeight]);
 
   function changeQuery(nextQuery: string) {
     setQuery(nextQuery);
     setScrollTop(0);
-    setPendingFocusIndex(null);
+    setActiveIndex(0);
+    setPendingFocus(null);
     if (optionListRef.current) optionListRef.current.scrollTop = 0;
   }
 
-  function optionRow(option: ScheduleFilterOption, key: string, navigationIndex: number) {
+  function optionRow(
+    option: ScheduleFilterOption,
+    key: string,
+    navigationIndex: number,
+    group: "favorite" | "all" | "filtered",
+  ) {
     const isFavorite = favoriteIdSet.has(option.id);
+    const isActive = navigationIndex === activeIndex;
     return (
-      <div className={styles.optionRow} key={key} onKeyDown={handleOptionKeyDown}>
+      <div
+        className={styles.optionRow}
+        key={key}
+        data-navigation-index={navigationIndex}
+        onKeyDown={handleOptionKeyDown}
+      >
         <Checkbox
           className={styles.checkbox}
           value={String(option.id)}
-          data-navigation-index={navigationIndex}
+          excludeFromTabOrder={!isActive}
           aria-keyshortcuts="ArrowUp ArrowDown Home End"
+          onFocus={() => setActiveIndex(navigationIndex)}
         >
           {({ isSelected }) => (
             <>
@@ -213,11 +250,24 @@ function SearchableOptions({
         <ToggleButton
           className={styles.starButton}
           isSelected={isFavorite}
+          excludeFromTabOrder={!isActive}
+          onFocus={() => setActiveIndex(navigationIndex)}
+          aria-keyshortcuts="ArrowUp ArrowDown Home End"
           aria-label={t(
             isFavorite ? "schedule.filters.removeFavorite" : "schedule.filters.addFavorite",
             { name: option.name },
           )}
-          onChange={() => onFavoriteChange(toggleId(favoriteIds, option.id))}
+          onChange={() => {
+            if (!query && group === "all") {
+              setActiveIndex(navigationIndex + (isFavorite ? -1 : 1));
+            } else if (!query && group === "favorite" && isFavorite) {
+              const nextIndex =
+                favorites.length - 1 + filteredOptions.findIndex(({ id }) => id === option.id);
+              setActiveIndex(nextIndex);
+              setPendingFocus({ index: nextIndex, control: "favorite" });
+            }
+            onFavoriteChange(toggleId(favoriteIds, option.id));
+          }}
         >
           <Star aria-hidden="true" fill={isFavorite ? "currentColor" : "none"} />
         </ToggleButton>
@@ -228,14 +278,16 @@ function SearchableOptions({
   function virtualizedRows(
     rows: ScheduleFilterOption[],
     range: VirtualRange,
-    keyPrefix: string,
+    group: "favorite" | "all" | "filtered",
     navigationOffset: number,
     keepSelectedMounted: boolean,
   ) {
     const renderedIndexes = new Set<number>();
-    const renderedRange = hasSectionFocus ? { start: 0, end: rows.length } : range;
-    for (let index = renderedRange.start; index < renderedRange.end; index += 1) {
+    for (let index = range.start; index < range.end; index += 1) {
       renderedIndexes.add(index);
+    }
+    if (activeIndex >= navigationOffset && activeIndex < navigationOffset + rows.length) {
+      renderedIndexes.add(activeIndex - navigationOffset);
     }
     if (keepSelectedMounted) {
       rows.forEach((option, index) => {
@@ -254,12 +306,12 @@ function SearchableOptions({
             className={styles.virtualSpacer}
             style={{ blockSize: (index - nextIndex) * OPTION_ROW_HEIGHT }}
             aria-hidden="true"
-            key={`${keyPrefix}-spacer-${nextIndex}`}
+            key={`${group}-spacer-${nextIndex}`}
           />,
         );
       }
       renderedRows.push(
-        optionRow(rows[index]!, `${keyPrefix}-${rows[index]!.id}`, navigationOffset + index),
+        optionRow(rows[index]!, `${group}-${rows[index]!.id}`, navigationOffset + index, group),
       );
       nextIndex = index + 1;
     });
@@ -270,7 +322,7 @@ function SearchableOptions({
           className={styles.virtualSpacer}
           style={{ blockSize: (rows.length - nextIndex) * OPTION_ROW_HEIGHT }}
           aria-hidden="true"
-          key={`${keyPrefix}-spacer-${nextIndex}`}
+          key={`${group}-spacer-${nextIndex}`}
         />,
       );
     }
@@ -278,14 +330,16 @@ function SearchableOptions({
     return renderedRows;
   }
 
+  function focusOption(index: number, control: PendingOptionFocus["control"]) {
+    setActiveIndex(index);
+    setPendingFocus({ index, control });
+  }
+
   function handleOptionKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
     if (event.altKey || event.ctrlKey || event.metaKey) return;
     if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
 
-    const target = event.target instanceof HTMLElement ? event.target : null;
-    const currentIndex = Number(
-      target?.closest<HTMLElement>("[data-navigation-index]")?.dataset.navigationIndex,
-    );
+    const currentIndex = Number(event.currentTarget.dataset.navigationIndex);
     const optionCount = query ? filteredOptions.length : favorites.length + filteredOptions.length;
     if (!Number.isInteger(currentIndex) || optionCount === 0) return;
 
@@ -296,34 +350,12 @@ function SearchableOptions({
     if (event.key === "Home") nextIndex = 0;
     if (event.key === "End") nextIndex = optionCount - 1;
 
-    const rowTop = query
-      ? nextIndex * OPTION_ROW_HEIGHT
-      : nextIndex < favorites.length
-        ? OPTION_GROUP_LABEL_HEIGHT + nextIndex * OPTION_ROW_HEIGHT
-        : allRowsOffset + (nextIndex - favorites.length) * OPTION_ROW_HEIGHT;
-    const optionList = optionListRef.current;
-    if (!optionList) return;
-
-    let nextScrollTop = optionList.scrollTop;
-    if (rowTop < nextScrollTop + OPTION_GROUP_LABEL_HEIGHT) {
-      nextScrollTop = Math.max(0, rowTop - OPTION_GROUP_LABEL_HEIGHT);
-    } else if (rowTop + OPTION_ROW_HEIGHT > nextScrollTop + viewportHeight) {
-      nextScrollTop = rowTop + OPTION_ROW_HEIGHT - viewportHeight;
-    }
-
-    optionList.scrollTop = nextScrollTop;
-    setScrollTop(nextScrollTop);
-    setPendingFocusIndex(nextIndex);
+    const target = event.target instanceof HTMLElement ? event.target : null;
+    focusOption(nextIndex, target?.closest("button") ? "favorite" : "checkbox");
   }
 
   return (
-    <section
-      className={styles.section}
-      onFocus={() => setHasSectionFocus(true)}
-      onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) setHasSectionFocus(false);
-      }}
-    >
+    <section className={styles.section}>
       <h3 className={styles.sectionHeading}>
         {icon}
         {label}

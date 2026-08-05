@@ -169,13 +169,32 @@ describe("ScheduleFilters", () => {
 
     const firstInstructor = allGroup.getByRole("checkbox", { name: "Instructor 001" });
     fireEvent.focus(firstInstructor);
-    expect(allGroupElement.querySelectorAll('input[type="checkbox"]')).toHaveLength(85);
+    expect(allGroupElement.querySelectorAll('input[type="checkbox"]').length).toBeLessThan(15);
 
     fireEvent.keyDown(firstInstructor, { key: "End" });
     expect((document.activeElement as HTMLInputElement).value).toBe("85");
+    expect(allGroupElement.querySelectorAll('input[type="checkbox"]').length).toBeLessThan(15);
 
     fireEvent.keyDown(document.activeElement!, { key: "Home" });
-    expect(document.activeElement).toBe(firstInstructor);
+    expect(document.activeElement).toBe(allGroup.getByRole("checkbox", { name: "Instructor 001" }));
+
+    const activeCheckbox = allGroup.getByRole("checkbox", { name: "Instructor 001" });
+    const activeFavorite = allGroup.getByRole("button", {
+      name: "Add Instructor 001 to favorites",
+    });
+    const nextCheckbox = allGroup.getByRole("checkbox", { name: "Instructor 002" });
+    expect(activeCheckbox.tabIndex).toBe(0);
+    expect(activeFavorite.tabIndex).toBe(0);
+    expect(nextCheckbox.tabIndex).toBe(-1);
+
+    fireEvent.keyDown(activeCheckbox, { key: "ArrowDown" });
+    expect(document.activeElement).toBe(nextCheckbox);
+    expect(activeCheckbox.tabIndex).toBe(-1);
+    expect(nextCheckbox.tabIndex).toBe(0);
+    expect(allGroup.getByRole("button", { name: "Add Instructor 002 to favorites" }).tabIndex).toBe(
+      0,
+    );
+    expect(allGroupElement.querySelectorAll('input[type="checkbox"]').length).toBeLessThan(15);
 
     screen.getByRole("searchbox", { name: "Search class types" }).focus();
     instructorList.scrollTop = 70 * 44;

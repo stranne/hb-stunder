@@ -22,6 +22,20 @@ const filterSelection = { locations: [1], instructors: [], activityTypes: [] };
 const search = { date: addDays(today, 7), ...filterSelection };
 
 describe("ScheduleFilters", () => {
+  it("allows the filter dialog to be opened from the keyboard", () => {
+    render(<ScheduleFilters search={search} onChange={vi.fn()} />);
+
+    const filterButton = screen.getByRole("button", { name: "Open schedule filters" });
+    expect(filterButton.tabIndex).toBe(0);
+
+    filterButton.focus();
+    fireEvent.keyDown(filterButton, { key: "Enter" });
+    fireEvent.keyUp(filterButton, { key: "Enter" });
+
+    expect(document.activeElement).not.toBe(filterButton);
+    expect(screen.getByRole("dialog")).toBeTruthy();
+  });
+
   it("shows three weeks of named upcoming days and selects a day directly", () => {
     const onChange = vi.fn();
     render(<ScheduleFilters search={{ date: today, ...filterSelection }} onChange={onChange} />);
@@ -138,28 +152,28 @@ describe("ScheduleFilters", () => {
     fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
 
     const instructorList = screen.getByRole("group", { name: "Instructor" });
-    const allGroup = within(screen.getByRole("group", { name: "All" }));
+    const allGroupElement = screen.getByRole("group", { name: "All" });
+    const allGroup = within(allGroupElement);
     expect(screen.getByText("85 options")).toBeTruthy();
     expect(instructorList.getAttribute("aria-describedby")).toBeTruthy();
     expect(allGroup.getAllByRole("checkbox")).toHaveLength(7);
     expect(allGroup.queryByRole("checkbox", { name: "Instructor 070" })).toBeNull();
 
     const firstInstructor = allGroup.getByRole("checkbox", { name: "Instructor 001" });
-    firstInstructor.focus();
+    fireEvent.focus(firstInstructor);
+    expect(allGroupElement.querySelectorAll('input[type="checkbox"]')).toHaveLength(85);
+
     fireEvent.keyDown(firstInstructor, { key: "End" });
-    expect(document.activeElement).toBe(
-      allGroup.getByRole("checkbox", { name: "Instructor 085" }),
-    );
+    expect((document.activeElement as HTMLInputElement).value).toBe("85");
 
     fireEvent.keyDown(document.activeElement!, { key: "Home" });
-    expect(document.activeElement).toBe(
-      allGroup.getByRole("checkbox", { name: "Instructor 001" }),
-    );
+    expect(document.activeElement).toBe(firstInstructor);
 
+    screen.getByRole("searchbox", { name: "Search class types" }).focus();
     instructorList.scrollTop = 70 * 44;
     fireEvent.scroll(instructorList);
 
-    expect(allGroup.getAllByRole("checkbox").length).toBeLessThan(15);
+    expect(allGroupElement.querySelectorAll('input[type="checkbox"]').length).toBeLessThan(15);
     expect(allGroup.getByRole("checkbox", { name: "Instructor 070" })).toBeTruthy();
     expect(allGroup.queryByRole("checkbox", { name: "Instructor 001" })).toBeNull();
 

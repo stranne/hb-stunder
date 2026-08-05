@@ -111,6 +111,7 @@ function SearchableOptions({
   const [scrollTop, setScrollTop] = useState(0);
   const [viewportHeight, setViewportHeight] = useState(OPTION_LIST_FALLBACK_HEIGHT);
   const [pendingFocusIndex, setPendingFocusIndex] = useState<number | null>(null);
+  const [hasSectionFocus, setHasSectionFocus] = useState(false);
   const optionListRef = useRef<HTMLDivElement>(null);
   const optionCountId = useId();
   const optionInstructionsId = useId();
@@ -138,15 +139,9 @@ function SearchableOptions({
 
   const favoriteRowsOffset = OPTION_GROUP_LABEL_HEIGHT;
   const allRowsOffset =
-    (favorites.length > 0
-      ? OPTION_GROUP_LABEL_HEIGHT + favorites.length * OPTION_ROW_HEIGHT
-      : 0) + OPTION_GROUP_LABEL_HEIGHT;
-  const filteredRange = getVirtualRange(
-    filteredOptions.length,
-    0,
-    scrollTop,
-    viewportHeight,
-  );
+    (favorites.length > 0 ? OPTION_GROUP_LABEL_HEIGHT + favorites.length * OPTION_ROW_HEIGHT : 0) +
+    OPTION_GROUP_LABEL_HEIGHT;
+  const filteredRange = getVirtualRange(filteredOptions.length, 0, scrollTop, viewportHeight);
   const favoriteRange = getVirtualRange(
     favorites.length,
     favoriteRowsOffset,
@@ -196,11 +191,7 @@ function SearchableOptions({
     if (optionListRef.current) optionListRef.current.scrollTop = 0;
   }
 
-  function optionRow(
-    option: ScheduleFilterOption,
-    key: string,
-    navigationIndex: number,
-  ) {
+  function optionRow(option: ScheduleFilterOption, key: string, navigationIndex: number) {
     const isFavorite = favoriteIdSet.has(option.id);
     return (
       <div className={styles.optionRow} key={key} onKeyDown={handleOptionKeyDown}>
@@ -242,7 +233,10 @@ function SearchableOptions({
     keepSelectedMounted: boolean,
   ) {
     const renderedIndexes = new Set<number>();
-    for (let index = range.start; index < range.end; index += 1) renderedIndexes.add(index);
+    const renderedRange = hasSectionFocus ? { start: 0, end: rows.length } : range;
+    for (let index = renderedRange.start; index < renderedRange.end; index += 1) {
+      renderedIndexes.add(index);
+    }
     if (keepSelectedMounted) {
       rows.forEach((option, index) => {
         if (selectedIdSet.has(option.id)) renderedIndexes.add(index);
@@ -289,7 +283,9 @@ function SearchableOptions({
     if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
 
     const target = event.target instanceof HTMLElement ? event.target : null;
-    const currentIndex = Number(target?.closest<HTMLElement>("[data-navigation-index]")?.dataset.navigationIndex);
+    const currentIndex = Number(
+      target?.closest<HTMLElement>("[data-navigation-index]")?.dataset.navigationIndex,
+    );
     const optionCount = query ? filteredOptions.length : favorites.length + filteredOptions.length;
     if (!Number.isInteger(currentIndex) || optionCount === 0) return;
 
@@ -321,7 +317,13 @@ function SearchableOptions({
   }
 
   return (
-    <section className={styles.section}>
+    <section
+      className={styles.section}
+      onFocus={() => setHasSectionFocus(true)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setHasSectionFocus(false);
+      }}
+    >
       <h3 className={styles.sectionHeading}>
         {icon}
         {label}
@@ -373,13 +375,7 @@ function SearchableOptions({
                 aria-label={t("schedule.filters.all")}
               >
                 <span className={styles.optionGroupLabel}>{t("schedule.filters.all")}</span>
-                {virtualizedRows(
-                  filteredOptions,
-                  allRange,
-                  "all",
-                  favorites.length,
-                  true,
-                )}
+                {virtualizedRows(filteredOptions, allRange, "all", favorites.length, true)}
               </div>
             </>
           )}
@@ -420,7 +416,12 @@ export function ScheduleFilterPanel({
 
   return (
     <DialogTrigger>
-      <Button tone="quiet" aria-label={t("schedule.filters.openFilters")}>
+      <Button
+        type="button"
+        tone="quiet"
+        excludeFromTabOrder={false}
+        aria-label={t("schedule.filters.openFilters")}
+      >
         <FilterList className={styles.filterIcon} aria-hidden="true" />
         <span className={styles.filterLabel}>
           {t("schedule.filters.filters")}

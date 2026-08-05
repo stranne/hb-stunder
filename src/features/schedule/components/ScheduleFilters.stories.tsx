@@ -95,6 +95,17 @@ export const LongLists: Story = {
     })),
   },
 };
+export const KeyboardNavigation: Story = {
+  args: LongLists.args,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Tab to the filter button, open the dialog, and continue tabbing through either long option list to verify stable keyboard navigation.",
+      },
+    },
+  },
+};
 export const English: Story = { globals: { locale: "en" } };
 export const Mobile: Story = {
   globals: { viewport: { value: "mobile", isRotated: false } },

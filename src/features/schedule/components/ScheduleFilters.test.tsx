@@ -187,6 +187,10 @@ describe("ScheduleFilters", () => {
     expect(activeFavorite.tabIndex).toBe(0);
     expect(nextCheckbox.tabIndex).toBe(-1);
 
+    activeFavorite.focus();
+    fireEvent.keyDown(activeFavorite, { key: "Tab", shiftKey: true });
+    expect(document.activeElement).toBe(activeCheckbox);
+
     fireEvent.keyDown(activeCheckbox, { key: "ArrowDown" });
     expect(document.activeElement).toBe(nextCheckbox);
     expect(activeCheckbox.tabIndex).toBe(-1);

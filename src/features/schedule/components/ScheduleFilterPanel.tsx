@@ -253,6 +253,7 @@ function SearchableOptions({
           excludeFromTabOrder={!isActive}
           onFocus={() => setActiveIndex(navigationIndex)}
           aria-keyshortcuts="ArrowUp ArrowDown Home End"
+          onKeyDown={handleFavoriteTabKeyDown}
           aria-label={t(
             isFavorite ? "schedule.filters.removeFavorite" : "schedule.filters.addFavorite",
             { name: option.name },
@@ -333,6 +334,17 @@ function SearchableOptions({
   function focusOption(index: number, control: PendingOptionFocus["control"]) {
     setActiveIndex(index);
     setPendingFocus({ index, control });
+  }
+
+  function handleFavoriteTabKeyDown(event: ReactKeyboardEvent<HTMLElement>) {
+    if (event.key !== "Tab" || !event.shiftKey) return;
+
+    const checkbox =
+      event.currentTarget.parentElement?.querySelector<HTMLElement>('input[type="checkbox"]');
+    if (!checkbox) return;
+
+    event.preventDefault();
+    checkbox.focus({ preventScroll: true });
   }
 
   function handleOptionKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {

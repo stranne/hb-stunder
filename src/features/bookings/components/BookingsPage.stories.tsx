@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/tanstack-react";
 import { delay, http, HttpResponse } from "msw";
-import { expect, userEvent, within } from "storybook/test";
+import { expect, userEvent, waitFor, within } from "storybook/test";
 import { API_BASE_URL } from "../../../api/client";
 import { mockCustomerBookings } from "../../../mocks/fixtures/bookings";
 import { MOCK_CUSTOMER_ID } from "../../../mocks/mockSession";
@@ -47,7 +47,7 @@ export const CancellationConfirmation: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const page = within(canvasElement.ownerDocument.body);
-    await userEvent.click(canvas.getAllByRole("button", { name: "Avboka" })[0]!);
+    await userEvent.click((await canvas.findAllByRole("button", { name: "Avboka" }))[0]!);
     await expect(page.getByRole("dialog")).toBeVisible();
   },
 };
@@ -57,9 +57,9 @@ export const CancellationError: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const page = within(canvasElement.ownerDocument.body);
-    await userEvent.click(canvas.getAllByRole("button", { name: "Avboka" })[0]!);
+    await userEvent.click((await canvas.findAllByRole("button", { name: "Avboka" }))[0]!);
     await userEvent.click(within(page.getByRole("dialog")).getByRole("button", { name: "Avboka" }));
-    await expect(page.getByRole("alert")).toBeVisible();
+    await expect(await page.findByRole("alert")).toBeVisible();
   },
 };
 
@@ -68,10 +68,10 @@ export const CancellationCompleted: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const page = within(canvasElement.ownerDocument.body);
-    const initialCount = canvas.getAllByRole("listitem").length;
+    const initialCount = (await canvas.findAllByRole("listitem")).length;
     await userEvent.click(canvas.getAllByRole("button", { name: "Avboka" })[0]!);
     await userEvent.click(within(page.getByRole("dialog")).getByRole("button", { name: "Avboka" }));
-    await expect(canvas.getAllByRole("listitem")).toHaveLength(initialCount - 1);
+    await waitFor(() => expect(canvas.getAllByRole("listitem")).toHaveLength(initialCount - 1));
   },
 };
 

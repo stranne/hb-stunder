@@ -3,7 +3,12 @@ import { STORYBOOK_API_BASE_URL } from "../src/api/config.ts";
 
 const config: StorybookConfig = {
   stories: ["../src/**/*.stories.@(ts|tsx)"],
-  addons: ["@storybook/addon-a11y", "@storybook/addon-themes", "msw-storybook-addon"],
+  addons: [
+    "@storybook/addon-a11y",
+    "@storybook/addon-themes",
+    "msw-storybook-addon",
+    "@storybook/addon-vitest",
+  ],
   framework: {
     name: "@storybook/tanstack-react",
     options: {},

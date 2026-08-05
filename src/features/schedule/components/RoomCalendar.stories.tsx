@@ -27,7 +27,9 @@ export const ActivityDetails: Story = {
   args: { customerId: "900001" },
   play: async ({ canvasElement }) => {
     await userEvent.click(
-      within(canvasElement).getByRole("button", { name: "Open details for Yinyoga, 55 min" }),
+      await within(canvasElement).findByRole("button", {
+        name: "Öppna detaljer för Yinyoga, 55 min",
+      }),
     );
   },
 };

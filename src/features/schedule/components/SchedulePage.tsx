@@ -67,20 +67,6 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
         ]),
     ).values(),
   ];
-  const availableInstructorIds = new Set(
-    availableScheduleData.flatMap(
-      (activity) => activity.instructors?.flatMap(({ id }) => (id ? [id] : [])) ?? [],
-    ),
-  );
-  const availableActivityTypeIds = new Set(
-    availableScheduleData.flatMap((activity) =>
-      activity.groupActivityProduct?.id ? [activity.groupActivityProduct.id] : [],
-    ),
-  );
-  const availableInstructors = instructors.data?.filter(({ id }) => availableInstructorIds.has(id));
-  const availableActivityTypes = activityTypes.data?.filter(({ id }) =>
-    availableActivityTypeIds.has(id),
-  );
   const scheduleData = availableScheduleData
     .filter(
       (activity) =>
@@ -126,8 +112,8 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
         <ScheduleFilters
           search={search}
           onChange={onSearchChange}
-          instructors={availableInstructors}
-          activityTypes={availableActivityTypes}
+          instructors={instructors.data}
+          activityTypes={activityTypes.data}
           isLoadingOptions={instructors.isPending || activityTypes.isPending}
           hasOptionsError={failedFilterQueries.length > 0}
           onRetryOptions={retryFilterOptions}

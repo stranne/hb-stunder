@@ -265,7 +265,7 @@ describe("SchedulePage", () => {
     expect(failedLocationRequests).toBe(2);
   });
 
-  it("only offers filters available at the selected locations", async () => {
+  it("offers every filter option returned by the bootstrap requests", async () => {
     server.use(
       http.get(scheduleEndpoint, () =>
         HttpResponse.json([
@@ -296,9 +296,9 @@ describe("SchedulePage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
 
     expect(await screen.findByRole("checkbox", { name: "Local instructor" })).toBeTruthy();
-    expect(screen.queryByRole("checkbox", { name: "Other instructor" })).toBeNull();
+    expect(screen.getByRole("checkbox", { name: "Other instructor" })).toBeTruthy();
     expect(screen.getByRole("checkbox", { name: "Local class type" })).toBeTruthy();
-    expect(screen.queryByRole("checkbox", { name: "Other class type" })).toBeNull();
+    expect(screen.getByRole("checkbox", { name: "Other class type" })).toBeTruthy();
   });
 
   it("offers recovery when the complete schedule request fails", async () => {

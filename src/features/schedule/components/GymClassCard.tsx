@@ -77,6 +77,18 @@ export function GymClassCard({
   const fullName = activity.name ?? t("schedule.unnamedClass");
   const titleParts = classTitleParts(fullName);
   const displayName = showTime ? fullName : titleParts.title;
+  const elapsedMinutes = start && end ? Math.round((end.getTime() - start.getTime()) / 60_000) : 0;
+  const elapsedHours = elapsedMinutes / 60;
+  const formattedHours = new Intl.NumberFormat(i18n.resolvedLanguage, {
+    maximumFractionDigits: 2,
+  }).format(elapsedHours);
+  const rangeDuration =
+    elapsedMinutes > 90
+      ? t("schedule.details.durationHours", { count: elapsedHours, duration: formattedHours })
+      : elapsedMinutes > 0
+        ? t("schedule.details.durationMinutes", { count: elapsedMinutes })
+        : undefined;
+  const classListDuration = titleParts.duration ?? rangeDuration;
   const totalBookable = activity.slots?.totalBookable;
   const leftToBook = activity.slots?.leftToBook;
   const waitingCount = activity.slots?.inWaitingList;
@@ -142,13 +154,13 @@ export function GymClassCard({
       {showTime ? <div className={styles.time}>{durationLabel}</div> : null}
       <div className={styles.content}>
         <Heading>{displayName}</Heading>
-        {(!showTime && titleParts.duration) || instructors || locations ? (
+        {(!showTime && classListDuration) || instructors || locations ? (
           <p className={styles.metadata}>
-            {!showTime && titleParts.duration ? (
+            {!showTime && classListDuration ? (
               <span className={styles.metadataItem}>
                 <Clock aria-hidden="true" />
                 <span className={styles.visuallyHidden}>{t("schedule.details.duration")}: </span>
-                {titleParts.duration}
+                {classListDuration}
               </span>
             ) : null}
             {instructors ? (

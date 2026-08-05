@@ -65,6 +65,9 @@
       "date": "Datum: {{date}}",
       "time": "Tid: {{time}}",
       "duration": "Längd",
+      "durationMinutes": "{{count}} min",
+      "durationHours_one": "{{duration}} timme",
+      "durationHours_other": "{{duration}} timmar",
       "spots": "{{available}} av {{total}} platser tillgängliga"
     },
     "information": {

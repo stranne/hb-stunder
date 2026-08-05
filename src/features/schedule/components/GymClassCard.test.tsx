@@ -118,6 +118,28 @@ describe("GymClassCard", () => {
     expect(screen.queryByText("90 min")).toBeNull();
   });
 
+  it.each([
+    [90, "90 min"],
+    [150, "2.5 hours"],
+  ])("falls back to the start/end range for a %i-minute class", (minutes, expectedDuration) => {
+    const start = new Date("2026-07-28T06:00:00.000Z");
+    const end = new Date(start.getTime() + minutes * 60_000);
+
+    render(
+      <GymClassCard
+        activity={{
+          ...scheduleFixtures.available,
+          name: "Workshop",
+          duration: { start: start.toISOString(), end: end.toISOString() },
+        }}
+        showTime={false}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "Workshop" })).toBeTruthy();
+    expect(screen.getByText(expectedDuration)).toBeTruthy();
+  });
+
   it("shows total availability in details and a simple waiting-list count", () => {
     const { container } = render(
       <GymClassCard

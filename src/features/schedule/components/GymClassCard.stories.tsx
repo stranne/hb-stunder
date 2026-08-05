@@ -84,7 +84,11 @@ export const ClassListItem: Story = {
 };
 export const LongClassListItem: Story = {
   args: {
-    activity: { ...upcomingAvailable, name: "Yinyoga 2,5 timmar" },
+    activity: {
+      ...upcomingAvailable,
+      name: "Lång workshop",
+      duration: { start: "2099-07-28T06:00:00.000Z", end: "2099-07-28T08:30:00.000Z" },
+    },
     showTime: false,
     headingLevel: 3,
   },

@@ -65,6 +65,9 @@
       "date": "Date: {{date}}",
       "time": "Time: {{time}}",
       "duration": "Duration",
+      "durationMinutes": "{{count}} min",
+      "durationHours_one": "{{duration}} hour",
+      "durationHours_other": "{{duration}} hours",
       "spots": "{{available}} of {{total}} spots available"
     },
     "information": {

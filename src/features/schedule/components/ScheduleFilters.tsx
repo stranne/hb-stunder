@@ -63,30 +63,6 @@ export function ScheduleFilters({
 
   return (
     <div className={styles.filters} role="group" aria-label={t("schedule.filters.label")}>
-      <div className={styles.filterToolbar}>
-        <input
-          className={styles.datePickerInput}
-          aria-label={t("schedule.filters.chooseDate")}
-          type="date"
-          min={today}
-          max={lastVisibleDate}
-          value={search.date}
-          onChange={(event) => {
-            const date = event.currentTarget.value;
-            if (date) changeDate(date);
-          }}
-        />
-        <ScheduleFilterPanel
-          search={search}
-          onChange={onChange}
-          instructors={instructors}
-          activityTypes={activityTypes}
-          isLoadingOptions={isLoadingOptions}
-          hasOptionsError={hasOptionsError}
-          onRetryOptions={onRetryOptions}
-        />
-      </div>
-
       <div className={styles.weekNavigation}>
         <Button
           tone="quiet"
@@ -149,6 +125,30 @@ export function ScheduleFilters({
         >
           <NavArrowRight aria-hidden="true" />
         </Button>
+      </div>
+
+      <div className={styles.filterToolbar}>
+        <input
+          className={styles.datePickerInput}
+          aria-label={t("schedule.filters.chooseDate")}
+          type="date"
+          min={today}
+          max={lastVisibleDate}
+          value={search.date}
+          onChange={(event) => {
+            const date = event.currentTarget.value;
+            if (date) changeDate(date);
+          }}
+        />
+        <ScheduleFilterPanel
+          search={search}
+          onChange={onChange}
+          instructors={instructors}
+          activityTypes={activityTypes}
+          isLoadingOptions={isLoadingOptions}
+          hasOptionsError={hasOptionsError}
+          onRetryOptions={onRetryOptions}
+        />
       </div>
     </div>
   );

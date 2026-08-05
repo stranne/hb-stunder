@@ -150,8 +150,8 @@
     .filters {
       grid-template-columns: minmax(0, 1fr);
       grid-template-areas:
-        "toolbar"
-        "days";
+        "days"
+        "toolbar";
     }
 
     .filterToolbar {

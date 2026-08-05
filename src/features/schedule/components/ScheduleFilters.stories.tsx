@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/tanstack-react";
 import { useState } from "react";
+import { expect, userEvent, within } from "storybook/test";
 import { todayInStockholm } from "../model/scheduleDate";
 import type { ScheduleSearch } from "../model/scheduleSearch";
 import { ScheduleFilters } from "./ScheduleFilters";
@@ -101,9 +102,31 @@ export const KeyboardNavigation: Story = {
     docs: {
       description: {
         story:
-          "Tab to the filter button, open the dialog, and continue tabbing through either long option list to verify stable keyboard navigation.",
+          "Tab through the day controls to the filter button, then continue through either long option list to verify stable keyboard navigation.",
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const selectedDay = canvas.getByRole("button", { pressed: true });
+    const nextWeek = canvas.getByRole("button", { name: /next week|nästa vecka/i });
+    const filterButton = canvas.getByRole("button", {
+      name: /open schedule filters|öppna schemafilter/i,
+    });
+
+    await expect(
+      selectedDay.compareDocumentPosition(nextWeek) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    await expect(
+      nextWeek.compareDocumentPosition(filterButton) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+
+    await userEvent.click(filterButton);
+    const dialog = within(canvasElement.ownerDocument.body).getByRole("dialog");
+    const popover = dialog.parentElement!;
+    for (let index = 0; index < 22; index += 1) await userEvent.tab();
+
+    await expect(popover.scrollTop).toBe(0);
   },
 };
 export const English: Story = { globals: { locale: "en" } };

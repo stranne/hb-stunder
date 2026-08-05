@@ -301,7 +301,7 @@
   @media (width >= 64rem) {
     .popover {
       inline-size: min(64rem, calc(100vw - 2rem));
-      overflow: hidden;
+      overflow: clip;
     }
 
     .dialog {

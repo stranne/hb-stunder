@@ -25,8 +25,16 @@ describe("ScheduleFilters", () => {
   it("allows the filter dialog to be opened from the keyboard", () => {
     render(<ScheduleFilters search={search} onChange={vi.fn()} />);
 
+    const selectedDay = screen.getByRole("button", { pressed: true });
+    const nextWeekButton = screen.getByRole("button", { name: "Next week" });
     const filterButton = screen.getByRole("button", { name: "Open schedule filters" });
     expect(filterButton.tabIndex).toBe(0);
+    expect(
+      selectedDay.compareDocumentPosition(nextWeekButton) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      nextWeekButton.compareDocumentPosition(filterButton) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
 
     filterButton.focus();
     fireEvent.keyDown(filterButton, { key: "Enter" });

@@ -180,7 +180,12 @@
   .block:hover {
     background: color-mix(in oklch, var(--color-accent) 28%, var(--color-surface));
   }
-  .blockDetails:focus-visible,
+  .blockDetails:focus-visible {
+    border-radius: var(--radius-sm);
+    outline: var(--focus-width) solid var(--color-focus);
+    outline-offset: calc(-1 * var(--focus-width));
+  }
+
   .close:focus-visible {
     outline: var(--focus-width) solid var(--color-focus);
     outline-offset: var(--focus-offset);

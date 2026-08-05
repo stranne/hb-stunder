@@ -65,6 +65,14 @@ function instructorNames(activity: ScheduledActivity) {
     .join(", ");
 }
 
+// Business-unit and room names are Swedish proper names, so keep their order
+// consistent across browser and interface locales (Å, Ä and Ö sort after Z).
+const nameCollator = new Intl.Collator("sv", {
+  usage: "sort",
+  sensitivity: "base",
+  numeric: true,
+});
+
 /** One block is rendered for every assigned room, including activities assigned to multiple rooms. */
 export function RoomCalendar({
   activities,
@@ -123,9 +131,10 @@ export function RoomCalendar({
   );
   const rooms = [...new Map(roomActivities.map((item) => [item.roomKey, item])).values()].sort(
     (left, right) =>
-      (left.businessUnitName ?? "").localeCompare(right.businessUnitName ?? "") ||
-      left.businessUnitKey.localeCompare(right.businessUnitKey) ||
-      left.roomName.localeCompare(right.roomName),
+      nameCollator.compare(left.businessUnitName ?? "", right.businessUnitName ?? "") ||
+      nameCollator.compare(left.businessUnitKey, right.businessUnitKey) ||
+      nameCollator.compare(left.roomName, right.roomName) ||
+      nameCollator.compare(left.roomKey, right.roomKey),
   );
   const businessUnitGroups = rooms.reduce<
     Array<{ key: string; name?: string; start: number; count: number }>
@@ -271,6 +280,15 @@ export function RoomCalendar({
                     const top = ((start - startMinute) / 60) * hourHeight;
                     const blockHeight = Math.max(32, ((end - start) / 60) * hourHeight);
                     const instructors = instructorNames(item.activity);
+                    const activityDetails = [
+                      item.activity.name ?? t("schedule.unnamedClass"),
+                      `${timeLabel(item.activity.duration?.start, locale)}–${timeLabel(item.activity.duration?.end, locale)}`,
+                      item.roomName,
+                      item.businessUnitName,
+                      instructors,
+                    ]
+                      .filter(Boolean)
+                      .join(", ");
                     return (
                       <div
                         key={item.key}
@@ -281,9 +299,7 @@ export function RoomCalendar({
                           type="button"
                           className={styles.blockDetails}
                           onClick={() => setDetail(item)}
-                          aria-label={t("rooms.openDetails", {
-                            name: item.activity.name ?? t("schedule.unnamedClass"),
-                          })}
+                          aria-label={t("rooms.openDetails", { details: activityDetails })}
                         >
                           <strong>{item.activity.name ?? t("schedule.unnamedClass")}</strong>
                           {instructors ? (

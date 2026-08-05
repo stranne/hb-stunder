@@ -142,7 +142,7 @@
     "empty": "Inga rum har aktiviteter som matchar dessa filter.",
     "unnamedRoom": "Rum",
     "currentTime": "Nuvarande tid: {{time}}",
-    "openDetails": "Öppna detaljer för {{name}}",
+    "openDetails": "Öppna detaljer för {{details}}",
     "closeDetails": "Stäng detaljer"
   }
 }

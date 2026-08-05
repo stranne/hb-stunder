@@ -142,7 +142,7 @@
     "empty": "No rooms have activities matching these filters.",
     "unnamedRoom": "Room",
     "currentTime": "Current time: {{time}}",
-    "openDetails": "Open details for {{name}}",
+    "openDetails": "Open details for {{details}}",
     "closeDetails": "Close details"
   }
 }

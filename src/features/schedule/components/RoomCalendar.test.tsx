@@ -34,6 +34,46 @@ describe("RoomCalendar", () => {
     expect(screen.queryByText("Hotyogastudio")).toBeNull();
   });
 
+  it("sorts business units and their rooms by Swedish names with deterministic tie-breakers", () => {
+    render(
+      <RoomCalendar
+        date="2026-07-28"
+        activities={[
+          {
+            ...scheduleFixtures.available,
+            businessUnit: { id: 2, name: "Öster" },
+            locations: [{ id: 1, name: "Beta" }],
+          },
+          {
+            ...scheduleFixtures.almostFull,
+            businessUnit: { id: 1, name: "Alfa" },
+            locations: [
+              { id: 30, name: "Rum 10" },
+              { id: 20, name: "Ägget" },
+              { id: 10, name: "Rum 2" },
+            ],
+          },
+        ]}
+        bookingsByActivity={new Map()}
+        onBook={async () => undefined}
+        onCancel={async () => undefined}
+      />,
+    );
+
+    const calendar = screen.getByLabelText("Room calendar");
+    const businessUnits = Array.from(
+      calendar.querySelectorAll(`.${styles.businessUnitVisibleLabel}`),
+      (element) => element.textContent,
+    );
+    const rooms = Array.from(
+      calendar.querySelectorAll(`.${styles.roomHeader}`),
+      (element) => element.textContent,
+    );
+
+    expect(businessUnits).toEqual(["Alfa", "Öster"]);
+    expect(rooms).toEqual(["Rum 2", "Rum 10", "Ägget", "Beta"]);
+  });
+
   it("keeps room headers aligned with horizontal calendar scrolling", () => {
     render(
       <RoomCalendar
@@ -106,7 +146,9 @@ describe("RoomCalendar", () => {
       />,
     );
 
-    const activity = screen.getByRole("button", { name: "Open details for Yinyoga, 55 min" });
+    const activity = screen.getByRole("button", {
+      name: /^Open details for Yinyoga, 55 min, /,
+    });
     expect(within(activity).getByText("Yinyoga, 55 min")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Book" })).toBeNull();
 
@@ -140,7 +182,9 @@ describe("RoomCalendar", () => {
       />,
     );
 
-    const activity = screen.getByRole("button", { name: "Open details for Yinyoga, 55 min" });
+    const activity = screen.getByRole("button", {
+      name: /Open details for Yinyoga, 55 min, .*Yogastudio, Hagabadet i Haga, Alex Example, Sam Example/,
+    });
     expect(within(activity).getByText("Alex Example, Sam Example")).toBeTruthy();
 
     fireEvent.click(activity);

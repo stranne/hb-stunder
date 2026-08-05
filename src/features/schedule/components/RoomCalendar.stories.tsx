@@ -23,12 +23,21 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+export const KeyboardFocus: Story = {
+  play: async ({ canvasElement }) => {
+    const activity = await within(canvasElement).findByRole("button", {
+      name: /^Öppna detaljer för Yinyoga, 55 min, /,
+    });
+    await userEvent.tab();
+    await expect(activity).toHaveFocus();
+  },
+};
 export const ActivityDetails: Story = {
   args: { customerId: "900001" },
   play: async ({ canvasElement }) => {
     await userEvent.click(
       await within(canvasElement).findByRole("button", {
-        name: "Öppna detaljer för Yinyoga, 55 min",
+        name: /^Öppna detaljer för Yinyoga, 55 min, /,
       }),
     );
   },

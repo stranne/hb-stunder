@@ -72,6 +72,10 @@ describe("GymClassCard", () => {
     fireEvent.click(disclosure);
     expect(disclosure.getAttribute("aria-expanded")).toBe("true");
 
+    fireEvent.click(screen.getByRole("heading", { name: /Hathayoga/ }));
+    expect(disclosure.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(disclosure);
+
     expect(screen.getByRole("heading", { name: "About the class" })).toBeTruthy();
     expect(screen.getByText(/Hathayoga fokuserar på att skapa balans/)).toBeTruthy();
     expect(container.querySelector("[data-message-type='external']")).toBeTruthy();
@@ -120,7 +124,7 @@ describe("GymClassCard", () => {
       />,
     );
 
-    expect(screen.getByText("0 people on waiting list")).toBeTruthy();
+    expect(screen.getByText("0 in queue")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Show details" }));
     expect(screen.getByText("0 of 20 spots available")).toBeTruthy();
     expect(container.querySelector("[data-spot-availability]")).toBeTruthy();
@@ -147,7 +151,8 @@ describe("GymClassCard", () => {
 
     expect(screen.queryByRole("button", { name: "Book" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Join waiting list" })).toBeNull();
-    expect(screen.getByText("Waiting list")).toBeTruthy();
+    expect(screen.getByText("Started")).toBeTruthy();
+    expect(screen.getByRole("article").getAttribute("data-started")).toBe("true");
   });
 
   it("requires confirmation and restores focus when cancelled", async () => {
@@ -261,7 +266,7 @@ describe("GymClassCard", () => {
       />,
     );
 
-    expect(screen.getByText("On waiting list")).toBeTruthy();
+    expect(screen.getByText("In queue · 3 total")).toBeTruthy();
     expect(container.querySelector("[data-availability='waitingListBooked']")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Join waiting list" })).toBeNull();
   });

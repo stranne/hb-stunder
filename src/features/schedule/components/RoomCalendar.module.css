@@ -180,6 +180,29 @@
   .block:hover {
     background: color-mix(in oklch, var(--color-accent) 28%, var(--color-surface));
   }
+
+  .block[data-started="true"] {
+    border: 1px solid color-mix(in oklch, var(--color-ink-muted) 45%, var(--color-border));
+    color: var(--color-ink-muted);
+    background: color-mix(in oklch, var(--color-surface-recessed) 75%, var(--color-surface));
+  }
+
+  .block[data-started="true"]:hover {
+    background: var(--color-surface-recessed);
+  }
+
+  .block[data-started="true"] .blockDetails strong {
+    color: color-mix(in oklch, var(--color-ink) 72%, var(--color-ink-muted));
+  }
+
+  .started {
+    color: var(--color-ink-muted);
+    font-size: 0.68rem;
+    font-weight: 750;
+    letter-spacing: 0.035em;
+    text-transform: uppercase;
+  }
+
   .blockDetails:focus-visible {
     border-radius: var(--radius-sm);
     outline: var(--focus-width) solid var(--color-focus);

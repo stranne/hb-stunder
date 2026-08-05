@@ -44,8 +44,8 @@ function CancellationCompletedDemo() {
 function AvailabilityChangeDemo() {
   const [remaining, setRemaining] = useState(8);
   const activity = {
-    ...scheduleFixtures.available,
-    slots: { ...scheduleFixtures.available.slots, leftToBook: remaining },
+    ...upcomingAvailable,
+    slots: { ...upcomingAvailable.slots, leftToBook: remaining },
   };
 
   return (

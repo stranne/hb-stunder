@@ -87,6 +87,7 @@ export function GymClassCard({
   const hasRemaining = availability.kind === "available" || availability.kind === "almostFull";
   const isWaitingList = availability.kind === "waitingList";
   const isWaitingListBooking = booking?.type === "groupActivityWaitingListBooking";
+  const hasStarted = hasActivityStarted(activity);
   const bookingCopy = isWaitingList ? "schedule.waitingList" : "schedule.booking";
   const availabilityLabel = hasRemaining
     ? t(`schedule.availability.${availability.kind}`, { count: availability.remaining })
@@ -95,19 +96,22 @@ export function GymClassCard({
     ? t(`schedule.availability.${availability.kind}Text`, { count: availability.remaining })
     : undefined;
   const canBook =
-    !booking &&
-    !hasActivityStarted(activity) &&
-    (hasRemaining || isWaitingList) &&
-    onBook !== undefined;
+    !booking && !hasStarted && (hasRemaining || isWaitingList) && onBook !== undefined;
   const canCancel =
     booking?.type === "groupActivityBooking" &&
     booking.groupActivityBooking?.id !== undefined &&
     onCancel !== undefined;
   const Heading = `h${headingLevel}` as const;
   const showWaitingCount =
-    waitingCount !== undefined && (availability.kind === "waitingList" || isWaitingListBooking);
+    waitingCount !== undefined &&
+    (isWaitingListBooking || (availability.kind === "waitingList" && !hasStarted));
   const waitingCountLabel = showWaitingCount
-    ? t("schedule.availability.waitingCount", { count: waitingCount })
+    ? t(
+        isWaitingListBooking
+          ? "schedule.availability.waitingListBookedSummary"
+          : "schedule.availability.waitingListSummary",
+        { count: waitingCount },
+      )
     : undefined;
   const hasDetails = Boolean(internalMessage || spotDetails || showTime);
   const durationLabel =
@@ -118,10 +122,19 @@ export function GymClassCard({
   return (
     <article
       ref={cardRef}
-      className={`${styles.card} ${!showTime ? styles.grouped : ""}`}
+      className={`${styles.card} ${!showTime ? styles.grouped : ""} ${hasDetails ? styles.clickable : ""}`}
       data-availability={
         booking ? (isWaitingListBooking ? "waitingListBooked" : "booked") : availability.kind
       }
+      data-started={(hasStarted && !activity.cancelled) || undefined}
+      onClick={(event) => {
+        if (
+          !hasDetails ||
+          (event.target as Element).closest("button, a, input, select, textarea, [role='button']")
+        )
+          return;
+        setIsExpanded((expanded) => !expanded);
+      }}
       tabIndex={-1}
     >
       {showTime ? <div className={styles.time}>{durationLabel}</div> : null}
@@ -160,19 +173,27 @@ export function GymClassCard({
             aria-controls={detailsId}
             onClick={() => setIsExpanded((expanded) => !expanded)}
           >
-            {t(isExpanded ? "schedule.details.hide" : "schedule.details.show")}
+            <span className={styles.visuallyHidden}>
+              {t(isExpanded ? "schedule.details.hide" : "schedule.details.show")}
+            </span>
             <NavArrowDown aria-hidden="true" />
           </button>
         ) : null}
       </div>
       <div className={styles.actions}>
         <div className={styles.availability} aria-live="polite" aria-atomic="true">
-          {booking ? (
+          {waitingCountLabel ? (
+            waitingCountLabel
+          ) : booking ? (
             t(
               isWaitingListBooking
                 ? "schedule.availability.waitingListBooked"
                 : "schedule.availability.booked",
             )
+          ) : availability.kind === "cancelled" ? (
+            availabilityLabel
+          ) : hasStarted ? (
+            t("schedule.availability.started")
           ) : hasRemaining ? (
             <>
               <span
@@ -202,12 +223,6 @@ export function GymClassCard({
             availabilityLabel
           )}
         </div>
-        {waitingCountLabel ? (
-          <div className={styles.waitingCount}>
-            <Group aria-hidden="true" />
-            {waitingCountLabel}
-          </div>
-        ) : null}
         {canBook && onBook ? (
           <AsyncConfirmationAction
             triggerLabel={t(`${bookingCopy}.book`)}

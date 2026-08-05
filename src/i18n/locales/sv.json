@@ -140,8 +140,11 @@
       "almostFullText_other": "platser kvar",
       "waitingList": "Väntelista",
       "waitingListBooked": "På väntelistan",
-      "waitingCount_one": "{{count}} person i kö",
-      "waitingCount_other": "{{count}} personer i kö",
+      "waitingListSummary_one": "{{count}} i kö",
+      "waitingListSummary_other": "{{count}} i kö",
+      "waitingListBookedSummary_one": "I kö · {{count}} totalt",
+      "waitingListBookedSummary_other": "I kö · {{count}} totalt",
+      "started": "Startad",
       "booked": "Redan bokad",
       "full": "Fullbokad",
       "cancelled": "Inställd"

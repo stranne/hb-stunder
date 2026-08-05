@@ -140,8 +140,11 @@
       "almostFullText_other": "spots left",
       "waitingList": "Waiting list",
       "waitingListBooked": "On waiting list",
-      "waitingCount_one": "{{count}} person on waiting list",
-      "waitingCount_other": "{{count}} people on waiting list",
+      "waitingListSummary_one": "{{count}} in queue",
+      "waitingListSummary_other": "{{count}} in queue",
+      "waitingListBookedSummary_one": "In queue · {{count}} total",
+      "waitingListBookedSummary_other": "In queue · {{count}} total",
+      "started": "Started",
       "booked": "Already booked",
       "full": "Fully booked",
       "cancelled": "Cancelled"

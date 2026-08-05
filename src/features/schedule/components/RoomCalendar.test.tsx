@@ -134,6 +134,25 @@ describe("RoomCalendar", () => {
     expect(group.style.getPropertyValue("--business-unit-visible-width")).toBe("240px");
   });
 
+  it("visually identifies classes that have already started", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-07-28T12:00:00.000Z"));
+
+    render(
+      <RoomCalendar
+        date="2026-07-28"
+        activities={[scheduleFixtures.available]}
+        bookingsByActivity={new Map()}
+        onBook={async () => undefined}
+        onCancel={async () => undefined}
+      />,
+    );
+
+    const activity = screen.getByRole("button", { name: /Started/ });
+    expect(activity.parentElement?.getAttribute("data-started")).toBe("true");
+    expect(within(activity).getByText("Started")).toBeTruthy();
+  });
+
   it("shows time and booking controls only in the activity details", () => {
     render(
       <RoomCalendar

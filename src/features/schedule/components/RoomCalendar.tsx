@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 import type { GroupActivityBooking } from "../../bookings/model/bookings";
 import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
 import type { ScheduledActivity } from "../model/schedule";
-import { getAvailability } from "../model/schedule";
+import { getAvailability, hasActivityStarted } from "../model/schedule";
 import { todayInStockholm } from "../model/scheduleDate";
 import styles from "./RoomCalendar.module.css";
 
@@ -290,12 +290,14 @@ export function RoomCalendar({
                     const top = ((start - startMinute) / 60) * hourHeight;
                     const blockHeight = Math.max(32, ((end - start) / 60) * hourHeight);
                     const instructors = instructorNames(item.activity);
+                    const hasStarted = hasActivityStarted(item.activity, now.getTime());
                     const activityDetails = [
                       item.activity.name ?? t("schedule.unnamedClass"),
                       `${timeLabel(item.activity.duration?.start, locale)}–${timeLabel(item.activity.duration?.end, locale)}`,
                       item.roomName,
                       item.businessUnitName,
                       instructors,
+                      hasStarted ? t("schedule.availability.started") : undefined,
                     ]
                       .filter(Boolean)
                       .join(", ");
@@ -304,6 +306,7 @@ export function RoomCalendar({
                         key={item.key}
                         className={styles.block}
                         style={{ top, height: blockHeight }}
+                        data-started={hasStarted || undefined}
                       >
                         <button
                           type="button"
@@ -314,6 +317,11 @@ export function RoomCalendar({
                           <strong>{item.activity.name ?? t("schedule.unnamedClass")}</strong>
                           {instructors ? (
                             <span className={styles.instructors}>{instructors}</span>
+                          ) : null}
+                          {hasStarted ? (
+                            <span className={styles.started}>
+                              {t("schedule.availability.started")}
+                            </span>
                           ) : null}
                         </button>
                       </div>

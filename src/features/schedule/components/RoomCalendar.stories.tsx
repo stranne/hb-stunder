@@ -50,6 +50,28 @@ export const MultipleInstructors: Story = {
   },
 };
 export const CurrentTime: Story = { args: { date: todayInStockholm() } };
+export const GroupedBusinessUnits: Story = {
+  args: {
+    activities: [
+      {
+        ...scheduleFixtures.available,
+        locations: [
+          { id: 10, name: "Hotyogastudio" },
+          { id: 12, name: "Ägget" },
+          { id: 18, name: "Yogastudio" },
+        ],
+      },
+      {
+        ...scheduleFixtures.almostFull,
+        businessUnit: { id: 4128, name: "Hagabadet Drottningtorget" },
+        locations: [
+          { id: 945, name: "Yogasal" },
+          { id: 946, name: "Hot Yoga sal" },
+        ],
+      },
+    ],
+  },
+};
 export const HorizontalOverflow: Story = {
   args: {
     activities: Array.from({ length: 8 }, (_, index) => ({

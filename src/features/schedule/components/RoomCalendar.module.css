@@ -15,7 +15,7 @@
     inset-block-start: var(--schedule-sticky-offset, 0px);
     display: grid;
     grid-template-columns: 4rem minmax(0, 1fr);
-    min-block-size: 4rem;
+    min-block-size: 6rem;
     overflow: hidden;
     border-block-end: 1px solid var(--color-border);
     border-start-start-radius: calc(var(--radius-md) - 1px);
@@ -36,23 +36,55 @@
 
   .roomHeaders {
     display: grid;
+    grid-template-rows: 2rem 4rem;
     inline-size: max-content;
     min-inline-size: 100%;
     will-change: transform;
   }
 
+  .businessUnitGroup {
+    --business-unit-visible-start: 0px;
+    --business-unit-visible-width: 100%;
+
+    position: relative;
+    grid-row: 1;
+    min-inline-size: 0;
+    overflow: hidden;
+    border-block-end: 1px solid var(--color-border);
+    border-inline-start: 1px solid var(--color-border);
+    background: var(--color-surface-recessed);
+  }
+
+  .businessUnitVisibleLabel {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: var(--business-unit-visible-start);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--business-unit-visible-width);
+    min-inline-size: 0;
+    padding-inline: var(--space-2);
+
+    strong {
+      display: block;
+      max-inline-size: 100%;
+      overflow: hidden;
+      color: var(--color-ink-muted);
+      font-size: 0.75rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
   .roomHeader {
     display: grid;
+    grid-row: 2;
     align-content: center;
-    gap: var(--space-1);
     min-inline-size: 12rem;
     min-block-size: 4rem;
     padding: var(--space-3);
-
-    span {
-      color: var(--color-ink-muted);
-      font-size: 0.75rem;
-    }
+    border-inline-start: 1px solid var(--color-border);
   }
 
   .scroller {

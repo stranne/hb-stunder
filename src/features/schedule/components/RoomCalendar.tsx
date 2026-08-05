@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 import { Dialog, Heading, Modal } from "react-aria-components";
 import { Xmark } from "iconoir-react";
 import { useTranslation } from "react-i18next";
@@ -13,6 +20,7 @@ interface RoomActivity {
   key: string;
   roomKey: string;
   roomName: string;
+  businessUnitKey: string;
   businessUnitName?: string;
   activity: ScheduledActivity;
 }
@@ -70,7 +78,24 @@ export function RoomCalendar({
   const locale = i18n.resolvedLanguage ?? i18n.language;
   const [detail, setDetail] = useState<RoomActivity | undefined>();
   const [now, setNow] = useState(() => new Date());
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const headerViewportRef = useRef<HTMLDivElement>(null);
   const roomHeadersRef = useRef<HTMLDivElement>(null);
+  const updateBusinessUnitLabels = useCallback((scrollLeft: number) => {
+    const viewportWidth = headerViewportRef.current?.clientWidth ?? 0;
+    roomHeadersRef.current
+      ?.querySelectorAll<HTMLElement>(`.${styles.businessUnitGroup}`)
+      .forEach((group) => {
+        const groupStart = group.offsetLeft;
+        const visibleStart = Math.max(groupStart, scrollLeft);
+        const visibleEnd = Math.min(groupStart + group.offsetWidth, scrollLeft + viewportWidth);
+        group.style.setProperty("--business-unit-visible-start", `${visibleStart - groupStart}px`);
+        group.style.setProperty(
+          "--business-unit-visible-width",
+          `${Math.max(0, visibleEnd - visibleStart)}px`,
+        );
+      });
+  }, []);
 
   useEffect(() => {
     const interval = window.setInterval(() => setNow(new Date()), 30_000);
@@ -79,13 +104,17 @@ export function RoomCalendar({
   const roomActivities = activities.flatMap((activity) =>
     (activity.locations ?? []).flatMap((room) => {
       if (room.id === undefined) return [];
-      const businessUnitId = activity.businessUnit?.id ?? "unknown";
-      const roomKey = `${businessUnitId}-${room.id}`;
+      const businessUnitKey =
+        activity.businessUnit?.id === undefined
+          ? `name:${activity.businessUnit?.name ?? "unknown"}`
+          : String(activity.businessUnit.id);
+      const roomKey = `${businessUnitKey}-${room.id}`;
       return [
         {
           key: `${activity.id ?? activity.duration?.start}-${roomKey}`,
           roomKey,
           roomName: room.name ?? t("rooms.unnamedRoom"),
+          businessUnitKey,
           businessUnitName: activity.businessUnit?.name,
           activity,
         },
@@ -94,10 +123,27 @@ export function RoomCalendar({
   );
   const rooms = [...new Map(roomActivities.map((item) => [item.roomKey, item])).values()].sort(
     (left, right) =>
-      `${left.businessUnitName ?? ""} ${left.roomName}`.localeCompare(
-        `${right.businessUnitName ?? ""} ${right.roomName}`,
-      ),
+      (left.businessUnitName ?? "").localeCompare(right.businessUnitName ?? "") ||
+      left.businessUnitKey.localeCompare(right.businessUnitKey) ||
+      left.roomName.localeCompare(right.roomName),
   );
+  const businessUnitGroups = rooms.reduce<
+    Array<{ key: string; name?: string; start: number; count: number }>
+  >((groups, room, roomIndex) => {
+    const previous = groups.at(-1);
+    if (previous?.key === room.businessUnitKey) {
+      previous.count += 1;
+    } else {
+      groups.push({
+        key: room.businessUnitKey,
+        name: room.businessUnitName,
+        start: roomIndex,
+        count: 1,
+      });
+    }
+    return groups;
+  }, []);
+  const groupLayoutKey = businessUnitGroups.map(({ key, count }) => `${key}:${count}`).join("|");
   const timedActivities = roomActivities.filter(
     ({ activity }) =>
       minutesInStockholm(activity.duration?.start) !== undefined &&
@@ -136,6 +182,20 @@ export function RoomCalendar({
         } as CSSProperties);
   const detailInstructors = detail ? instructorNames(detail.activity) : undefined;
 
+  useLayoutEffect(() => {
+    const update = () => updateBusinessUnitLabels(scrollerRef.current?.scrollLeft ?? 0);
+    update();
+    window.addEventListener("resize", update);
+    const resizeObserver =
+      typeof ResizeObserver === "undefined" ? undefined : new ResizeObserver(update);
+    if (headerViewportRef.current) resizeObserver?.observe(headerViewportRef.current);
+    if (roomHeadersRef.current) resizeObserver?.observe(roomHeadersRef.current);
+    return () => {
+      window.removeEventListener("resize", update);
+      resizeObserver?.disconnect();
+    };
+  }, [groupLayoutKey, updateBusinessUnitLabels]);
+
   if (rooms.length === 0) return <p className={styles.empty}>{t("rooms.empty")}</p>;
 
   return (
@@ -143,23 +203,42 @@ export function RoomCalendar({
       <div className={styles.calendarFrame} aria-label={t("rooms.calendarLabel")}>
         <div className={styles.stickyHeader}>
           <div className={styles.corner} />
-          <div className={styles.headerViewport}>
+          <div ref={headerViewportRef} className={styles.headerViewport}>
             <div ref={roomHeadersRef} className={styles.roomHeaders} style={roomHeaderStyle}>
-              {rooms.map((room) => (
-                <div className={styles.roomHeader} key={room.roomKey}>
+              {businessUnitGroups.map((group) => (
+                <div
+                  className={styles.businessUnitGroup}
+                  key={group.key}
+                  style={{ gridColumn: `${group.start + 1} / span ${group.count}` }}
+                >
+                  {group.name ? (
+                    <div className={styles.businessUnitVisibleLabel}>
+                      <strong title={group.name}>{group.name}</strong>
+                    </div>
+                  ) : null}
+                </div>
+              ))}
+              {rooms.map((room, roomIndex) => (
+                <div
+                  className={styles.roomHeader}
+                  key={room.roomKey}
+                  style={{ gridColumn: roomIndex + 1 }}
+                >
                   <strong>{room.roomName}</strong>
-                  {room.businessUnitName ? <span>{room.businessUnitName}</span> : null}
                 </div>
               ))}
             </div>
           </div>
         </div>
         <div
+          ref={scrollerRef}
           className={styles.scroller}
           onScroll={(event) => {
+            const scrollLeft = event.currentTarget.scrollLeft;
             if (roomHeadersRef.current) {
-              roomHeadersRef.current.style.transform = `translateX(-${event.currentTarget.scrollLeft}px)`;
+              roomHeadersRef.current.style.transform = `translateX(-${scrollLeft}px)`;
             }
+            updateBusinessUnitLabels(scrollLeft);
           }}
         >
           <div className={styles.calendar} style={gridStyle}>

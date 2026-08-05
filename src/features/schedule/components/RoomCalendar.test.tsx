@@ -30,6 +30,7 @@ describe("RoomCalendar", () => {
 
     expect(screen.getByText("Yogastudio")).toBeTruthy();
     expect(screen.getByText("Ägget")).toBeTruthy();
+    expect(screen.getAllByText("Hagabadet i Haga")).toHaveLength(1);
     expect(screen.queryByText("Hotyogastudio")).toBeNull();
   });
 
@@ -54,6 +55,43 @@ describe("RoomCalendar", () => {
     fireEvent.scroll(scroller);
 
     expect(headers.style.transform).toBe("translateX(-160px)");
+  });
+
+  it("centers a business-unit label within the visible part of its room group", () => {
+    render(
+      <RoomCalendar
+        date="2026-07-28"
+        activities={[
+          {
+            ...scheduleFixtures.available,
+            locations: [
+              { id: 10, name: "Room 1" },
+              { id: 11, name: "Room 2" },
+              { id: 12, name: "Room 3" },
+            ],
+          },
+        ]}
+        bookingsByActivity={new Map()}
+        onBook={async () => undefined}
+        onCancel={async () => undefined}
+      />,
+    );
+
+    const calendar = screen.getByLabelText("Room calendar");
+    const scroller = calendar.querySelector<HTMLElement>(`.${styles.scroller}`)!;
+    const viewport = calendar.querySelector<HTMLElement>(`.${styles.headerViewport}`)!;
+    const group = calendar.querySelector<HTMLElement>(`.${styles.businessUnitGroup}`)!;
+    Object.defineProperties(viewport, { clientWidth: { value: 240 } });
+    Object.defineProperties(group, {
+      offsetLeft: { value: 0 },
+      offsetWidth: { value: 576 },
+    });
+
+    scroller.scrollLeft = 96;
+    fireEvent.scroll(scroller);
+
+    expect(group.style.getPropertyValue("--business-unit-visible-start")).toBe("96px");
+    expect(group.style.getPropertyValue("--business-unit-visible-width")).toBe("240px");
   });
 
   it("shows time and booking controls only in the activity details", () => {

@@ -62,7 +62,10 @@
     "details": {
       "show": "Visa detaljer",
       "hide": "Dölj detaljer",
-      "time": "Tid: {{time}}"
+      "date": "Datum: {{date}}",
+      "time": "Tid: {{time}}",
+      "duration": "Längd",
+      "spots": "{{available}} av {{total}} platser tillgängliga"
     },
     "information": {
       "title": "Klassinformation",
@@ -137,6 +140,8 @@
       "almostFullText_other": "platser kvar",
       "waitingList": "Väntelista",
       "waitingListBooked": "På väntelistan",
+      "waitingCount_one": "{{count}} person i kö",
+      "waitingCount_other": "{{count}} personer i kö",
       "booked": "Redan bokad",
       "full": "Fullbokad",
       "cancelled": "Inställd"

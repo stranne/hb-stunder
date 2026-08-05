@@ -40,7 +40,8 @@ describe("GymClassCard", () => {
       />,
     );
 
-    expect(screen.getByText("Alex Example, Sam Example · Yogastudio")).toBeTruthy();
+    expect(screen.getByText(/Alex Example, Sam Example/)).toBeTruthy();
+    expect(screen.getByText(/Yogastudio/)).toBeTruthy();
   });
 
   it("shows every location assigned to an activity", () => {
@@ -64,12 +65,13 @@ describe("GymClassCard", () => {
 
     const disclosure = screen.getByRole("button", { name: "Show details" });
     expect(disclosure.getAttribute("aria-expanded")).toBe("false");
+    expect(screen.getByRole("heading", { name: "For this class" })).toBeTruthy();
+    expect(screen.getByText("Klassen hålls på lättförståelig engelska.")).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "About the class" })).toBeNull();
 
     fireEvent.click(disclosure);
     expect(disclosure.getAttribute("aria-expanded")).toBe("true");
 
-    expect(screen.getByRole("heading", { name: "For this class" })).toBeTruthy();
-    expect(screen.getByText("Klassen hålls på lättförståelig engelska.")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "About the class" })).toBeTruthy();
     expect(screen.getByText(/Hathayoga fokuserar på att skapa balans/)).toBeTruthy();
     expect(container.querySelector("[data-message-type='external']")).toBeTruthy();
@@ -85,6 +87,43 @@ describe("GymClassCard", () => {
 
     expect(screen.getByRole("button", { name: "Show details" })).toBeTruthy();
     expect(screen.queryByText("For this class")).toBeNull();
+  });
+
+  it("uses only the title for the class-list duration", () => {
+    render(
+      <GymClassCard
+        activity={{
+          ...scheduleFixtures.available,
+          name: "Yinyoga, 55 min",
+          duration: {
+            start: "2026-07-28T06:00:00.000Z",
+            end: "2026-07-28T07:30:00.000Z",
+          },
+        }}
+        showTime={false}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "Yinyoga" })).toBeTruthy();
+    expect(screen.getByText("55 min")).toBeTruthy();
+    expect(screen.queryByText("90 min")).toBeNull();
+  });
+
+  it("shows total availability in details and a simple waiting-list count", () => {
+    const { container } = render(
+      <GymClassCard
+        activity={{
+          ...scheduleFixtures.waitingList,
+          slots: { ...scheduleFixtures.waitingList.slots, inWaitingList: 0 },
+        }}
+        showTime={false}
+      />,
+    );
+
+    expect(screen.getByText("0 people on waiting list")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Show details" }));
+    expect(screen.getByText("0 of 20 spots available")).toBeTruthy();
+    expect(container.querySelector("[data-spot-availability]")).toBeTruthy();
   });
 
   it("shows an existing customer booking instead of schedule availability", () => {

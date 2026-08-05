@@ -1,4 +1,5 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { Clock, Group, MapPin, NavArrowDown, User } from "iconoir-react";
+import { useEffect, useId, useRef, useState, type CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 import type { GroupActivityBooking } from "../../bookings/model/bookings";
 import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
@@ -14,6 +15,13 @@ export interface GymClassCardProps {
   /** A time-group heading supplies the start time when this is false. */
   showTime?: boolean;
   headingLevel?: 2 | 3;
+}
+
+function classTitleParts(name: string) {
+  const match = name.match(/^(.*?)(?:,\s*|\s+)(\d+\s*min(?:uter)?)\s*$/i);
+  if (!match) return { title: name };
+
+  return { title: match[1]!.trim(), duration: match[2]!.replace(/\s+/g, " ") };
 }
 
 function usePrevious<T>(value: T) {
@@ -64,7 +72,18 @@ export function GymClassCard({
     .join(", ");
   const externalMessage = activity.externalMessage?.trim();
   const internalMessage = activity.internalMessage?.trim();
-  const hasMessages = Boolean(externalMessage || internalMessage);
+  const fullName = activity.name ?? t("schedule.unnamedClass");
+  const titleParts = classTitleParts(fullName);
+  const displayName = showTime ? fullName : titleParts.title;
+  const totalBookable = activity.slots?.totalBookable;
+  const leftToBook = activity.slots?.leftToBook;
+  const waitingCount = activity.slots?.inWaitingList;
+  const hasSpotDetails = totalBookable !== undefined && leftToBook !== undefined;
+  const spotDetails = hasSpotDetails
+    ? t("schedule.details.spots", { available: leftToBook, total: totalBookable })
+    : undefined;
+  const spotRatio =
+    hasSpotDetails && totalBookable > 0 ? Math.max(0, Math.min(1, leftToBook / totalBookable)) : 0;
   const hasRemaining = availability.kind === "available" || availability.kind === "almostFull";
   const isWaitingList = availability.kind === "waitingList";
   const isWaitingListBooking = booking?.type === "groupActivityWaitingListBooking";
@@ -85,6 +104,12 @@ export function GymClassCard({
     booking.groupActivityBooking?.id !== undefined &&
     onCancel !== undefined;
   const Heading = `h${headingLevel}` as const;
+  const showWaitingCount =
+    waitingCount !== undefined && (availability.kind === "waitingList" || isWaitingListBooking);
+  const waitingCountLabel = showWaitingCount
+    ? t("schedule.availability.waitingCount", { count: waitingCount })
+    : undefined;
+  const hasDetails = Boolean(internalMessage || spotDetails || showTime);
   const durationLabel =
     start && end
       ? `${timeFormatter.format(start)}–${timeFormatter.format(end)}`
@@ -101,39 +126,43 @@ export function GymClassCard({
     >
       {showTime ? <div className={styles.time}>{durationLabel}</div> : null}
       <div className={styles.content}>
-        <Heading>{activity.name ?? t("schedule.unnamedClass")}</Heading>
-        {instructors || locations ? (
-          <p>{[instructors, locations].filter(Boolean).join(" · ")}</p>
-        ) : null}
-        <button
-          type="button"
-          className={styles.expand}
-          aria-expanded={isExpanded}
-          aria-controls={detailsId}
-          onClick={() => setIsExpanded((expanded) => !expanded)}
-        >
-          {t(isExpanded ? "schedule.details.hide" : "schedule.details.show")}
-        </button>
-        {isExpanded ? (
-          <div className={styles.information} id={detailsId}>
-            <p className={styles.duration}>{t("schedule.details.time", { time: durationLabel })}</p>
-            {hasMessages ? (
-              <div className={styles.messages}>
-                {externalMessage ? (
-                  <section className={styles.message} data-message-type="external">
-                    <h3>{t("schedule.information.forThisClass")}</h3>
-                    <p>{externalMessage}</p>
-                  </section>
-                ) : null}
-                {internalMessage ? (
-                  <section className={styles.message} data-message-type="internal">
-                    <h3>{t("schedule.information.aboutClass")}</h3>
-                    <p>{internalMessage}</p>
-                  </section>
-                ) : null}
-              </div>
+        <Heading>{displayName}</Heading>
+        {(!showTime && titleParts.duration) || instructors || locations ? (
+          <p className={styles.metadata}>
+            {!showTime && titleParts.duration ? (
+              <span className={styles.metadataItem}>
+                <Clock aria-hidden="true" />
+                <span className={styles.visuallyHidden}>{t("schedule.details.duration")}: </span>
+                {titleParts.duration}
+              </span>
             ) : null}
-          </div>
+            {instructors ? (
+              <span className={styles.metadataItem}>
+                <User aria-hidden="true" />
+                <span className={styles.visuallyHidden}>{t("schedule.filters.instructor")}: </span>
+                {instructors}
+              </span>
+            ) : null}
+            {locations ? (
+              <span className={styles.metadataItem}>
+                <MapPin aria-hidden="true" />
+                <span className={styles.visuallyHidden}>{t("schedule.filters.location")}: </span>
+                {locations}
+              </span>
+            ) : null}
+          </p>
+        ) : null}
+        {hasDetails ? (
+          <button
+            type="button"
+            className={styles.expand}
+            aria-expanded={isExpanded}
+            aria-controls={detailsId}
+            onClick={() => setIsExpanded((expanded) => !expanded)}
+          >
+            {t(isExpanded ? "schedule.details.hide" : "schedule.details.show")}
+            <NavArrowDown aria-hidden="true" />
+          </button>
         ) : null}
       </div>
       <div className={styles.actions}>
@@ -173,6 +202,12 @@ export function GymClassCard({
             availabilityLabel
           )}
         </div>
+        {waitingCountLabel ? (
+          <div className={styles.waitingCount}>
+            <Group aria-hidden="true" />
+            {waitingCountLabel}
+          </div>
+        ) : null}
         {canBook && onBook ? (
           <AsyncConfirmationAction
             triggerLabel={t(`${bookingCopy}.book`)}
@@ -207,6 +242,40 @@ export function GymClassCard({
           />
         ) : null}
       </div>
+      {externalMessage ? (
+        <section className={styles.message} data-message-type="external">
+          <h3>{t("schedule.information.forThisClass")}</h3>
+          <p>{externalMessage}</p>
+        </section>
+      ) : null}
+      {isExpanded ? (
+        <div className={styles.information} id={detailsId}>
+          <p className={styles.detailItem}>
+            <Clock aria-hidden="true" />
+            {t("schedule.details.time", { time: durationLabel })}
+          </p>
+          {spotDetails ? (
+            <div className={styles.spotDetails}>
+              <p className={styles.detailItem}>
+                <Group aria-hidden="true" />
+                {spotDetails}
+              </p>
+              <div className={styles.spotBar} aria-hidden="true">
+                <span
+                  style={{ "--spot-ratio": spotRatio } as CSSProperties}
+                  data-spot-availability
+                />
+              </div>
+            </div>
+          ) : null}
+          {internalMessage ? (
+            <section className={styles.message} data-message-type="internal">
+              <h3>{t("schedule.information.aboutClass")}</h3>
+              <p>{internalMessage}</p>
+            </section>
+          ) : null}
+        </div>
+      ) : null}
     </article>
   );
 }

@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Check, FilterList, Star, Xmark } from "iconoir-react";
+import { useEffect, useState, type ReactNode } from "react";
+import { Check, FilterList, MapPin, Star, User, Xmark } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import {
   Button as AriaButton,
@@ -43,6 +43,7 @@ function normalized(value: string) {
 
 interface SearchableOptionsProps {
   label: string;
+  icon?: ReactNode;
   searchLabel: string;
   emptyLabel: string;
   favoriteLabel: string;
@@ -55,6 +56,7 @@ interface SearchableOptionsProps {
 
 function SearchableOptions({
   label,
+  icon,
   searchLabel,
   emptyLabel,
   favoriteLabel,
@@ -103,7 +105,10 @@ function SearchableOptions({
 
   return (
     <section className={styles.section}>
-      <h3>{label}</h3>
+      <h3 className={styles.sectionHeading}>
+        {icon}
+        {label}
+      </h3>
       <SearchField
         className={styles.searchField}
         aria-label={searchLabel}
@@ -226,7 +231,10 @@ export function ScheduleFilterPanel({
           ) : null}
 
           <section className={`${styles.section} ${styles.locationSection}`}>
-            <h3>{t("schedule.filters.location")}</h3>
+            <h3 className={styles.sectionHeading}>
+              <MapPin aria-hidden="true" />
+              {t("schedule.filters.location")}
+            </h3>
             <CheckboxGroup
               className={styles.locationOptions}
               aria-label={t("schedule.filters.location")}
@@ -261,6 +269,7 @@ export function ScheduleFilterPanel({
           <div className={styles.optionColumns}>
             <SearchableOptions
               label={t("schedule.filters.instructor")}
+              icon={<User aria-hidden="true" />}
               searchLabel={t("schedule.filters.searchInstructors")}
               emptyLabel={t("schedule.filters.noInstructors")}
               favoriteLabel={t("schedule.filters.favorites")}

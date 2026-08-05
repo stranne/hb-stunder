@@ -62,7 +62,10 @@
     "details": {
       "show": "Show details",
       "hide": "Hide details",
-      "time": "Time: {{time}}"
+      "date": "Date: {{date}}",
+      "time": "Time: {{time}}",
+      "duration": "Duration",
+      "spots": "{{available}} of {{total}} spots available"
     },
     "information": {
       "title": "Class information",
@@ -137,6 +140,8 @@
       "almostFullText_other": "spots left",
       "waitingList": "Waiting list",
       "waitingListBooked": "On waiting list",
+      "waitingCount_one": "{{count}} person on waiting list",
+      "waitingCount_other": "{{count}} people on waiting list",
       "booked": "Already booked",
       "full": "Fully booked",
       "cancelled": "Cancelled"

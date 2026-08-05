@@ -7,7 +7,7 @@ import {
   type CSSProperties,
 } from "react";
 import { Dialog, Heading, Modal } from "react-aria-components";
-import { Xmark } from "iconoir-react";
+import { Calendar, Clock, MapPin, User, Xmark } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import type { GroupActivityBooking } from "../../bookings/model/bookings";
 import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
@@ -55,6 +55,16 @@ function timeLabel(value: string | undefined, language: string) {
     timeZone: "Europe/Stockholm",
     hour: "2-digit",
     minute: "2-digit",
+  }).format(new Date(value));
+}
+
+function dateLabel(value: string | undefined, language: string) {
+  if (!value) return "—";
+  return new Intl.DateTimeFormat(language, {
+    timeZone: "Europe/Stockholm",
+    weekday: "long",
+    day: "numeric",
+    month: "long",
   }).format(new Date(value));
 }
 
@@ -335,12 +345,36 @@ export function RoomCalendar({
                   <Xmark aria-hidden="true" />
                 </button>
                 <Heading slot="title">{detail.activity.name ?? t("schedule.unnamedClass")}</Heading>
-                <p>
-                  {t("schedule.details.time", {
-                    time: `${timeLabel(detail.activity.duration?.start, locale)}–${timeLabel(detail.activity.duration?.end, locale)}`,
-                  })}
-                </p>
-                {detailInstructors ? <p>{detailInstructors}</p> : null}
+                <div className={styles.dialogMetadata}>
+                  <p>
+                    <Calendar aria-hidden="true" />
+                    {t("schedule.details.date", {
+                      date: dateLabel(detail.activity.duration?.start, locale),
+                    })}
+                  </p>
+                  <p>
+                    <Clock aria-hidden="true" />
+                    {t("schedule.details.time", {
+                      time: `${timeLabel(detail.activity.duration?.start, locale)}–${timeLabel(detail.activity.duration?.end, locale)}`,
+                    })}
+                  </p>
+                  <p>
+                    <MapPin aria-hidden="true" />
+                    <span className={styles.visuallyHidden}>
+                      {t("schedule.filters.location")}:{" "}
+                    </span>
+                    {[detail.roomName, detail.businessUnitName].filter(Boolean).join(", ")}
+                  </p>
+                  {detailInstructors ? (
+                    <p>
+                      <User aria-hidden="true" />
+                      <span className={styles.visuallyHidden}>
+                        {t("schedule.filters.instructor")}:{" "}
+                      </span>
+                      {detailInstructors}
+                    </p>
+                  ) : null}
+                </div>
                 {detail.activity.externalMessage ? <p>{detail.activity.externalMessage}</p> : null}
                 <RoomBookingAction
                   activity={detail.activity}

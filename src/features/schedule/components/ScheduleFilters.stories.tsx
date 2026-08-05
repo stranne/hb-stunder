@@ -63,7 +63,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "The compact toolbar keeps the day selector, date picker, and filters together on wide screens, then stacks them when space is limited.",
+          "The compact toolbar prioritizes day selection and filters on wide screens, while adding direct date access when space is limited.",
       },
     },
   },
@@ -73,6 +73,16 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+export const ActiveFilter: Story = {
+  args: {
+    search: {
+      date: todayInStockholm(),
+      locations: [1, 4128, 3509],
+      instructors: [21],
+      activityTypes: [],
+    },
+  },
+};
 export const English: Story = { globals: { locale: "en" } };
 export const Mobile: Story = {
   globals: { viewport: { value: "mobile", isRotated: false } },

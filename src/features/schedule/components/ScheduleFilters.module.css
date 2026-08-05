@@ -14,10 +14,20 @@
     grid-area: toolbar;
     display: flex;
     align-items: center;
-    gap: var(--space-2);
+  }
+
+  .filterToolbar > button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+    min-block-size: 4.25rem;
+    border-radius: var(--radius-sm);
   }
 
   .datePickerInput {
+    display: none;
     min-block-size: 2.5rem;
     min-inline-size: 8.5rem;
     max-inline-size: 10rem;
@@ -146,6 +156,17 @@
 
     .filterToolbar {
       justify-content: space-between;
+      gap: var(--space-2);
+    }
+
+    .filterToolbar > button {
+      flex-direction: row;
+      gap: var(--space-2);
+      min-block-size: 2.75rem;
+    }
+
+    .datePickerInput {
+      display: block;
     }
   }
 

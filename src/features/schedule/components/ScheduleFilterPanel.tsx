@@ -184,8 +184,10 @@ export function ScheduleFilterPanel({
     <DialogTrigger>
       <Button tone="quiet" aria-label={t("schedule.filters.openFilters")}>
         <FilterList className={styles.filterIcon} aria-hidden="true" />
-        {t("schedule.filters.filters")}
-        {activeFilterCount > 0 ? <span className={styles.count}>{activeFilterCount}</span> : null}
+        <span className={styles.filterLabel}>
+          {t("schedule.filters.filters")}
+          {activeFilterCount > 0 ? <span className={styles.count}>{activeFilterCount}</span> : null}
+        </span>
       </Button>
       <Popover className={styles.popover} placement="bottom start">
         <Dialog className={styles.dialog}>

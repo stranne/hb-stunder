@@ -58,7 +58,14 @@ const meta = {
       activityTypes={activityTypes}
     />
   ),
-  parameters: { layout: "padded" },
+  parameters: {
+    layout: "padded",
+    docs: {
+      description: {
+        component: "The day selector stacks the weekday, date, and abbreviated month for scanning.",
+      },
+    },
+  },
 } satisfies Meta<typeof ScheduleFilters>;
 
 export default meta;

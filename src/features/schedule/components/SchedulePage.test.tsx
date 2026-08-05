@@ -97,7 +97,8 @@ describe("SchedulePage", () => {
 
     renderPage([1], "900001");
 
-    expect(screen.getByRole("heading", { level: 1, name: "Classes" })).toBeTruthy();
+    expect(screen.getByRole("main", { name: "Classes" })).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "Classes" })).toBeNull();
     expect(await screen.findByText("Booked class")).toBeTruthy();
     expect(await screen.findByText("Already booked")).toBeTruthy();
   });

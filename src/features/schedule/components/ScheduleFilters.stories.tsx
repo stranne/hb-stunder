@@ -62,7 +62,8 @@ const meta = {
     layout: "padded",
     docs: {
       description: {
-        component: "The day selector stacks the weekday, date, and abbreviated month for scanning.",
+        component:
+          "The compact toolbar keeps the day selector, date picker, and filters together on wide screens, then stacks them when space is limited.",
       },
     },
   },

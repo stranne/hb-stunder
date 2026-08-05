@@ -117,10 +117,11 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
   };
 
   return (
-    <main ref={pageRef} className={`${styles.page} ${view === "rooms" ? styles.roomsPage : ""}`}>
-      <h1 className={styles.pageHeading}>
-        {t(view === "rooms" ? "rooms.title" : "schedule.title")}
-      </h1>
+    <main
+      ref={pageRef}
+      className={`${styles.page} ${view === "rooms" ? styles.roomsPage : ""}`}
+      aria-label={t(view === "rooms" ? "rooms.title" : "schedule.title")}
+    >
       <div ref={stickyControlsRef} className={styles.stickyControls}>
         <ScheduleFilters
           search={search}

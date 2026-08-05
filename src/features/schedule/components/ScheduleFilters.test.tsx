@@ -128,6 +128,33 @@ describe("ScheduleFilters", () => {
     expect(window.localStorage.getItem("hb-stunder.schedule-preferences")).toContain("22");
   });
 
+  it("only renders visible rows from long option lists while keeping every option searchable", () => {
+    const instructors = Array.from({ length: 85 }, (_, index) => ({
+      id: index + 1,
+      name: `Instructor ${String(index + 1).padStart(3, "0")}`,
+    }));
+    render(<ScheduleFilters search={search} onChange={vi.fn()} instructors={instructors} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
+
+    const instructorList = screen.getByRole("group", { name: "Instructor" });
+    const allGroup = within(screen.getByRole("group", { name: "All" }));
+    expect(allGroup.getAllByRole("checkbox")).toHaveLength(7);
+    expect(allGroup.queryByRole("checkbox", { name: "Instructor 070" })).toBeNull();
+
+    instructorList.scrollTop = 70 * 44;
+    fireEvent.scroll(instructorList);
+
+    expect(allGroup.getAllByRole("checkbox").length).toBeLessThan(15);
+    expect(allGroup.getByRole("checkbox", { name: "Instructor 070" })).toBeTruthy();
+    expect(allGroup.queryByRole("checkbox", { name: "Instructor 001" })).toBeNull();
+
+    fireEvent.change(screen.getByRole("searchbox", { name: "Search instructors" }), {
+      target: { value: "Instructor 085" },
+    });
+    expect(screen.getByRole("checkbox", { name: "Instructor 085" })).toBeTruthy();
+  });
+
   it("announces filter-option failures and retries them", () => {
     const onRetryOptions = vi.fn();
     render(

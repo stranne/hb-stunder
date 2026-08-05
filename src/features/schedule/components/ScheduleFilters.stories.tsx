@@ -83,6 +83,18 @@ export const ActiveFilter: Story = {
     },
   },
 };
+export const LongLists: Story = {
+  args: {
+    instructors: Array.from({ length: 213 }, (_, index) => ({
+      id: index + 1,
+      name: `Instructor ${String(index + 1).padStart(3, "0")}`,
+    })),
+    activityTypes: Array.from({ length: 635 }, (_, index) => ({
+      id: index + 1_000,
+      name: `Class type ${String(index + 1).padStart(3, "0")}`,
+    })),
+  },
+};
 export const English: Story = { globals: { locale: "en" } };
 export const Mobile: Story = {
   globals: { viewport: { value: "mobile", isRotated: false } },

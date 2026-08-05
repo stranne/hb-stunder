@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Check, FilterList, MapPin, Star, User, Xmark } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -32,6 +32,45 @@ interface ScheduleFilterPanelProps {
 
 function toggleId(ids: number[], id: number) {
   return ids.includes(id) ? ids.filter((value) => value !== id) : [...ids, id];
+}
+
+const OPTION_ROW_HEIGHT = 44;
+const OPTION_GROUP_LABEL_HEIGHT = 36;
+const OPTION_LIST_FALLBACK_HEIGHT = 208;
+const OPTION_LIST_OVERSCAN = 3;
+
+interface VirtualRange {
+  start: number;
+  end: number;
+  paddingBefore: number;
+  paddingAfter: number;
+}
+
+function getVirtualRange(
+  itemCount: number,
+  itemOffset: number,
+  scrollTop: number,
+  viewportHeight: number,
+): VirtualRange {
+  const overscan = OPTION_LIST_OVERSCAN * OPTION_ROW_HEIGHT;
+  const start = Math.min(
+    itemCount,
+    Math.max(0, Math.floor((scrollTop - overscan - itemOffset) / OPTION_ROW_HEIGHT)),
+  );
+  const end = Math.max(
+    start,
+    Math.min(
+      itemCount,
+      Math.ceil((scrollTop + viewportHeight + overscan - itemOffset) / OPTION_ROW_HEIGHT),
+    ),
+  );
+
+  return {
+    start,
+    end,
+    paddingBefore: start * OPTION_ROW_HEIGHT,
+    paddingAfter: (itemCount - end) * OPTION_ROW_HEIGHT,
+  };
 }
 
 function normalized(value: string) {
@@ -68,14 +107,78 @@ function SearchableOptions({
 }: SearchableOptionsProps) {
   const { t } = useTranslation();
   const [query, setQuery] = useState("");
-  const sortedOptions = [...options].sort((a, b) => a.name.localeCompare(b.name));
-  const filteredOptions = sortedOptions.filter((option) =>
-    normalized(option.name).includes(normalized(query)),
+  const [scrollTop, setScrollTop] = useState(0);
+  const [viewportHeight, setViewportHeight] = useState(OPTION_LIST_FALLBACK_HEIGHT);
+  const optionListRef = useRef<HTMLDivElement>(null);
+  const normalizedQuery = normalized(query);
+  const preparedOptions = useMemo(
+    () =>
+      options
+        .map((option) => ({ option, searchName: normalized(option.name) }))
+        .sort((a, b) => a.option.name.localeCompare(b.option.name)),
+    [options],
   );
-  const favorites = sortedOptions.filter((option) => favoriteIds.includes(option.id));
+  const filteredOptions = useMemo(
+    () =>
+      preparedOptions
+        .filter(({ searchName }) => searchName.includes(normalizedQuery))
+        .map(({ option }) => option),
+    [normalizedQuery, preparedOptions],
+  );
+  const favoriteIdSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
+  const favorites = useMemo(
+    () => preparedOptions.map(({ option }) => option).filter(({ id }) => favoriteIdSet.has(id)),
+    [favoriteIdSet, preparedOptions],
+  );
+
+  const favoriteRowsOffset = OPTION_GROUP_LABEL_HEIGHT;
+  const allRowsOffset =
+    (favorites.length > 0
+      ? OPTION_GROUP_LABEL_HEIGHT + favorites.length * OPTION_ROW_HEIGHT
+      : 0) + OPTION_GROUP_LABEL_HEIGHT;
+  const filteredRange = getVirtualRange(
+    filteredOptions.length,
+    0,
+    scrollTop,
+    viewportHeight,
+  );
+  const favoriteRange = getVirtualRange(
+    favorites.length,
+    favoriteRowsOffset,
+    scrollTop,
+    viewportHeight,
+  );
+  const allRange = getVirtualRange(
+    filteredOptions.length,
+    allRowsOffset,
+    scrollTop,
+    viewportHeight,
+  );
+
+  useEffect(() => {
+    const optionList = optionListRef.current;
+    if (!optionList) return;
+
+    const updateViewportHeight = () => {
+      setViewportHeight(optionList.clientHeight || OPTION_LIST_FALLBACK_HEIGHT);
+    };
+
+    updateViewportHeight();
+    if (typeof ResizeObserver === "undefined") return;
+
+    const observer = new ResizeObserver(updateViewportHeight);
+    observer.observe(optionList);
+    return () => observer.disconnect();
+  }, [filteredOptions.length]);
+
+  function changeQuery(nextQuery: string) {
+    setQuery(nextQuery);
+    setScrollTop(0);
+    if (optionListRef.current) optionListRef.current.scrollTop = 0;
+  }
 
   function optionRow(option: ScheduleFilterOption) {
-    const isFavorite = favoriteIds.includes(option.id);
+    const isFavorite = favoriteIdSet.has(option.id);
     return (
       <div className={styles.optionRow} key={option.id}>
         <Checkbox className={styles.checkbox} value={String(option.id)}>
@@ -84,7 +187,7 @@ function SearchableOptions({
               <span className={styles.checkboxBox} aria-hidden="true">
                 {isSelected ? <Check /> : null}
               </span>
-              <span>{option.name}</span>
+              <span className={styles.optionName}>{option.name}</span>
             </>
           )}
         </Checkbox>
@@ -113,7 +216,7 @@ function SearchableOptions({
         className={styles.searchField}
         aria-label={searchLabel}
         value={query}
-        onChange={setQuery}
+        onChange={changeQuery}
       >
         <Input aria-label={searchLabel} placeholder={searchLabel} />
         {query ? (
@@ -125,19 +228,43 @@ function SearchableOptions({
 
       {filteredOptions.length > 0 ? (
         <CheckboxGroup
+          ref={optionListRef}
           className={styles.optionList}
           aria-label={label}
           value={selectedIds.map(String)}
           onChange={(values) => onSelectedChange(values.map(Number))}
+          onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
         >
           {query ? (
-            filteredOptions.map(optionRow)
+            <>
+              <div
+                className={styles.virtualSpacer}
+                style={{ blockSize: filteredRange.paddingBefore }}
+                aria-hidden="true"
+              />
+              {filteredOptions.slice(filteredRange.start, filteredRange.end).map(optionRow)}
+              <div
+                className={styles.virtualSpacer}
+                style={{ blockSize: filteredRange.paddingAfter }}
+                aria-hidden="true"
+              />
+            </>
           ) : (
             <>
               {favorites.length > 0 ? (
                 <div className={styles.optionGroup} role="group" aria-label={favoriteLabel}>
                   <span className={styles.optionGroupLabel}>{favoriteLabel}</span>
-                  {favorites.map(optionRow)}
+                  <div
+                    className={styles.virtualSpacer}
+                    style={{ blockSize: favoriteRange.paddingBefore }}
+                    aria-hidden="true"
+                  />
+                  {favorites.slice(favoriteRange.start, favoriteRange.end).map(optionRow)}
+                  <div
+                    className={styles.virtualSpacer}
+                    style={{ blockSize: favoriteRange.paddingAfter }}
+                    aria-hidden="true"
+                  />
                 </div>
               ) : null}
               <div
@@ -146,7 +273,17 @@ function SearchableOptions({
                 aria-label={t("schedule.filters.all")}
               >
                 <span className={styles.optionGroupLabel}>{t("schedule.filters.all")}</span>
-                {sortedOptions.map(optionRow)}
+                <div
+                  className={styles.virtualSpacer}
+                  style={{ blockSize: allRange.paddingBefore }}
+                  aria-hidden="true"
+                />
+                {filteredOptions.slice(allRange.start, allRange.end).map(optionRow)}
+                <div
+                  className={styles.virtualSpacer}
+                  style={{ blockSize: allRange.paddingAfter }}
+                  aria-hidden="true"
+                />
               </div>
             </>
           )}

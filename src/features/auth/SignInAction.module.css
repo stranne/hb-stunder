@@ -5,7 +5,7 @@
     inset: 0;
     display: grid;
     padding: var(--space-6);
-    background: oklch(24% 0.035 245deg / 45%);
+    background: var(--color-overlay);
     place-items: center;
   }
 
@@ -13,7 +13,7 @@
     inline-size: min(28rem, 100%);
     padding: var(--space-6);
     border-radius: var(--radius-lg);
-    background: var(--color-surface);
+    background: var(--color-surface-elevated);
     box-shadow: var(--shadow-raised);
 
     h2 {

@@ -29,6 +29,29 @@ const preview: Preview = {
         ],
       },
     },
+    themeStudy: {
+      description: "Color and surface study",
+      defaultValue: "limestone",
+      toolbar: {
+        icon: "paintbrush",
+        items: [
+          { value: "limestone", title: "Limestone + bathhouse green" },
+          { value: "plaster", title: "Plaster + oxblood" },
+          { value: "mineral", title: "Pale mineral + blue-green" },
+        ],
+      },
+    },
+    colorMode: {
+      description: "Color mode",
+      defaultValue: "light",
+      toolbar: {
+        icon: "mirror",
+        items: [
+          { value: "light", title: "Light" },
+          { value: "dark", title: "Dark" },
+        ],
+      },
+    },
     reducedMotion: {
       description: "Reduced motion",
       defaultValue: "full",
@@ -47,6 +70,8 @@ const preview: Preview = {
         key={context.id}
         locale={String(context.globals.locale ?? "sv")}
         reducedMotion={context.globals.reducedMotion === "reduce"}
+        themeStudy={String(context.globals.themeStudy ?? "limestone")}
+        colorMode={String(context.globals.colorMode ?? "light")}
       >
         <Story />
       </StoryEnvironment>

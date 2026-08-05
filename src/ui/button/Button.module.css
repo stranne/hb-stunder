@@ -41,6 +41,6 @@
 
   .quiet {
     color: var(--color-ink);
-    background: var(--color-surface-strong);
+    background: var(--color-surface-recessed);
   }
 }

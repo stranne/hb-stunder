@@ -4,7 +4,7 @@
     min-inline-size: 0;
     max-inline-size: 100%;
     min-block-size: 20rem;
-    border: 1px solid color-mix(in oklch, var(--color-ink) 10%, transparent);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     background: var(--color-surface);
   }
@@ -17,7 +17,7 @@
     grid-template-columns: 4rem minmax(0, 1fr);
     min-block-size: 4rem;
     overflow: hidden;
-    border-block-end: 1px solid color-mix(in oklch, var(--color-ink) 10%, transparent);
+    border-block-end: 1px solid var(--color-border);
     border-start-start-radius: calc(var(--radius-md) - 1px);
     border-start-end-radius: calc(var(--radius-md) - 1px);
     background: var(--color-surface);
@@ -94,12 +94,11 @@
   .roomTrack {
     position: relative;
     height: var(--calendar-height);
-    border-inline-start: 1px solid color-mix(in oklch, var(--color-ink) 10%, transparent);
+    border-inline-start: 1px solid var(--color-border);
     background: repeating-linear-gradient(
       to bottom,
       transparent 0 calc(var(--hour-height) - 1px),
-      color-mix(in oklch, var(--color-ink) 10%, transparent) calc(var(--hour-height) - 1px)
-        var(--hour-height)
+      var(--color-border) calc(var(--hour-height) - 1px) var(--hour-height)
     );
   }
 
@@ -108,7 +107,7 @@
     z-index: 2;
     inset-block-start: var(--current-time-top);
     inset-inline: 0;
-    border-block-start: 2px solid oklch(57% 0.22 27deg);
+    border-block-start: 2px solid var(--color-error);
     pointer-events: none;
   }
 
@@ -171,7 +170,7 @@
     display: grid;
     place-items: center;
     padding: var(--space-4);
-    background: oklch(20% 0.02 250deg / 45%);
+    background: var(--color-overlay);
   }
 
   .dialog {
@@ -179,8 +178,8 @@
     inline-size: min(100%, 30rem);
     padding: var(--space-6);
     border-radius: var(--radius-md);
-    background: var(--color-surface);
-    box-shadow: 0 1rem 3rem oklch(20% 0.02 250deg / 25%);
+    background: var(--color-surface-elevated);
+    box-shadow: var(--shadow-raised);
 
     h2,
     p {
@@ -199,7 +198,7 @@
     block-size: 2rem;
     border: 0;
     border-radius: var(--radius-pill);
-    background: var(--color-surface-strong);
+    background: var(--color-surface-recessed);
     font-size: 1.5rem;
     line-height: 1;
     cursor: pointer;

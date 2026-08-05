@@ -19,7 +19,7 @@
     min-inline-size: 8.5rem;
     max-inline-size: 10rem;
     padding: var(--space-1) var(--space-2);
-    border: 1px solid color-mix(in oklch, var(--color-ink) 12%, transparent);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
     color: var(--color-ink);
     background: var(--color-surface);
@@ -79,7 +79,7 @@
     gap: 0 var(--space-1);
     min-block-size: 3.5rem;
     padding: var(--space-1);
-    border: 1px solid color-mix(in oklch, var(--color-ink) 12%, transparent);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
     color: var(--color-ink);
     background: var(--color-surface);
@@ -91,7 +91,7 @@
 
     &:hover {
       border-color: color-mix(in oklch, var(--color-accent) 55%, transparent);
-      background: var(--color-surface-strong);
+      background: var(--color-surface-recessed);
     }
 
     &:focus-visible {

@@ -28,7 +28,7 @@
   .card,
   .notice {
     padding: var(--space-4);
-    border: 1px solid color-mix(in oklch, var(--color-ink) 10%, transparent);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     background: var(--color-surface);
   }
@@ -70,16 +70,16 @@
   .status {
     padding: var(--space-2) var(--space-3);
     border-radius: var(--radius-pill);
-    color: var(--color-accent-strong);
-    background: color-mix(in oklch, var(--color-accent) 13%, var(--color-surface));
+    color: var(--color-positive-strong);
+    background: var(--color-positive-soft);
     font-size: var(--text-sm);
     font-weight: 750;
     text-align: center;
   }
 
   .waiting {
-    color: oklch(43% 0.12 65deg);
-    background: oklch(94% 0.045 75deg);
+    color: var(--color-warning-strong);
+    background: var(--color-warning-soft);
   }
 
   .notice {

@@ -71,7 +71,7 @@
     padding: var(--space-8);
     border-radius: var(--radius-md);
     color: var(--color-ink-muted);
-    background: var(--color-surface);
+    background: var(--color-surface-recessed);
     text-align: center;
 
     p {
@@ -80,8 +80,8 @@
   }
 
   .warning {
-    border: 1px solid color-mix(in oklch, var(--color-accent) 35%, transparent);
-    background: color-mix(in oklch, var(--color-accent) 8%, var(--color-surface));
+    border: 1px solid color-mix(in oklch, var(--color-warning) 35%, transparent);
+    background: var(--color-warning-soft);
   }
 
   @media (width < 40rem) {

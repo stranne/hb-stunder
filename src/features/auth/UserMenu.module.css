@@ -34,7 +34,7 @@
     border: 1px solid color-mix(in oklch, var(--color-ink) 12%, transparent);
     border-radius: var(--radius-md);
     background: var(--color-surface);
-    box-shadow: 0 0.75rem 2rem oklch(24% 0.035 245deg / 14%);
+    box-shadow: 0 0.75rem 2rem var(--color-shadow);
 
     &[data-entering],
     &[data-exiting] {

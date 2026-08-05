@@ -6,10 +6,14 @@ import i18n from "../src/i18n";
 export function StoryEnvironment({
   locale,
   reducedMotion,
+  themeStudy,
+  colorMode,
   children,
 }: {
   locale: string;
   reducedMotion: boolean;
+  themeStudy: string;
+  colorMode: string;
   children: ReactNode;
 }) {
   const [queryClient] = useState(
@@ -22,6 +26,17 @@ export function StoryEnvironment({
   useEffect(() => {
     void i18n.changeLanguage(locale);
   }, [locale]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.dataset.themeStudy = themeStudy;
+    root.dataset.colorMode = colorMode;
+
+    return () => {
+      delete root.dataset.themeStudy;
+      delete root.dataset.colorMode;
+    };
+  }, [colorMode, themeStudy]);
 
   return (
     <QueryClientProvider client={queryClient}>

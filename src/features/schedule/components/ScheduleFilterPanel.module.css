@@ -22,7 +22,7 @@
     inline-size: min(32rem, calc(100vw - 2rem));
     max-block-size: min(44rem, calc(100vh - 2rem));
     overflow: auto;
-    border: 1px solid color-mix(in oklch, var(--color-ink) 14%, transparent);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     background: var(--color-surface);
     box-shadow: var(--shadow-raised);
@@ -41,7 +41,7 @@
     margin-inline: calc(-1 * var(--space-6));
     margin-block: calc(-1 * var(--space-6));
     padding: var(--space-3) var(--space-6);
-    border-block-start: 1px solid color-mix(in oklch, var(--color-ink) 10%, transparent);
+    border-block-start: 1px solid var(--color-border);
     background: var(--color-surface);
   }
 
@@ -238,7 +238,7 @@
     }
 
     &[data-selected] {
-      color: oklch(67% 0.15 80deg);
+      color: var(--color-brass);
     }
   }
 

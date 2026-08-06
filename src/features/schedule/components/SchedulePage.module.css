@@ -14,17 +14,16 @@
     position: sticky;
     z-index: 10;
     inset-block-start: 0;
-    inline-size: min(calc(100% - 2rem), 64rem);
+    inline-size: 100%;
     margin-block-end: var(--space-3);
-    margin-inline: auto;
     background: var(--color-canvas);
   }
 
   .stickyControls::after {
     position: absolute;
     inset-block-end: calc(-1 * var(--space-3));
-    inset-inline-start: calc(-1 * var(--space-4));
-    inline-size: calc(100% + var(--space-8));
+    inset-inline-start: 50%;
+    inline-size: min(100%, calc(64rem + var(--space-8)));
     block-size: var(--space-3);
     background: linear-gradient(to bottom, var(--color-shadow), transparent);
     mask-image: linear-gradient(
@@ -37,6 +36,7 @@
     opacity: 0;
     pointer-events: none;
     content: "";
+    transform: translateX(-50%);
     transition: opacity var(--motion-standard) var(--ease-out);
   }
 
@@ -44,8 +44,13 @@
     opacity: 1;
   }
 
+  .roomsPage .stickyControls::after {
+    display: none;
+  }
+
   .stickyControls > * {
-    inline-size: 100%;
+    inline-size: min(calc(100% - 2rem), 64rem);
+    margin-inline: auto;
   }
 
   .statusRegion {

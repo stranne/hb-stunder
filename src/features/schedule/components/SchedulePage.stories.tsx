@@ -45,7 +45,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Once content scrolls beneath the sticky day-selection controls, a lower shadow fades in across the full class-list width and softens just beyond its edges.",
+          "Sticky controls keep an opaque full-width backdrop while content scrolls beneath them. Class lists gain a lower shadow after scrolling; room calendars place that shadow below their sticky room headers instead.",
       },
     },
   },

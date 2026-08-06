@@ -19,17 +19,33 @@
     display: grid;
     grid-template-columns: 4rem minmax(0, 1fr);
     min-block-size: 6rem;
-    overflow: hidden;
     border-block-end: 1px solid var(--color-border);
     border-start-start-radius: calc(var(--radius-md) - 1px);
     border-start-end-radius: calc(var(--radius-md) - 1px);
     background: var(--color-surface-elevated);
-    box-shadow: 0 0.5rem 1rem -0.75rem var(--color-shadow);
+  }
+
+  .stickyHeader::after {
+    position: absolute;
+    inset-block-end: calc(-1 * var(--space-3));
+    inset-inline: 0;
+    block-size: var(--space-3);
+    background: linear-gradient(to bottom, var(--color-shadow), transparent);
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black var(--space-4),
+      black calc(100% - var(--space-4)),
+      transparent
+    );
+    pointer-events: none;
+    content: "";
   }
 
   .corner {
     position: relative;
     z-index: 1;
+    border-start-start-radius: inherit;
     background: var(--color-surface-elevated);
     box-shadow: 0.5rem 0 1rem -0.85rem var(--color-shadow);
   }
@@ -37,6 +53,7 @@
   .headerViewport {
     min-inline-size: 0;
     overflow: hidden;
+    border-start-end-radius: inherit;
   }
 
   .roomHeaders {

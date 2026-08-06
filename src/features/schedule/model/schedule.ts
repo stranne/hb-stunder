@@ -38,6 +38,11 @@ export function hasActivityStarted(activity: ScheduledActivity, now = Date.now()
   return start !== undefined && Date.parse(start) <= now;
 }
 
+export function hasActivityEnded(activity: ScheduledActivity, now = Date.now()): boolean {
+  const end = activity.duration?.end;
+  return end !== undefined && Date.parse(end) <= now;
+}
+
 export function getAvailability(activity: ScheduledActivity): Availability {
   if (activity.cancelled) return { kind: "cancelled" };
 

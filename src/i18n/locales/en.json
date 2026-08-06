@@ -150,6 +150,7 @@
       "waitingListSummary_other": "{{count}} in queue",
       "waitingListBookedSummary_one": "In queue · {{count}} total",
       "waitingListBookedSummary_other": "In queue · {{count}} total",
+      "participating": "{{count}} participating",
       "participated": "{{count}} participated",
       "started": "Started",
       "booked": "Already booked",

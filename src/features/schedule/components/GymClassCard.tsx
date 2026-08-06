@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import type { GroupActivityBooking } from "../../bookings/model/bookings";
 import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
 import type { ScheduledActivity } from "../model/schedule";
-import { getAvailability, hasActivityStarted } from "../model/schedule";
+import { getAvailability, hasActivityEnded, hasActivityStarted } from "../model/schedule";
 import styles from "./GymClassCard.module.css";
 
 export interface GymClassCardProps {
@@ -101,7 +101,9 @@ export function GymClassCard({
   const hasRemaining = availability.kind === "available" || availability.kind === "almostFull";
   const isWaitingList = availability.kind === "waitingList";
   const isWaitingListBooking = booking?.type === "groupActivityWaitingListBooking";
-  const hasStarted = hasActivityStarted(activity);
+  const now = Date.now();
+  const hasStarted = hasActivityStarted(activity, now);
+  const hasEnded = hasActivityEnded(activity, now);
   const participantCount = hasSpotDetails
     ? Math.max(0, Math.min(totalBookable, totalBookable - leftToBook))
     : undefined;
@@ -211,7 +213,12 @@ export function GymClassCard({
             availabilityLabel
           ) : hasStarted ? (
             participantCount !== undefined ? (
-              t("schedule.availability.participated", { count: participantCount })
+              t(
+                hasEnded
+                  ? "schedule.availability.participated"
+                  : "schedule.availability.participating",
+                { count: participantCount },
+              )
             ) : null
           ) : hasRemaining ? (
             <>

@@ -150,6 +150,7 @@
       "waitingListSummary_other": "{{count}} i kö",
       "waitingListBookedSummary_one": "I kö · {{count}} totalt",
       "waitingListBookedSummary_other": "I kö · {{count}} totalt",
+      "participating": "{{count}} deltar",
       "participated": "{{count}} deltog",
       "started": "Startad",
       "booked": "Redan bokad",

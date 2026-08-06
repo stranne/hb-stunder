@@ -123,10 +123,26 @@ export const MultipleLocations: Story = {
   },
 };
 export const Started: Story = {
+  args: {
+    activity: {
+      ...scheduleFixtures.available,
+      duration: { start: "2000-07-28T06:00:00.000Z", end: "2099-07-28T07:00:00.000Z" },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByText(/10 (participating|deltar)/)).toBeVisible();
+    await expect(
+      within(canvasElement).queryByText(/10 (participated|deltog)/),
+    ).not.toBeInTheDocument();
+  },
+};
+export const Ended: Story = {
   args: { activity: scheduledInYear(scheduleFixtures.available, 2000) },
   play: async ({ canvasElement }) => {
     await expect(within(canvasElement).getByText(/10 (participated|deltog)/)).toBeVisible();
-    await expect(within(canvasElement).queryByText(/Started|Startad/)).not.toBeInTheDocument();
+    await expect(
+      within(canvasElement).queryByText(/10 (participating|deltar)/),
+    ).not.toBeInTheDocument();
   },
 };
 export const WithClassInformation: Story = {

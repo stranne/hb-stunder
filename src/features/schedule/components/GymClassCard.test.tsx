@@ -170,7 +170,7 @@ describe("GymClassCard", () => {
     expect(screen.queryByText("8 spots")).toBeNull();
   });
 
-  it("does not offer booking or waiting-list actions after an activity starts", () => {
+  it("does not offer booking actions and shows participants while an activity is ongoing", () => {
     const onBook = vi.fn(async () => undefined);
     vi.mocked(Date.now).mockReturnValue(Date.parse("2026-07-28T17:00:00.000Z"));
 
@@ -178,9 +178,19 @@ describe("GymClassCard", () => {
 
     expect(screen.queryByRole("button", { name: "Book" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Join waiting list" })).toBeNull();
-    expect(screen.getByText("20 participated")).toBeTruthy();
+    expect(screen.getByText("20 participating")).toBeTruthy();
+    expect(screen.queryByText("20 participated")).toBeNull();
     expect(screen.queryByText("Started")).toBeNull();
     expect(screen.getByRole("article").getAttribute("data-started")).toBe("true");
+  });
+
+  it("shows participants in the past tense after an activity ends", () => {
+    vi.mocked(Date.now).mockReturnValue(Date.parse("2026-07-28T18:15:00.000Z"));
+
+    render(<GymClassCard activity={scheduleFixtures.waitingList} />);
+
+    expect(screen.getByText("20 participated")).toBeTruthy();
+    expect(screen.queryByText("20 participating")).toBeNull();
   });
 
   it("does not show misleading availability when a started activity has no slot data", () => {

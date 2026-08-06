@@ -30,6 +30,7 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
   const pageRef = useRef<HTMLElement>(null);
   const stickyControlsRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
+  const [areControlsElevated, setAreControlsElevated] = useState(false);
   const [favoriteFilters, setFavoriteFilters] = useState(() => {
     const { favoriteInstructorIds, favoriteActivityTypeIds } = readSchedulePreferences();
     return { favoriteInstructorIds, favoriteActivityTypeIds };
@@ -43,13 +44,23 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
     const updateStickyOffset = () => {
       page.style.setProperty("--schedule-sticky-offset", `${controls.offsetHeight}px`);
     };
+    const updateElevation = () => {
+      setAreControlsElevated(
+        controls.getBoundingClientRect().top <= 0 && page.getBoundingClientRect().top < 0,
+      );
+    };
 
     updateStickyOffset();
-    if (typeof ResizeObserver === "undefined") return;
+    updateElevation();
+    window.addEventListener("scroll", updateElevation, { passive: true });
 
-    const observer = new ResizeObserver(updateStickyOffset);
-    observer.observe(controls);
-    return () => observer.disconnect();
+    const observer =
+      typeof ResizeObserver === "undefined" ? undefined : new ResizeObserver(updateStickyOffset);
+    observer?.observe(controls);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("scroll", updateElevation);
+    };
   }, []);
   const createBooking = useMutation(createGroupActivityBookingMutationOptions(queryClient));
   const cancelBooking = useMutation(cancelGroupActivityBookingMutationOptions(queryClient));
@@ -113,7 +124,11 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
       className={`${styles.page} ${view === "rooms" ? styles.roomsPage : ""}`}
       aria-label={t(view === "rooms" ? "rooms.title" : "schedule.title")}
     >
-      <div ref={stickyControlsRef} className={styles.stickyControls}>
+      <div
+        ref={stickyControlsRef}
+        className={styles.stickyControls}
+        data-elevated={areControlsElevated || undefined}
+      >
         <ScheduleFilters
           search={search}
           onChange={onSearchChange}

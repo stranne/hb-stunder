@@ -81,6 +81,25 @@ afterEach(() => {
 afterAll(() => server.close());
 
 describe("SchedulePage", () => {
+  it("elevates the sticky controls only after the page scrolls beneath them", () => {
+    server.use(http.get(scheduleEndpoint, () => HttpResponse.json([])));
+    renderPage([1]);
+
+    const page = screen.getByRole("main", { name: "Classes" });
+    const controls = page.firstElementChild;
+    expect(controls?.getAttribute("data-elevated")).toBeNull();
+
+    const pageRect = vi
+      .spyOn(page, "getBoundingClientRect")
+      .mockReturnValue({ top: -1 } as DOMRect);
+    fireEvent.scroll(window);
+    expect(controls?.getAttribute("data-elevated")).toBe("true");
+
+    pageRect.mockReturnValue({ top: 0 } as DOMRect);
+    fireEvent.scroll(window);
+    expect(controls?.getAttribute("data-elevated")).toBeNull();
+  });
+
   it("includes business unit names when multiple locations are enabled", async () => {
     server.use(
       http.get(scheduleEndpoint, ({ params }) => {

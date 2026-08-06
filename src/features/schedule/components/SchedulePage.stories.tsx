@@ -45,7 +45,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "The sticky day-selection backdrop spans the full viewport so scrolled content and shadows cannot appear at its sides, while the controls retain a readable maximum width.",
+          "Once content scrolls beneath the sticky day-selection controls, a lower shadow fades in across the full class-list width and softens just beyond its edges.",
       },
     },
   },

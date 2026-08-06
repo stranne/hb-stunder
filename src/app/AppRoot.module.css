@@ -5,9 +5,9 @@
   }
 
   .navigationBar {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     align-items: center;
-    justify-content: space-between;
     gap: var(--space-3);
     inline-size: min(100% - 2rem, 72rem);
     min-block-size: 3.25rem;
@@ -15,6 +15,7 @@
   }
 
   .nav {
+    grid-column: 2;
     display: flex;
     align-self: stretch;
     align-items: center;
@@ -57,6 +58,8 @@
   }
 
   .account {
+    grid-column: 3;
+    justify-self: end;
     min-inline-size: 0;
     padding-inline-start: var(--space-2);
     border-inline-start: 1px solid var(--color-border);
@@ -86,6 +89,7 @@
     }
 
     .nav {
+      grid-column: 1;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 0;
@@ -104,6 +108,7 @@
     }
 
     .account {
+      grid-column: 2;
       display: grid;
       align-items: center;
       padding-inline-start: var(--space-1);

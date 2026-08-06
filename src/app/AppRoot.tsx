@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { Link, Outlet } from "@tanstack/react-router";
+import { Link, Outlet, useLocation } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Calendar, CalendarCheck, ViewGrid } from "iconoir-react";
 import { useTranslation } from "react-i18next";
@@ -12,7 +12,9 @@ import styles from "./AppRoot.module.css";
 export function AppRoot() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const location = useLocation();
   const { customer, canSignIn, signIn, signOut } = useSession();
+  const scheduleView = parseScheduleSearch(location.search).view;
 
   const handleSignOut = () => {
     if (customer)
@@ -29,6 +31,9 @@ export function AppRoot() {
               to="/"
               search={(previous) => ({ ...parseScheduleSearch(previous), view: "classes" })}
               activeOptions={{ exact: true }}
+              aria-current={
+                location.pathname === "/" && scheduleView === "classes" ? "page" : undefined
+              }
             >
               <Calendar aria-hidden="true" />
               <span>{t("navigation.classes")}</span>
@@ -37,11 +42,17 @@ export function AppRoot() {
               to="/"
               search={(previous) => ({ ...parseScheduleSearch(previous), view: "rooms" })}
               activeOptions={{ exact: true }}
+              aria-current={
+                location.pathname === "/" && scheduleView === "rooms" ? "page" : undefined
+              }
             >
               <ViewGrid aria-hidden="true" />
               <span>{t("navigation.rooms")}</span>
             </Link>
-            <Link to="/bookings">
+            <Link
+              to="/bookings"
+              aria-current={location.pathname === "/bookings" ? "page" : undefined}
+            >
               <CalendarCheck aria-hidden="true" />
               <span>{t("navigation.bookings")}</span>
             </Link>

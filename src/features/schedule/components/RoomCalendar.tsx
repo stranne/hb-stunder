@@ -35,6 +35,7 @@ export interface RoomCalendarProps {
   onCancel: (bookingId: number) => Promise<void>;
   favoriteInstructorIds?: number[];
   favoriteActivityTypeIds?: number[];
+  includeBusinessUnitName?: boolean;
 }
 
 function minutesInStockholm(value?: string) {
@@ -96,6 +97,7 @@ export function RoomCalendar({
   onCancel,
   favoriteInstructorIds = [],
   favoriteActivityTypeIds = [],
+  includeBusinessUnitName = false,
 }: RoomCalendarProps) {
   const { i18n, t } = useTranslation();
   const locale = i18n.resolvedLanguage ?? i18n.language;
@@ -393,7 +395,12 @@ export function RoomCalendar({
                     <span className={styles.visuallyHidden}>
                       {t("schedule.filters.location")}:{" "}
                     </span>
-                    {[detail.roomName, detail.businessUnitName].filter(Boolean).join(", ")}
+                    {[
+                      detail.roomName,
+                      includeBusinessUnitName ? detail.businessUnitName : undefined,
+                    ]
+                      .filter(Boolean)
+                      .join(", ")}
                   </p>
                   {detailInstructors ? (
                     <p>

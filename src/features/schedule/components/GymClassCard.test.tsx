@@ -27,6 +27,12 @@ describe("GymClassCard", () => {
     expect(screen.queryByText(/Hagabadet i Haga/)).toBeNull();
   });
 
+  it("includes the business unit in the location when requested", () => {
+    render(<GymClassCard activity={scheduleFixtures.available} includeBusinessUnitName />);
+
+    expect(screen.getByText("Yogastudio, Hagabadet i Haga")).toBeTruthy();
+  });
+
   it("shows every instructor assigned to an activity", () => {
     render(
       <GymClassCard

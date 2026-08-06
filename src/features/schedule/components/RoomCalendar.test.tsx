@@ -240,6 +240,25 @@ describe("RoomCalendar", () => {
     expect(within(details).getByRole("button", { name: "Book" })).toBeTruthy();
   });
 
+  it("includes the business unit in modal locations when requested", () => {
+    render(
+      <RoomCalendar
+        date="2026-07-28"
+        activities={[scheduleFixtures.available]}
+        bookingsByActivity={new Map()}
+        includeBusinessUnitName
+        onBook={async () => undefined}
+        onCancel={async () => undefined}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /^Open details for Yinyoga, 55 min, / }));
+
+    expect(
+      within(screen.getByRole("dialog")).getByText("Yogastudio, Hagabadet i Haga"),
+    ).toBeTruthy();
+  });
+
   it("shows every instructor assigned to an activity", () => {
     const activityWithMultipleInstructors = {
       ...scheduleFixtures.available,

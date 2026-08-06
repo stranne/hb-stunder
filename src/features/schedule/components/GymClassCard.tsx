@@ -18,6 +18,7 @@ export interface GymClassCardProps {
   headingLevel?: 2 | 3;
   favoriteInstructorIds?: number[];
   favoriteActivityTypeIds?: number[];
+  includeBusinessUnitName?: boolean;
 }
 
 function classTitleParts(name: string) {
@@ -48,6 +49,7 @@ export function GymClassCard({
   headingLevel = 2,
   favoriteInstructorIds = [],
   favoriteActivityTypeIds = [],
+  includeBusinessUnitName = false,
 }: GymClassCardProps) {
   const { i18n, t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -74,8 +76,13 @@ export function GymClassCard({
   const isFavoriteActivityType =
     activity.groupActivityProduct?.id !== undefined &&
     favoriteActivityTypeIds.includes(activity.groupActivityProduct.id);
-  const locations = activity.locations
-    ?.map(({ name }) => name)
+  const locations = [
+    activity.locations
+      ?.map(({ name }) => name)
+      .filter(Boolean)
+      .join(", "),
+    includeBusinessUnitName ? activity.businessUnit?.name : undefined,
+  ]
     .filter(Boolean)
     .join(", ");
   const externalMessage = activity.externalMessage?.trim();

@@ -81,6 +81,27 @@ afterEach(() => {
 afterAll(() => server.close());
 
 describe("SchedulePage", () => {
+  it("includes business unit names when multiple locations are enabled", async () => {
+    server.use(
+      http.get(scheduleEndpoint, ({ params }) => {
+        const businessUnit = Number(params.businessUnit);
+        const businessUnitName = businessUnit === 1 ? "Hagabadet i Haga" : "Drottningtorget";
+        return HttpResponse.json([
+          {
+            ...activity(businessUnit, `Class ${businessUnit}`),
+            businessUnit: { id: businessUnit, name: businessUnitName },
+            locations: [{ id: businessUnit, name: `Studio ${businessUnit}` }],
+          },
+        ]);
+      }),
+    );
+
+    renderPage([1, 4128]);
+
+    expect(await screen.findByText("Studio 1, Hagabadet i Haga")).toBeTruthy();
+    expect(await screen.findByText("Studio 4128, Drottningtorget")).toBeTruthy();
+  });
+
   it("reconciles a customer booking to its schedule card by activity ID", async () => {
     server.use(
       http.get(scheduleEndpoint, () => HttpResponse.json([activity(101, "Booked class")])),

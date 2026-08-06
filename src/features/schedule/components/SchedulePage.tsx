@@ -167,6 +167,7 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
             customerId={customerId}
             favoriteInstructorIds={favoriteFilters.favoriteInstructorIds}
             favoriteActivityTypeIds={favoriteFilters.favoriteActivityTypeIds}
+            includeBusinessUnitName={search.locations.length > 1}
             onBook={(activity) =>
               createBooking.mutateAsync({
                 customerId: customerId!,
@@ -211,6 +212,7 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
                         headingLevel={3}
                         favoriteInstructorIds={favoriteFilters.favoriteInstructorIds}
                         favoriteActivityTypeIds={favoriteFilters.favoriteActivityTypeIds}
+                        includeBusinessUnitName={search.locations.length > 1}
                         onBook={
                           customerId === undefined || activity.id === undefined
                             ? undefined

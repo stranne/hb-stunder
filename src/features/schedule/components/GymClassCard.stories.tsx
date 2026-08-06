@@ -143,6 +143,12 @@ export const MultipleLocations: Story = {
     await expect(within(canvasElement).getByText(/Yogastudio, Hotyogastudio/)).toBeVisible();
   },
 };
+export const MultipleBusinessUnits: Story = {
+  args: { includeBusinessUnitName: true },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByText(/Yogastudio, Hagabadet i Haga/)).toBeVisible();
+  },
+};
 export const Started: Story = {
   args: {
     activity: {

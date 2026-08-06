@@ -3,7 +3,7 @@ import { fn, userEvent, within } from "storybook/test";
 import { AppMenu } from "./AppMenu";
 
 const meta = {
-  title: "App/App menu",
+  title: "Application/Shell/App menu",
   component: AppMenu,
   args: {
     customer: { customerId: "900001", displayName: "Anna Andersson" },

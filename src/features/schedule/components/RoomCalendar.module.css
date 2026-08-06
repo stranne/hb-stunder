@@ -205,8 +205,18 @@
   }
 
   .instructors {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-1);
     color: var(--color-ink-muted);
     overflow-wrap: anywhere;
+
+    > svg {
+      flex: 0 0 auto;
+      inline-size: 0.9rem;
+      block-size: 0.9rem;
+      margin-block-start: 0.08rem;
+    }
   }
 
   .block:hover {
@@ -314,38 +324,6 @@
     color: var(--color-positive-strong);
     background: var(--color-positive-soft);
     font-weight: 750;
-  }
-
-  .spotDetails {
-    display: grid;
-    gap: var(--space-2);
-
-    p {
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
-    }
-
-    svg {
-      flex: 0 0 auto;
-      inline-size: 1rem;
-      block-size: 1rem;
-    }
-  }
-
-  .spotBar {
-    overflow: hidden;
-    block-size: 0.35rem;
-    border-radius: var(--radius-pill);
-    background: var(--color-surface-recessed);
-
-    span {
-      display: block;
-      inline-size: calc(var(--spot-ratio) * 100%);
-      block-size: 100%;
-      border-radius: inherit;
-      background: var(--color-positive);
-    }
   }
 
   .message {

@@ -172,34 +172,6 @@
     color: var(--color-ink);
   }
 
-  .spotDetails {
-    display: grid;
-    gap: var(--space-2);
-  }
-
-  .spotBar {
-    overflow: hidden;
-    block-size: 0.35rem;
-    border-radius: var(--radius-pill);
-    background: var(--color-surface-recessed);
-  }
-
-  .spotBar span {
-    display: block;
-    inline-size: calc(var(--spot-ratio) * 100%);
-    block-size: 100%;
-    border-radius: inherit;
-    background: var(--color-positive);
-    transform-origin: left;
-    animation: spot-bar-enter var(--motion-standard) var(--ease-out) both;
-  }
-
-  @keyframes spot-bar-enter {
-    from {
-      transform: scaleX(0);
-    }
-  }
-
   .message {
     grid-column: 1 / -1;
     padding: var(--space-3);
@@ -312,8 +284,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .information,
-    .spotBar span {
+    .information {
       animation: none;
     }
 

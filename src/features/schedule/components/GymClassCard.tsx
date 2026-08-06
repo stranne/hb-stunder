@@ -1,11 +1,12 @@
-import { Clock, Group, MapPin, NavArrowDown, User } from "iconoir-react";
-import { useEffect, useId, useRef, useState, type CSSProperties } from "react";
+import { Clock, MapPin, NavArrowDown, User } from "iconoir-react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { GroupActivityBooking } from "../../bookings/model/bookings";
 import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
 import { StatusLabel } from "../../../ui/status-label/StatusLabel";
 import type { ScheduledActivity } from "../model/schedule";
 import { getActivityState } from "../model/schedule";
+import { ActivitySpotAvailability } from "./ActivitySpotAvailability";
 import { FavoriteInstructorNames, FavoriteMarker } from "./ScheduleFavoriteLabels";
 import styles from "./GymClassCard.module.css";
 
@@ -103,11 +104,6 @@ export function GymClassCard({
   const { totalBookable, leftToBook } = activityState;
   const waitingCount = activity.slots?.inWaitingList;
   const hasSpotDetails = totalBookable !== undefined && leftToBook !== undefined;
-  const spotDetails = hasSpotDetails
-    ? t("schedule.details.spots", { available: leftToBook, total: totalBookable })
-    : undefined;
-  const spotRatio =
-    hasSpotDetails && totalBookable > 0 ? Math.max(0, Math.min(1, leftToBook / totalBookable)) : 0;
   const hasRemaining = availability.kind === "available" || availability.kind === "almostFull";
   const isWaitingList = availability.kind === "waitingList";
   const isWaitingListBooking = booking?.type === "groupActivityWaitingListBooking";
@@ -148,7 +144,7 @@ export function GymClassCard({
         { count: waitingCount },
       )
     : undefined;
-  const hasDetails = Boolean(internalMessage || spotDetails);
+  const hasDetails = Boolean(internalMessage || hasSpotDetails);
   const durationLabel =
     start && end
       ? `${timeFormatter.format(start)}–${timeFormatter.format(end)}`
@@ -321,20 +317,7 @@ export function GymClassCard({
             <Clock aria-hidden="true" />
             {t("schedule.details.time", { time: durationLabel })}
           </p>
-          {spotDetails ? (
-            <div className={styles.spotDetails}>
-              <p className={styles.detailItem}>
-                <Group aria-hidden="true" />
-                {spotDetails}
-              </p>
-              <div className={styles.spotBar} aria-hidden="true">
-                <span
-                  style={{ "--spot-ratio": spotRatio } as CSSProperties}
-                  data-spot-availability
-                />
-              </div>
-            </div>
-          ) : null}
+          <ActivitySpotAvailability available={leftToBook} total={totalBookable} />
           {internalMessage ? (
             <section className={styles.message} data-message-type="internal">
               <h3>{t("schedule.information.aboutClass")}</h3>

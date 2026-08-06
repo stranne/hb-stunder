@@ -208,6 +208,30 @@ describe("RoomCalendar", () => {
     expect(details.getByText(/Hathayoga fokuserar/)).toBeTruthy();
   });
 
+  it("shows availability and an instructor icon on calendar events without opening details", () => {
+    render(
+      <RoomCalendar
+        date="2026-07-28"
+        activities={[scheduleFixtures.available]}
+        bookingsByActivity={new Map()}
+        onBook={async () => undefined}
+        onCancel={async () => undefined}
+      />,
+    );
+
+    const activity = screen.getByRole("button", { name: /^Open details for Yinyoga, 55 min, / });
+    const event = activity.parentElement!;
+    const availability = within(event).getByRole("img", { name: "8 of 18 spots available" });
+
+    expect(activity.querySelector("[data-instructor-icon]")).toBeTruthy();
+    expect(
+      (
+        availability.querySelector("[data-spot-availability]") as HTMLElement
+      ).style.getPropertyValue("--spot-ratio"),
+    ).toBe("0.4444444444444444");
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
   it("shows time and booking controls only in the activity details", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-07-28T05:00:00.000Z"));

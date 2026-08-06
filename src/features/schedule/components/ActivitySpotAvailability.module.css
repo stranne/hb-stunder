@@ -1,0 +1,76 @@
+@layer components {
+  .availability {
+    --spot-color: var(--color-positive);
+  }
+
+  .availability[data-availability="low"] {
+    --spot-color: var(--color-warning);
+  }
+
+  .details {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+  }
+
+  .label svg {
+    flex: 0 0 auto;
+    inline-size: 1rem;
+    block-size: 1rem;
+  }
+
+  .bar {
+    overflow: hidden;
+    block-size: 0.35rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-recessed);
+  }
+
+  .bar span {
+    display: block;
+    inline-size: calc(var(--spot-ratio) * 100%);
+    block-size: 100%;
+    border-radius: inherit;
+    background: var(--spot-color);
+    transform-origin: left;
+    animation: spot-bar-enter var(--motion-standard) var(--ease-out) both;
+  }
+
+  .edge {
+    position: absolute;
+    z-index: 1;
+    inset-block-end: 0;
+    inset-inline: 0;
+    inline-size: 100%;
+    pointer-events: none;
+  }
+
+  .edge .bar {
+    block-size: 0.3rem;
+    border-radius: 0;
+    background: color-mix(in oklch, var(--color-ink-muted) 16%, transparent);
+  }
+
+  .edge .bar span {
+    border-radius: 0;
+    animation: none;
+  }
+
+  @keyframes spot-bar-enter {
+    from {
+      transform: scaleX(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bar span {
+      animation: none;
+    }
+  }
+}

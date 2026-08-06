@@ -7,13 +7,14 @@ import {
   type CSSProperties,
 } from "react";
 import { Dialog, Heading, Modal } from "react-aria-components";
-import { Calendar, Clock, Group, MapPin, User, Xmark } from "iconoir-react";
+import { Calendar, Clock, MapPin, User, Xmark } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import type { GroupActivityBooking } from "../../bookings/model/bookings";
 import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
 import type { ActivityState, ScheduledActivity } from "../model/schedule";
-import { getActivityState, hasActivityStarted } from "../model/schedule";
+import { getActivityState } from "../model/schedule";
 import { todayInStockholm } from "../model/scheduleDate";
+import { ActivitySpotAvailability } from "./ActivitySpotAvailability";
 import { FavoriteInstructorNames, FavoriteMarker } from "./ScheduleFavoriteLabels";
 import styles from "./RoomCalendar.module.css";
 
@@ -305,13 +306,23 @@ export function RoomCalendar({
                     const isFavoriteActivityType =
                       item.activity.groupActivityProduct?.id !== undefined &&
                       favoriteActivityTypeIds.includes(item.activity.groupActivityProduct.id);
-                    const hasStarted = hasActivityStarted(item.activity, now.getTime());
+                    const activityState = getActivityState(item.activity, now.getTime());
+                    const { hasStarted } = activityState;
+                    const spotDetails =
+                      activityState.leftToBook !== undefined &&
+                      activityState.totalBookable !== undefined
+                        ? t("schedule.details.spots", {
+                            available: activityState.leftToBook,
+                            total: activityState.totalBookable,
+                          })
+                        : undefined;
                     const activityDetails = [
                       item.activity.name ?? t("schedule.unnamedClass"),
                       `${timeLabel(item.activity.duration?.start, locale)}–${timeLabel(item.activity.duration?.end, locale)}`,
                       item.roomName,
                       item.businessUnitName,
                       instructors,
+                      spotDetails,
                       hasStarted ? t("schedule.availability.started") : undefined,
                     ]
                       .filter(Boolean)
@@ -335,6 +346,10 @@ export function RoomCalendar({
                           </strong>
                           {instructors ? (
                             <span className={styles.instructors}>
+                              <User aria-hidden="true" data-instructor-icon />
+                              <span className={styles.visuallyHidden}>
+                                {t("schedule.filters.instructor")}:{" "}
+                              </span>
                               <FavoriteInstructorNames
                                 instructors={item.activity.instructors}
                                 favoriteInstructorIds={favoriteInstructorIds}
@@ -342,6 +357,11 @@ export function RoomCalendar({
                             </span>
                           ) : null}
                         </button>
+                        <ActivitySpotAvailability
+                          available={activityState.leftToBook}
+                          total={activityState.totalBookable}
+                          presentation="edge"
+                        />
                       </div>
                     );
                   })}
@@ -445,26 +465,15 @@ function RoomActivityInformation({
   activityState: ActivityState;
 }) {
   const { t } = useTranslation();
-  const { totalBookable, leftToBook } = activityState;
-  const hasSpotDetails = totalBookable !== undefined && leftToBook !== undefined;
-  const spotRatio =
-    hasSpotDetails && totalBookable > 0 ? Math.max(0, Math.min(1, leftToBook / totalBookable)) : 0;
   const externalMessage = activity.externalMessage?.trim();
   const internalMessage = activity.internalMessage?.trim();
 
   return (
     <div className={styles.activityInformation}>
-      {hasSpotDetails ? (
-        <div className={styles.spotDetails}>
-          <p>
-            <Group aria-hidden="true" />
-            {t("schedule.details.spots", { available: leftToBook, total: totalBookable })}
-          </p>
-          <div className={styles.spotBar} aria-hidden="true">
-            <span style={{ "--spot-ratio": spotRatio } as CSSProperties} data-spot-availability />
-          </div>
-        </div>
-      ) : null}
+      <ActivitySpotAvailability
+        available={activityState.leftToBook}
+        total={activityState.totalBookable}
+      />
       {externalMessage ? (
         <section className={styles.message} data-message-type="external">
           <h3>{t("schedule.information.forThisClass")}</h3>

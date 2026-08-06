@@ -2,6 +2,7 @@
   .card {
     position: relative;
     display: grid;
+    overflow: hidden;
     grid-template-columns: minmax(5rem, auto) 1fr auto;
     gap: var(--space-3);
     align-items: center;
@@ -29,18 +30,34 @@
   }
 
   .card[data-started="true"] {
-    padding-inline-start: calc(var(--space-3) + 0.1875rem);
     border-color: color-mix(in oklch, var(--color-ink-muted) 35%, var(--color-border));
     background: color-mix(in oklch, var(--color-surface-recessed) 62%, var(--color-surface));
     box-shadow: none;
   }
 
-  .card[data-started="true"]::before {
+  .card[data-availability="booked"] {
+    --booking-state-color: var(--color-positive);
+    --booking-state-background: var(--color-positive-soft);
+  }
+
+  .card[data-availability="waitingListBooked"] {
+    --booking-state-color: var(--color-warning);
+    --booking-state-background: var(--color-warning-soft);
+  }
+
+  .card[data-availability="booked"]:not([data-started="true"]),
+  .card[data-availability="waitingListBooked"]:not([data-started="true"]) {
+    padding-inline-start: calc(var(--space-3) + 0.1875rem);
+    background: color-mix(in oklch, var(--booking-state-background) 45%, var(--color-surface));
+  }
+
+  .card[data-availability="booked"]:not([data-started="true"])::before,
+  .card[data-availability="waitingListBooked"]:not([data-started="true"])::before {
     position: absolute;
-    inset-block: var(--radius-md);
-    inset-inline-start: -1px;
+    inset-block: 0;
+    inset-inline-start: 0;
     inline-size: 0.25rem;
-    background: var(--color-ink-muted);
+    background: var(--booking-state-color);
     content: "";
     pointer-events: none;
   }
@@ -311,6 +328,11 @@
   .card[data-availability="waitingListBooked"] .availability {
     color: var(--color-warning-strong);
     background: var(--color-warning-soft);
+  }
+
+  .card[data-availability="booked"] .availability {
+    color: var(--color-positive-strong);
+    background: var(--color-positive-soft);
   }
 
   .card[data-availability="full"] .availability,

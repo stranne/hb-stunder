@@ -124,9 +124,9 @@ export const FavoriteHighlights: Story = {
     headingLevel: 3,
   },
   play: async ({ canvasElement }) => {
-    await expect(within(canvasElement).getAllByRole("img", { name: /favorite|favorit/i })).toHaveLength(
-      2,
-    );
+    await expect(
+      within(canvasElement).getAllByRole("img", { name: /favorite|favorit/i }),
+    ).toHaveLength(2);
   },
 };
 export const MultipleLocations: Story = {
@@ -189,6 +189,11 @@ export const ExistingBooking: Story = {
   args: {
     booking: { groupActivity: { id: scheduleFixtures.available.id }, type: "groupActivityBooking" },
   },
+  play: async ({ canvasElement }) => {
+    const card = within(canvasElement).getByRole("article");
+    await expect(card).toHaveAttribute("data-availability", "booked");
+    await expect(within(card).getByText(/Already booked|Redan bokad/)).toBeVisible();
+  },
 };
 export const CancellationConfirmation: Story = {
   args: { booking: ordinaryBooking, onCancel: async () => undefined },
@@ -232,6 +237,11 @@ export const WaitingListJoined: Story = {
       groupActivity: { id: scheduleFixtures.waitingList.id },
       type: "groupActivityWaitingListBooking",
     },
+  },
+  play: async ({ canvasElement }) => {
+    const card = within(canvasElement).getByRole("article");
+    await expect(card).toHaveAttribute("data-availability", "waitingListBooked");
+    await expect(within(card).getByText(/In queue|I kö/)).toBeVisible();
   },
 };
 export const OrdinaryBookingConfirmation: Story = {

@@ -15,6 +15,7 @@ import { getAvailability, groupActivitiesByStart } from "../model/schedule";
 import { readSchedulePreferences } from "../model/schedulePreferences";
 import type { ScheduleSearch } from "../model/scheduleSearch";
 import { GymClassCard, GymClassCardSkeleton } from "./GymClassCard";
+import { ScheduleFilterPanel } from "./ScheduleFilterPanel";
 import { ScheduleFilters } from "./ScheduleFilters";
 import { RoomCalendar } from "./RoomCalendar";
 import styles from "./SchedulePage.module.css";
@@ -103,6 +104,7 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
   });
   const groupedSchedule = groupActivitiesByStart(scheduleData);
   const view = search.view ?? "classes";
+  const isFiltersOpen = search.filters ?? false;
   const isPending = scheduleQueries.some((query) => query.isPending);
   const isFetching = scheduleQueries.some((query) => query.isFetching);
   const failedScheduleQueries = scheduleQueries.filter((query) => query.isError);
@@ -122,6 +124,7 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
     <main
       ref={pageRef}
       className={`${styles.page} ${view === "rooms" ? styles.roomsPage : ""}`}
+      data-filters-open={isFiltersOpen || undefined}
       aria-label={t(view === "rooms" ? "rooms.title" : "schedule.title")}
     >
       <div
@@ -132,121 +135,137 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
         <ScheduleFilters
           search={search}
           onChange={onSearchChange}
+          isFiltersOpen={isFiltersOpen}
+          onFiltersOpenChange={(isOpen) => onSearchChange({ ...search, filters: isOpen })}
+        />
+      </div>
+
+      {isFiltersOpen ? (
+        <ScheduleFilterPanel
+          search={search}
+          onChange={onSearchChange}
           instructors={instructors.data}
           activityTypes={activityTypes.data}
           isLoadingOptions={instructors.isPending || activityTypes.isPending}
           hasOptionsError={failedFilterQueries.length > 0}
           onRetryOptions={retryFilterOptions}
           onFavoriteFiltersChange={setFavoriteFilters}
+          onClose={() => onSearchChange({ ...search, filters: false })}
         />
-      </div>
-
-      {isPartialError ? (
-        <div className={styles.statusRegion}>
-          <ErrorMessage
-            action={
-              <Button tone="quiet" onPress={retrySchedule}>
-                {t("schedule.retry")}
-              </Button>
-            }
-          >
-            {t("schedule.partialError", { count: failedScheduleQueries.length })}
-          </ErrorMessage>
-        </div>
-      ) : null}
-      <section
-        className={styles.list}
-        data-view={view}
-        aria-label={t(view === "rooms" ? "rooms.calendarLabel" : "schedule.listLabel")}
-        aria-busy={isFetching}
-      >
-        {isPending ? (
-          <>
-            <GymClassCardSkeleton />
-            <GymClassCardSkeleton />
-          </>
-        ) : null}
-        {isError ? (
-          <ErrorMessage action={<Button onPress={retrySchedule}>{t("schedule.retry")}</Button>}>
-            {t("schedule.error")}
-          </ErrorMessage>
-        ) : null}
-        {!isPending && !isError && scheduleData.length === 0 ? (
-          <p className={styles.notice}>{t(view === "rooms" ? "rooms.empty" : "schedule.empty")}</p>
-        ) : null}
-        {!isPending && !isError && scheduleData.length > 0 && view === "rooms" ? (
-          <RoomCalendar
-            activities={scheduleData}
-            date={search.date}
-            bookingsByActivity={bookingsByActivity}
-            customerId={customerId}
-            favoriteInstructorIds={favoriteFilters.favoriteInstructorIds}
-            favoriteActivityTypeIds={favoriteFilters.favoriteActivityTypeIds}
-            includeBusinessUnitName={search.locations.length > 1}
-            onBook={(activity) =>
-              createBooking.mutateAsync({
-                customerId: customerId!,
-                groupActivity: activity.id!,
-                allowWaitingList: getAvailability(activity).kind === "waitingList",
-              })
-            }
-            onCancel={(bookingId) =>
-              cancelBooking.mutateAsync({ customerId: customerId!, bookingId })
-            }
-          />
-        ) : null}
-        {!isPending && !isError && view === "classes"
-          ? groupedSchedule.map((group) => (
-              <section
-                className={styles.timeGroup}
-                key={group.start || "unknown"}
-                aria-labelledby={`time-${group.start || "unknown"}`}
+      ) : (
+        <>
+          {isPartialError ? (
+            <div className={styles.statusRegion}>
+              <ErrorMessage
+                action={
+                  <Button tone="quiet" onPress={retrySchedule}>
+                    {t("schedule.retry")}
+                  </Button>
+                }
               >
-                <h2 id={`time-${group.start || "unknown"}`}>
-                  {group.start
-                    ? timeFormatter.format(new Date(group.start))
-                    : t("schedule.timeUnknown")}
-                </h2>
-                <div className={styles.groupCards}>
-                  {group.activities.map((activity, index) => {
-                    const booking =
-                      activity.id === undefined ? undefined : bookingsByActivity.get(activity.id);
-                    const bookingId = booking?.groupActivityBooking?.id;
-                    const onCancel =
-                      customerId !== undefined &&
-                      booking?.type === "groupActivityBooking" &&
-                      bookingId !== undefined
-                        ? () => cancelBooking.mutateAsync({ customerId, bookingId })
-                        : undefined;
-                    return (
-                      <GymClassCard
-                        key={activity.id ?? `${activity.duration?.start}-${index}`}
-                        activity={activity}
-                        booking={booking}
-                        headingLevel={3}
-                        favoriteInstructorIds={favoriteFilters.favoriteInstructorIds}
-                        favoriteActivityTypeIds={favoriteFilters.favoriteActivityTypeIds}
-                        includeBusinessUnitName={search.locations.length > 1}
-                        onBook={
-                          customerId === undefined || activity.id === undefined
+                {t("schedule.partialError", { count: failedScheduleQueries.length })}
+              </ErrorMessage>
+            </div>
+          ) : null}
+          <section
+            className={styles.list}
+            data-view={view}
+            aria-label={t(view === "rooms" ? "rooms.calendarLabel" : "schedule.listLabel")}
+            aria-busy={isFetching}
+          >
+            {isPending ? (
+              <>
+                <GymClassCardSkeleton />
+                <GymClassCardSkeleton />
+              </>
+            ) : null}
+            {isError ? (
+              <ErrorMessage action={<Button onPress={retrySchedule}>{t("schedule.retry")}</Button>}>
+                {t("schedule.error")}
+              </ErrorMessage>
+            ) : null}
+            {!isPending && !isError && scheduleData.length === 0 ? (
+              <p className={styles.notice}>
+                {t(view === "rooms" ? "rooms.empty" : "schedule.empty")}
+              </p>
+            ) : null}
+            {!isPending && !isError && scheduleData.length > 0 && view === "rooms" ? (
+              <RoomCalendar
+                activities={scheduleData}
+                date={search.date}
+                bookingsByActivity={bookingsByActivity}
+                customerId={customerId}
+                favoriteInstructorIds={favoriteFilters.favoriteInstructorIds}
+                favoriteActivityTypeIds={favoriteFilters.favoriteActivityTypeIds}
+                includeBusinessUnitName={search.locations.length > 1}
+                onBook={(activity) =>
+                  createBooking.mutateAsync({
+                    customerId: customerId!,
+                    groupActivity: activity.id!,
+                    allowWaitingList: getAvailability(activity).kind === "waitingList",
+                  })
+                }
+                onCancel={(bookingId) =>
+                  cancelBooking.mutateAsync({ customerId: customerId!, bookingId })
+                }
+              />
+            ) : null}
+            {!isPending && !isError && view === "classes"
+              ? groupedSchedule.map((group) => (
+                  <section
+                    className={styles.timeGroup}
+                    key={group.start || "unknown"}
+                    aria-labelledby={`time-${group.start || "unknown"}`}
+                  >
+                    <h2 id={`time-${group.start || "unknown"}`}>
+                      {group.start
+                        ? timeFormatter.format(new Date(group.start))
+                        : t("schedule.timeUnknown")}
+                    </h2>
+                    <div className={styles.groupCards}>
+                      {group.activities.map((activity, index) => {
+                        const booking =
+                          activity.id === undefined
                             ? undefined
-                            : () =>
-                                createBooking.mutateAsync({
-                                  customerId,
-                                  groupActivity: activity.id!,
-                                  allowWaitingList:
-                                    getAvailability(activity).kind === "waitingList",
-                                })
-                        }
-                        onCancel={onCancel}
-                      />
-                    );
-                  })}
-                </div>
-              </section>
-            ))
-          : null}
-      </section>
+                            : bookingsByActivity.get(activity.id);
+                        const bookingId = booking?.groupActivityBooking?.id;
+                        const onCancel =
+                          customerId !== undefined &&
+                          booking?.type === "groupActivityBooking" &&
+                          bookingId !== undefined
+                            ? () => cancelBooking.mutateAsync({ customerId, bookingId })
+                            : undefined;
+                        return (
+                          <GymClassCard
+                            key={activity.id ?? `${activity.duration?.start}-${index}`}
+                            activity={activity}
+                            booking={booking}
+                            headingLevel={3}
+                            favoriteInstructorIds={favoriteFilters.favoriteInstructorIds}
+                            favoriteActivityTypeIds={favoriteFilters.favoriteActivityTypeIds}
+                            includeBusinessUnitName={search.locations.length > 1}
+                            onBook={
+                              customerId === undefined || activity.id === undefined
+                                ? undefined
+                                : () =>
+                                    createBooking.mutateAsync({
+                                      customerId,
+                                      groupActivity: activity.id!,
+                                      allowWaitingList:
+                                        getAvailability(activity).kind === "waitingList",
+                                    })
+                            }
+                            onCancel={onCancel}
+                          />
+                        );
+                      })}
+                    </div>
+                  </section>
+                ))
+              : null}
+          </section>
+        </>
+      )}
     </main>
   );
 }

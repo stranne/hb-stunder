@@ -1,12 +1,9 @@
 import { useEffect, useRef } from "react";
-import { NavArrowLeft, NavArrowRight } from "iconoir-react";
+import { FilterList, NavArrowLeft, NavArrowRight } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../../ui/button/Button";
 import { addDays, todayInStockholm } from "../model/scheduleDate";
-import type { ScheduleFilterOption } from "../api/scheduleFilterQueries";
-import type { FavoriteFilterSelection } from "../model/schedulePreferences";
-import type { ScheduleSearch } from "../model/scheduleSearch";
-import { ScheduleFilterPanel } from "./ScheduleFilterPanel";
+import { LOCATION_IDS, type ScheduleSearch } from "../model/scheduleSearch";
 import styles from "./ScheduleFilters.module.css";
 
 const DAYS_PER_PAGE = 7;
@@ -15,12 +12,8 @@ const VISIBLE_DAYS = 21;
 export interface ScheduleFiltersProps {
   search: ScheduleSearch;
   onChange: (search: ScheduleSearch) => void;
-  instructors?: ScheduleFilterOption[];
-  activityTypes?: ScheduleFilterOption[];
-  isLoadingOptions?: boolean;
-  hasOptionsError?: boolean;
-  onRetryOptions?: () => void;
-  onFavoriteFiltersChange?: (favorites: FavoriteFilterSelection) => void;
+  isFiltersOpen?: boolean;
+  onFiltersOpenChange?: (isOpen: boolean) => void;
 }
 
 function dateForFormatting(date: string) {
@@ -30,12 +23,8 @@ function dateForFormatting(date: string) {
 export function ScheduleFilters({
   search,
   onChange,
-  instructors = [],
-  activityTypes = [],
-  isLoadingOptions = false,
-  hasOptionsError = false,
-  onRetryOptions,
-  onFavoriteFiltersChange,
+  isFiltersOpen = false,
+  onFiltersOpenChange,
 }: ScheduleFiltersProps) {
   const { t, i18n } = useTranslation();
   const today = todayInStockholm();
@@ -43,6 +32,10 @@ export function ScheduleFilters({
   const visibleDates = Array.from({ length: VISIBLE_DAYS }, (_, index) => addDays(today, index));
   const selectedIndex = visibleDates.indexOf(search.date);
   const pageIndex = selectedIndex < 0 ? 0 : Math.floor(selectedIndex / DAYS_PER_PAGE);
+  const activeFilterCount =
+    Number(search.locations.length < LOCATION_IDS.length) +
+    Number(search.instructors.length > 0) +
+    Number(search.activityTypes.length > 0);
   const locale = i18n.resolvedLanguage ?? i18n.language;
   const weekdayFormatter = new Intl.DateTimeFormat(locale, { weekday: "short" });
   const monthFormatter = new Intl.DateTimeFormat(locale, { month: "short" });
@@ -159,16 +152,24 @@ export function ScheduleFilters({
             if (date) changeDate(date);
           }}
         />
-        <ScheduleFilterPanel
-          search={search}
-          onChange={onChange}
-          instructors={instructors}
-          activityTypes={activityTypes}
-          isLoadingOptions={isLoadingOptions}
-          hasOptionsError={hasOptionsError}
-          onRetryOptions={onRetryOptions}
-          onFavoriteFiltersChange={onFavoriteFiltersChange}
-        />
+        <Button
+          type="button"
+          tone="quiet"
+          excludeFromTabOrder={false}
+          aria-label={t(
+            isFiltersOpen ? "schedule.filters.closeFilters" : "schedule.filters.openFilters",
+          )}
+          aria-pressed={isFiltersOpen}
+          onPress={() => onFiltersOpenChange?.(!isFiltersOpen)}
+        >
+          <FilterList className={styles.filterIcon} aria-hidden="true" />
+          <span className={styles.filterLabel}>
+            {t("schedule.filters.filters")}
+            {activeFilterCount > 0 ? (
+              <span className={styles.count}>{activeFilterCount}</span>
+            ) : null}
+          </span>
+        </Button>
       </div>
     </div>
   );

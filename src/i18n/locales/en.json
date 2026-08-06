@@ -115,6 +115,7 @@
       "today": "Today",
       "filters": "Filters",
       "openFilters": "Open schedule filters",
+      "closeFilters": "Close schedule filters",
       "clearFilters": "Clear filters",
       "instructor": "Instructor",
       "activityType": "Class type",

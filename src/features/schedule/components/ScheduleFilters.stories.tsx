@@ -1,8 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/tanstack-react";
 import { useState } from "react";
 import { expect, userEvent, within } from "storybook/test";
+import type { ScheduleFilterOption } from "../api/scheduleFilterQueries";
 import { addDays, todayInStockholm } from "../model/scheduleDate";
 import type { ScheduleSearch } from "../model/scheduleSearch";
+import { ScheduleFilterPanel } from "./ScheduleFilterPanel";
 import { ScheduleFilters } from "./ScheduleFilters";
 
 const instructors = [
@@ -19,28 +21,47 @@ const activityTypes = [
 ];
 
 function InteractiveFilters({
-  initialSearch,
+  search: initialSearch,
   instructors = [],
   activityTypes = [],
 }: {
-  initialSearch: ScheduleSearch;
-  instructors?: Array<{ id: number; name: string }>;
-  activityTypes?: Array<{ id: number; name: string }>;
+  search: ScheduleSearch;
+  instructors?: ScheduleFilterOption[];
+  activityTypes?: ScheduleFilterOption[];
 }) {
   const [search, setSearch] = useState(initialSearch);
+  const [isOpen, setIsOpen] = useState(false);
   return (
-    <ScheduleFilters
-      search={search}
-      onChange={setSearch}
-      instructors={instructors}
-      activityTypes={activityTypes}
-    />
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        blockSize: "calc(100dvh - 2rem)",
+        overflow: "hidden",
+      }}
+    >
+      <ScheduleFilters
+        search={search}
+        onChange={setSearch}
+        isFiltersOpen={isOpen}
+        onFiltersOpenChange={setIsOpen}
+      />
+      {isOpen ? (
+        <ScheduleFilterPanel
+          search={search}
+          onChange={setSearch}
+          instructors={instructors}
+          activityTypes={activityTypes}
+          onClose={() => setIsOpen(false)}
+        />
+      ) : null}
+    </div>
   );
 }
 
 const meta = {
   title: "Features/Schedule/Components/Filters",
-  component: ScheduleFilters,
+  component: InteractiveFilters,
   args: {
     search: {
       date: todayInStockholm(),
@@ -48,17 +69,9 @@ const meta = {
       instructors: [],
       activityTypes: [],
     },
-    onChange: () => undefined,
     instructors,
     activityTypes,
   },
-  render: ({ search, instructors, activityTypes }) => (
-    <InteractiveFilters
-      initialSearch={search}
-      instructors={instructors}
-      activityTypes={activityTypes}
-    />
-  ),
   parameters: {
     layout: "padded",
     docs: {
@@ -68,7 +81,7 @@ const meta = {
       },
     },
   },
-} satisfies Meta<typeof ScheduleFilters>;
+} satisfies Meta<typeof InteractiveFilters>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -156,10 +169,15 @@ export const KeyboardNavigation: Story = {
     ).toBeTruthy();
 
     await userEvent.click(filterButton);
-    const dialog = within(canvasElement.ownerDocument.body).getByRole("dialog");
-    const popover = dialog.parentElement!;
-    const instructorList = within(dialog).getByRole("group", { name: /instructor|instruktör/i });
+    const filterView = within(canvasElement.ownerDocument.body).getByRole("region", {
+      name: /filters|filter/i,
+    });
+    const instructorList = within(filterView).getByRole("group", {
+      name: /instructor|instruktör/i,
+    });
     const allInstructors = within(instructorList).getByRole("group", { name: /all|alla/i });
+    await expect(instructorList.clientHeight).toBeGreaterThan(208);
+    await expect(allInstructors.querySelectorAll('input[type="checkbox"]').length).toBeLessThan(20);
     const firstInstructor = within(allInstructors).getByRole("checkbox", {
       name: "Instructor 001",
     });
@@ -181,12 +199,11 @@ export const KeyboardNavigation: Story = {
     );
     await userEvent.tab({ shift: true });
     await expect(allInstructors.querySelectorAll('input[type="checkbox"]').length).toBeLessThan(20);
-    await expect(popover.scrollTop).toBe(0);
 
     await userEvent.tab();
     await userEvent.tab();
     await expect(canvasElement.ownerDocument.activeElement).toBe(
-      within(dialog).getByRole("searchbox", { name: /search class types|sök klasstyper/i }),
+      within(filterView).getByRole("searchbox", { name: /search class types|sök klasstyper/i }),
     );
     await expect(instructorList.scrollTop).toBe(0);
     await userEvent.tab({ shift: true });
@@ -204,7 +221,6 @@ export const KeyboardNavigation: Story = {
     );
     await expect(allInstructors.querySelectorAll('input[type="checkbox"]').length).toBeLessThan(15);
     await expect(instructorList.scrollTop).toBeGreaterThan(0);
-    await expect(popover.scrollTop).toBe(0);
 
     await userEvent.keyboard("{Home}");
     const activeCheckbox = within(allInstructors).getByRole("checkbox", {
@@ -229,10 +245,12 @@ export const KeyboardNavigation: Story = {
 
     await userEvent.tab();
     await expect(canvasElement.ownerDocument.activeElement).toBe(
-      within(dialog).getByRole("searchbox", { name: /search class types|sök klasstyper/i }),
+      within(filterView).getByRole("searchbox", { name: /search class types|sök klasstyper/i }),
     );
     await userEvent.tab({ shift: true });
-    const favoriteInstructors = within(dialog).getByRole("group", { name: /favorites|favoriter/i });
+    const favoriteInstructors = within(filterView).getByRole("group", {
+      name: /favorites|favoriter/i,
+    });
     await expect(canvasElement.ownerDocument.activeElement).toBe(
       within(favoriteInstructors).getByRole("button", {
         name: /remove Instructor 001 from favorites|ta bort Instructor 001 från favoriter/i,
@@ -242,7 +260,6 @@ export const KeyboardNavigation: Story = {
     await expect(canvasElement.ownerDocument.activeElement).toBe(
       within(favoriteInstructors).getByRole("checkbox", { name: "Instructor 001" }),
     );
-    await expect(popover.scrollTop).toBe(0);
   },
 };
 export const English: Story = { globals: { locale: "en" } };

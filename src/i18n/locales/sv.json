@@ -115,6 +115,7 @@
       "today": "Idag",
       "filters": "Filter",
       "openFilters": "Öppna schemafilter",
+      "closeFilters": "Stäng schemafilter",
       "clearFilters": "Rensa filter",
       "instructor": "Instruktör",
       "activityType": "Klasstyp",

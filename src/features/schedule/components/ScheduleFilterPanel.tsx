@@ -7,17 +7,13 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   type ReactNode,
 } from "react";
-import { Check, FilterList, MapPin, Star, User, Xmark } from "iconoir-react";
+import { Check, MapPin, Star, User, Xmark } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import {
   Button as AriaButton,
   Checkbox,
   CheckboxGroup,
-  Dialog,
-  DialogTrigger,
-  Heading,
   Input,
-  Popover,
   SearchField,
   ToggleButton,
 } from "react-aria-components";
@@ -32,15 +28,16 @@ import {
 import { LOCATION_IDS, SCHEDULE_LOCATIONS, type ScheduleSearch } from "../model/scheduleSearch";
 import styles from "./ScheduleFilterPanel.module.css";
 
-interface ScheduleFilterPanelProps {
+export interface ScheduleFilterPanelProps {
   search: ScheduleSearch;
   onChange: (search: ScheduleSearch) => void;
-  instructors: ScheduleFilterOption[];
-  activityTypes: ScheduleFilterOption[];
+  instructors?: ScheduleFilterOption[];
+  activityTypes?: ScheduleFilterOption[];
   isLoadingOptions?: boolean;
   hasOptionsError?: boolean;
   onRetryOptions?: () => void;
   onFavoriteFiltersChange?: (favorites: FavoriteFilterSelection) => void;
+  onClose: () => void;
 }
 
 function toggleId(ids: number[], id: number) {
@@ -499,12 +496,13 @@ function SearchableOptions({
 export function ScheduleFilterPanel({
   search,
   onChange,
-  instructors,
-  activityTypes,
+  instructors = [],
+  activityTypes = [],
   isLoadingOptions = false,
   hasOptionsError = false,
   onRetryOptions,
   onFavoriteFiltersChange,
+  onClose,
 }: ScheduleFilterPanelProps) {
   const { t } = useTranslation();
   const preferences = readSchedulePreferences();
@@ -534,129 +532,110 @@ export function ScheduleFilterPanel({
     );
   }, [activityTypes, search.activityTypes, search.locations]);
 
-  const activeFilterCount =
-    Number(search.locations.length < LOCATION_IDS.length) +
-    Number(search.instructors.length > 0) +
-    Number(search.activityTypes.length > 0);
-
   return (
-    <DialogTrigger>
-      <Button
-        type="button"
-        tone="quiet"
-        excludeFromTabOrder={false}
-        aria-label={t("schedule.filters.openFilters")}
-      >
-        <FilterList className={styles.filterIcon} aria-hidden="true" />
-        <span className={styles.filterLabel}>
-          {t("schedule.filters.filters")}
-          {activeFilterCount > 0 ? <span className={styles.count}>{activeFilterCount}</span> : null}
-        </span>
-      </Button>
-      <Popover className={styles.popover} placement="bottom start">
-        <Dialog className={styles.dialog}>
-          <div className={styles.headingRow}>
-            <Heading slot="title">{t("schedule.filters.filters")}</Heading>
-            <AriaButton
-              className={styles.clearButton}
-              onPress={() =>
-                onChange({
-                  ...search,
-                  locations: [...LOCATION_IDS],
-                  instructors: [],
-                  activityTypes: [],
-                })
-              }
-            >
-              {t("schedule.filters.clearFilters")}
-            </AriaButton>
-          </div>
+    <section className={styles.panel} aria-labelledby="schedule-filter-heading">
+      <div className={styles.dialog}>
+        <div className={styles.headingRow}>
+          <h2 id="schedule-filter-heading">{t("schedule.filters.filters")}</h2>
+          <AriaButton
+            className={styles.clearButton}
+            onPress={() =>
+              onChange({
+                ...search,
+                locations: [...LOCATION_IDS],
+                instructors: [],
+                activityTypes: [],
+              })
+            }
+          >
+            {t("schedule.filters.clearFilters")}
+          </AriaButton>
+        </div>
 
-          {isLoadingOptions ? (
-            <p className={styles.loading} role="status">
-              {t("schedule.filters.loadingOptions")}
-            </p>
-          ) : null}
-          {hasOptionsError ? (
-            <ErrorMessage
-              action={
-                <Button tone="quiet" onPress={onRetryOptions}>
-                  {t("schedule.filters.retryOptions")}
-                </Button>
-              }
-            >
-              {t("schedule.filters.optionsError")}
-            </ErrorMessage>
-          ) : null}
+        {isLoadingOptions ? (
+          <p className={styles.loading} role="status">
+            {t("schedule.filters.loadingOptions")}
+          </p>
+        ) : null}
+        {hasOptionsError ? (
+          <ErrorMessage
+            action={
+              <Button tone="quiet" onPress={onRetryOptions}>
+                {t("schedule.filters.retryOptions")}
+              </Button>
+            }
+          >
+            {t("schedule.filters.optionsError")}
+          </ErrorMessage>
+        ) : null}
 
-          <section className={`${styles.section} ${styles.locationSection}`}>
-            <h3 className={styles.sectionHeading}>
-              <MapPin aria-hidden="true" />
-              {t("schedule.filters.location")}
-            </h3>
-            <CheckboxGroup
-              className={styles.locationOptions}
-              aria-label={t("schedule.filters.location")}
-              value={search.locations.map(String)}
-              onChange={(values) => {
-                const selected = values.map(Number);
-                onChange({
-                  ...search,
-                  locations: selected.length > 0 ? selected : [...LOCATION_IDS],
-                });
-              }}
-            >
-              {SCHEDULE_LOCATIONS.map((location) => (
-                <Checkbox
-                  className={styles.locationCheckbox}
-                  key={location.id}
-                  value={String(location.id)}
-                >
-                  {({ isSelected }) => (
-                    <>
-                      <span className={styles.checkboxBox} aria-hidden="true">
-                        {isSelected ? <Check /> : null}
-                      </span>
-                      {location.name}
-                    </>
-                  )}
-                </Checkbox>
-              ))}
-            </CheckboxGroup>
-          </section>
+        <section className={`${styles.section} ${styles.locationSection}`}>
+          <h3 className={styles.sectionHeading}>
+            <MapPin aria-hidden="true" />
+            {t("schedule.filters.location")}
+          </h3>
+          <CheckboxGroup
+            className={styles.locationOptions}
+            aria-label={t("schedule.filters.location")}
+            value={search.locations.map(String)}
+            onChange={(values) => {
+              const selected = values.map(Number);
+              onChange({
+                ...search,
+                locations: selected.length > 0 ? selected : [...LOCATION_IDS],
+              });
+            }}
+          >
+            {SCHEDULE_LOCATIONS.map((location) => (
+              <Checkbox
+                className={styles.locationCheckbox}
+                key={location.id}
+                value={String(location.id)}
+              >
+                {({ isSelected }) => (
+                  <>
+                    <span className={styles.checkboxBox} aria-hidden="true">
+                      {isSelected ? <Check /> : null}
+                    </span>
+                    {location.name}
+                  </>
+                )}
+              </Checkbox>
+            ))}
+          </CheckboxGroup>
+        </section>
 
-          <div className={styles.optionColumns}>
-            <SearchableOptions
-              label={t("schedule.filters.instructor")}
-              icon={<User aria-hidden="true" />}
-              searchLabel={t("schedule.filters.searchInstructors")}
-              emptyLabel={t("schedule.filters.noInstructors")}
-              favoriteLabel={t("schedule.filters.favorites")}
-              options={instructors}
-              selectedIds={search.instructors}
-              favoriteIds={favoriteInstructorIds}
-              onSelectedChange={(ids) => onChange({ ...search, instructors: ids })}
-              onFavoriteChange={setFavoriteInstructorIds}
-            />
+        <div className={styles.optionColumns}>
+          <SearchableOptions
+            label={t("schedule.filters.instructor")}
+            icon={<User aria-hidden="true" />}
+            searchLabel={t("schedule.filters.searchInstructors")}
+            emptyLabel={t("schedule.filters.noInstructors")}
+            favoriteLabel={t("schedule.filters.favorites")}
+            options={instructors}
+            selectedIds={search.instructors}
+            favoriteIds={favoriteInstructorIds}
+            onSelectedChange={(ids) => onChange({ ...search, instructors: ids })}
+            onFavoriteChange={setFavoriteInstructorIds}
+          />
 
-            <SearchableOptions
-              label={t("schedule.filters.activityType")}
-              searchLabel={t("schedule.filters.searchActivityTypes")}
-              emptyLabel={t("schedule.filters.noActivityTypes")}
-              favoriteLabel={t("schedule.filters.favorites")}
-              options={visibleActivityTypes}
-              selectedIds={search.activityTypes}
-              favoriteIds={favoriteActivityTypeIds}
-              onSelectedChange={(ids) => onChange({ ...search, activityTypes: ids })}
-              onFavoriteChange={setFavoriteActivityTypeIds}
-            />
-          </div>
+          <SearchableOptions
+            label={t("schedule.filters.activityType")}
+            searchLabel={t("schedule.filters.searchActivityTypes")}
+            emptyLabel={t("schedule.filters.noActivityTypes")}
+            favoriteLabel={t("schedule.filters.favorites")}
+            options={visibleActivityTypes}
+            selectedIds={search.activityTypes}
+            favoriteIds={favoriteActivityTypeIds}
+            onSelectedChange={(ids) => onChange({ ...search, activityTypes: ids })}
+            onFavoriteChange={setFavoriteActivityTypeIds}
+          />
+        </div>
 
-          <div className={styles.footer}>
-            <Button slot="close">{t("schedule.filters.done")}</Button>
-          </div>
-        </Dialog>
-      </Popover>
-    </DialogTrigger>
+        <div className={styles.footer}>
+          <Button onPress={onClose}>{t("schedule.filters.done")}</Button>
+        </div>
+      </div>
+    </section>
   );
 }

@@ -4,7 +4,8 @@
     padding-block: 0 calc(var(--space-12) + env(safe-area-inset-bottom));
   }
 
-  .roomsPage {
+  .roomsPage,
+  .page[data-filters-open="true"] {
     display: flex;
     flex-direction: column;
     min-block-size: calc(100dvh - 3.25rem);
@@ -115,8 +116,16 @@
     background: var(--color-warning-soft);
   }
 
+  @media (width >= 64rem) {
+    .page[data-filters-open="true"] {
+      block-size: calc(100dvh - 3.25rem - 1px);
+      overflow: hidden;
+    }
+  }
+
   @media (width < 40rem) {
-    .roomsPage {
+    .roomsPage,
+    .page[data-filters-open="true"] {
       min-block-size: calc(100dvh - 4.25rem - env(safe-area-inset-bottom));
     }
   }

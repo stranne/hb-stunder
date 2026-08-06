@@ -1,38 +1,19 @@
 @layer components {
-  .filterIcon {
-    inline-size: 1.15rem;
-    block-size: 1.15rem;
-  }
-
-  .filterLabel {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  .count {
-    display: inline-grid;
-    min-inline-size: 1.5rem;
-    min-block-size: 1.5rem;
-    place-items: center;
-    border-radius: var(--radius-pill);
-    color: var(--color-ink-inverse);
-    background: var(--color-accent);
-    font-size: 0.75rem;
-  }
-
-  .popover {
-    inline-size: min(32rem, calc(100vw - 2rem));
-    max-block-size: min(44rem, calc(100vh - 2rem));
-    overflow: auto;
+  .panel {
+    display: flex;
+    flex: 1;
+    min-block-size: 0;
+    inline-size: min(calc(100% - 2rem), 64rem);
+    margin-inline: auto;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     background: var(--color-surface);
-    box-shadow: var(--shadow-raised);
   }
 
   .dialog {
     display: grid;
+    flex: 1;
+    min-block-size: 0;
     gap: var(--space-6);
     padding: var(--space-6);
     outline: none;
@@ -198,6 +179,7 @@
     align-content: start;
     max-block-size: 13rem;
     overflow-y: auto;
+    overscroll-behavior-y: contain;
     border-block: 1px solid color-mix(in oklch, var(--color-ink) 10%, transparent);
   }
 
@@ -299,14 +281,12 @@
   }
 
   @media (width >= 64rem) {
-    .popover {
-      inline-size: min(64rem, calc(100vw - 2rem));
-      overflow: clip;
+    .panel {
+      overflow: hidden;
     }
 
     .dialog {
       grid-template-rows: auto auto minmax(0, 1fr) auto;
-      max-block-size: inherit;
       overflow: hidden;
     }
 
@@ -328,20 +308,13 @@
     }
 
     .optionList {
+      block-size: 100%;
       min-block-size: 0;
       max-block-size: none;
     }
   }
 
   @media (width < 42rem) {
-    .popover {
-      position: fixed;
-      inset: auto 0 0 !important;
-      inline-size: 100%;
-      max-block-size: 85vh;
-      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    }
-
     .dialog {
       padding: var(--space-6) var(--space-4);
     }

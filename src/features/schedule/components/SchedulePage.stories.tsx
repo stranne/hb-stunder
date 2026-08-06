@@ -57,6 +57,18 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
+export const FiltersOpen: Story = {
+  args: {
+    search: {
+      date: "2026-07-28",
+      locations: [1, 4128, 3509],
+      instructors: [],
+      activityTypes: [],
+      filters: true,
+    },
+  },
+};
+
 export const Mobile: Story = {
   globals: { viewport: { value: "mobile", isRotated: false } },
 };

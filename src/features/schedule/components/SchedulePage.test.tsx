@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { useState } from "react";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import {
@@ -16,6 +17,7 @@ import {
 } from "vite-plus/test";
 import { REAL_API_BASE_URL } from "../../../api/config";
 import i18n from "../../../i18n";
+import type { ScheduleSearch } from "../model/scheduleSearch";
 
 let SchedulePage: typeof import("./SchedulePage").SchedulePage;
 const scheduleEndpoint = `${REAL_API_BASE_URL}/businessunits/:businessUnit/groupactivities`;
@@ -37,6 +39,17 @@ function activity(id: number, name: string) {
   };
 }
 
+function TestPage({
+  initialSearch,
+  customerId,
+}: {
+  initialSearch: ScheduleSearch;
+  customerId?: string;
+}) {
+  const [search, setSearch] = useState(initialSearch);
+  return <SchedulePage search={search} onSearchChange={setSearch} customerId={customerId} />;
+}
+
 function renderPage(locations: number[], customerId?: string) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
@@ -45,14 +58,13 @@ function renderPage(locations: number[], customerId?: string) {
 
   render(
     <QueryClientProvider client={queryClient}>
-      <SchedulePage
-        search={{
+      <TestPage
+        initialSearch={{
           date: "2026-07-28",
           locations,
           instructors: [],
           activityTypes: [],
         }}
-        onSearchChange={() => undefined}
         customerId={customerId}
       />
     </QueryClientProvider>,
@@ -98,6 +110,27 @@ describe("SchedulePage", () => {
     pageRect.mockReturnValue({ top: 0 } as DOMRect);
     fireEvent.scroll(window);
     expect(controls?.getAttribute("data-elevated")).toBeNull();
+  });
+
+  it("replaces the schedule with a toggled filter view", () => {
+    server.use(http.get(scheduleEndpoint, () => HttpResponse.json([])));
+    renderPage([1]);
+
+    const openButton = screen.getByRole("button", { name: "Open schedule filters" });
+    expect(openButton.getAttribute("aria-pressed")).toBe("false");
+    expect(screen.getByRole("region", { name: "Scheduled classes" })).toBeTruthy();
+
+    fireEvent.click(openButton);
+
+    const closeButton = screen.getByRole("button", { name: "Close schedule filters" });
+    expect(closeButton.getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByRole("region", { name: "Filters" })).toBeTruthy();
+    expect(screen.queryByRole("region", { name: "Scheduled classes" })).toBeNull();
+
+    fireEvent.click(closeButton);
+
+    expect(screen.queryByRole("region", { name: "Filters" })).toBeNull();
+    expect(screen.getByRole("region", { name: "Scheduled classes" })).toBeTruthy();
   });
 
   it("includes business unit names when multiple locations are enabled", async () => {

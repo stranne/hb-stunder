@@ -1,11 +1,12 @@
 // @vitest-environment jsdom
 
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
-import { useState } from "react";
+import { useState, type ComponentProps } from "react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vite-plus/test";
 import i18n from "../../../i18n";
 import { addDays, todayInStockholm } from "../model/scheduleDate";
 import type { ScheduleSearch } from "../model/scheduleSearch";
+import { ScheduleFilterPanel } from "./ScheduleFilterPanel";
 import { ScheduleFilters } from "./ScheduleFilters";
 
 beforeAll(async () => {
@@ -21,9 +22,57 @@ const today = todayInStockholm();
 const filterSelection = { locations: [1], instructors: [], activityTypes: [] };
 const search = { date: addDays(today, 7), ...filterSelection };
 
+type FilterTestViewProps = ComponentProps<typeof ScheduleFilters> &
+  Pick<
+    ComponentProps<typeof ScheduleFilterPanel>,
+    | "instructors"
+    | "activityTypes"
+    | "isLoadingOptions"
+    | "hasOptionsError"
+    | "onRetryOptions"
+    | "onFavoriteFiltersChange"
+  >;
+
+function FilterTestView({
+  search,
+  onChange,
+  instructors,
+  activityTypes,
+  isLoadingOptions,
+  hasOptionsError,
+  onRetryOptions,
+  onFavoriteFiltersChange,
+}: FilterTestViewProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <>
+      <ScheduleFilters
+        search={search}
+        onChange={onChange}
+        isFiltersOpen={isOpen}
+        onFiltersOpenChange={setIsOpen}
+      />
+      {isOpen ? (
+        <ScheduleFilterPanel
+          search={search}
+          onChange={onChange}
+          instructors={instructors}
+          activityTypes={activityTypes}
+          isLoadingOptions={isLoadingOptions}
+          hasOptionsError={hasOptionsError}
+          onRetryOptions={onRetryOptions}
+          onFavoriteFiltersChange={onFavoriteFiltersChange}
+          onClose={() => setIsOpen(false)}
+        />
+      ) : null}
+    </>
+  );
+}
+
 describe("ScheduleFilters", () => {
-  it("allows the filter dialog to be opened from the keyboard", () => {
-    render(<ScheduleFilters search={search} onChange={vi.fn()} />);
+  it("toggles the filter view from the keyboard", () => {
+    render(<FilterTestView search={search} onChange={vi.fn()} />);
 
     const selectedDay = screen.getByRole("button", { pressed: true });
     const nextWeekButton = screen.getByRole("button", { name: "Next week" });
@@ -40,13 +89,20 @@ describe("ScheduleFilters", () => {
     fireEvent.keyDown(filterButton, { key: "Enter" });
     fireEvent.keyUp(filterButton, { key: "Enter" });
 
-    expect(document.activeElement).not.toBe(filterButton);
-    expect(screen.getByRole("dialog")).toBeTruthy();
+    expect(document.activeElement).toBe(filterButton);
+    expect(filterButton.getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByRole("region", { name: "Filters" })).toBeTruthy();
+
+    fireEvent.keyDown(filterButton, { key: "Enter" });
+    fireEvent.keyUp(filterButton, { key: "Enter" });
+
+    expect(filterButton.getAttribute("aria-pressed")).toBe("false");
+    expect(screen.queryByRole("region", { name: "Filters" })).toBeNull();
   });
 
   it("shows three weeks of named upcoming days and selects a day directly", () => {
     const onChange = vi.fn();
-    render(<ScheduleFilters search={{ date: today, ...filterSelection }} onChange={onChange} />);
+    render(<FilterTestView search={{ date: today, ...filterSelection }} onChange={onChange} />);
 
     const upcomingDays = screen.getByRole("group", { name: "Upcoming days" });
     const dayButtons = within(upcomingDays).getAllByRole("button");
@@ -71,7 +127,7 @@ describe("ScheduleFilters", () => {
     const sameYearDate = today.endsWith("01-01") ? `${currentYear}-12-31` : `${currentYear}-01-01`;
     const otherYearDate = `${currentYear + 2}-01-01`;
     const { container, rerender } = render(
-      <ScheduleFilters search={{ date: sameYearDate, ...filterSelection }} onChange={vi.fn()} />,
+      <FilterTestView search={{ date: sameYearDate, ...filterSelection }} onChange={vi.fn()} />,
     );
 
     const selectedDate = container.querySelector(`time[datetime="${sameYearDate}"]`);
@@ -85,7 +141,7 @@ describe("ScheduleFilters", () => {
     expect(screen.queryByRole("button", { pressed: true })).toBeNull();
 
     rerender(
-      <ScheduleFilters search={{ date: otherYearDate, ...filterSelection }} onChange={vi.fn()} />,
+      <FilterTestView search={{ date: otherYearDate, ...filterSelection }} onChange={vi.fn()} />,
     );
 
     expect(container.querySelector(`time[datetime="${otherYearDate}"]`)?.textContent).toBe(
@@ -100,7 +156,7 @@ describe("ScheduleFilters", () => {
 
   it("moves between weeks without changing the filters", () => {
     const onChange = vi.fn();
-    render(<ScheduleFilters search={search} onChange={onChange} />);
+    render(<FilterTestView search={search} onChange={onChange} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Previous week" }));
     fireEvent.click(screen.getByRole("button", { name: "Next week" }));
@@ -119,7 +175,7 @@ describe("ScheduleFilters", () => {
         ...filterSelection,
       });
 
-      return <ScheduleFilters search={controlledSearch} onChange={setControlledSearch} />;
+      return <FilterTestView search={controlledSearch} onChange={setControlledSearch} />;
     }
 
     render(<ControlledFilters />);
@@ -145,7 +201,7 @@ describe("ScheduleFilters", () => {
 
   it("searches instructors and keeps favorite quick picks ordered by name", () => {
     render(
-      <ScheduleFilters
+      <FilterTestView
         search={search}
         onChange={vi.fn()}
         instructors={[
@@ -184,7 +240,7 @@ describe("ScheduleFilters", () => {
 
   it("shows class types for selected business units and fails open for unknown metadata", () => {
     render(
-      <ScheduleFilters
+      <FilterTestView
         search={{ ...search, locations: [1], activityTypes: [4] }}
         onChange={vi.fn()}
         activityTypes={[
@@ -215,7 +271,7 @@ describe("ScheduleFilters", () => {
       id: index + 1,
       name: `Instructor ${String(index + 1).padStart(3, "0")}`,
     }));
-    render(<ScheduleFilters search={search} onChange={vi.fn()} instructors={instructors} />);
+    render(<FilterTestView search={search} onChange={vi.fn()} instructors={instructors} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
 
@@ -322,7 +378,7 @@ describe("ScheduleFilters", () => {
       name: `Instructor ${String(index + 1).padStart(3, "0")}`,
     }));
     render(
-      <ScheduleFilters
+      <FilterTestView
         search={{ ...search, instructors: [85] }}
         onChange={vi.fn()}
         instructors={instructors}
@@ -341,7 +397,7 @@ describe("ScheduleFilters", () => {
   it("announces filter-option failures and retries them", () => {
     const onRetryOptions = vi.fn();
     render(
-      <ScheduleFilters
+      <FilterTestView
         search={search}
         onChange={vi.fn()}
         hasOptionsError
@@ -360,7 +416,7 @@ describe("ScheduleFilters", () => {
 
   it("changes the date and locations while preserving the other filters", () => {
     const onChange = vi.fn();
-    render(<ScheduleFilters search={search} onChange={onChange} />);
+    render(<FilterTestView search={search} onChange={onChange} />);
     const chosenDate = addDays(today, 10);
 
     fireEvent.change(screen.getByLabelText("Choose date…"), { target: { value: chosenDate } });

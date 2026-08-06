@@ -21,6 +21,7 @@ export const indexRoute = createRoute({
         instructors: [],
         activityTypes: [],
         view: "classes",
+        filters: false,
       }),
     ],
   },

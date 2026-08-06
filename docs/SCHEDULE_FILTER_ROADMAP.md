@@ -4,6 +4,8 @@
 
 Temporary implementation roadmap for the next product focus. Keep this file tracked while the work spans multiple sessions so decisions and progress are shared with the code. Update the checkboxes and decision notes as work lands, then delete this file in the final cleanup change once every retained decision is represented by the implementation, tests, stories, or permanent documentation.
 
+Current prototype: `Features/Schedule/Prototypes/Search-first filters` in Storybook explores normal page scrolling, a removable active-selection summary, favorites-first empty searches, explicit **Browse options**, alphabetical grouping, bounded **Show more** chunks, and checked selections that remain in browse and search results. Review the desktop, mobile, search, browse, and empty states before confirming the information architecture and replacing production behavior.
+
 ## Outcome
 
 Make schedule filtering fast and understandable for both occasional and regular users:

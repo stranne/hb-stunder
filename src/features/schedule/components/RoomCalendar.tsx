@@ -360,6 +360,7 @@ export function RoomCalendar({
                         <ActivitySpotAvailability
                           available={activityState.leftToBook}
                           total={activityState.totalBookable}
+                          hasStarted={hasStarted}
                           presentation="edge"
                         />
                       </div>
@@ -473,6 +474,7 @@ function RoomActivityInformation({
       <ActivitySpotAvailability
         available={activityState.leftToBook}
         total={activityState.totalBookable}
+        hasStarted={activityState.hasStarted}
       />
       {externalMessage ? (
         <section className={styles.message} data-message-type="external">

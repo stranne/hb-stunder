@@ -6,6 +6,7 @@ import styles from "./ActivitySpotAvailability.module.css";
 export interface ActivitySpotAvailabilityProps {
   available?: number;
   total?: number;
+  hasStarted?: boolean;
   presentation?: "details" | "edge";
   className?: string;
 }
@@ -14,6 +15,7 @@ export interface ActivitySpotAvailabilityProps {
 export function ActivitySpotAvailability({
   available,
   total,
+  hasStarted = false,
   presentation = "details",
   className,
 }: ActivitySpotAvailabilityProps) {
@@ -28,6 +30,7 @@ export function ActivitySpotAvailability({
       className={[styles.availability, styles[presentation], className].filter(Boolean).join(" ")}
       data-spot-summary
       data-availability={available === 0 ? "full" : available <= 3 ? "low" : "available"}
+      data-started={hasStarted || undefined}
     >
       {presentation === "details" ? (
         <p className={styles.label}>

@@ -20,6 +20,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Details: Story = {};
 export const LowAvailability: Story = { args: { available: 2 } };
+export const Started: Story = { args: { hasStarted: true } };
 export const Edge: Story = {
   args: { presentation: "edge" },
   decorators: [

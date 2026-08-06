@@ -317,7 +317,11 @@ export function GymClassCard({
             <Clock aria-hidden="true" />
             {t("schedule.details.time", { time: durationLabel })}
           </p>
-          <ActivitySpotAvailability available={leftToBook} total={totalBookable} />
+          <ActivitySpotAvailability
+            available={leftToBook}
+            total={totalBookable}
+            hasStarted={hasStarted}
+          />
           {internalMessage ? (
             <section className={styles.message} data-message-type="internal">
               <h3>{t("schedule.information.aboutClass")}</h3>

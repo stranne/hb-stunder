@@ -150,7 +150,9 @@ describe("RoomCalendar", () => {
     );
 
     const activity = screen.getByRole("button", { name: /Yinyoga/ });
-    expect(activity.parentElement?.getAttribute("data-started")).toBe("true");
+    const event = activity.parentElement!;
+    expect(event.getAttribute("data-started")).toBe("true");
+    expect(event.querySelector("[data-spot-summary]")?.getAttribute("data-started")).toBe("true");
     expect(within(activity).queryByText("Started")).toBeNull();
     expect(activity.getAttribute("aria-label")).toContain("Started");
     fireEvent.click(activity);
@@ -158,6 +160,9 @@ describe("RoomCalendar", () => {
     expect(details.queryByRole("button", { name: "Book" })).toBeNull();
     expect(details.queryByText("10 participated")).toBeNull();
     expect(details.getByText("8 of 18 spots available")).toBeTruthy();
+    expect(details.getByText("8 of 18 spots available").parentElement?.dataset.started).toBe(
+      "true",
+    );
   });
 
   it("does not offer booking outside the activity booking window", () => {

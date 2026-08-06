@@ -33,6 +33,20 @@ describe("GymClassCard", () => {
     expect(screen.getByText("Yogastudio, Hagabadet i Haga")).toBeTruthy();
   });
 
+  it("presents availability as a non-interactive status beside the booking action", () => {
+    const { container } = render(
+      <GymClassCard activity={scheduleFixtures.available} onBook={async () => undefined} />,
+    );
+
+    const availability = container.querySelector("[data-status-label]");
+    expect(availability?.tagName).toBe("DIV");
+    expect(availability?.getAttribute("data-tone")).toBe("positive");
+    expect(availability?.getAttribute("data-dynamic")).toBe("true");
+    expect(availability?.children).toHaveLength(1);
+    expect(availability?.textContent).toBe("8 spots");
+    expect(screen.getByRole("button", { name: "Book" })).toBeTruthy();
+  });
+
   it("shows every instructor assigned to an activity", () => {
     render(
       <GymClassCard
@@ -198,8 +212,13 @@ describe("GymClassCard", () => {
     const onBook = vi.fn(async () => undefined);
     vi.mocked(Date.now).mockReturnValue(Date.parse("2026-07-28T17:00:00.000Z"));
 
-    render(<GymClassCard activity={scheduleFixtures.waitingList} onBook={onBook} />);
+    const { container } = render(
+      <GymClassCard activity={scheduleFixtures.waitingList} onBook={onBook} />,
+    );
 
+    expect(container.querySelector("[data-status-label]")?.hasAttribute("data-dynamic")).toBe(
+      false,
+    );
     expect(screen.queryByRole("button", { name: "Book" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Join waiting list" })).toBeNull();
     expect(screen.getByText("20 participating")).toBeTruthy();

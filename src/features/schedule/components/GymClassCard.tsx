@@ -3,6 +3,7 @@ import { useEffect, useId, useRef, useState, type CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 import type { GroupActivityBooking } from "../../bookings/model/bookings";
 import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
+import { StatusLabel } from "../../../ui/status-label/StatusLabel";
 import type { ScheduledActivity } from "../model/schedule";
 import { getActivityState } from "../model/schedule";
 import { FavoriteInstructorNames, FavoriteMarker } from "./ScheduleFavoriteLabels";
@@ -110,6 +111,19 @@ export function GymClassCard({
   const hasRemaining = availability.kind === "available" || availability.kind === "almostFull";
   const isWaitingList = availability.kind === "waitingList";
   const isWaitingListBooking = booking?.type === "groupActivityWaitingListBooking";
+  const displayedAvailabilityKind = booking
+    ? isWaitingListBooking
+      ? "waitingListBooked"
+      : "booked"
+    : availability.kind;
+  const statusTone =
+    hasStarted || availability.kind === "full" || availability.kind === "cancelled"
+      ? "neutral"
+      : displayedAvailabilityKind === "almostFull" ||
+          displayedAvailabilityKind === "waitingList" ||
+          displayedAvailabilityKind === "waitingListBooked"
+        ? "warning"
+        : "positive";
   const bookingCopy = isWaitingList ? "schedule.waitingList" : "schedule.booking";
   const availabilityLabel = hasRemaining
     ? t(`schedule.availability.${availability.kind}`, { count: availability.remaining })
@@ -144,9 +158,7 @@ export function GymClassCard({
     <article
       ref={cardRef}
       className={`${styles.card} ${hasDetails ? styles.clickable : ""}`}
-      data-availability={
-        booking ? (isWaitingListBooking ? "waitingListBooked" : "booked") : availability.kind
-      }
+      data-availability={displayedAvailabilityKind}
       data-started={(hasStarted && !activity.cancelled) || undefined}
       onClick={(event) => {
         if (
@@ -209,7 +221,12 @@ export function GymClassCard({
         ) : null}
       </div>
       <div className={styles.actions}>
-        <div className={styles.availability} aria-live="polite" aria-atomic="true">
+        <StatusLabel
+          tone={statusTone}
+          dynamic={!hasStarted && availability.kind !== "cancelled"}
+          aria-live="polite"
+          aria-atomic="true"
+        >
           {waitingCountLabel ? (
             waitingCountLabel
           ) : booking ? (
@@ -257,7 +274,7 @@ export function GymClassCard({
           ) : (
             availabilityLabel
           )}
-        </div>
+        </StatusLabel>
         {canBook && onBook ? (
           <AsyncConfirmationAction
             triggerLabel={t(`${bookingCopy}.book`)}

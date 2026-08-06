@@ -235,23 +235,6 @@
     justify-items: stretch;
   }
 
-  .availability {
-    inline-size: 8.5rem;
-    min-block-size: 2.25rem;
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-pill);
-    color: var(--color-positive-strong);
-    background: var(--color-positive-soft);
-    font-size: var(--text-sm);
-    font-weight: 750;
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .availability:empty {
-    display: none;
-  }
-
   .availabilityNumber {
     position: relative;
     display: inline-block;
@@ -307,25 +290,6 @@
     to {
       transform: translateY(100%);
     }
-  }
-
-  .card[data-availability="almostFull"] .availability,
-  .card[data-availability="waitingList"] .availability,
-  .card[data-availability="waitingListBooked"] .availability {
-    color: var(--color-warning-strong);
-    background: var(--color-warning-soft);
-  }
-
-  .card[data-availability="booked"] .availability {
-    color: var(--color-positive-strong);
-    background: var(--color-positive-soft);
-  }
-
-  .card[data-availability="full"] .availability,
-  .card[data-availability="cancelled"] .availability,
-  .card[data-started="true"] .availability {
-    color: var(--color-ink-muted);
-    background: var(--color-surface-recessed);
   }
 
   .skeleton {

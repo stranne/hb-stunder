@@ -11,6 +11,16 @@ export type Availability =
   | { kind: "available" | "almostFull"; remaining: number }
   | { kind: "waitingList" | "full" | "cancelled" };
 
+export interface ActivityState {
+  availability: Availability;
+  hasStarted: boolean;
+  hasEnded: boolean;
+  canBook: boolean;
+  totalBookable?: number;
+  leftToBook?: number;
+  participantCount?: number;
+}
+
 export interface TimeGroup {
   start: string;
   activities: ScheduledActivity[];
@@ -51,4 +61,38 @@ export function getAvailability(activity: ScheduledActivity): Availability {
   if (remaining > 0) return { kind: "almostFull", remaining };
   if (activity.slots?.hasWaitingList) return { kind: "waitingList" };
   return { kind: "full" };
+}
+
+/** Shared booking and attendance state for every schedule presentation. */
+export function getActivityState(activity: ScheduledActivity, now = Date.now()): ActivityState {
+  const availability = getAvailability(activity);
+  const hasStarted = hasActivityStarted(activity, now);
+  const hasEnded = hasActivityEnded(activity, now);
+  const totalBookable = activity.slots?.totalBookable;
+  const leftToBook = activity.slots?.leftToBook;
+  const hasSpotDetails = totalBookable !== undefined && leftToBook !== undefined;
+  const bookableEarliest = activity.bookableEarliest
+    ? Date.parse(activity.bookableEarliest)
+    : undefined;
+  const bookableLatest = activity.bookableLatest ? Date.parse(activity.bookableLatest) : undefined;
+  const isWithinBookingWindow =
+    (bookableEarliest === undefined || Number.isNaN(bookableEarliest) || now >= bookableEarliest) &&
+    (bookableLatest === undefined || Number.isNaN(bookableLatest) || now <= bookableLatest);
+
+  return {
+    availability,
+    hasStarted,
+    hasEnded,
+    canBook:
+      !hasStarted &&
+      isWithinBookingWindow &&
+      (availability.kind === "available" ||
+        availability.kind === "almostFull" ||
+        availability.kind === "waitingList"),
+    totalBookable,
+    leftToBook,
+    participantCount: hasSpotDetails
+      ? Math.max(0, Math.min(totalBookable, totalBookable - leftToBook))
+      : undefined,
+  };
 }

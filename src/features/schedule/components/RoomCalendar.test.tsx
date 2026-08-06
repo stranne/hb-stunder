@@ -143,6 +143,7 @@ describe("RoomCalendar", () => {
         date="2026-07-28"
         activities={[scheduleFixtures.available]}
         bookingsByActivity={new Map()}
+        customerId="900001"
         onBook={async () => undefined}
         onCancel={async () => undefined}
       />,
@@ -152,9 +153,62 @@ describe("RoomCalendar", () => {
     expect(activity.parentElement?.getAttribute("data-started")).toBe("true");
     expect(within(activity).queryByText("Started")).toBeNull();
     expect(activity.getAttribute("aria-label")).toContain("Started");
+    fireEvent.click(activity);
+    expect(within(screen.getByRole("dialog")).queryByRole("button", { name: "Book" })).toBeNull();
+  });
+
+  it("does not offer booking outside the activity booking window", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-07-28T05:00:00.000Z"));
+
+    render(
+      <RoomCalendar
+        date="2026-07-28"
+        activities={[
+          {
+            ...scheduleFixtures.available,
+            bookableEarliest: "2026-07-28T05:30:00.000Z",
+          },
+        ]}
+        bookingsByActivity={new Map()}
+        customerId="900001"
+        onBook={async () => undefined}
+        onCancel={async () => undefined}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Yinyoga/ }));
+    expect(within(screen.getByRole("dialog")).queryByRole("button", { name: "Book" })).toBeNull();
+  });
+
+  it("shows availability and class information in the activity details", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-07-28T05:00:00.000Z"));
+
+    render(
+      <RoomCalendar
+        date="2026-07-28"
+        activities={[scheduleFixtures.withMessages]}
+        bookingsByActivity={new Map()}
+        onBook={async () => undefined}
+        onCancel={async () => undefined}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Hot Hathayoga/ }));
+    const details = within(screen.getByRole("dialog"));
+    expect(details.getByText("5 spots")).toBeTruthy();
+    expect(details.getByText("5 of 18 spots available")).toBeTruthy();
+    expect(details.getByText("For this class")).toBeTruthy();
+    expect(details.getByText("Klassen hålls på lättförståelig engelska.")).toBeTruthy();
+    expect(details.getByText("About the class")).toBeTruthy();
+    expect(details.getByText(/Hathayoga fokuserar/)).toBeTruthy();
   });
 
   it("shows time and booking controls only in the activity details", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-07-28T05:00:00.000Z"));
+
     render(
       <RoomCalendar
         date="2026-07-28"

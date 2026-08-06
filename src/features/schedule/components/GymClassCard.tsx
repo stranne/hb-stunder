@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import type { GroupActivityBooking } from "../../bookings/model/bookings";
 import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
 import type { ScheduledActivity } from "../model/schedule";
-import { getAvailability, hasActivityEnded, hasActivityStarted } from "../model/schedule";
+import { getActivityState } from "../model/schedule";
 import { FavoriteInstructorNames, FavoriteMarker } from "./ScheduleFavoriteLabels";
 import styles from "./GymClassCard.module.css";
 
@@ -53,7 +53,8 @@ export function GymClassCard({
   const [isExpanded, setIsExpanded] = useState(false);
   const detailsId = useId();
   const cardRef = useRef<HTMLElement>(null);
-  const availability = getAvailability(activity);
+  const activityState = getActivityState(activity);
+  const { availability, hasStarted, hasEnded, participantCount } = activityState;
   const remaining = "remaining" in availability ? availability.remaining : undefined;
   const previousRemaining = usePrevious(remaining);
   const availabilityChanged =
@@ -94,8 +95,7 @@ export function GymClassCard({
         ? t("schedule.details.durationMinutes", { count: elapsedMinutes })
         : undefined;
   const classListDuration = titleParts.duration ?? rangeDuration;
-  const totalBookable = activity.slots?.totalBookable;
-  const leftToBook = activity.slots?.leftToBook;
+  const { totalBookable, leftToBook } = activityState;
   const waitingCount = activity.slots?.inWaitingList;
   const hasSpotDetails = totalBookable !== undefined && leftToBook !== undefined;
   const spotDetails = hasSpotDetails
@@ -106,12 +106,6 @@ export function GymClassCard({
   const hasRemaining = availability.kind === "available" || availability.kind === "almostFull";
   const isWaitingList = availability.kind === "waitingList";
   const isWaitingListBooking = booking?.type === "groupActivityWaitingListBooking";
-  const now = Date.now();
-  const hasStarted = hasActivityStarted(activity, now);
-  const hasEnded = hasActivityEnded(activity, now);
-  const participantCount = hasSpotDetails
-    ? Math.max(0, Math.min(totalBookable, totalBookable - leftToBook))
-    : undefined;
   const bookingCopy = isWaitingList ? "schedule.waitingList" : "schedule.booking";
   const availabilityLabel = hasRemaining
     ? t(`schedule.availability.${availability.kind}`, { count: availability.remaining })
@@ -119,8 +113,7 @@ export function GymClassCard({
   const availabilityText = hasRemaining
     ? t(`schedule.availability.${availability.kind}Text`, { count: availability.remaining })
     : undefined;
-  const canBook =
-    !booking && !hasStarted && (hasRemaining || isWaitingList) && onBook !== undefined;
+  const canBook = !booking && activityState.canBook && onBook !== undefined;
   const canCancel =
     booking?.type === "groupActivityBooking" &&
     booking.groupActivityBooking?.id !== undefined &&

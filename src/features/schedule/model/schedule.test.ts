@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 import {
+  getActivityState,
   getAvailability,
   groupActivitiesByStart,
   hasActivityEnded,
@@ -22,6 +23,44 @@ describe("schedule model", () => {
       kind: "waitingList",
     });
     expect(getAvailability({ cancelled: true })).toEqual({ kind: "cancelled" });
+  });
+
+  it("derives shared booking and participant state", () => {
+    const activity = {
+      duration: {
+        start: "2026-07-28T08:00:00.000Z",
+        end: "2026-07-28T09:00:00.000Z",
+      },
+      slots: { totalBookable: 20, leftToBook: 4 },
+    };
+
+    expect(getActivityState(activity, Date.parse("2026-07-28T07:59:59.999Z"))).toMatchObject({
+      canBook: true,
+      hasStarted: false,
+      participantCount: 16,
+    });
+    expect(getActivityState(activity, Date.parse("2026-07-28T08:00:00.000Z"))).toMatchObject({
+      canBook: false,
+      hasStarted: true,
+      hasEnded: false,
+      participantCount: 16,
+    });
+  });
+
+  it("only permits booking inside the activity booking window", () => {
+    const activity = {
+      duration: {
+        start: "2026-07-28T08:00:00.000Z",
+        end: "2026-07-28T09:00:00.000Z",
+      },
+      bookableEarliest: "2026-07-21T08:00:00.000Z",
+      bookableLatest: "2026-07-28T07:30:00.000Z",
+      slots: { totalBookable: 20, leftToBook: 4 },
+    };
+
+    expect(getActivityState(activity, Date.parse("2026-07-21T07:59:59.999Z")).canBook).toBe(false);
+    expect(getActivityState(activity, Date.parse("2026-07-21T08:00:00.000Z")).canBook).toBe(true);
+    expect(getActivityState(activity, Date.parse("2026-07-28T07:30:00.001Z")).canBook).toBe(false);
   });
 
   it("recognizes activity boundaries at their exact times", () => {

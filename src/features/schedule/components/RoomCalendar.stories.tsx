@@ -55,6 +55,17 @@ export const ActivityDetails: Story = {
     );
   },
 };
+export const ActivityDetailsWithClassInformation: Story = {
+  args: { activities: [scheduleFixtures.withMessages], customerId: "900001" },
+  play: async ({ canvasElement }) => {
+    await userEvent.click(
+      await within(canvasElement).findByRole("button", {
+        name: /^Öppna detaljer för Hot Hathayoga/,
+      }),
+    );
+    await expect(within(canvasElement.ownerDocument.body).getByText("Om klassen")).toBeVisible();
+  },
+};
 export const MultipleInstructors: Story = {
   args: {
     activities: [

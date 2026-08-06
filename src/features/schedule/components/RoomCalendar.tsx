@@ -7,12 +7,12 @@ import {
   type CSSProperties,
 } from "react";
 import { Dialog, Heading, Modal } from "react-aria-components";
-import { Calendar, Clock, MapPin, User, Xmark } from "iconoir-react";
+import { Calendar, Clock, Group, MapPin, User, Xmark } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import type { GroupActivityBooking } from "../../bookings/model/bookings";
 import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
-import type { ScheduledActivity } from "../model/schedule";
-import { getAvailability, hasActivityStarted } from "../model/schedule";
+import type { ActivityState, ScheduledActivity } from "../model/schedule";
+import { getActivityState, hasActivityStarted } from "../model/schedule";
 import { todayInStockholm } from "../model/scheduleDate";
 import { FavoriteInstructorNames, FavoriteMarker } from "./ScheduleFavoriteLabels";
 import styles from "./RoomCalendar.module.css";
@@ -205,6 +205,9 @@ export function RoomCalendar({
           "--current-time-top": `${((currentMinute - startMinute) / 60) * hourHeight}px`,
         } as CSSProperties);
   const detailInstructors = detail ? instructorNames(detail.activity) : undefined;
+  const detailState = detail ? getActivityState(detail.activity, now.getTime()) : undefined;
+  const detailBooking =
+    detail?.activity.id === undefined ? undefined : bookingsByActivity.get(detail.activity.id);
 
   useLayoutEffect(() => {
     const update = () => updateBusinessUnitLabels(scrollerRef.current?.scrollLeft ?? 0);
@@ -405,14 +408,17 @@ export function RoomCalendar({
                     </p>
                   ) : null}
                 </div>
-                {detail.activity.externalMessage ? <p>{detail.activity.externalMessage}</p> : null}
+                {detailState ? (
+                  <RoomActivityInformation
+                    activity={detail.activity}
+                    activityState={detailState}
+                    booking={detailBooking}
+                  />
+                ) : null}
                 <RoomBookingAction
                   activity={detail.activity}
-                  booking={
-                    detail.activity.id === undefined
-                      ? undefined
-                      : bookingsByActivity.get(detail.activity.id)
-                  }
+                  activityState={detailState!}
+                  booking={detailBooking}
                   customerId={customerId}
                   onBook={onBook}
                   onCancel={onCancel}
@@ -426,18 +432,92 @@ export function RoomCalendar({
   );
 }
 
+function RoomActivityInformation({
+  activity,
+  activityState,
+  booking,
+}: {
+  activity: ScheduledActivity;
+  activityState: ActivityState;
+  booking?: GroupActivityBooking;
+}) {
+  const { t } = useTranslation();
+  const { availability, hasStarted, hasEnded, participantCount, totalBookable, leftToBook } =
+    activityState;
+  const isWaitingListBooking = booking?.type === "groupActivityWaitingListBooking";
+  const waitingCount = activity.slots?.inWaitingList;
+  const hasSpotDetails = totalBookable !== undefined && leftToBook !== undefined;
+  const spotRatio =
+    hasSpotDetails && totalBookable > 0 ? Math.max(0, Math.min(1, leftToBook / totalBookable)) : 0;
+  const status = booking
+    ? isWaitingListBooking
+      ? waitingCount !== undefined
+        ? t("schedule.availability.waitingListBookedSummary", { count: waitingCount })
+        : t("schedule.availability.waitingListBooked")
+      : t("schedule.availability.booked")
+    : availability.kind === "cancelled"
+      ? t("schedule.availability.cancelled")
+      : hasStarted
+        ? participantCount === undefined
+          ? undefined
+          : t(
+              hasEnded
+                ? "schedule.availability.participated"
+                : "schedule.availability.participating",
+              { count: participantCount },
+            )
+        : availability.kind === "waitingList" && waitingCount !== undefined
+          ? t("schedule.availability.waitingListSummary", { count: waitingCount })
+          : "remaining" in availability
+            ? t(`schedule.availability.${availability.kind}`, { count: availability.remaining })
+            : t(`schedule.availability.${availability.kind}`);
+  const externalMessage = activity.externalMessage?.trim();
+  const internalMessage = activity.internalMessage?.trim();
+
+  return (
+    <div className={styles.activityInformation}>
+      {status ? <p className={styles.availability}>{status}</p> : null}
+      {hasSpotDetails ? (
+        <div className={styles.spotDetails}>
+          <p>
+            <Group aria-hidden="true" />
+            {t("schedule.details.spots", { available: leftToBook, total: totalBookable })}
+          </p>
+          <div className={styles.spotBar} aria-hidden="true">
+            <span style={{ "--spot-ratio": spotRatio } as CSSProperties} data-spot-availability />
+          </div>
+        </div>
+      ) : null}
+      {externalMessage ? (
+        <section className={styles.message} data-message-type="external">
+          <h3>{t("schedule.information.forThisClass")}</h3>
+          <p>{externalMessage}</p>
+        </section>
+      ) : null}
+      {internalMessage ? (
+        <section className={styles.message} data-message-type="internal">
+          <h3>{t("schedule.information.aboutClass")}</h3>
+          <p>{internalMessage}</p>
+        </section>
+      ) : null}
+    </div>
+  );
+}
+
 function RoomBookingAction({
   activity,
+  activityState,
   booking,
   customerId,
   onBook,
   onCancel,
 }: Pick<RoomCalendarProps, "customerId" | "onBook" | "onCancel"> & {
   activity: ScheduledActivity;
+  activityState: ActivityState;
   booking?: GroupActivityBooking;
 }) {
   const { t } = useTranslation();
-  const availability = getAvailability(activity);
+  const { availability } = activityState;
   const bookingId = booking?.groupActivityBooking?.id;
   if (booking?.type === "groupActivityBooking" && bookingId !== undefined && customerId) {
     return (
@@ -458,13 +538,7 @@ function RoomBookingAction({
       />
     );
   }
-  const canBook =
-    !booking &&
-    customerId &&
-    activity.id !== undefined &&
-    (availability.kind === "available" ||
-      availability.kind === "almostFull" ||
-      availability.kind === "waitingList");
+  const canBook = !booking && customerId && activity.id !== undefined && activityState.canBook;
   if (!canBook) return null;
   const waiting = availability.kind === "waitingList";
   return (

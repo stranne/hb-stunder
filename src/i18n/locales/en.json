@@ -128,7 +128,7 @@
       "all": "All",
       "optionCount_one": "{{count}} option",
       "optionCount_other": "{{count}} options",
-      "optionInstructions": "Use Up and Down Arrow, Home, and End to move through options. Press Space to select an option. Tab once to its favorite button, then Tab again to leave the list.",
+      "optionInstructions": "Use Up and Down Arrow, Page Up and Page Down, Home, and End to move through options. Press Space to select an option. Tab once to its favorite button, then Tab again to leave the list.",
       "addFavorite": "Add {{name}} to favorites",
       "removeFavorite": "Remove {{name}} from favorites",
       "loadingOptions": "Loading filter options…",

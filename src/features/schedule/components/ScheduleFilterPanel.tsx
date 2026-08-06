@@ -240,8 +240,8 @@ function SearchableOptions({
           className={styles.checkbox}
           value={String(option.id)}
           excludeFromTabOrder={!isActive}
-          aria-keyshortcuts="ArrowUp ArrowDown Home End"
-          onFocus={() => setActiveIndex(navigationIndex)}
+          aria-keyshortcuts="ArrowUp ArrowDown PageUp PageDown Home End"
+          onFocus={() => handleOptionFocus(navigationIndex)}
         >
           {({ isSelected }) => (
             <>
@@ -256,9 +256,9 @@ function SearchableOptions({
           className={styles.starButton}
           isSelected={isFavorite}
           excludeFromTabOrder={!isActive}
-          onFocus={() => setActiveIndex(navigationIndex)}
-          aria-keyshortcuts="ArrowUp ArrowDown Home End"
-          onKeyDown={handleFavoriteTabKeyDown}
+          onFocus={() => handleOptionFocus(navigationIndex)}
+          aria-keyshortcuts="ArrowUp ArrowDown PageUp PageDown Home End"
+          onKeyDown={handleFavoriteKeyDown}
           aria-label={t(
             isFavorite ? "schedule.filters.removeFavorite" : "schedule.filters.addFavorite",
             { name: option.name },
@@ -336,39 +336,86 @@ function SearchableOptions({
     return renderedRows;
   }
 
+  function scrollOptionIntoView(index: number) {
+    const rowTop = query
+      ? index * OPTION_ROW_HEIGHT
+      : index < favorites.length
+        ? OPTION_GROUP_LABEL_HEIGHT + index * OPTION_ROW_HEIGHT
+        : allRowsOffset + (index - favorites.length) * OPTION_ROW_HEIGHT;
+    const optionList = optionListRef.current;
+    if (!optionList) return;
+
+    let nextScrollTop = optionList.scrollTop;
+    if (rowTop < nextScrollTop + OPTION_GROUP_LABEL_HEIGHT) {
+      nextScrollTop = Math.max(0, rowTop - OPTION_GROUP_LABEL_HEIGHT);
+    } else if (rowTop + OPTION_ROW_HEIGHT > nextScrollTop + viewportHeight) {
+      nextScrollTop = rowTop + OPTION_ROW_HEIGHT - viewportHeight;
+    }
+
+    if (nextScrollTop === optionList.scrollTop) return;
+    optionList.scrollTop = nextScrollTop;
+    setScrollTop(nextScrollTop);
+  }
+
+  function handleOptionFocus(index: number) {
+    setActiveIndex(index);
+    scrollOptionIntoView(index);
+  }
+
   function focusOption(index: number, control: PendingOptionFocus["control"]) {
     setActiveIndex(index);
     setPendingFocus({ index, control });
   }
 
-  function handleFavoriteTabKeyDown(event: ReactKeyboardEvent<HTMLElement>) {
-    if (event.key !== "Tab" || !event.shiftKey) return;
+  function navigateOption(
+    event: ReactKeyboardEvent<HTMLElement>,
+    currentIndex: number,
+    control: PendingOptionFocus["control"],
+  ) {
+    if (event.altKey || event.ctrlKey || event.metaKey) return false;
+    if (!["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End"].includes(event.key)) {
+      return false;
+    }
 
-    const checkbox =
-      event.currentTarget.parentElement?.querySelector<HTMLElement>('input[type="checkbox"]');
-    if (!checkbox) return;
-
-    event.preventDefault();
-    checkbox.focus({ preventScroll: true });
-  }
-
-  function handleOptionKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
-    if (event.altKey || event.ctrlKey || event.metaKey) return;
-    if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
-
-    const currentIndex = Number(event.currentTarget.dataset.navigationIndex);
     const optionCount = query ? filteredOptions.length : favorites.length + filteredOptions.length;
-    if (!Number.isInteger(currentIndex) || optionCount === 0) return;
+    if (!Number.isInteger(currentIndex) || optionCount === 0) return false;
 
     event.preventDefault();
+    const pageSize = Math.max(1, Math.floor(viewportHeight / OPTION_ROW_HEIGHT));
     let nextIndex = currentIndex;
     if (event.key === "ArrowDown") nextIndex = Math.min(optionCount - 1, currentIndex + 1);
     if (event.key === "ArrowUp") nextIndex = Math.max(0, currentIndex - 1);
+    if (event.key === "PageDown") nextIndex = Math.min(optionCount - 1, currentIndex + pageSize);
+    if (event.key === "PageUp") nextIndex = Math.max(0, currentIndex - pageSize);
     if (event.key === "Home") nextIndex = 0;
     if (event.key === "End") nextIndex = optionCount - 1;
 
+    focusOption(nextIndex, control);
+    return true;
+  }
+
+  function handleFavoriteKeyDown(event: ReactKeyboardEvent<HTMLElement>) {
+    if (event.key === "Tab" && event.shiftKey) {
+      const checkbox =
+        event.currentTarget.parentElement?.querySelector<HTMLElement>('input[type="checkbox"]');
+      if (!checkbox) return;
+
+      event.preventDefault();
+      checkbox.focus({ preventScroll: true });
+      return;
+    }
+
+    const row = event.currentTarget.closest<HTMLElement>("[data-navigation-index]");
+    const currentIndex = Number(row?.dataset.navigationIndex);
+    navigateOption(event, currentIndex, "favorite");
+  }
+
+  function handleOptionKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
     const target = event.target instanceof HTMLElement ? event.target : null;
-    focusOption(nextIndex, target?.closest("button") ? "favorite" : "checkbox");
+    if (target?.closest("button")) return;
+
+    const currentIndex = Number(event.currentTarget.dataset.navigationIndex);
+    navigateOption(event, currentIndex, "checkbox");
   }
 
   return (

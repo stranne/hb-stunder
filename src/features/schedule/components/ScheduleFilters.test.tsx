@@ -172,10 +172,17 @@ describe("ScheduleFilters", () => {
     expect(allGroupElement.querySelectorAll('input[type="checkbox"]').length).toBeLessThan(15);
 
     fireEvent.keyDown(firstInstructor, { key: "End" });
-    expect((document.activeElement as HTMLInputElement).value).toBe("85");
+    const lastInstructor = document.activeElement as HTMLInputElement;
+    expect(lastInstructor.value).toBe("85");
     expect(allGroupElement.querySelectorAll('input[type="checkbox"]').length).toBeLessThan(15);
 
-    fireEvent.keyDown(document.activeElement!, { key: "Home" });
+    screen.getByRole("searchbox", { name: "Search class types" }).focus();
+    instructorList.scrollTop = 0;
+    fireEvent.scroll(instructorList);
+    lastInstructor.focus();
+    expect(instructorList.scrollTop).toBeGreaterThan(0);
+
+    fireEvent.keyDown(lastInstructor, { key: "Home" });
     expect(document.activeElement).toBe(allGroup.getByRole("checkbox", { name: "Instructor 001" }));
 
     const activeCheckbox = allGroup.getByRole("checkbox", { name: "Instructor 001" });
@@ -195,10 +202,26 @@ describe("ScheduleFilters", () => {
     expect(document.activeElement).toBe(nextCheckbox);
     expect(activeCheckbox.tabIndex).toBe(-1);
     expect(nextCheckbox.tabIndex).toBe(0);
-    expect(allGroup.getByRole("button", { name: "Add Instructor 002 to favorites" }).tabIndex).toBe(
-      0,
-    );
+    const secondFavorite = allGroup.getByRole("button", {
+      name: "Add Instructor 002 to favorites",
+    });
+    expect(secondFavorite.tabIndex).toBe(0);
     expect(allGroupElement.querySelectorAll('input[type="checkbox"]').length).toBeLessThan(15);
+
+    secondFavorite.focus();
+    fireEvent.keyDown(secondFavorite, { key: "ArrowDown" });
+    expect(document.activeElement).toBe(
+      allGroup.getByRole("button", { name: "Add Instructor 003 to favorites" }),
+    );
+
+    fireEvent.keyDown(document.activeElement!, { key: "PageDown" });
+    expect(document.activeElement).toBe(
+      allGroup.getByRole("button", { name: "Add Instructor 007 to favorites" }),
+    );
+    fireEvent.keyDown(document.activeElement!, { key: "PageUp" });
+    expect(document.activeElement).toBe(
+      allGroup.getByRole("button", { name: "Add Instructor 003 to favorites" }),
+    );
 
     screen.getByRole("searchbox", { name: "Search class types" }).focus();
     instructorList.scrollTop = 70 * 44;

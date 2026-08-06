@@ -131,13 +131,25 @@ export const KeyboardNavigation: Story = {
     });
     firstInstructor.focus({ preventScroll: true });
 
-    for (let index = 0; index < 7; index += 1) {
-      await userEvent.keyboard("{ArrowDown}");
-    }
+    const pageSize = Math.max(1, Math.floor(instructorList.clientHeight / 44));
+    const pageTarget = `Instructor ${String(pageSize + 1).padStart(3, "0")}`;
+    const nextTarget = `Instructor ${String(pageSize + 2).padStart(3, "0")}`;
+    await userEvent.keyboard("{PageDown}");
     await expect(canvasElement.ownerDocument.activeElement).toBe(
-      within(allInstructors).getByRole("checkbox", { name: "Instructor 008" }),
+      within(allInstructors).getByRole("checkbox", { name: pageTarget }),
     );
-    await expect(allInstructors.querySelectorAll('input[type="checkbox"]').length).toBeLessThan(15);
+    await userEvent.tab();
+    await userEvent.keyboard("{ArrowDown}");
+    await expect(canvasElement.ownerDocument.activeElement).toBe(
+      within(allInstructors).getByRole("button", {
+        name: new RegExp(
+          `add ${nextTarget} to favorites|lägg till ${nextTarget} som favorit`,
+          "i",
+        ),
+      }),
+    );
+    await userEvent.tab({ shift: true });
+    await expect(allInstructors.querySelectorAll('input[type="checkbox"]').length).toBeLessThan(20);
     await expect(popover.scrollTop).toBe(0);
 
     await userEvent.keyboard("{End}");

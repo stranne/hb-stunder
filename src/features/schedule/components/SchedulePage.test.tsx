@@ -318,8 +318,6 @@ describe("SchedulePage", () => {
 
     expect(await screen.findByRole("checkbox", { name: "Local instructor" })).toBeTruthy();
     expect(screen.getByRole("checkbox", { name: "Other instructor" })).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("tab", { name: "Class type" }));
     expect(screen.getByRole("checkbox", { name: "Local class type" })).toBeTruthy();
     expect(screen.getByRole("checkbox", { name: "Other class type" })).toBeTruthy();
   });

@@ -2,10 +2,12 @@ import {
   useEffect,
   useId,
   useMemo,
+  useRef,
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
+  type ReactNode,
 } from "react";
-import { Check, FilterList, MapPin, Star, User } from "iconoir-react";
+import { Check, FilterList, MapPin, Star, User, Xmark } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import {
   Button as AriaButton,
@@ -15,12 +17,9 @@ import {
   DialogTrigger,
   Heading,
   Input,
-  Modal,
+  Popover,
   SearchField,
-  Tab,
-  TabList,
-  TabPanel,
-  Tabs,
+  ToggleButton,
 } from "react-aria-components";
 import { Button } from "../../../ui/button/Button";
 import { ErrorMessage } from "../../../ui/feedback/ErrorMessage";
@@ -44,18 +43,46 @@ interface ScheduleFilterPanelProps {
   onFavoriteFiltersChange?: (favorites: FavoriteFilterSelection) => void;
 }
 
-interface SearchableOptionsProps {
-  label: string;
-  searchLabel: string;
-  emptyLabel: string;
-  options: ScheduleFilterOption[];
-  selectedIds: number[];
-  favoriteIds: number[];
-  onSelectedChange: (ids: number[]) => void;
-  onFavoriteChange: (ids: number[]) => void;
+function toggleId(ids: number[], id: number) {
+  return ids.includes(id) ? ids.filter((value) => value !== id) : [...ids, id];
 }
 
-type OptionCategory = "instructors" | "activityTypes";
+const OPTION_ROW_HEIGHT = 44;
+const OPTION_GROUP_LABEL_HEIGHT = 36;
+const OPTION_LIST_FALLBACK_HEIGHT = 208;
+const OPTION_LIST_OVERSCAN = 3;
+
+interface VirtualRange {
+  start: number;
+  end: number;
+}
+
+interface PendingOptionFocus {
+  index: number;
+  control: "checkbox" | "favorite";
+}
+
+function getVirtualRange(
+  itemCount: number,
+  itemOffset: number,
+  scrollTop: number,
+  viewportHeight: number,
+): VirtualRange {
+  const overscan = OPTION_LIST_OVERSCAN * OPTION_ROW_HEIGHT;
+  const start = Math.min(
+    itemCount,
+    Math.max(0, Math.floor((scrollTop - overscan - itemOffset) / OPTION_ROW_HEIGHT)),
+  );
+  const end = Math.max(
+    start,
+    Math.min(
+      itemCount,
+      Math.ceil((scrollTop + viewportHeight + overscan - itemOffset) / OPTION_ROW_HEIGHT),
+    ),
+  );
+
+  return { start, end };
+}
 
 function normalized(value: string) {
   return value
@@ -64,10 +91,25 @@ function normalized(value: string) {
     .toLocaleLowerCase();
 }
 
+interface SearchableOptionsProps {
+  label: string;
+  icon?: ReactNode;
+  searchLabel: string;
+  emptyLabel: string;
+  favoriteLabel: string;
+  options: ScheduleFilterOption[];
+  selectedIds: number[];
+  favoriteIds: number[];
+  onSelectedChange: (ids: number[]) => void;
+  onFavoriteChange: (ids: number[]) => void;
+}
+
 function SearchableOptions({
   label,
+  icon,
   searchLabel,
   emptyLabel,
+  favoriteLabel,
   options,
   selectedIds,
   favoriteIds,
@@ -76,10 +118,14 @@ function SearchableOptions({
 }: SearchableOptionsProps) {
   const { t } = useTranslation();
   const [query, setQuery] = useState("");
+  const [scrollTop, setScrollTop] = useState(0);
+  const [viewportHeight, setViewportHeight] = useState(OPTION_LIST_FALLBACK_HEIGHT);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isManagingFavorites, setIsManagingFavorites] = useState(false);
+  const [pendingFocus, setPendingFocus] = useState<PendingOptionFocus | null>(null);
+  const optionListRef = useRef<HTMLDivElement>(null);
   const optionCountId = useId();
   const optionInstructionsId = useId();
+  const normalizedQuery = normalized(query);
   const preparedOptions = useMemo(
     () =>
       options
@@ -87,126 +133,319 @@ function SearchableOptions({
         .sort((a, b) => a.option.name.localeCompare(b.option.name)),
     [options],
   );
-  const optionById = useMemo(
-    () => new Map(preparedOptions.map(({ option }) => [option.id, option])),
-    [preparedOptions],
+  const filteredOptions = useMemo(
+    () =>
+      preparedOptions
+        .filter(({ searchName }) => searchName.includes(normalizedQuery))
+        .map(({ option }) => option),
+    [normalizedQuery, preparedOptions],
   );
-  const filteredOptions = useMemo(() => {
-    const normalizedQuery = normalized(query);
-    return preparedOptions
-      .filter(({ searchName }) => searchName.includes(normalizedQuery))
-      .map(({ option }) => option);
-  }, [preparedOptions, query]);
-  const selectedOptions = selectedIds
-    .map((id) => optionById.get(id))
-    .filter((option): option is ScheduleFilterOption => option !== undefined);
-  const favoriteOptions = favoriteIds
-    .map((id) => optionById.get(id))
-    .filter((option): option is ScheduleFilterOption => option !== undefined)
-    .sort((a, b) => a.name.localeCompare(b.name));
-  const activeValues = isManagingFavorites ? favoriteIds : selectedIds;
+  const favoriteIdSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
+  const selectedIdSet = useMemo(() => new Set(selectedIds), [selectedIds]);
+  const favorites = useMemo(
+    () => preparedOptions.map(({ option }) => option).filter(({ id }) => favoriteIdSet.has(id)),
+    [favoriteIdSet, preparedOptions],
+  );
+
+  const favoriteRowsOffset = OPTION_GROUP_LABEL_HEIGHT;
+  const allRowsOffset =
+    (favorites.length > 0 ? OPTION_GROUP_LABEL_HEIGHT + favorites.length * OPTION_ROW_HEIGHT : 0) +
+    OPTION_GROUP_LABEL_HEIGHT;
+  const filteredRange = getVirtualRange(filteredOptions.length, 0, scrollTop, viewportHeight);
+  const favoriteRange = getVirtualRange(
+    favorites.length,
+    favoriteRowsOffset,
+    scrollTop,
+    viewportHeight,
+  );
+  const allRange = getVirtualRange(
+    filteredOptions.length,
+    allRowsOffset,
+    scrollTop,
+    viewportHeight,
+  );
 
   useEffect(() => {
-    setActiveIndex(0);
-  }, [isManagingFavorites, options]);
+    const optionList = optionListRef.current;
+    if (!optionList) return;
 
-  function handleOptionKeyDown(event: ReactKeyboardEvent<HTMLElement>, index: number) {
-    if (event.altKey || event.ctrlKey || event.metaKey) return;
-    if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+    const updateViewportHeight = () => {
+      setViewportHeight(optionList.clientHeight || OPTION_LIST_FALLBACK_HEIGHT);
+    };
+
+    updateViewportHeight();
+    if (typeof ResizeObserver === "undefined") return;
+
+    const observer = new ResizeObserver(updateViewportHeight);
+    observer.observe(optionList);
+    return () => observer.disconnect();
+  }, [filteredOptions.length]);
+
+  useEffect(() => {
+    if (!pendingFocus) return;
+
+    const rowTop = query
+      ? pendingFocus.index * OPTION_ROW_HEIGHT
+      : pendingFocus.index < favorites.length
+        ? OPTION_GROUP_LABEL_HEIGHT + pendingFocus.index * OPTION_ROW_HEIGHT
+        : allRowsOffset + (pendingFocus.index - favorites.length) * OPTION_ROW_HEIGHT;
+    const optionList = optionListRef.current;
+    if (!optionList) return;
+
+    let nextScrollTop = optionList.scrollTop;
+    if (rowTop < nextScrollTop + OPTION_GROUP_LABEL_HEIGHT) {
+      nextScrollTop = Math.max(0, rowTop - OPTION_GROUP_LABEL_HEIGHT);
+    } else if (rowTop + OPTION_ROW_HEIGHT > nextScrollTop + viewportHeight) {
+      nextScrollTop = rowTop + OPTION_ROW_HEIGHT - viewportHeight;
+    }
+    optionList.scrollTop = nextScrollTop;
+    setScrollTop(nextScrollTop);
+
+    const row = optionList.querySelector<HTMLElement>(
+      `[data-navigation-index="${pendingFocus.index}"]`,
+    );
+    const control = row?.querySelector<HTMLElement>(
+      pendingFocus.control === "checkbox" ? 'input[type="checkbox"]' : "button",
+    );
+    if (!control) return;
+
+    control.focus({ preventScroll: true });
+    setPendingFocus(null);
+  }, [allRowsOffset, favorites.length, pendingFocus, query, viewportHeight]);
+
+  function changeQuery(nextQuery: string) {
+    setQuery(nextQuery);
+    setScrollTop(0);
+    setActiveIndex(0);
+    setPendingFocus(null);
+    if (optionListRef.current) optionListRef.current.scrollTop = 0;
+  }
+
+  function optionRow(
+    option: ScheduleFilterOption,
+    key: string,
+    navigationIndex: number,
+    group: "favorite" | "all" | "filtered",
+  ) {
+    const isFavorite = favoriteIdSet.has(option.id);
+    const isActive = navigationIndex === activeIndex;
+    return (
+      <div
+        className={styles.optionRow}
+        key={key}
+        data-navigation-index={navigationIndex}
+        onKeyDown={handleOptionKeyDown}
+      >
+        <Checkbox
+          className={styles.checkbox}
+          value={String(option.id)}
+          excludeFromTabOrder={!isActive}
+          aria-keyshortcuts="ArrowUp ArrowDown PageUp PageDown Home End"
+          onFocus={() => handleOptionFocus(navigationIndex)}
+        >
+          {({ isSelected }) => (
+            <>
+              <span className={styles.checkboxBox} aria-hidden="true">
+                {isSelected ? <Check /> : null}
+              </span>
+              <span className={styles.optionName}>{option.name}</span>
+            </>
+          )}
+        </Checkbox>
+        <ToggleButton
+          className={styles.starButton}
+          isSelected={isFavorite}
+          excludeFromTabOrder={!isActive}
+          onFocus={() => handleOptionFocus(navigationIndex)}
+          aria-keyshortcuts="ArrowUp ArrowDown PageUp PageDown Home End"
+          onKeyDown={handleFavoriteKeyDown}
+          aria-label={t(
+            isFavorite ? "schedule.filters.removeFavorite" : "schedule.filters.addFavorite",
+            { name: option.name },
+          )}
+          onChange={() => {
+            if (!query && group === "all") {
+              setActiveIndex(navigationIndex + (isFavorite ? -1 : 1));
+            } else if (!query && group === "favorite" && isFavorite) {
+              const nextIndex =
+                favorites.length - 1 + filteredOptions.findIndex(({ id }) => id === option.id);
+              setActiveIndex(nextIndex);
+              setPendingFocus({ index: nextIndex, control: "favorite" });
+            }
+            onFavoriteChange(toggleId(favoriteIds, option.id));
+          }}
+        >
+          <Star aria-hidden="true" fill={isFavorite ? "currentColor" : "none"} />
+        </ToggleButton>
+      </div>
+    );
+  }
+
+  function virtualizedRows(
+    rows: ScheduleFilterOption[],
+    range: VirtualRange,
+    group: "favorite" | "all" | "filtered",
+    navigationOffset: number,
+    keepSelectedMounted: boolean,
+  ) {
+    const renderedIndexes = new Set<number>();
+    for (let index = range.start; index < range.end; index += 1) {
+      renderedIndexes.add(index);
+    }
+    if (activeIndex >= navigationOffset && activeIndex < navigationOffset + rows.length) {
+      renderedIndexes.add(activeIndex - navigationOffset);
+    }
+    if (keepSelectedMounted) {
+      rows.forEach((option, index) => {
+        if (selectedIdSet.has(option.id)) renderedIndexes.add(index);
+      });
+    }
+
+    const indexes = [...renderedIndexes].sort((a, b) => a - b);
+    const renderedRows: ReactNode[] = [];
+    let nextIndex = 0;
+
+    indexes.forEach((index) => {
+      if (index > nextIndex) {
+        renderedRows.push(
+          <div
+            className={styles.virtualSpacer}
+            style={{ blockSize: (index - nextIndex) * OPTION_ROW_HEIGHT }}
+            aria-hidden="true"
+            key={`${group}-spacer-${nextIndex}`}
+          />,
+        );
+      }
+      renderedRows.push(
+        optionRow(rows[index]!, `${group}-${rows[index]!.id}`, navigationOffset + index, group),
+      );
+      nextIndex = index + 1;
+    });
+
+    if (nextIndex < rows.length) {
+      renderedRows.push(
+        <div
+          className={styles.virtualSpacer}
+          style={{ blockSize: (rows.length - nextIndex) * OPTION_ROW_HEIGHT }}
+          aria-hidden="true"
+          key={`${group}-spacer-${nextIndex}`}
+        />,
+      );
+    }
+
+    return renderedRows;
+  }
+
+  function scrollOptionIntoView(index: number) {
+    const rowTop = query
+      ? index * OPTION_ROW_HEIGHT
+      : index < favorites.length
+        ? OPTION_GROUP_LABEL_HEIGHT + index * OPTION_ROW_HEIGHT
+        : allRowsOffset + (index - favorites.length) * OPTION_ROW_HEIGHT;
+    const optionList = optionListRef.current;
+    if (!optionList) return;
+
+    let nextScrollTop = optionList.scrollTop;
+    if (rowTop < nextScrollTop + OPTION_GROUP_LABEL_HEIGHT) {
+      nextScrollTop = Math.max(0, rowTop - OPTION_GROUP_LABEL_HEIGHT);
+    } else if (rowTop + OPTION_ROW_HEIGHT > nextScrollTop + viewportHeight) {
+      nextScrollTop = rowTop + OPTION_ROW_HEIGHT - viewportHeight;
+    }
+
+    if (nextScrollTop === optionList.scrollTop) return;
+    optionList.scrollTop = nextScrollTop;
+    setScrollTop(nextScrollTop);
+  }
+
+  function handleOptionFocus(index: number) {
+    setActiveIndex(index);
+    scrollOptionIntoView(index);
+  }
+
+  function resetOptionEntry() {
+    const optionList = optionListRef.current;
+    if (optionList) optionList.scrollTop = 0;
+    setScrollTop(0);
+    setActiveIndex(0);
+    setPendingFocus(null);
+  }
+
+  function focusOption(index: number, control: PendingOptionFocus["control"]) {
+    setActiveIndex(index);
+    setPendingFocus({ index, control });
+  }
+
+  function navigateOption(
+    event: ReactKeyboardEvent<HTMLElement>,
+    currentIndex: number,
+    control: PendingOptionFocus["control"],
+  ) {
+    if (event.altKey || event.ctrlKey || event.metaKey) return false;
+    if (!["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End"].includes(event.key)) {
+      return false;
+    }
+
+    const optionCount = query ? filteredOptions.length : favorites.length + filteredOptions.length;
+    if (!Number.isInteger(currentIndex) || optionCount === 0) return false;
 
     event.preventDefault();
-    let nextIndex = index;
-    if (event.key === "ArrowDown") nextIndex = Math.min(filteredOptions.length - 1, index + 1);
-    if (event.key === "ArrowUp") nextIndex = Math.max(0, index - 1);
+    const pageSize = Math.max(1, Math.floor(viewportHeight / OPTION_ROW_HEIGHT));
+    let nextIndex = currentIndex;
+    if (event.key === "ArrowDown") nextIndex = Math.min(optionCount - 1, currentIndex + 1);
+    if (event.key === "ArrowUp") nextIndex = Math.max(0, currentIndex - 1);
+    if (event.key === "PageDown") nextIndex = Math.min(optionCount - 1, currentIndex + pageSize);
+    if (event.key === "PageUp") nextIndex = Math.max(0, currentIndex - pageSize);
     if (event.key === "Home") nextIndex = 0;
-    if (event.key === "End") nextIndex = filteredOptions.length - 1;
+    if (event.key === "End") nextIndex = optionCount - 1;
 
-    setActiveIndex(nextIndex);
-    const nextControl = event.currentTarget
-      .closest('[role="group"]')
-      ?.querySelector<HTMLElement>(`[data-option-index="${nextIndex}"] input`);
-    nextControl?.focus({ preventScroll: true });
-    nextControl?.scrollIntoView?.({ block: "nearest" });
+    focusOption(nextIndex, control);
+    return true;
+  }
+
+  function handleFavoriteKeyDown(event: ReactKeyboardEvent<HTMLElement>) {
+    if (event.key === "Tab" && event.shiftKey) {
+      const checkbox =
+        event.currentTarget.parentElement?.querySelector<HTMLElement>('input[type="checkbox"]');
+      if (!checkbox) return;
+
+      event.preventDefault();
+      checkbox.focus({ preventScroll: true });
+      return;
+    }
+
+    const row = event.currentTarget.closest<HTMLElement>("[data-navigation-index]");
+    const currentIndex = Number(row?.dataset.navigationIndex);
+    navigateOption(event, currentIndex, "favorite");
+  }
+
+  function handleOptionKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
+    const target = event.target instanceof HTMLElement ? event.target : null;
+    if (target?.closest("button")) return;
+
+    const currentIndex = Number(event.currentTarget.dataset.navigationIndex);
+    navigateOption(event, currentIndex, "checkbox");
   }
 
   return (
-    <section className={styles.optionSection}>
-      {selectedOptions.length > 0 ? (
-        <div className={styles.choiceGroup}>
-          <h4>{t("schedule.filters.selected")}</h4>
-          <div className={styles.chips}>
-            {selectedOptions.map((option) => (
-              <AriaButton
-                className={styles.chip}
-                key={option.id}
-                aria-label={t("schedule.filters.removeSelection", { name: option.name })}
-                onPress={() => onSelectedChange(selectedIds.filter((id) => id !== option.id))}
-              >
-                <span>{option.name}</span>
-                <span aria-hidden="true">×</span>
-              </AriaButton>
-            ))}
-          </div>
-        </div>
-      ) : null}
+    <section className={styles.section}>
+      <h3 className={styles.sectionHeading}>
+        {icon}
+        {label}
+      </h3>
+      <SearchField
+        className={styles.searchField}
+        aria-label={searchLabel}
+        value={query}
+        onChange={changeQuery}
+      >
+        <Input aria-label={searchLabel} placeholder={searchLabel} />
+        {query ? (
+          <AriaButton aria-label={t("schedule.filters.clearSearch")}>
+            <Xmark aria-hidden="true" />
+          </AriaButton>
+        ) : null}
+      </SearchField>
 
-      {favoriteOptions.length > 0 && !isManagingFavorites ? (
-        <div className={styles.choiceGroup}>
-          <h4>{t("schedule.filters.favorites")}</h4>
-          <div className={styles.chips}>
-            {favoriteOptions.map((option) => {
-              const isSelected = selectedIds.includes(option.id);
-              return (
-                <AriaButton
-                  className={styles.favoriteChip}
-                  key={option.id}
-                  aria-pressed={isSelected}
-                  onPress={() =>
-                    onSelectedChange(
-                      isSelected
-                        ? selectedIds.filter((id) => id !== option.id)
-                        : [...selectedIds, option.id],
-                    )
-                  }
-                >
-                  <Star aria-hidden="true" fill="currentColor" />
-                  {option.name}
-                </AriaButton>
-              );
-            })}
-          </div>
-        </div>
-      ) : null}
-
-      <div className={styles.searchToolbar}>
-        <SearchField
-          className={styles.searchField}
-          aria-label={searchLabel}
-          value={query}
-          onChange={(value) => {
-            setQuery(value);
-            setActiveIndex(0);
-          }}
-        >
-          <Input aria-label={searchLabel} placeholder={searchLabel} />
-        </SearchField>
-        <AriaButton
-          className={styles.manageFavoritesButton}
-          aria-pressed={isManagingFavorites}
-          onPress={() => setIsManagingFavorites((current) => !current)}
-        >
-          <Star aria-hidden="true" />
-          {t(
-            isManagingFavorites
-              ? "schedule.filters.doneManagingFavorites"
-              : "schedule.filters.manageFavorites",
-          )}
-        </AriaButton>
-      </div>
-
-      {isManagingFavorites ? (
-        <p className={styles.modeDescription}>{t("schedule.filters.favoriteModeDescription")}</p>
-      ) : null}
       <p className={styles.optionSummary} id={optionCountId} aria-live="polite" aria-atomic="true">
         {t("schedule.filters.optionCount", { count: filteredOptions.length })}
       </p>
@@ -216,47 +455,39 @@ function SearchableOptions({
 
       {filteredOptions.length > 0 ? (
         <CheckboxGroup
+          ref={optionListRef}
           className={styles.optionList}
           aria-label={label}
           aria-describedby={`${optionCountId} ${optionInstructionsId}`}
-          value={activeValues.map(String)}
-          onChange={(values) => {
-            const ids = values.map(Number);
-            if (isManagingFavorites) onFavoriteChange(ids);
-            else onSelectedChange(ids);
-          }}
+          value={selectedIds.map(String)}
+          onChange={(values) => onSelectedChange(values.map(Number))}
+          onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
           onBlur={(event) => {
-            if (!event.currentTarget.contains(event.relatedTarget as Node | null))
-              setActiveIndex(0);
+            if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+              resetOptionEntry();
+            }
           }}
         >
-          {filteredOptions.map((option, index) => (
-            <div className={styles.optionRow} data-option-index={index} key={option.id}>
-              <Checkbox
-                className={styles.checkbox}
-                value={String(option.id)}
-                excludeFromTabOrder={index !== activeIndex}
-                aria-keyshortcuts="ArrowUp ArrowDown Home End"
-                onFocus={() => setActiveIndex(index)}
-                onKeyDown={(event) => handleOptionKeyDown(event, index)}
+          {query ? (
+            virtualizedRows(filteredOptions, filteredRange, "filtered", 0, true)
+          ) : (
+            <>
+              {favorites.length > 0 ? (
+                <div className={styles.optionGroup} role="group" aria-label={favoriteLabel}>
+                  <span className={styles.optionGroupLabel}>{favoriteLabel}</span>
+                  {virtualizedRows(favorites, favoriteRange, "favorite", 0, true)}
+                </div>
+              ) : null}
+              <div
+                className={styles.optionGroup}
+                role="group"
+                aria-label={t("schedule.filters.all")}
               >
-                {({ isSelected }) => (
-                  <>
-                    <span className={styles.checkboxBox} aria-hidden="true">
-                      {isSelected ? (
-                        isManagingFavorites ? (
-                          <Star fill="currentColor" />
-                        ) : (
-                          <Check />
-                        )
-                      ) : null}
-                    </span>
-                    <span className={styles.optionName}>{option.name}</span>
-                  </>
-                )}
-              </Checkbox>
-            </div>
-          ))}
+                <span className={styles.optionGroupLabel}>{t("schedule.filters.all")}</span>
+                {virtualizedRows(filteredOptions, allRange, "all", favorites.length, true)}
+              </div>
+            </>
+          )}
         </CheckboxGroup>
       ) : (
         <p className={styles.empty}>{emptyLabel}</p>
@@ -277,7 +508,6 @@ export function ScheduleFilterPanel({
 }: ScheduleFilterPanelProps) {
   const { t } = useTranslation();
   const preferences = readSchedulePreferences();
-  const [activeCategory, setActiveCategory] = useState<OptionCategory>("instructors");
   const [favoriteInstructorIds, setFavoriteInstructorIds] = useState(
     preferences.favoriteInstructorIds,
   );
@@ -289,6 +519,20 @@ export function ScheduleFilterPanel({
     writeFavoriteFilters(favoriteInstructorIds, favoriteActivityTypeIds);
     onFavoriteFiltersChange?.({ favoriteInstructorIds, favoriteActivityTypeIds });
   }, [favoriteInstructorIds, favoriteActivityTypeIds, onFavoriteFiltersChange]);
+
+  const visibleActivityTypes = useMemo(() => {
+    const selectedLocations = new Set(search.locations);
+    const selectedActivityTypes = new Set(search.activityTypes);
+
+    return activityTypes.filter(
+      (activityType) =>
+        selectedActivityTypes.has(activityType.id) ||
+        activityType.businessUnitIds === undefined ||
+        activityType.businessUnitIds.some((businessUnitId) =>
+          selectedLocations.has(businessUnitId),
+        ),
+    );
+  }, [activityTypes, search.activityTypes, search.locations]);
 
   const activeFilterCount =
     Number(search.locations.length < LOCATION_IDS.length) +
@@ -309,9 +553,9 @@ export function ScheduleFilterPanel({
           {activeFilterCount > 0 ? <span className={styles.count}>{activeFilterCount}</span> : null}
         </span>
       </Button>
-      <Modal className={styles.modal} isDismissable>
+      <Popover className={styles.popover} placement="bottom start">
         <Dialog className={styles.dialog}>
-          <header className={styles.header}>
+          <div className={styles.headingRow}>
             <Heading slot="title">{t("schedule.filters.filters")}</Heading>
             <AriaButton
               className={styles.clearButton}
@@ -326,120 +570,93 @@ export function ScheduleFilterPanel({
             >
               {t("schedule.filters.clearFilters")}
             </AriaButton>
-          </header>
-
-          <div className={styles.dialogBody}>
-            {isLoadingOptions ? (
-              <p className={styles.loading} role="status">
-                {t("schedule.filters.loadingOptions")}
-              </p>
-            ) : null}
-            {hasOptionsError ? (
-              <ErrorMessage
-                action={
-                  <Button tone="quiet" onPress={onRetryOptions}>
-                    {t("schedule.filters.retryOptions")}
-                  </Button>
-                }
-              >
-                {t("schedule.filters.optionsError")}
-              </ErrorMessage>
-            ) : null}
-
-            <section className={styles.locationSection}>
-              <h3 className={styles.sectionHeading}>
-                <MapPin aria-hidden="true" />
-                {t("schedule.filters.location")}
-              </h3>
-              <CheckboxGroup
-                className={styles.locationOptions}
-                aria-label={t("schedule.filters.location")}
-                value={search.locations.map(String)}
-                onChange={(values) => {
-                  const selected = values.map(Number);
-                  onChange({
-                    ...search,
-                    locations: selected.length > 0 ? selected : [...LOCATION_IDS],
-                  });
-                }}
-              >
-                {SCHEDULE_LOCATIONS.map((location) => (
-                  <Checkbox
-                    className={styles.locationCheckbox}
-                    key={location.id}
-                    value={String(location.id)}
-                  >
-                    {({ isSelected }) => (
-                      <>
-                        <span className={styles.checkboxBox} aria-hidden="true">
-                          {isSelected ? <Check /> : null}
-                        </span>
-                        {location.name}
-                      </>
-                    )}
-                  </Checkbox>
-                ))}
-              </CheckboxGroup>
-            </section>
-
-            <Tabs
-              className={styles.peopleAndClasses}
-              selectedKey={activeCategory}
-              onSelectionChange={(key) => setActiveCategory(key as OptionCategory)}
-            >
-              <TabList
-                className={styles.categoryTabs}
-                aria-label={t("schedule.filters.filterCategory")}
-              >
-                <Tab className={styles.categoryTab} id="instructors">
-                  <User aria-hidden="true" />
-                  {t("schedule.filters.instructor")}
-                  {search.instructors.length > 0 ? <span>{search.instructors.length}</span> : null}
-                </Tab>
-                <Tab className={styles.categoryTab} id="activityTypes">
-                  <FilterList aria-hidden="true" />
-                  {t("schedule.filters.activityType")}
-                  {search.activityTypes.length > 0 ? (
-                    <span>{search.activityTypes.length}</span>
-                  ) : null}
-                </Tab>
-              </TabList>
-
-              <TabPanel className={styles.categoryPanel} id={activeCategory}>
-                {activeCategory === "instructors" ? (
-                  <SearchableOptions
-                    key="instructors"
-                    label={t("schedule.filters.instructor")}
-                    searchLabel={t("schedule.filters.searchInstructors")}
-                    emptyLabel={t("schedule.filters.noInstructors")}
-                    options={instructors}
-                    selectedIds={search.instructors}
-                    favoriteIds={favoriteInstructorIds}
-                    onSelectedChange={(ids) => onChange({ ...search, instructors: ids })}
-                    onFavoriteChange={setFavoriteInstructorIds}
-                  />
-                ) : (
-                  <SearchableOptions
-                    key="activityTypes"
-                    label={t("schedule.filters.activityType")}
-                    searchLabel={t("schedule.filters.searchActivityTypes")}
-                    emptyLabel={t("schedule.filters.noActivityTypes")}
-                    options={activityTypes}
-                    selectedIds={search.activityTypes}
-                    favoriteIds={favoriteActivityTypeIds}
-                    onSelectedChange={(ids) => onChange({ ...search, activityTypes: ids })}
-                    onFavoriteChange={setFavoriteActivityTypeIds}
-                  />
-                )}
-              </TabPanel>
-            </Tabs>
           </div>
 
-          <footer className={styles.footer}>
+          {isLoadingOptions ? (
+            <p className={styles.loading} role="status">
+              {t("schedule.filters.loadingOptions")}
+            </p>
+          ) : null}
+          {hasOptionsError ? (
+            <ErrorMessage
+              action={
+                <Button tone="quiet" onPress={onRetryOptions}>
+                  {t("schedule.filters.retryOptions")}
+                </Button>
+              }
+            >
+              {t("schedule.filters.optionsError")}
+            </ErrorMessage>
+          ) : null}
+
+          <section className={`${styles.section} ${styles.locationSection}`}>
+            <h3 className={styles.sectionHeading}>
+              <MapPin aria-hidden="true" />
+              {t("schedule.filters.location")}
+            </h3>
+            <CheckboxGroup
+              className={styles.locationOptions}
+              aria-label={t("schedule.filters.location")}
+              value={search.locations.map(String)}
+              onChange={(values) => {
+                const selected = values.map(Number);
+                onChange({
+                  ...search,
+                  locations: selected.length > 0 ? selected : [...LOCATION_IDS],
+                });
+              }}
+            >
+              {SCHEDULE_LOCATIONS.map((location) => (
+                <Checkbox
+                  className={styles.locationCheckbox}
+                  key={location.id}
+                  value={String(location.id)}
+                >
+                  {({ isSelected }) => (
+                    <>
+                      <span className={styles.checkboxBox} aria-hidden="true">
+                        {isSelected ? <Check /> : null}
+                      </span>
+                      {location.name}
+                    </>
+                  )}
+                </Checkbox>
+              ))}
+            </CheckboxGroup>
+          </section>
+
+          <div className={styles.optionColumns}>
+            <SearchableOptions
+              label={t("schedule.filters.instructor")}
+              icon={<User aria-hidden="true" />}
+              searchLabel={t("schedule.filters.searchInstructors")}
+              emptyLabel={t("schedule.filters.noInstructors")}
+              favoriteLabel={t("schedule.filters.favorites")}
+              options={instructors}
+              selectedIds={search.instructors}
+              favoriteIds={favoriteInstructorIds}
+              onSelectedChange={(ids) => onChange({ ...search, instructors: ids })}
+              onFavoriteChange={setFavoriteInstructorIds}
+            />
+
+            <SearchableOptions
+              label={t("schedule.filters.activityType")}
+              searchLabel={t("schedule.filters.searchActivityTypes")}
+              emptyLabel={t("schedule.filters.noActivityTypes")}
+              favoriteLabel={t("schedule.filters.favorites")}
+              options={visibleActivityTypes}
+              selectedIds={search.activityTypes}
+              favoriteIds={favoriteActivityTypeIds}
+              onSelectedChange={(ids) => onChange({ ...search, activityTypes: ids })}
+              onFavoriteChange={setFavoriteActivityTypeIds}
+            />
+          </div>
+
+          <div className={styles.footer}>
             <Button slot="close">{t("schedule.filters.done")}</Button>
-          </footer>
+          </div>
         </Dialog>
-      </Modal>
+      </Popover>
     </DialogTrigger>
   );
 }

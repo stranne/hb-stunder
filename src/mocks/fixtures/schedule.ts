@@ -113,22 +113,58 @@ export const mockRooms = {
 
 // Product IDs and names observed from the public group-activity products API.
 export const mockActivityProducts = [
-  { id: 743, name: "Body pump, 60 min" },
-  { id: 3392, name: "Yinyoga, 55 min" },
-  { id: 4100, name: "Vattenstyrka, 45 min" },
-  { id: 4128, name: "Pilates, 55 min" },
-  { id: 5328, name: "Hot Lugn Vinyasa, 55 min" },
-  { id: 8843, name: "CYKEL, 45 min" },
-  { id: 9191, name: "Gongbad, 55 min" },
-  { id: 9759, name: "Dans, 45 min" },
-  { id: 10627, name: "Breathwork (Andningsmeditation), 55 min" },
-  { id: 11089, name: "Funktionell träning, 45 min" },
-  { id: 12170, name: "Senioryoga, 55 min" },
-  { id: 12449, name: "BoxFight Small Group, 55 min" },
-  { id: 12634, name: "Styrka HIIT,  45 min" },
-  { id: 12636, name: "Styrka Core, 30 min" },
-  { id: 13448, name: "Pilates Props, 45 min" },
-  { id: 13701, name: "VitalityLab intro" },
+  {
+    id: 743,
+    name: "Body pump, 60 min",
+    businessUnits: [mockBusinessUnits[1], mockBusinessUnits[3509]],
+  },
+  {
+    id: 3392,
+    name: "Yinyoga, 55 min",
+    businessUnits: [mockBusinessUnits[1], mockBusinessUnits[3509]],
+  },
+  { id: 4100, name: "Vattenstyrka, 45 min", businessUnits: [mockBusinessUnits[3509]] },
+  {
+    id: 4128,
+    name: "Pilates, 55 min",
+    businessUnits: [mockBusinessUnits[1], mockBusinessUnits[4128]],
+  },
+  {
+    id: 5328,
+    name: "Hot Lugn Vinyasa, 55 min",
+    businessUnits: [mockBusinessUnits[1], mockBusinessUnits[3509]],
+  },
+  { id: 8843, name: "CYKEL, 45 min", businessUnits: [mockBusinessUnits[4128]] },
+  {
+    id: 9191,
+    name: "Gongbad, 55 min",
+    businessUnits: [mockBusinessUnits[1], mockBusinessUnits[3509]],
+  },
+  { id: 9759, name: "Dans, 45 min", businessUnits: [mockBusinessUnits[4128]] },
+  {
+    id: 10627,
+    name: "Breathwork (Andningsmeditation), 55 min",
+    businessUnits: [mockBusinessUnits[4128]],
+  },
+  {
+    id: 11089,
+    name: "Funktionell träning, 45 min",
+    businessUnits: [mockBusinessUnits[4128], mockBusinessUnits[3509]],
+  },
+  { id: 12170, name: "Senioryoga, 55 min", businessUnits: [mockBusinessUnits[3509]] },
+  {
+    id: 12449,
+    name: "BoxFight Small Group, 55 min",
+    businessUnits: [mockBusinessUnits[1], mockBusinessUnits[4128]],
+  },
+  { id: 12634, name: "Styrka HIIT,  45 min", businessUnits: [mockBusinessUnits[4128]] },
+  { id: 12636, name: "Styrka Core, 30 min", businessUnits: [mockBusinessUnits[1]] },
+  { id: 13448, name: "Pilates Props, 45 min", businessUnits: [mockBusinessUnits[1]] },
+  {
+    id: 13701,
+    name: "VitalityLab intro",
+    businessUnits: [mockBusinessUnits[4128], mockBusinessUnits[3509]],
+  },
 ] as const;
 
 export const mockInstructors = Array.from({ length: 27 }, (_, index) => {

@@ -21,41 +21,38 @@
     font-size: 0.75rem;
   }
 
-  .modal {
-    position: fixed;
-    z-index: var(--layer-dialog);
-    inset: 0;
-    display: grid;
-    padding: var(--space-6);
-    background: var(--color-overlay);
-    place-items: center;
+  .popover {
+    inline-size: min(32rem, calc(100vw - 2rem));
+    max-block-size: min(44rem, calc(100vh - 2rem));
+    overflow: auto;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-raised);
   }
 
   .dialog {
     display: grid;
-    grid-template-rows: auto minmax(0, 1fr) auto;
-    inline-size: min(46rem, 100%);
-    max-block-size: min(48rem, calc(100vh - 3rem));
-    overflow: hidden;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    background: var(--color-surface-elevated);
-    box-shadow: var(--shadow-raised);
+    gap: var(--space-6);
+    padding: var(--space-6);
     outline: none;
   }
 
-  .header,
   .footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-inline: calc(-1 * var(--space-6));
+    margin-block: calc(-1 * var(--space-6));
+    padding: var(--space-3) var(--space-6);
+    border-block-start: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+
+  .headingRow {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-3);
-    padding: var(--space-4) var(--space-6);
-    background: var(--color-surface-elevated);
-  }
-
-  .header {
-    border-block-end: 1px solid var(--color-border);
 
     h2 {
       margin: 0;
@@ -64,69 +61,41 @@
     }
   }
 
-  .footer {
-    justify-content: flex-end;
-    border-block-start: 1px solid var(--color-border);
-  }
-
-  .dialogBody {
-    display: grid;
-    align-content: start;
-    gap: var(--space-6);
-    min-block-size: 0;
-    padding: var(--space-6);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-  }
-
-  .clearButton,
-  .manageFavoritesButton,
-  .categoryTab,
-  .chip,
-  .favoriteChip {
-    border: 0;
-    font: inherit;
-    cursor: pointer;
-  }
-
   .clearButton {
     padding: var(--space-2);
+    border: 0;
     color: var(--color-accent-strong);
     background: transparent;
+    font: inherit;
     font-weight: 700;
+    cursor: pointer;
+
+    &[data-focus-visible] {
+      outline: var(--focus-width) solid var(--color-focus);
+      outline-offset: var(--focus-offset);
+    }
   }
 
-  .clearButton[data-focus-visible],
-  .manageFavoritesButton[data-focus-visible],
-  .categoryTab[data-focus-visible],
-  .chip[data-focus-visible],
-  .favoriteChip[data-focus-visible],
-  .locationCheckbox[data-focus-visible],
-  .checkbox[data-focus-visible],
-  .searchField input:focus-visible {
-    outline: var(--focus-width) solid var(--color-focus);
-    outline-offset: var(--focus-offset);
+  .optionColumns {
+    display: grid;
+    gap: var(--space-6);
   }
 
-  .locationSection,
-  .peopleAndClasses,
-  .optionSection,
-  .choiceGroup {
+  .section {
     display: grid;
     gap: var(--space-3);
     min-inline-size: 0;
-  }
 
-  .sectionHeading,
-  .choiceGroup h4 {
-    margin: 0;
+    h3 {
+      margin: 0;
+      font-size: var(--text-base);
+    }
   }
 
   .sectionHeading {
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    font-size: var(--text-base);
 
     svg {
       inline-size: 1.1rem;
@@ -135,8 +104,7 @@
     }
   }
 
-  .locationOptions,
-  .chips {
+  .locationOptions {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
@@ -161,6 +129,14 @@
     background: color-mix(in oklch, var(--color-accent) 12%, var(--color-surface));
   }
 
+  .locationCheckbox[data-focus-visible],
+  .checkbox[data-focus-visible],
+  .starButton[data-focus-visible],
+  .searchField input:focus-visible {
+    outline: var(--focus-width) solid var(--color-focus);
+    outline-offset: var(--focus-offset);
+  }
+
   .checkboxBox {
     display: inline-grid;
     flex: 0 0 1.25rem;
@@ -170,6 +146,7 @@
     border: 1px solid color-mix(in oklch, var(--color-ink) 35%, transparent);
     border-radius: 0.3rem;
     color: var(--color-ink-inverse);
+    font-size: 0.8rem;
 
     svg {
       inline-size: 0.9rem;
@@ -184,178 +161,80 @@
     background: var(--color-accent);
   }
 
-  .peopleAndClasses {
-    gap: var(--space-4);
-  }
-
-  .categoryTabs {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-2);
-    padding: var(--space-1);
-    border-radius: var(--radius-md);
-    background: color-mix(in oklch, var(--color-ink) 6%, var(--color-surface));
-  }
-
-  .categoryTab {
-    display: flex;
-    min-block-size: 2.75rem;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-sm);
-    color: var(--color-ink-muted);
-    background: transparent;
-    font-weight: 700;
-
-    &[aria-selected="true"] {
-      color: var(--color-ink);
-      background: var(--color-surface-elevated);
-      box-shadow: var(--shadow-subtle);
-    }
-
-    svg {
-      inline-size: 1.1rem;
-      block-size: 1.1rem;
-    }
-
-    span {
-      display: inline-grid;
-      min-inline-size: 1.4rem;
-      block-size: 1.4rem;
-      place-items: center;
-      border-radius: var(--radius-pill);
-      color: var(--color-ink-inverse);
-      background: var(--color-accent);
-      font-size: var(--text-sm);
-    }
-  }
-
-  .categoryPanel {
-    min-inline-size: 0;
-  }
-
-  .choiceGroup {
-    gap: var(--space-2);
-
-    h4 {
-      color: var(--color-ink-muted);
-      font-size: var(--text-sm);
-    }
-  }
-
-  .chip,
-  .favoriteChip {
-    display: inline-flex;
-    min-block-size: 2.25rem;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-1) var(--space-3);
-    border-radius: var(--radius-pill);
-    color: var(--color-ink);
-    background: color-mix(in oklch, var(--color-ink) 7%, var(--color-surface));
-    font-size: var(--text-sm);
-  }
-
-  .chip span:first-child {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .chip span:last-child {
-    color: var(--color-ink-muted);
-    font-size: 1.1rem;
-  }
-
-  .favoriteChip {
-    border: 1px solid color-mix(in oklch, var(--color-brass) 35%, transparent);
-    background: color-mix(in oklch, var(--color-brass) 9%, var(--color-surface));
-
-    &[aria-pressed="true"] {
-      border-color: var(--color-accent);
-      background: color-mix(in oklch, var(--color-accent) 12%, var(--color-surface));
-    }
-
-    svg {
-      inline-size: 1rem;
-      block-size: 1rem;
-      color: var(--color-brass);
-    }
-  }
-
-  .searchToolbar {
+  .searchField {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    gap: var(--space-2);
-  }
 
-  .searchField input {
-    inline-size: 100%;
-    min-block-size: 2.75rem;
-    min-inline-size: 0;
-    padding: var(--space-2) var(--space-3);
-    border: 1px solid color-mix(in oklch, var(--color-ink) 20%, transparent);
-    border-radius: var(--radius-sm);
-    color: var(--color-ink);
-    background: var(--color-surface);
-    font: inherit;
-  }
-
-  .manageFavoritesButton {
-    display: inline-flex;
-    min-block-size: 2.75rem;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-3);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    color: var(--color-ink);
-    background: var(--color-surface);
-    font-weight: 700;
-
-    &[aria-pressed="true"] {
-      border-color: var(--color-brass);
-      color: var(--color-brass);
+    input {
+      min-block-size: 2.75rem;
+      min-inline-size: 0;
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid color-mix(in oklch, var(--color-ink) 20%, transparent);
+      border-radius: var(--radius-sm);
+      color: var(--color-ink);
+      background: var(--color-surface);
+      font: inherit;
     }
 
-    svg {
-      inline-size: 1rem;
-      block-size: 1rem;
+    button {
+      inline-size: 2.75rem;
+      margin-inline-start: -2.75rem;
+      border: 0;
+      color: var(--color-ink-muted);
+      background: transparent;
+      font: inherit;
+      font-size: 1.25rem;
+      cursor: pointer;
+
+      svg {
+        inline-size: 1.1rem;
+        block-size: 1.1rem;
+      }
     }
-  }
-
-  .optionSummary,
-  .modeDescription,
-  .loading,
-  .empty {
-    margin: 0;
-    color: var(--color-ink-muted);
-    font-size: var(--text-sm);
-  }
-
-  .modeDescription {
-    padding: var(--space-3);
-    border-radius: var(--radius-sm);
-    background: color-mix(in oklch, var(--color-brass) 8%, var(--color-surface));
   }
 
   .optionList {
     display: grid;
-    border-block-start: 1px solid color-mix(in oklch, var(--color-ink) 10%, transparent);
+    align-content: start;
+    max-block-size: 13rem;
+    overflow-y: auto;
+    border-block: 1px solid color-mix(in oklch, var(--color-ink) 10%, transparent);
+  }
+
+  .optionGroup {
+    display: grid;
+  }
+
+  .optionGroupLabel {
+    position: sticky;
+    z-index: 1;
+    inset-block-start: 0;
+    display: flex;
+    block-size: 36px;
+    align-items: center;
+    padding-inline: var(--space-2);
+    border-block-end: 1px solid color-mix(in oklch, var(--color-ink) 10%, transparent);
+    color: var(--color-ink-muted);
+    background: var(--color-surface);
+    font-size: var(--text-sm);
+    font-weight: 700;
   }
 
   .optionRow {
-    min-inline-size: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 2.75rem;
+    block-size: 44px;
+    align-items: center;
+    overflow: hidden;
     border-block-end: 1px solid color-mix(in oklch, var(--color-ink) 8%, transparent);
   }
 
   .checkbox {
     display: flex;
-    min-block-size: 2.75rem;
     align-items: center;
     gap: var(--space-3);
+    block-size: 44px;
+    min-inline-size: 0;
     padding: var(--space-2);
     cursor: pointer;
   }
@@ -364,6 +243,17 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .virtualSpacer {
+    flex: none;
+    pointer-events: none;
+  }
+
+  .optionSummary {
+    margin: calc(-1 * var(--space-1)) 0 0;
+    color: var(--color-ink-muted);
+    font-size: var(--text-sm);
   }
 
   .visuallyHidden {
@@ -378,30 +268,90 @@
     white-space: nowrap;
   }
 
-  @media (width < 42rem) {
-    .modal {
-      align-items: end;
-      padding: 0;
+  .starButton {
+    display: grid;
+    inline-size: 2.25rem;
+    block-size: 2.25rem;
+    place-items: center;
+    border: 0;
+    border-radius: var(--radius-pill);
+    color: var(--color-ink-muted);
+    background: transparent;
+    font: inherit;
+    font-size: 1.2rem;
+    cursor: pointer;
+
+    svg {
+      inline-size: 1.15rem;
+      block-size: 1.15rem;
+    }
+
+    &[data-selected] {
+      color: var(--color-brass);
+    }
+  }
+
+  .loading,
+  .empty {
+    margin: 0;
+    color: var(--color-ink-muted);
+    font-size: var(--text-sm);
+  }
+
+  @media (width >= 64rem) {
+    .popover {
+      inline-size: min(64rem, calc(100vw - 2rem));
+      overflow: clip;
     }
 
     .dialog {
+      grid-template-rows: auto auto minmax(0, 1fr) auto;
+      max-block-size: inherit;
+      overflow: hidden;
+    }
+
+    .locationSection {
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: center;
+      column-gap: var(--space-6);
+    }
+
+    .optionColumns {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: stretch;
+      min-block-size: 0;
+    }
+
+    .optionColumns > .section {
+      grid-template-rows: auto auto auto minmax(0, 1fr);
+      min-block-size: 0;
+    }
+
+    .optionList {
+      min-block-size: 0;
+      max-block-size: none;
+    }
+  }
+
+  @media (width < 42rem) {
+    .popover {
+      position: fixed;
+      inset: auto 0 0 !important;
       inline-size: 100%;
-      max-block-size: 92vh;
+      max-block-size: 85vh;
       border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     }
 
-    .header,
-    .footer,
-    .dialogBody {
+    .dialog {
+      padding: var(--space-6) var(--space-4);
+    }
+
+    .footer {
+      position: sticky;
+      inset-block-end: 0;
+      margin-inline: calc(-1 * var(--space-4));
+      margin-block-end: calc(-1 * var(--space-6));
       padding-inline: var(--space-4);
-    }
-
-    .searchToolbar {
-      grid-template-columns: 1fr;
-    }
-
-    .manageFavoritesButton {
-      justify-content: center;
     }
   }
 }

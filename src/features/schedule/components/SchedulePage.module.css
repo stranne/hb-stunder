@@ -1,14 +1,12 @@
 @layer components {
   .page {
-    inline-size: min(100% - 2rem, 72rem);
-    margin-inline: auto;
+    inline-size: 100%;
     padding-block: 0 calc(var(--space-12) + env(safe-area-inset-bottom));
   }
 
   .roomsPage {
     display: flex;
     flex-direction: column;
-    inline-size: calc(100% - 2rem);
     min-block-size: calc(100dvh - 3.25rem);
   }
 
@@ -16,27 +14,28 @@
     position: sticky;
     z-index: 10;
     inset-block-start: 0;
-    inline-size: 100vw;
-    margin-inline: calc(50% - 50vw);
+    inline-size: 100%;
     margin-block-end: var(--space-3);
     background: var(--color-canvas);
   }
 
   .stickyControls > * {
-    inline-size: min(100%, 64rem);
+    inline-size: min(calc(100% - 2rem), 64rem);
     margin-inline: auto;
   }
 
   .statusRegion {
     display: flex;
     align-items: center;
+    inline-size: min(calc(100% - 2rem), 72rem);
     margin-block: var(--space-2);
+    margin-inline: auto;
     font-size: var(--text-sm);
   }
 
   .list {
     display: grid;
-    inline-size: min(100%, 64rem);
+    inline-size: min(calc(100% - 2rem), 64rem);
     min-inline-size: 0;
     gap: var(--space-2);
     margin-inline: auto;
@@ -45,7 +44,7 @@
 
   .list[data-view="rooms"] {
     flex: 1;
-    inline-size: 100%;
+    inline-size: calc(100% - 2rem);
     min-block-size: 0;
   }
 

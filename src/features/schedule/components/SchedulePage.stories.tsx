@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { Meta, StoryObj } from "@storybook/tanstack-react";
 import { delay, http, HttpResponse } from "msw";
 import { useEffect, type ComponentProps } from "react";
+import { expect, within } from "storybook/test";
 import { API_BASE_URL } from "../../../api/client";
 import { scheduleForDate } from "../../../mocks/fixtures/schedule";
 import { scheduleKeys } from "../api/scheduleQueries";
@@ -69,6 +70,16 @@ export const Rooms: Story = {
       activityTypes: [],
       view: "rooms",
     },
+  },
+};
+
+export const RoomsScrolled: Story = {
+  ...Rooms,
+  play: async ({ canvasElement }) => {
+    await within(canvasElement).findByLabelText("Rumskalender", { selector: "div" });
+    const storyWindow = canvasElement.ownerDocument.defaultView;
+    storyWindow?.scrollTo(0, 360);
+    await expect(storyWindow?.scrollY).toBeGreaterThan(0);
   },
 };
 

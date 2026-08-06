@@ -4,7 +4,6 @@
     min-inline-size: 0;
     max-inline-size: 100%;
     min-block-size: 20rem;
-    border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     background: var(--color-surface);
     box-shadow:
@@ -19,10 +18,11 @@
     display: grid;
     grid-template-columns: 4rem minmax(0, 1fr);
     min-block-size: 6rem;
-    border-block-end: 1px solid var(--color-border);
-    border-start-start-radius: calc(var(--radius-md) - 1px);
-    border-start-end-radius: calc(var(--radius-md) - 1px);
+    border: 1px solid var(--color-border);
+    border-start-start-radius: var(--radius-md);
+    border-start-end-radius: var(--radius-md);
     background: var(--color-surface-elevated);
+    box-shadow: 0 calc(-1 * var(--radius-md)) 0 var(--radius-md) var(--color-canvas);
   }
 
   .stickyHeader::after {
@@ -45,7 +45,7 @@
   .corner {
     position: relative;
     z-index: 1;
-    border-start-start-radius: inherit;
+    border-start-start-radius: calc(var(--radius-md) - 1px);
     background: var(--color-surface-elevated);
     box-shadow: 0.5rem 0 1rem -0.85rem var(--color-shadow);
   }
@@ -53,7 +53,7 @@
   .headerViewport {
     min-inline-size: 0;
     overflow: hidden;
-    border-start-end-radius: inherit;
+    border-start-end-radius: calc(var(--radius-md) - 1px);
   }
 
   .roomHeaders {
@@ -115,8 +115,10 @@
     max-inline-size: 100%;
     overflow-x: auto;
     overflow-y: clip;
-    border-end-start-radius: calc(var(--radius-md) - 1px);
-    border-end-end-radius: calc(var(--radius-md) - 1px);
+    border-inline: 1px solid var(--color-border);
+    border-block-end: 1px solid var(--color-border);
+    border-end-start-radius: var(--radius-md);
+    border-end-end-radius: var(--radius-md);
     overscroll-behavior-inline: contain;
   }
 
@@ -387,16 +389,18 @@
   @media (width < 40rem) {
     .calendarFrame {
       margin-inline: calc(var(--space-4) * -1);
-      border-inline: 0;
       border-radius: 0;
     }
 
     .stickyHeader {
+      border-inline: 0;
       border-start-start-radius: 0;
       border-start-end-radius: 0;
+      box-shadow: none;
     }
 
     .scroller {
+      border-inline: 0;
       border-end-start-radius: 0;
       border-end-end-radius: 0;
     }

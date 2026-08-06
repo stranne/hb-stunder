@@ -79,9 +79,6 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Available: Story = {};
-export const ClassListItem: Story = {
-  args: { showTime: false, headingLevel: 3 },
-};
 export const LongClassListItem: Story = {
   args: {
     activity: {
@@ -89,7 +86,6 @@ export const LongClassListItem: Story = {
       name: "Lång workshop",
       duration: { start: "2099-07-28T06:00:00.000Z", end: "2099-07-28T08:30:00.000Z" },
     },
-    showTime: false,
     headingLevel: 3,
   },
 };
@@ -120,7 +116,6 @@ export const FavoriteHighlights: Story = {
     },
     favoriteActivityTypeIds: [3392],
     favoriteInstructorIds: [202],
-    showTime: false,
     headingLevel: 3,
   },
   play: async ({ canvasElement }) => {
@@ -188,7 +183,6 @@ export const EmptyWaitingList: Story = {
       ...upcomingWaitingList,
       slots: { ...upcomingWaitingList.slots, inWaitingList: 0 },
     },
-    showTime: false,
   },
 };
 export const ExistingBooking: Story = {

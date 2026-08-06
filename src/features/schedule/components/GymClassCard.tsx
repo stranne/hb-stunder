@@ -13,8 +13,6 @@ export interface GymClassCardProps {
   booking?: GroupActivityBooking;
   onBook?: () => Promise<void>;
   onCancel?: () => Promise<void>;
-  /** A time-group heading supplies the start time when this is false. */
-  showTime?: boolean;
   headingLevel?: 2 | 3;
   favoriteInstructorIds?: number[];
   favoriteActivityTypeIds?: number[];
@@ -45,8 +43,7 @@ export function GymClassCard({
   booking,
   onBook,
   onCancel,
-  showTime = true,
-  headingLevel = 2,
+  headingLevel = 3,
   favoriteInstructorIds = [],
   favoriteActivityTypeIds = [],
   includeBusinessUnitName = false,
@@ -89,7 +86,7 @@ export function GymClassCard({
   const internalMessage = activity.internalMessage?.trim();
   const fullName = activity.name ?? t("schedule.unnamedClass");
   const titleParts = classTitleParts(fullName);
-  const displayName = showTime ? fullName : titleParts.title;
+  const displayName = titleParts.title;
   const elapsedMinutes = start && end ? Math.round((end.getTime() - start.getTime()) / 60_000) : 0;
   const elapsedHours = elapsedMinutes / 60;
   const formattedHours = new Intl.NumberFormat(i18n.resolvedLanguage, {
@@ -137,7 +134,7 @@ export function GymClassCard({
         { count: waitingCount },
       )
     : undefined;
-  const hasDetails = Boolean(internalMessage || spotDetails || showTime);
+  const hasDetails = Boolean(internalMessage || spotDetails);
   const durationLabel =
     start && end
       ? `${timeFormatter.format(start)}–${timeFormatter.format(end)}`
@@ -146,7 +143,7 @@ export function GymClassCard({
   return (
     <article
       ref={cardRef}
-      className={`${styles.card} ${!showTime ? styles.grouped : ""} ${hasDetails ? styles.clickable : ""}`}
+      className={`${styles.card} ${hasDetails ? styles.clickable : ""}`}
       data-availability={
         booking ? (isWaitingListBooking ? "waitingListBooked" : "booked") : availability.kind
       }
@@ -161,15 +158,14 @@ export function GymClassCard({
       }}
       tabIndex={-1}
     >
-      {showTime ? <div className={styles.time}>{durationLabel}</div> : null}
       <div className={styles.content}>
         <Heading>
           {displayName}
           <FavoriteMarker isFavorite={isFavoriteActivityType} />
         </Heading>
-        {(!showTime && classListDuration) || hasInstructors || locations ? (
+        {classListDuration || hasInstructors || locations ? (
           <p className={styles.metadata}>
-            {!showTime && classListDuration ? (
+            {classListDuration ? (
               <span className={styles.metadataItem}>
                 <Clock aria-hidden="true" />
                 <span className={styles.visuallyHidden}>{t("schedule.details.duration")}: </span>

@@ -208,7 +208,6 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
                         key={activity.id ?? `${activity.duration?.start}-${index}`}
                         activity={activity}
                         booking={booking}
-                        showTime={false}
                         headingLevel={3}
                         favoriteInstructorIds={favoriteFilters.favoriteInstructorIds}
                         favoriteActivityTypeIds={favoriteFilters.favoriteActivityTypeIds}

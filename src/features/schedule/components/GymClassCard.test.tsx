@@ -136,7 +136,6 @@ describe("GymClassCard", () => {
             end: "2026-07-28T07:30:00.000Z",
           },
         }}
-        showTime={false}
       />,
     );
 
@@ -159,7 +158,6 @@ describe("GymClassCard", () => {
           name: "Workshop",
           duration: { start: start.toISOString(), end: end.toISOString() },
         }}
-        showTime={false}
       />,
     );
 
@@ -174,7 +172,6 @@ describe("GymClassCard", () => {
           ...scheduleFixtures.waitingList,
           slots: { ...scheduleFixtures.waitingList.slots, inWaitingList: 0 },
         }}
-        showTime={false}
       />,
     );
 

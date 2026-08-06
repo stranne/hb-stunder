@@ -177,6 +177,16 @@ export const FullyBooked: Story = {
   args: { activity: scheduledInYear(scheduleFixtures.full, 2099) },
 };
 export const WaitingList: Story = { args: { activity: upcomingWaitingList } };
+export const WaitingListNarrow: Story = {
+  args: { activity: upcomingWaitingList },
+  decorators: [
+    (Story) => (
+      <div style={{ width: "20rem" }}>
+        <Story />
+      </div>
+    ),
+  ],
+};
 export const EmptyWaitingList: Story = {
   args: {
     activity: {

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/tanstack-react";
 import { useState } from "react";
 import { expect, userEvent, within } from "storybook/test";
-import { todayInStockholm } from "../model/scheduleDate";
+import { addDays, todayInStockholm } from "../model/scheduleDate";
 import type { ScheduleSearch } from "../model/scheduleSearch";
 import { ScheduleFilters } from "./ScheduleFilters";
 
@@ -81,6 +81,24 @@ export const ActiveFilter: Story = {
       locations: [1, 4128, 3509],
       instructors: [21],
       activityTypes: [],
+    },
+  },
+};
+export const DateOutsideSelector: Story = {
+  args: {
+    search: {
+      date: addDays(todayInStockholm(), 400),
+      locations: [1, 4128, 3509],
+      instructors: [],
+      activityTypes: [],
+    },
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "A manually entered URL date outside the upcoming-day selector remains visible below it, including the year when it is not the current year.",
+      },
     },
   },
 };

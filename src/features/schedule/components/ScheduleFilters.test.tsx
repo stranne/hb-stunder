@@ -66,6 +66,38 @@ describe("ScheduleFilters", () => {
     expect(onChange).toHaveBeenCalledWith({ date: addDays(today, 3), ...filterSelection });
   });
 
+  it("shows an out-of-range selected date and includes the year when needed", () => {
+    const currentYear = Number(today.slice(0, 4));
+    const sameYearDate = today.endsWith("01-01") ? `${currentYear}-12-31` : `${currentYear}-01-01`;
+    const otherYearDate = `${currentYear + 2}-01-01`;
+    const { container, rerender } = render(
+      <ScheduleFilters search={{ date: sameYearDate, ...filterSelection }} onChange={vi.fn()} />,
+    );
+
+    const selectedDate = container.querySelector(`time[datetime="${sameYearDate}"]`);
+    expect(selectedDate?.textContent).toBe(
+      new Intl.DateTimeFormat("en", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+      }).format(new Date(`${sameYearDate}T12:00:00Z`)),
+    );
+    expect(screen.queryByRole("button", { pressed: true })).toBeNull();
+
+    rerender(
+      <ScheduleFilters search={{ date: otherYearDate, ...filterSelection }} onChange={vi.fn()} />,
+    );
+
+    expect(container.querySelector(`time[datetime="${otherYearDate}"]`)?.textContent).toBe(
+      new Intl.DateTimeFormat("en", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }).format(new Date(`${otherYearDate}T12:00:00Z`)),
+    );
+  });
+
   it("moves between weeks without changing the filters", () => {
     const onChange = vi.fn();
     render(<ScheduleFilters search={search} onChange={onChange} />);

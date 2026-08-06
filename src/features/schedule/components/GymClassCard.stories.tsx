@@ -306,6 +306,16 @@ export const WaitingListError: Story = {
 export const Cancelled: Story = { args: { activity: scheduleFixtures.cancelled } };
 export const English: Story = { globals: { locale: "en" } };
 export const Mobile: Story = {
+  args: {
+    activity: {
+      ...upcomingAvailable,
+      name: "Lång workshop med återhämtning",
+      instructors: [
+        { id: 201, name: "Alex Example" },
+        { id: 202, name: "Sam Example" },
+      ],
+    },
+  },
   globals: { viewport: { value: "mobile", isRotated: false } },
 };
 export const ReducedMotion: Story = { globals: { reducedMotion: "reduce" } };

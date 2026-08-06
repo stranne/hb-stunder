@@ -6,7 +6,7 @@
     grid-template-columns: 1fr auto;
     gap: var(--space-3);
     align-items: center;
-    padding: var(--space-3);
+    padding: var(--space-3) var(--space-6);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     background: var(--color-surface);
@@ -47,7 +47,7 @@
 
   .card[data-availability="booked"]:not([data-started="true"]),
   .card[data-availability="waitingListBooked"]:not([data-started="true"]) {
-    padding-inline-start: calc(var(--space-3) + 0.1875rem);
+    padding-inline-start: calc(var(--space-6) + 0.1875rem);
     background: color-mix(in oklch, var(--booking-state-background) 45%, var(--color-surface));
   }
 

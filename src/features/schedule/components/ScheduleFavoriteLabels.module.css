@@ -1,0 +1,14 @@
+@layer components {
+  .name {
+    display: inline;
+  }
+
+  .star {
+    display: inline-block;
+    inline-size: 0.9em;
+    block-size: 0.9em;
+    margin-inline-start: 0.2em;
+    color: var(--color-brass);
+    vertical-align: -0.05em;
+  }
+}

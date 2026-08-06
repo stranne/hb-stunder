@@ -55,7 +55,28 @@ export const MultipleInstructors: Story = {
     ],
   },
   play: async ({ canvasElement }) => {
-    await expect(within(canvasElement).getByText("Alex Example, Sam Example")).toBeVisible();
+    await expect(within(canvasElement).getByText("Alex Example")).toBeVisible();
+    await expect(within(canvasElement).getByText("Sam Example")).toBeVisible();
+  },
+};
+export const FavoriteHighlights: Story = {
+  args: {
+    activities: [
+      {
+        ...scheduleFixtures.available,
+        instructors: [
+          { id: 201, name: "Alex Example" },
+          { id: 202, name: "Sam Example" },
+        ],
+      },
+    ],
+    favoriteActivityTypeIds: [3392],
+    favoriteInstructorIds: [202],
+  },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getAllByRole("img", { name: /favorite|favorit/i })).toHaveLength(
+      2,
+    );
   },
 };
 export const CurrentTime: Story = { args: { date: todayInStockholm() } };

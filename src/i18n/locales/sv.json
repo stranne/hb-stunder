@@ -124,6 +124,7 @@
       "noInstructors": "Inga instruktörer hittades.",
       "noActivityTypes": "Inga klasstyper hittades.",
       "favorites": "Favoriter",
+      "favorite": "Favorit",
       "all": "Alla",
       "optionCount_one": "{{count}} alternativ",
       "optionCount_other": "{{count}} alternativ",

@@ -14,6 +14,7 @@ import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmat
 import type { ScheduledActivity } from "../model/schedule";
 import { getAvailability, hasActivityStarted } from "../model/schedule";
 import { todayInStockholm } from "../model/scheduleDate";
+import { FavoriteInstructorNames, FavoriteMarker } from "./ScheduleFavoriteLabels";
 import styles from "./RoomCalendar.module.css";
 
 interface RoomActivity {
@@ -32,6 +33,8 @@ export interface RoomCalendarProps {
   customerId?: string;
   onBook: (activity: ScheduledActivity) => Promise<void>;
   onCancel: (bookingId: number) => Promise<void>;
+  favoriteInstructorIds?: number[];
+  favoriteActivityTypeIds?: number[];
 }
 
 function minutesInStockholm(value?: string) {
@@ -91,6 +94,8 @@ export function RoomCalendar({
   customerId,
   onBook,
   onCancel,
+  favoriteInstructorIds = [],
+  favoriteActivityTypeIds = [],
 }: RoomCalendarProps) {
   const { i18n, t } = useTranslation();
   const locale = i18n.resolvedLanguage ?? i18n.language;
@@ -290,6 +295,9 @@ export function RoomCalendar({
                     const top = ((start - startMinute) / 60) * hourHeight;
                     const blockHeight = Math.max(32, ((end - start) / 60) * hourHeight);
                     const instructors = instructorNames(item.activity);
+                    const isFavoriteActivityType =
+                      item.activity.groupActivityProduct?.id !== undefined &&
+                      favoriteActivityTypeIds.includes(item.activity.groupActivityProduct.id);
                     const hasStarted = hasActivityStarted(item.activity, now.getTime());
                     const activityDetails = [
                       item.activity.name ?? t("schedule.unnamedClass"),
@@ -314,9 +322,17 @@ export function RoomCalendar({
                           onClick={() => setDetail(item)}
                           aria-label={t("rooms.openDetails", { details: activityDetails })}
                         >
-                          <strong>{item.activity.name ?? t("schedule.unnamedClass")}</strong>
+                          <strong>
+                            {item.activity.name ?? t("schedule.unnamedClass")}
+                            <FavoriteMarker isFavorite={isFavoriteActivityType} />
+                          </strong>
                           {instructors ? (
-                            <span className={styles.instructors}>{instructors}</span>
+                            <span className={styles.instructors}>
+                              <FavoriteInstructorNames
+                                instructors={item.activity.instructors}
+                                favoriteInstructorIds={favoriteInstructorIds}
+                              />
+                            </span>
                           ) : null}
                         </button>
                       </div>
@@ -347,7 +363,15 @@ export function RoomCalendar({
                 >
                   <Xmark aria-hidden="true" />
                 </button>
-                <Heading slot="title">{detail.activity.name ?? t("schedule.unnamedClass")}</Heading>
+                <Heading slot="title">
+                  {detail.activity.name ?? t("schedule.unnamedClass")}
+                  <FavoriteMarker
+                    isFavorite={
+                      detail.activity.groupActivityProduct?.id !== undefined &&
+                      favoriteActivityTypeIds.includes(detail.activity.groupActivityProduct.id)
+                    }
+                  />
+                </Heading>
                 <div className={styles.dialogMetadata}>
                   <p>
                     <Calendar aria-hidden="true" />
@@ -374,7 +398,10 @@ export function RoomCalendar({
                       <span className={styles.visuallyHidden}>
                         {t("schedule.filters.instructor")}:{" "}
                       </span>
-                      {detailInstructors}
+                      <FavoriteInstructorNames
+                        instructors={detail.activity.instructors}
+                        favoriteInstructorIds={favoriteInstructorIds}
+                      />
                     </p>
                   ) : null}
                 </div>

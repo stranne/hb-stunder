@@ -124,6 +124,7 @@
       "noInstructors": "No instructors found.",
       "noActivityTypes": "No class types found.",
       "favorites": "Favorites",
+      "favorite": "Favorite",
       "all": "All",
       "optionCount_one": "{{count}} option",
       "optionCount_other": "{{count}} options",

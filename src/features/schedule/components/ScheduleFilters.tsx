@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "../../../ui/button/Button";
 import { addDays, todayInStockholm } from "../model/scheduleDate";
 import type { ScheduleFilterOption } from "../api/scheduleFilterQueries";
+import type { FavoriteFilterSelection } from "../model/schedulePreferences";
 import type { ScheduleSearch } from "../model/scheduleSearch";
 import { ScheduleFilterPanel } from "./ScheduleFilterPanel";
 import styles from "./ScheduleFilters.module.css";
@@ -19,6 +20,7 @@ export interface ScheduleFiltersProps {
   isLoadingOptions?: boolean;
   hasOptionsError?: boolean;
   onRetryOptions?: () => void;
+  onFavoriteFiltersChange?: (favorites: FavoriteFilterSelection) => void;
 }
 
 function dateForFormatting(date: string) {
@@ -33,6 +35,7 @@ export function ScheduleFilters({
   isLoadingOptions = false,
   hasOptionsError = false,
   onRetryOptions,
+  onFavoriteFiltersChange,
 }: ScheduleFiltersProps) {
   const { t, i18n } = useTranslation();
   const today = todayInStockholm();
@@ -148,6 +151,7 @@ export function ScheduleFilters({
           isLoadingOptions={isLoadingOptions}
           hasOptionsError={hasOptionsError}
           onRetryOptions={onRetryOptions}
+          onFavoriteFiltersChange={onFavoriteFiltersChange}
         />
       </div>
     </div>

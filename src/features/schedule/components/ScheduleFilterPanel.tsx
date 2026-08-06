@@ -24,7 +24,11 @@ import {
 import { Button } from "../../../ui/button/Button";
 import { ErrorMessage } from "../../../ui/feedback/ErrorMessage";
 import type { ScheduleFilterOption } from "../api/scheduleFilterQueries";
-import { readSchedulePreferences, writeFavoriteFilters } from "../model/schedulePreferences";
+import {
+  readSchedulePreferences,
+  writeFavoriteFilters,
+  type FavoriteFilterSelection,
+} from "../model/schedulePreferences";
 import { LOCATION_IDS, SCHEDULE_LOCATIONS, type ScheduleSearch } from "../model/scheduleSearch";
 import styles from "./ScheduleFilterPanel.module.css";
 
@@ -36,6 +40,7 @@ interface ScheduleFilterPanelProps {
   isLoadingOptions?: boolean;
   hasOptionsError?: boolean;
   onRetryOptions?: () => void;
+  onFavoriteFiltersChange?: (favorites: FavoriteFilterSelection) => void;
 }
 
 function toggleId(ids: number[], id: number) {
@@ -439,6 +444,7 @@ export function ScheduleFilterPanel({
   isLoadingOptions = false,
   hasOptionsError = false,
   onRetryOptions,
+  onFavoriteFiltersChange,
 }: ScheduleFilterPanelProps) {
   const { t } = useTranslation();
   const preferences = readSchedulePreferences();
@@ -451,7 +457,8 @@ export function ScheduleFilterPanel({
 
   useEffect(() => {
     writeFavoriteFilters(favoriteInstructorIds, favoriteActivityTypeIds);
-  }, [favoriteInstructorIds, favoriteActivityTypeIds]);
+    onFavoriteFiltersChange?.({ favoriteInstructorIds, favoriteActivityTypeIds });
+  }, [favoriteInstructorIds, favoriteActivityTypeIds, onFavoriteFiltersChange]);
 
   const activeFilterCount =
     Number(search.locations.length < LOCATION_IDS.length) +

@@ -1,5 +1,5 @@
 import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   cancelGroupActivityBookingMutationOptions,
@@ -12,6 +12,7 @@ import { ErrorMessage } from "../../../ui/feedback/ErrorMessage";
 import { activityTypeQueryOptions, instructorQueryOptions } from "../api/scheduleFilterQueries";
 import { scheduleQueryOptions } from "../api/scheduleQueries";
 import { getAvailability, groupActivitiesByStart } from "../model/schedule";
+import { readSchedulePreferences } from "../model/schedulePreferences";
 import type { ScheduleSearch } from "../model/scheduleSearch";
 import { GymClassCard, GymClassCardSkeleton } from "./GymClassCard";
 import { ScheduleFilters } from "./ScheduleFilters";
@@ -29,6 +30,10 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
   const pageRef = useRef<HTMLElement>(null);
   const stickyControlsRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
+  const [favoriteFilters, setFavoriteFilters] = useState(() => {
+    const { favoriteInstructorIds, favoriteActivityTypeIds } = readSchedulePreferences();
+    return { favoriteInstructorIds, favoriteActivityTypeIds };
+  });
 
   useLayoutEffect(() => {
     const controls = stickyControlsRef.current;
@@ -117,6 +122,7 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
           isLoadingOptions={instructors.isPending || activityTypes.isPending}
           hasOptionsError={failedFilterQueries.length > 0}
           onRetryOptions={retryFilterOptions}
+          onFavoriteFiltersChange={setFavoriteFilters}
         />
       </div>
 
@@ -159,6 +165,8 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
             date={search.date}
             bookingsByActivity={bookingsByActivity}
             customerId={customerId}
+            favoriteInstructorIds={favoriteFilters.favoriteInstructorIds}
+            favoriteActivityTypeIds={favoriteFilters.favoriteActivityTypeIds}
             onBook={(activity) =>
               createBooking.mutateAsync({
                 customerId: customerId!,
@@ -201,6 +209,8 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
                         booking={booking}
                         showTime={false}
                         headingLevel={3}
+                        favoriteInstructorIds={favoriteFilters.favoriteInstructorIds}
+                        favoriteActivityTypeIds={favoriteFilters.favoriteActivityTypeIds}
                         onBook={
                           customerId === undefined || activity.id === undefined
                             ? undefined

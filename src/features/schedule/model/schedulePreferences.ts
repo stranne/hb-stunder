@@ -8,11 +8,14 @@ export interface StoredFilterSelection {
   activityTypes: number[];
 }
 
-interface SchedulePreferences {
-  version: 1;
-  lastUsed?: StoredFilterSelection;
+export interface FavoriteFilterSelection {
   favoriteInstructorIds: number[];
   favoriteActivityTypeIds: number[];
+}
+
+interface SchedulePreferences extends FavoriteFilterSelection {
+  version: 1;
+  lastUsed?: StoredFilterSelection;
 }
 
 const emptyPreferences: SchedulePreferences = {

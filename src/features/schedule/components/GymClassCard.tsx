@@ -5,6 +5,7 @@ import type { GroupActivityBooking } from "../../bookings/model/bookings";
 import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
 import type { ScheduledActivity } from "../model/schedule";
 import { getAvailability, hasActivityEnded, hasActivityStarted } from "../model/schedule";
+import { FavoriteInstructorNames, FavoriteMarker } from "./ScheduleFavoriteLabels";
 import styles from "./GymClassCard.module.css";
 
 export interface GymClassCardProps {
@@ -15,6 +16,8 @@ export interface GymClassCardProps {
   /** A time-group heading supplies the start time when this is false. */
   showTime?: boolean;
   headingLevel?: 2 | 3;
+  favoriteInstructorIds?: number[];
+  favoriteActivityTypeIds?: number[];
 }
 
 function classTitleParts(name: string) {
@@ -43,6 +46,8 @@ export function GymClassCard({
   onCancel,
   showTime = true,
   headingLevel = 2,
+  favoriteInstructorIds = [],
+  favoriteActivityTypeIds = [],
 }: GymClassCardProps) {
   const { i18n, t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -64,10 +69,10 @@ export function GymClassCard({
   });
   const start = activity.duration?.start ? new Date(activity.duration.start) : undefined;
   const end = activity.duration?.end ? new Date(activity.duration.end) : undefined;
-  const instructors = activity.instructors
-    ?.map(({ name }) => name)
-    .filter(Boolean)
-    .join(", ");
+  const hasInstructors = activity.instructors?.some(({ name }) => Boolean(name));
+  const isFavoriteActivityType =
+    activity.groupActivityProduct?.id !== undefined &&
+    favoriteActivityTypeIds.includes(activity.groupActivityProduct.id);
   const locations = activity.locations
     ?.map(({ name }) => name)
     .filter(Boolean)
@@ -158,8 +163,11 @@ export function GymClassCard({
     >
       {showTime ? <div className={styles.time}>{durationLabel}</div> : null}
       <div className={styles.content}>
-        <Heading>{displayName}</Heading>
-        {(!showTime && classListDuration) || instructors || locations ? (
+        <Heading>
+          {displayName}
+          <FavoriteMarker isFavorite={isFavoriteActivityType} />
+        </Heading>
+        {(!showTime && classListDuration) || hasInstructors || locations ? (
           <p className={styles.metadata}>
             {!showTime && classListDuration ? (
               <span className={styles.metadataItem}>
@@ -168,11 +176,16 @@ export function GymClassCard({
                 {classListDuration}
               </span>
             ) : null}
-            {instructors ? (
+            {hasInstructors ? (
               <span className={styles.metadataItem}>
                 <User aria-hidden="true" />
                 <span className={styles.visuallyHidden}>{t("schedule.filters.instructor")}: </span>
-                {instructors}
+                <span>
+                  <FavoriteInstructorNames
+                    instructors={activity.instructors}
+                    favoriteInstructorIds={favoriteInstructorIds}
+                  />
+                </span>
               </span>
             ) : null}
             {locations ? (

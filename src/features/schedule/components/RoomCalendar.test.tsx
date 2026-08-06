@@ -205,10 +205,13 @@ describe("RoomCalendar", () => {
     const activity = screen.getByRole("button", {
       name: /Open details for Yinyoga, 55 min, .*Yogastudio, Hagabadet i Haga, Alex Example, Sam Example/,
     });
-    expect(within(activity).getByText("Alex Example, Sam Example")).toBeTruthy();
+    expect(within(activity).getByText("Alex Example")).toBeTruthy();
+    expect(within(activity).getByText("Sam Example")).toBeTruthy();
 
     fireEvent.click(activity);
-    expect(within(screen.getByRole("dialog")).getByText("Alex Example, Sam Example")).toBeTruthy();
+    const dialog = within(screen.getByRole("dialog"));
+    expect(dialog.getByText("Alex Example")).toBeTruthy();
+    expect(dialog.getByText("Sam Example")).toBeTruthy();
   });
 
   it("marks the current time when showing today", () => {

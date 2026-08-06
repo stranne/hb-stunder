@@ -40,8 +40,29 @@ describe("GymClassCard", () => {
       />,
     );
 
-    expect(screen.getByText(/Alex Example, Sam Example/)).toBeTruthy();
+    expect(screen.getByText("Alex Example")).toBeTruthy();
+    expect(screen.getByText("Sam Example")).toBeTruthy();
     expect(screen.getByText(/Yogastudio/)).toBeTruthy();
+  });
+
+  it("marks favorite class types and individual instructors", () => {
+    render(
+      <GymClassCard
+        activity={{
+          ...scheduleFixtures.available,
+          instructors: [
+            { id: 201, name: "Alex Example" },
+            { id: 202, name: "Sam Example" },
+          ],
+        }}
+        favoriteActivityTypeIds={[3392]}
+        favoriteInstructorIds={[202]}
+      />,
+    );
+
+    expect(screen.getAllByRole("img", { name: "Favorite" })).toHaveLength(2);
+    expect(screen.getByText("Alex Example").querySelector("svg")).toBeNull();
+    expect(screen.getByText("Sam Example").querySelector("svg")).toBeTruthy();
   });
 
   it("shows every location assigned to an activity", () => {

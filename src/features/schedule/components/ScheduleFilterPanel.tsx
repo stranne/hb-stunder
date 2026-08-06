@@ -362,6 +362,14 @@ function SearchableOptions({
     scrollOptionIntoView(index);
   }
 
+  function resetOptionEntry() {
+    const optionList = optionListRef.current;
+    if (optionList) optionList.scrollTop = 0;
+    setScrollTop(0);
+    setActiveIndex(0);
+    setPendingFocus(null);
+  }
+
   function focusOption(index: number, control: PendingOptionFocus["control"]) {
     setActiveIndex(index);
     setPendingFocus({ index, control });
@@ -454,6 +462,11 @@ function SearchableOptions({
           value={selectedIds.map(String)}
           onChange={(values) => onSelectedChange(values.map(Number))}
           onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
+          onBlur={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+              resetOptionEntry();
+            }
+          }}
         >
           {query ? (
             virtualizedRows(filteredOptions, filteredRange, "filtered", 0, true)

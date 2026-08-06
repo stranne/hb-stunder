@@ -142,15 +142,27 @@ export const KeyboardNavigation: Story = {
     await userEvent.keyboard("{ArrowDown}");
     await expect(canvasElement.ownerDocument.activeElement).toBe(
       within(allInstructors).getByRole("button", {
-        name: new RegExp(
-          `add ${nextTarget} to favorites|lägg till ${nextTarget} som favorit`,
-          "i",
-        ),
+        name: new RegExp(`add ${nextTarget} to favorites|lägg till ${nextTarget} som favorit`, "i"),
       }),
     );
     await userEvent.tab({ shift: true });
     await expect(allInstructors.querySelectorAll('input[type="checkbox"]').length).toBeLessThan(20);
     await expect(popover.scrollTop).toBe(0);
+
+    await userEvent.tab();
+    await userEvent.tab();
+    await expect(canvasElement.ownerDocument.activeElement).toBe(
+      within(dialog).getByRole("searchbox", { name: /search class types|sök klasstyper/i }),
+    );
+    await expect(instructorList.scrollTop).toBe(0);
+    await userEvent.tab({ shift: true });
+    await expect(canvasElement.ownerDocument.activeElement).toBe(
+      within(allInstructors).getByRole("button", {
+        name: /add Instructor 001 to favorites|lägg till Instructor 001 som favorit/i,
+      }),
+    );
+    await userEvent.tab({ shift: true });
+    await expect(canvasElement.ownerDocument.activeElement).toBe(firstInstructor);
 
     await userEvent.keyboard("{End}");
     await expect(canvasElement.ownerDocument.activeElement).toBe(
@@ -186,14 +198,15 @@ export const KeyboardNavigation: Story = {
       within(dialog).getByRole("searchbox", { name: /search class types|sök klasstyper/i }),
     );
     await userEvent.tab({ shift: true });
+    const favoriteInstructors = within(dialog).getByRole("group", { name: /favorites|favoriter/i });
     await expect(canvasElement.ownerDocument.activeElement).toBe(
-      within(allInstructors).getByRole("button", {
+      within(favoriteInstructors).getByRole("button", {
         name: /remove Instructor 001 from favorites|ta bort Instructor 001 från favoriter/i,
       }),
     );
     await userEvent.tab({ shift: true });
     await expect(canvasElement.ownerDocument.activeElement).toBe(
-      within(allInstructors).getByRole("checkbox", { name: "Instructor 001" }),
+      within(favoriteInstructors).getByRole("checkbox", { name: "Instructor 001" }),
     );
     await expect(popover.scrollTop).toBe(0);
   },

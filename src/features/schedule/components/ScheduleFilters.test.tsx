@@ -175,14 +175,18 @@ describe("ScheduleFilters", () => {
     const lastInstructor = document.activeElement as HTMLInputElement;
     expect(lastInstructor.value).toBe("85");
     expect(allGroupElement.querySelectorAll('input[type="checkbox"]').length).toBeLessThan(15);
-
-    screen.getByRole("searchbox", { name: "Search class types" }).focus();
-    instructorList.scrollTop = 0;
-    fireEvent.scroll(instructorList);
-    lastInstructor.focus();
     expect(instructorList.scrollTop).toBeGreaterThan(0);
 
-    fireEvent.keyDown(lastInstructor, { key: "Home" });
+    const classTypeSearch = screen.getByRole("searchbox", { name: "Search class types" });
+    fireEvent.blur(lastInstructor, { relatedTarget: classTypeSearch });
+    classTypeSearch.focus();
+    expect(instructorList.scrollTop).toBe(0);
+    const resetFirstInstructor = allGroup.getByRole("checkbox", { name: "Instructor 001" });
+    expect(resetFirstInstructor.tabIndex).toBe(0);
+
+    resetFirstInstructor.focus();
+    fireEvent.keyDown(resetFirstInstructor, { key: "End" });
+    fireEvent.keyDown(document.activeElement!, { key: "Home" });
     expect(document.activeElement).toBe(allGroup.getByRole("checkbox", { name: "Instructor 001" }));
 
     const activeCheckbox = allGroup.getByRole("checkbox", { name: "Instructor 001" });
@@ -223,13 +227,27 @@ describe("ScheduleFilters", () => {
       allGroup.getByRole("button", { name: "Add Instructor 003 to favorites" }),
     );
 
-    screen.getByRole("searchbox", { name: "Search class types" }).focus();
+    fireEvent.keyDown(document.activeElement!, { key: "End" });
+    const lastFavorite = allGroup.getByRole("button", {
+      name: "Add Instructor 085 to favorites",
+    });
+    expect(document.activeElement).toBe(lastFavorite);
+    expect(instructorList.scrollTop).toBeGreaterThan(0);
+
+    fireEvent.blur(lastFavorite, { relatedTarget: classTypeSearch });
+    classTypeSearch.focus();
+    expect(instructorList.scrollTop).toBe(0);
+    expect(allGroup.getByRole("checkbox", { name: "Instructor 001" }).tabIndex).toBe(0);
+    expect(allGroup.getByRole("button", { name: "Add Instructor 001 to favorites" }).tabIndex).toBe(
+      0,
+    );
+
     instructorList.scrollTop = 70 * 44;
     fireEvent.scroll(instructorList);
 
     expect(allGroupElement.querySelectorAll('input[type="checkbox"]').length).toBeLessThan(15);
     expect(allGroup.getByRole("checkbox", { name: "Instructor 070" })).toBeTruthy();
-    expect(allGroup.queryByRole("checkbox", { name: "Instructor 001" })).toBeNull();
+    expect(allGroup.getByRole("checkbox", { name: "Instructor 001" })).toBeTruthy();
 
     fireEvent.change(screen.getByRole("searchbox", { name: "Search instructors" }), {
       target: { value: "Instructor 085" },

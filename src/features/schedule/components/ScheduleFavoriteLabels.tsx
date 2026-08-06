@@ -41,9 +41,7 @@ export function FavoriteInstructorNames({
       <span className={styles.name}>
         {instructor.name}
         <FavoriteMarker
-          isFavorite={
-            instructor.id !== undefined && favoriteInstructorIds.includes(instructor.id)
-          }
+          isFavorite={instructor.id !== undefined && favoriteInstructorIds.includes(instructor.id)}
         />
       </span>
     </Fragment>

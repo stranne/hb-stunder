@@ -1,5 +1,6 @@
 @layer components {
   .card {
+    position: relative;
     display: grid;
     grid-template-columns: minmax(5rem, auto) 1fr auto;
     gap: var(--space-3);
@@ -28,10 +29,20 @@
   }
 
   .card[data-started="true"] {
+    padding-inline-start: calc(var(--space-3) + 0.1875rem);
     border-color: color-mix(in oklch, var(--color-ink-muted) 35%, var(--color-border));
-    border-inline-start: 0.25rem solid var(--color-ink-muted);
     background: color-mix(in oklch, var(--color-surface-recessed) 62%, var(--color-surface));
     box-shadow: none;
+  }
+
+  .card[data-started="true"]::before {
+    position: absolute;
+    inset-block: var(--radius-md);
+    inset-inline-start: -1px;
+    inline-size: 0.25rem;
+    background: var(--color-ink-muted);
+    content: "";
+    pointer-events: none;
   }
 
   .card[data-started="true"] .time,
@@ -232,6 +243,10 @@
     font-weight: 750;
     text-align: center;
     font-variant-numeric: tabular-nums;
+  }
+
+  .availability:empty {
+    display: none;
   }
 
   .availabilityNumber {

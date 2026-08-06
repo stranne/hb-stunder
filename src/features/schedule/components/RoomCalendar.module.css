@@ -195,14 +195,6 @@
     color: color-mix(in oklch, var(--color-ink) 72%, var(--color-ink-muted));
   }
 
-  .started {
-    color: var(--color-ink-muted);
-    font-size: 0.68rem;
-    font-weight: 750;
-    letter-spacing: 0.035em;
-    text-transform: uppercase;
-  }
-
   .blockDetails:focus-visible {
     border-radius: var(--radius-sm);
     outline: var(--focus-width) solid var(--color-focus);

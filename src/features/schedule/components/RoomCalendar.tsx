@@ -318,11 +318,6 @@ export function RoomCalendar({
                           {instructors ? (
                             <span className={styles.instructors}>{instructors}</span>
                           ) : null}
-                          {hasStarted ? (
-                            <span className={styles.started}>
-                              {t("schedule.availability.started")}
-                            </span>
-                          ) : null}
                         </button>
                       </div>
                     );

@@ -178,7 +178,18 @@ describe("GymClassCard", () => {
 
     expect(screen.queryByRole("button", { name: "Book" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Join waiting list" })).toBeNull();
-    expect(screen.getByText("Started")).toBeTruthy();
+    expect(screen.getByText("20 participated")).toBeTruthy();
+    expect(screen.queryByText("Started")).toBeNull();
+    expect(screen.getByRole("article").getAttribute("data-started")).toBe("true");
+  });
+
+  it("does not show misleading availability when a started activity has no slot data", () => {
+    vi.mocked(Date.now).mockReturnValue(Date.parse("2026-07-28T17:00:00.000Z"));
+
+    render(<GymClassCard activity={{ ...scheduleFixtures.available, slots: undefined }} />);
+
+    expect(screen.queryByText("Started")).toBeNull();
+    expect(screen.queryByText("Fully booked")).toBeNull();
     expect(screen.getByRole("article").getAttribute("data-started")).toBe("true");
   });
 

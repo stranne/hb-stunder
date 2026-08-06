@@ -102,6 +102,9 @@ export function GymClassCard({
   const isWaitingList = availability.kind === "waitingList";
   const isWaitingListBooking = booking?.type === "groupActivityWaitingListBooking";
   const hasStarted = hasActivityStarted(activity);
+  const participantCount = hasSpotDetails
+    ? Math.max(0, Math.min(totalBookable, totalBookable - leftToBook))
+    : undefined;
   const bookingCopy = isWaitingList ? "schedule.waitingList" : "schedule.booking";
   const availabilityLabel = hasRemaining
     ? t(`schedule.availability.${availability.kind}`, { count: availability.remaining })
@@ -207,7 +210,9 @@ export function GymClassCard({
           ) : availability.kind === "cancelled" ? (
             availabilityLabel
           ) : hasStarted ? (
-            t("schedule.availability.started")
+            participantCount !== undefined ? (
+              t("schedule.availability.participated", { count: participantCount })
+            ) : null
           ) : hasRemaining ? (
             <>
               <span

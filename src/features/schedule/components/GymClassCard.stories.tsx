@@ -124,6 +124,10 @@ export const MultipleLocations: Story = {
 };
 export const Started: Story = {
   args: { activity: scheduledInYear(scheduleFixtures.available, 2000) },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByText(/10 (participated|deltog)/)).toBeVisible();
+    await expect(within(canvasElement).queryByText(/Started|Startad/)).not.toBeInTheDocument();
+  },
 };
 export const WithClassInformation: Story = {
   args: { activity: scheduledInYear(scheduleFixtures.withMessages, 2099) },

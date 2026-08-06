@@ -148,9 +148,10 @@ describe("RoomCalendar", () => {
       />,
     );
 
-    const activity = screen.getByRole("button", { name: /Started/ });
+    const activity = screen.getByRole("button", { name: /Yinyoga/ });
     expect(activity.parentElement?.getAttribute("data-started")).toBe("true");
-    expect(within(activity).getByText("Started")).toBeTruthy();
+    expect(within(activity).queryByText("Started")).toBeNull();
+    expect(activity.getAttribute("aria-label")).toContain("Started");
   });
 
   it("shows time and booking controls only in the activity details", () => {

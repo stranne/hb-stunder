@@ -36,6 +36,22 @@ export const SurfaceDepth: Story = {
     ],
   },
 };
+export const ConsecutiveActivities: Story = {
+  args: {
+    activities: [
+      scheduleFixtures.available,
+      {
+        ...scheduleFixtures.almostFull,
+        id: 10_001,
+        duration: {
+          start: scheduleFixtures.available.duration?.end,
+          end: "2026-07-28T08:00:00.000Z",
+        },
+        locations: scheduleFixtures.available.locations,
+      },
+    ],
+  },
+};
 export const KeyboardFocus: Story = {
   play: async ({ canvasElement }) => {
     const activity = await within(canvasElement).findByRole("button", {

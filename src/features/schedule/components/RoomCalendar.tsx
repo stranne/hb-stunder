@@ -191,10 +191,12 @@ export function RoomCalendar({
     Math.ceil((Math.max(...ends, ...visibleMinutes, 20 * 60) + 30) / 60) * 60,
   );
   const hourHeight = 72;
-  const height = Math.max(hourHeight * 4, ((endMinute - startMinute) / 60) * hourHeight);
+  const calendarInset = 12;
+  const contentHeight = Math.max(hourHeight * 4, ((endMinute - startMinute) / 60) * hourHeight);
   const gridStyle = {
     gridTemplateColumns: `4rem repeat(${rooms.length}, minmax(12rem, 1fr))`,
-    "--calendar-height": `${height}px`,
+    "--calendar-height": `${contentHeight + calendarInset * 2}px`,
+    "--calendar-inset": `${calendarInset}px`,
     "--hour-height": `${hourHeight}px`,
   } as CSSProperties;
   const roomHeaderStyle = {
@@ -204,7 +206,7 @@ export function RoomCalendar({
     currentMinute === undefined
       ? undefined
       : ({
-          "--current-time-top": `${((currentMinute - startMinute) / 60) * hourHeight}px`,
+          "--current-time-top": `${calendarInset + ((currentMinute - startMinute) / 60) * hourHeight}px`,
         } as CSSProperties);
   const detailInstructors = detail ? instructorNames(detail.activity) : undefined;
   const detailState = detail ? getActivityState(detail.activity, now.getTime()) : undefined;
@@ -273,7 +275,7 @@ export function RoomCalendar({
           <div className={styles.calendar} style={gridStyle}>
             <div className={styles.timeGutter} aria-hidden="true">
               {Array.from({ length: Math.ceil((endMinute - startMinute) / 60) + 1 }, (_, index) => (
-                <span key={index}>
+                <span key={index} style={{ "--time-index": index } as CSSProperties}>
                   {String((startMinute / 60 + index) % 24).padStart(2, "0")}:00
                 </span>
               ))}
@@ -297,7 +299,7 @@ export function RoomCalendar({
                   .map((item) => {
                     const start = minutesInStockholm(item.activity.duration?.start)!;
                     const end = minutesInStockholm(item.activity.duration?.end)!;
-                    const top = ((start - startMinute) / 60) * hourHeight;
+                    const top = calendarInset + ((start - startMinute) / 60) * hourHeight;
                     const blockHeight = Math.max(32, ((end - start) / 60) * hourHeight);
                     const instructors = instructorNames(item.activity);
                     const isFavoriteActivityType =
@@ -318,7 +320,7 @@ export function RoomCalendar({
                       <div
                         key={item.key}
                         className={styles.block}
-                        style={{ top, height: blockHeight }}
+                        style={{ top: top + 1, height: Math.max(30, blockHeight - 2) }}
                         data-started={hasStarted || undefined}
                       >
                         <button

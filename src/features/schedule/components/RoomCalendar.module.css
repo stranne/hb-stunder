@@ -7,6 +7,9 @@
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     background: var(--color-surface);
+    box-shadow:
+      0 1.25rem 2.5rem -1.75rem var(--color-shadow),
+      0 0.25rem 0.75rem -0.5rem var(--color-shadow);
   }
 
   .stickyHeader {
@@ -20,13 +23,15 @@
     border-block-end: 1px solid var(--color-border);
     border-start-start-radius: calc(var(--radius-md) - 1px);
     border-start-end-radius: calc(var(--radius-md) - 1px);
-    background: var(--color-surface);
+    background: var(--color-surface-elevated);
+    box-shadow: 0 0.5rem 1rem -0.75rem var(--color-shadow);
   }
 
   .corner {
     position: relative;
     z-index: 1;
-    background: var(--color-surface);
+    background: var(--color-surface-elevated);
+    box-shadow: 0.5rem 0 1rem -0.85rem var(--color-shadow);
   }
 
   .headerViewport {
@@ -113,7 +118,8 @@
     grid-template-rows: repeat(auto-fit, var(--hour-height));
     height: var(--calendar-height);
     color: var(--color-ink-muted);
-    background: var(--color-surface);
+    background: var(--color-surface-elevated);
+    box-shadow: 0.5rem 0 1rem -0.85rem var(--color-shadow);
     font-size: 0.75rem;
     font-variant-numeric: tabular-nums;
 
@@ -148,9 +154,16 @@
     inset-inline: var(--space-1);
     display: grid;
     overflow: hidden;
+    border: 1px solid color-mix(in oklch, var(--color-accent) 22%, var(--color-border));
     border-radius: var(--radius-sm);
     color: var(--color-accent-strong);
     background: color-mix(in oklch, var(--color-accent) 18%, var(--color-surface));
+    box-shadow:
+      0 0.3rem 0.65rem -0.4rem var(--color-shadow),
+      inset 0 1px color-mix(in oklch, var(--color-surface) 70%, transparent);
+    transition:
+      background var(--motion-fast) var(--ease-out),
+      box-shadow var(--motion-fast) var(--ease-out);
   }
 
   .blockDetails {
@@ -179,12 +192,16 @@
 
   .block:hover {
     background: color-mix(in oklch, var(--color-accent) 28%, var(--color-surface));
+    box-shadow:
+      0 0.5rem 0.9rem -0.45rem var(--color-shadow),
+      inset 0 1px color-mix(in oklch, var(--color-surface) 75%, transparent);
   }
 
   .block[data-started="true"] {
     border: 1px solid color-mix(in oklch, var(--color-ink-muted) 45%, var(--color-border));
     color: var(--color-ink-muted);
     background: color-mix(in oklch, var(--color-surface-recessed) 75%, var(--color-surface));
+    box-shadow: inset 0 1px color-mix(in oklch, var(--color-surface) 55%, transparent);
   }
 
   .block[data-started="true"]:hover {

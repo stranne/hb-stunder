@@ -23,6 +23,19 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+export const SurfaceDepth: Story = {
+  args: {
+    activities: [
+      scheduleFixtures.available,
+      {
+        ...scheduleFixtures.withMessages,
+        locations: [{ id: 10, name: "Hotyogastudio" }],
+      },
+      { ...scheduleFixtures.almostFull, locations: [{ id: 12, name: "Ägget" }] },
+      { ...scheduleFixtures.full, locations: [{ id: 17, name: "Träningsstudio" }] },
+    ],
+  },
+};
 export const KeyboardFocus: Story = {
   play: async ({ canvasElement }) => {
     const activity = await within(canvasElement).findByRole("button", {
@@ -74,9 +87,9 @@ export const FavoriteHighlights: Story = {
     favoriteInstructorIds: [202],
   },
   play: async ({ canvasElement }) => {
-    await expect(within(canvasElement).getAllByRole("img", { name: /favorite|favorit/i })).toHaveLength(
-      2,
-    );
+    await expect(
+      within(canvasElement).getAllByRole("img", { name: /favorite|favorit/i }),
+    ).toHaveLength(2);
   },
 };
 export const CurrentTime: Story = { args: { date: todayInStockholm() } };

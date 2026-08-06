@@ -53,6 +53,9 @@ export const ActivityDetails: Story = {
         name: /^Öppna detaljer för Yinyoga, 55 min, /,
       }),
     );
+    await expect(
+      within(canvasElement.ownerDocument.body).queryByText(/10 (participated|deltog)/),
+    ).not.toBeInTheDocument();
   },
 };
 export const ActivityDetailsWithClassInformation: Story = {

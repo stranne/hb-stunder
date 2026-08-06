@@ -154,7 +154,10 @@ describe("RoomCalendar", () => {
     expect(within(activity).queryByText("Started")).toBeNull();
     expect(activity.getAttribute("aria-label")).toContain("Started");
     fireEvent.click(activity);
-    expect(within(screen.getByRole("dialog")).queryByRole("button", { name: "Book" })).toBeNull();
+    const details = within(screen.getByRole("dialog"));
+    expect(details.queryByRole("button", { name: "Book" })).toBeNull();
+    expect(details.queryByText("10 participated")).toBeNull();
+    expect(details.getByText("8 of 18 spots available")).toBeTruthy();
   });
 
   it("does not offer booking outside the activity booking window", () => {
@@ -181,7 +184,7 @@ describe("RoomCalendar", () => {
     expect(within(screen.getByRole("dialog")).queryByRole("button", { name: "Book" })).toBeNull();
   });
 
-  it("shows availability and class information in the activity details", () => {
+  it("shows spot and class information without a redundant availability label", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-07-28T05:00:00.000Z"));
 
@@ -197,7 +200,7 @@ describe("RoomCalendar", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Hot Hathayoga/ }));
     const details = within(screen.getByRole("dialog"));
-    expect(details.getByText("5 spots")).toBeTruthy();
+    expect(details.queryByText("5 spots")).toBeNull();
     expect(details.getByText("5 of 18 spots available")).toBeTruthy();
     expect(details.getByText("For this class")).toBeTruthy();
     expect(details.getByText("Klassen hålls på lättförståelig engelska.")).toBeTruthy();

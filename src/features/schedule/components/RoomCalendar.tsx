@@ -409,11 +409,7 @@ export function RoomCalendar({
                   ) : null}
                 </div>
                 {detailState ? (
-                  <RoomActivityInformation
-                    activity={detail.activity}
-                    activityState={detailState}
-                    booking={detailBooking}
-                  />
+                  <RoomActivityInformation activity={detail.activity} activityState={detailState} />
                 ) : null}
                 <RoomBookingAction
                   activity={detail.activity}
@@ -435,48 +431,20 @@ export function RoomCalendar({
 function RoomActivityInformation({
   activity,
   activityState,
-  booking,
 }: {
   activity: ScheduledActivity;
   activityState: ActivityState;
-  booking?: GroupActivityBooking;
 }) {
   const { t } = useTranslation();
-  const { availability, hasStarted, hasEnded, participantCount, totalBookable, leftToBook } =
-    activityState;
-  const isWaitingListBooking = booking?.type === "groupActivityWaitingListBooking";
-  const waitingCount = activity.slots?.inWaitingList;
+  const { totalBookable, leftToBook } = activityState;
   const hasSpotDetails = totalBookable !== undefined && leftToBook !== undefined;
   const spotRatio =
     hasSpotDetails && totalBookable > 0 ? Math.max(0, Math.min(1, leftToBook / totalBookable)) : 0;
-  const status = booking
-    ? isWaitingListBooking
-      ? waitingCount !== undefined
-        ? t("schedule.availability.waitingListBookedSummary", { count: waitingCount })
-        : t("schedule.availability.waitingListBooked")
-      : t("schedule.availability.booked")
-    : availability.kind === "cancelled"
-      ? t("schedule.availability.cancelled")
-      : hasStarted
-        ? participantCount === undefined
-          ? undefined
-          : t(
-              hasEnded
-                ? "schedule.availability.participated"
-                : "schedule.availability.participating",
-              { count: participantCount },
-            )
-        : availability.kind === "waitingList" && waitingCount !== undefined
-          ? t("schedule.availability.waitingListSummary", { count: waitingCount })
-          : "remaining" in availability
-            ? t(`schedule.availability.${availability.kind}`, { count: availability.remaining })
-            : t(`schedule.availability.${availability.kind}`);
   const externalMessage = activity.externalMessage?.trim();
   const internalMessage = activity.internalMessage?.trim();
 
   return (
     <div className={styles.activityInformation}>
-      {status ? <p className={styles.availability}>{status}</p> : null}
       {hasSpotDetails ? (
         <div className={styles.spotDetails}>
           <p>

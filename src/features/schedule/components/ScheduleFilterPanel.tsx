@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { Check, Gym, MapPin, Star, User, Xmark } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -12,6 +12,7 @@ import {
 import { Button } from "../../../ui/button/Button";
 import { ErrorMessage } from "../../../ui/feedback/ErrorMessage";
 import type { ScheduleFilterOption } from "../api/scheduleFilterQueries";
+import { SavedSearches } from "./SavedSearches";
 import {
   readSchedulePreferences,
   writeFavoriteFilters,
@@ -29,6 +30,8 @@ export interface ScheduleFilterPanelProps {
   hasOptionsError?: boolean;
   onRetryOptions?: () => void;
   onFavoriteFiltersChange?: (favorites: FavoriteFilterSelection) => void;
+  activeSavedSearchId?: string;
+  onActiveSavedSearchChange?: (id: string | undefined) => void;
 }
 
 const LOCATION_IDS = SCHEDULE_LOCATIONS.map((location) => location.id);
@@ -190,6 +193,8 @@ export function ScheduleFilterPanel({
   hasOptionsError = false,
   onRetryOptions,
   onFavoriteFiltersChange,
+  activeSavedSearchId,
+  onActiveSavedSearchChange,
 }: ScheduleFilterPanelProps) {
   const { t } = useTranslation();
   const headingId = useId();
@@ -202,8 +207,14 @@ export function ScheduleFilterPanel({
   const [favoriteActivityTypeIds, setFavoriteActivityTypeIds] = useState(
     preferences.favoriteActivityTypeIds,
   );
+  const didInitializeFavorites = useRef(false);
 
   useEffect(() => {
+    if (!didInitializeFavorites.current) {
+      didInitializeFavorites.current = true;
+      onFavoriteFiltersChange?.({ favoriteInstructorIds, favoriteActivityTypeIds });
+      return;
+    }
     writeFavoriteFilters(favoriteInstructorIds, favoriteActivityTypeIds);
     onFavoriteFiltersChange?.({ favoriteInstructorIds, favoriteActivityTypeIds });
   }, [favoriteInstructorIds, favoriteActivityTypeIds, onFavoriteFiltersChange]);
@@ -312,6 +323,16 @@ export function ScheduleFilterPanel({
             <p>{t("schedule.filters.noSelectedFilters")}</p>
           )}
         </section>
+
+        <SavedSearches
+          search={search}
+          onChange={onChange}
+          instructors={instructors}
+          activityTypes={activityTypes}
+          canValidateReferences={!isLoadingOptions && !hasOptionsError}
+          activeId={activeSavedSearchId}
+          onActiveChange={onActiveSavedSearchChange}
+        />
 
         {isLoadingOptions ? (
           <p className={styles.loading} role="status">

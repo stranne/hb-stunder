@@ -33,6 +33,7 @@ function InteractiveFilters({
 }) {
   const [search, setSearch] = useState(initialSearch);
   const [isOpen, setIsOpen] = useState(false);
+  const [activeSavedSearchId, setActiveSavedSearchId] = useState<string>();
   return (
     <div>
       <ScheduleFilters
@@ -50,6 +51,8 @@ function InteractiveFilters({
           isLoadingOptions={isLoadingOptions}
           hasOptionsError={hasOptionsError}
           onRetryOptions={() => undefined}
+          activeSavedSearchId={activeSavedSearchId}
+          onActiveSavedSearchChange={setActiveSavedSearchId}
         />
       ) : null}
     </div>
@@ -159,6 +162,49 @@ export const Favorites: Story = {
 };
 export const NoFavorites: Story = {
   loaders: [() => window.localStorage.clear()],
+};
+export const SavedSearchManagement: Story = {
+  loaders: [
+    () => {
+      window.localStorage.setItem(
+        "hb-stunder.schedule-preferences",
+        JSON.stringify({
+          version: 2,
+          favoriteInstructorIds: [],
+          favoriteActivityTypeIds: [],
+          savedSearches: [
+            {
+              version: 1,
+              id: "weekday-yoga",
+              name: "Weekday yoga",
+              criteria: {
+                businessUnitIds: [1, 4128],
+                instructorIds: [21, 24],
+                activityTypeIds: [3392],
+              },
+            },
+            {
+              version: 1,
+              id: "unavailable-class",
+              name: "Old favorite class",
+              criteria: {
+                businessUnitIds: [1],
+                instructorIds: [99999],
+                activityTypeIds: [88888],
+              },
+            },
+          ],
+        }),
+      );
+    },
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      canvas.getByRole("button", { name: /open schedule filters|öppna schemafilter/i }),
+    );
+    await expect(canvas.getByText("Weekday yoga")).toBeInTheDocument();
+  },
 };
 export const NoSearchResults: Story = {
   play: async ({ canvasElement }) => {

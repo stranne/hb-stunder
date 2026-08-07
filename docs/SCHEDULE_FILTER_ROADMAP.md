@@ -76,18 +76,18 @@ This behavior must be made visible in the interface and tested before it is enab
 
 Use the product term **Saved searches** unless user testing identifies a clearer Swedish/English pair. Avoid exposing implementation terms such as templates or Boolean groups.
 
-- [ ] Define a versioned saved-search model with a stable ID, user-editable name, business-unit IDs, instructor IDs, and activity-type IDs.
-- [ ] Keep runtime matching logic separate from storage and UI code.
-- [ ] Add unit tests for empty categories, OR within categories, AND across categories, and one active saved search.
-- [ ] Initially store saved searches locally alongside schedule preferences, with migration and malformed-data handling.
-- [ ] Do not imply account synchronization while storage is local to one browser.
-- [ ] Let users create a saved search from the current filter selection.
-- [ ] Let users activate one saved search, replacing the current category selections in the first release.
-- [ ] Let users rename, edit, duplicate, and delete saved searches.
-- [ ] Prevent accidental overwriting: temporary changes to an activated saved search must not mutate its definition without an explicit save/update action.
-- [ ] Display each saved search's criteria in readable text, not only its name.
-- [ ] Provide useful empty, invalid-reference, duplicate-name, and storage-failure behavior.
-- [ ] Decide how deleted or unavailable instructor/product IDs are presented and cleaned up.
+- [x] Define a versioned saved-search model with a stable ID, user-editable name, business-unit IDs, instructor IDs, and activity-type IDs.
+- [x] Keep runtime matching logic separate from storage and UI code.
+- [x] Add unit tests for empty categories, OR within categories, AND across categories, and one active saved search.
+- [x] Initially store saved searches locally alongside schedule preferences, with migration and malformed-data handling.
+- [x] Do not imply account synchronization while storage is local to one browser.
+- [x] Let users create a saved search from the current filter selection.
+- [x] Let users activate one saved search, replacing the current category selections in the first release.
+- [x] Let users rename, edit, duplicate, and delete saved searches.
+- [x] Prevent accidental overwriting: temporary changes to an activated saved search must not mutate its definition without an explicit save/update action.
+- [x] Display each saved search's criteria in readable text, not only its name.
+- [x] Provide useful empty, invalid-reference, duplicate-name, and storage-failure behavior.
+- [x] Decide how deleted or unavailable instructor/product IDs are presented and cleaned up.
 
 ### 4. Integrate favorites without adding another mode
 
@@ -151,12 +151,14 @@ Once implementation begins, work through one complete numbered roadmap section (
 - Keep filter-view visibility in the URL. Opening and closing the editor create navigable history entries, while immediately applied refinements replace the current entry; Back/Forward restores both visibility and selections.
 - The current activity-type API data has business-unit availability but no stable, user-meaningful category metadata, so group activity types alphabetically.
 - Track this roadmap temporarily and delete it when the work is complete.
+- Saved-search names are trimmed, unique regardless of case, limited to 60 characters, and capped at 20 local searches per browser.
+- Keep unavailable saved-search references visible with their stored IDs once option loading succeeds, and offer an explicit cleanup action rather than silently changing the definition.
 
 ## Open decisions
 
 - [ ] Whether only one long browse section should be expanded at a time on small screens.
 - [x] Whether activity-type API metadata provides stable, user-meaningful grouping. It currently does not; use alphabetical groups.
 - [x] Exact navigation label and placement: use **Show schedule** in the existing sticky filter-toggle position.
-- [ ] Saved-search naming validation and maximum practical count.
+- [x] Saved-search naming validation and maximum practical count: require a case-insensitively unique name of 1–60 trimmed characters and cap local storage at 20 searches.
 - [ ] Whether saved searches eventually require account-backed synchronization.
 - [ ] Whether combined saved searches demonstrate enough real value to justify their added semantic and URL complexity.

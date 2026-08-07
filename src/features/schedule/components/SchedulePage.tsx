@@ -32,6 +32,7 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
   const stickyControlsRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const [areControlsElevated, setAreControlsElevated] = useState(false);
+  const [activeSavedSearchId, setActiveSavedSearchId] = useState<string>();
   const [favoriteFilters, setFavoriteFilters] = useState(() => {
     const { favoriteInstructorIds, favoriteActivityTypeIds } = readSchedulePreferences();
     return { favoriteInstructorIds, favoriteActivityTypeIds };
@@ -150,6 +151,8 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
           hasOptionsError={failedFilterQueries.length > 0}
           onRetryOptions={retryFilterOptions}
           onFavoriteFiltersChange={setFavoriteFilters}
+          activeSavedSearchId={activeSavedSearchId}
+          onActiveSavedSearchChange={setActiveSavedSearchId}
         />
       ) : (
         <>

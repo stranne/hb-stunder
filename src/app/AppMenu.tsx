@@ -5,6 +5,7 @@ import type { LoginCredentials } from "../features/auth/api/auth";
 import type { CustomerSession } from "../features/auth/sessionContext";
 import { SignInAction } from "../features/auth/SignInAction";
 import { Button } from "../ui/button/Button";
+import interactionStyles from "../ui/interaction/Interaction.module.css";
 import { supportedLanguages, type SupportedLanguage } from "../i18n";
 import styles from "./AppMenu.module.css";
 
@@ -49,7 +50,11 @@ export function AppMenu({ customer, canSignIn, onSignIn, onSignOut }: AppMenuPro
             <Label className={styles.sectionLabel}>{t("menu.language")}</Label>
             <div className={styles.options}>
               {supportedLanguages.map((supportedLanguage) => (
-                <Radio className={styles.option} key={supportedLanguage} value={supportedLanguage}>
+                <Radio
+                  className={`${styles.option} ${interactionStyles.control} ${interactionStyles.quiet} ${interactionStyles.selectable}`}
+                  key={supportedLanguage}
+                  value={supportedLanguage}
+                >
                   <span>{languageNames[supportedLanguage]}</span>
                   <span className={styles.check} aria-hidden="true">
                     <Check />

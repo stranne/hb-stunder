@@ -20,8 +20,22 @@
       background-color var(--motion-fast) var(--ease-out);
   }
 
-  .clickable:hover {
-    border-color: color-mix(in oklch, var(--color-accent) 45%, var(--color-border));
+  @media (hover: hover) {
+    .clickable:hover {
+      border-color: var(--color-interaction-border-hover);
+      background: var(--color-interaction-hover);
+    }
+
+    .card[data-started="true"].clickable:hover {
+      border-color: var(--color-border-strong);
+      background: color-mix(in oklch, var(--color-ink-muted) 7%, var(--color-surface));
+    }
+
+    .card[data-availability="booked"]:not([data-started="true"]).clickable:hover,
+    .card[data-availability="waitingListBooked"]:not([data-started="true"]).clickable:hover {
+      border-color: var(--color-interaction-border-hover);
+      background: color-mix(in oklch, var(--booking-state-background) 58%, var(--color-surface));
+    }
   }
 
   .clickable:has(.expand:focus-visible) {
@@ -130,11 +144,10 @@
     inline-size: 2rem;
     block-size: 2rem;
     padding: 0;
-    border: 0;
+    border: 1px solid transparent;
     border-radius: var(--radius-pill);
     color: var(--color-accent-strong);
     background: var(--color-surface-recessed);
-    cursor: pointer;
     transform: translateY(-50%);
   }
 

@@ -11,6 +11,7 @@ import {
 } from "react-aria-components";
 import { Button } from "../../../ui/button/Button";
 import { ErrorMessage } from "../../../ui/feedback/ErrorMessage";
+import interactionStyles from "../../../ui/interaction/Interaction.module.css";
 import type { ScheduleFilterOption } from "../api/scheduleFilterQueries";
 import {
   readSchedulePreferences,
@@ -130,7 +131,10 @@ function SearchableOptions({
         <h3 id={headingId}>{label}</h3>
       </div>
       <SearchField value={query} onChange={changeQuery} aria-label={searchLabel}>
-        <Input className={styles.searchInput} placeholder={searchLabel} />
+        <Input
+          className={`${styles.searchInput} ${interactionStyles.focusRing}`}
+          placeholder={searchLabel}
+        />
       </SearchField>
 
       {!query && favorites.length === 0 && !isBrowsing ? (
@@ -152,7 +156,10 @@ function SearchableOptions({
               {(query || isBrowsing) && <h4 className={styles.groupTitle}>{letter}</h4>}
               {group.map((option) => (
                 <div className={styles.optionRow} key={option.id}>
-                  <Checkbox className={styles.checkbox} value={String(option.id)}>
+                  <Checkbox
+                    className={`${styles.checkbox} ${interactionStyles.control} ${interactionStyles.quiet} ${interactionStyles.selectable}`}
+                    value={String(option.id)}
+                  >
                     {({ isSelected }) => (
                       <>
                         <span className={styles.checkboxBox} aria-hidden="true">
@@ -167,7 +174,7 @@ function SearchableOptions({
                       if (button) favoriteButtonRefs.current.set(option.id, button);
                       else favoriteButtonRefs.current.delete(option.id);
                     }}
-                    className={styles.starButton}
+                    className={`${styles.starButton} ${interactionStyles.control} ${interactionStyles.quiet}`}
                     isSelected={favoriteIds.includes(option.id)}
                     onChange={() => changeFavorite(option.id)}
                     aria-label={t(
@@ -191,7 +198,7 @@ function SearchableOptions({
       {!query && !isBrowsing ? (
         <AriaButton
           ref={browseButtonRef}
-          className={styles.disclosureButton}
+          className={`${styles.disclosureButton} ${interactionStyles.control} ${interactionStyles.secondary}`}
           onPress={() => setIsBrowsing(true)}
         >
           {t("schedule.filters.browseOptions")}
@@ -199,7 +206,7 @@ function SearchableOptions({
       ) : null}
       {!query && isBrowsing && visibleCount < sortedOptions.length ? (
         <AriaButton
-          className={styles.disclosureButton}
+          className={`${styles.disclosureButton} ${interactionStyles.control} ${interactionStyles.secondary}`}
           onPress={() => setVisibleCount((count) => count + BROWSE_CHUNK_SIZE)}
         >
           {t("schedule.filters.showMore", {
@@ -306,7 +313,7 @@ export function ScheduleFilterPanel({
             <div className={styles.summaryActions}>
               {hasSelectedFilters ? (
                 <AriaButton
-                  className={styles.iconButton}
+                  className={`${styles.iconButton} ${interactionStyles.control} ${interactionStyles.quiet}`}
                   aria-label={t("schedule.filters.clearFilters")}
                   onPress={clearFilters}
                 >
@@ -319,7 +326,7 @@ export function ScheduleFilterPanel({
             <div className={styles.chips}>
               {selectedLocations.map((location) => (
                 <AriaButton
-                  className={styles.chip}
+                  className={`${styles.chip} ${interactionStyles.control} ${interactionStyles.secondary}`}
                   key={`location-${location.id}`}
                   aria-label={t("schedule.filters.removeSelection", { name: location.name })}
                   onPress={() => removeLocation(location.id)}
@@ -331,7 +338,7 @@ export function ScheduleFilterPanel({
               ))}
               {selectedOptions.map((option) => (
                 <AriaButton
-                  className={styles.chip}
+                  className={`${styles.chip} ${interactionStyles.control} ${interactionStyles.secondary}`}
                   key={`${option.category}-${option.id}`}
                   aria-label={t("schedule.filters.removeSelection", { name: option.name })}
                   onPress={() =>
@@ -398,7 +405,7 @@ export function ScheduleFilterPanel({
             >
               {SCHEDULE_LOCATIONS.map((location) => (
                 <Checkbox
-                  className={styles.locationCheckbox}
+                  className={`${styles.locationCheckbox} ${interactionStyles.control} ${interactionStyles.secondary} ${interactionStyles.selectable}`}
                   key={location.id}
                   value={String(location.id)}
                 >

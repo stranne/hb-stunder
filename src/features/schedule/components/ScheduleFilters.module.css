@@ -48,23 +48,13 @@
     border-radius: var(--radius-sm);
   }
 
-  .filterToolbar > button[data-filters-open] {
-    color: var(--color-ink-inverse);
-    background: var(--color-accent);
-  }
-
-  .filterToolbar > button[data-filters-open] .count {
-    color: var(--color-accent-strong);
-    background: var(--color-surface);
-  }
-
   .datePickerInput {
     display: none;
     min-block-size: 2.5rem;
     min-inline-size: 8.5rem;
     max-inline-size: 10rem;
     padding: var(--space-1) var(--space-2);
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--color-control-border);
     border-radius: var(--radius-sm);
     color: var(--color-ink);
     background: var(--color-surface);
@@ -73,7 +63,7 @@
     cursor: pointer;
 
     &:hover {
-      border-color: color-mix(in oklch, var(--color-accent) 45%, transparent);
+      border-color: var(--color-interaction-border-hover);
     }
 
     &:focus-visible {
@@ -135,31 +125,11 @@
     gap: 0.1rem;
     min-block-size: 4.5rem;
     padding: var(--space-1) var(--space-2);
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--color-control-border);
     border-radius: var(--radius-sm);
     color: var(--color-ink);
-    background: var(--color-surface);
+    background: var(--color-control-surface);
     font: inherit;
-    cursor: pointer;
-    transition:
-      border-color var(--motion-fast) var(--ease-out),
-      background-color var(--motion-fast) var(--ease-out);
-
-    &:hover {
-      border-color: color-mix(in oklch, var(--color-accent) 55%, transparent);
-      background: var(--color-surface-recessed);
-    }
-
-    &:focus-visible {
-      outline: var(--focus-width) solid var(--color-focus);
-      outline-offset: var(--focus-offset);
-    }
-
-    &[aria-pressed="true"] {
-      border-color: var(--color-accent);
-      color: var(--color-ink-inverse);
-      background: var(--color-accent);
-    }
   }
 
   .dayButton[data-visible="false"] {

@@ -114,20 +114,6 @@
     block-size: 1rem;
   }
 
-  .chip[data-focus-visible] {
-    border-color: var(--color-error);
-    color: var(--color-error-strong);
-    background: var(--color-error-soft);
-  }
-
-  @media (hover: hover) {
-    .chip:hover {
-      border-color: var(--color-error);
-      color: var(--color-error-strong);
-      background: var(--color-error-soft);
-    }
-  }
-
   .locationSection,
   .selector {
     display: grid;
@@ -150,11 +136,6 @@
       block-size: 1.15rem;
       color: var(--color-ink-muted);
     }
-  }
-
-  .locationCheckbox[data-selected] {
-    border-color: var(--color-accent);
-    background: color-mix(in oklch, var(--color-accent) 12%, var(--color-surface));
   }
 
   .checkboxBox {
@@ -255,10 +236,13 @@
     }
 
     &[data-selected] {
+      border-color: var(--color-brass);
       color: var(--color-brass-strong);
+      background: var(--color-brass-soft);
+      box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--color-brass) 22%, transparent);
 
       svg {
-        fill: var(--color-brass-soft);
+        fill: color-mix(in oklch, var(--color-brass) 30%, transparent);
       }
     }
   }
@@ -274,17 +258,6 @@
     justify-self: start;
     border: 1px solid var(--color-border-strong);
     background: var(--color-surface);
-  }
-
-  .iconButton[data-focus-visible],
-  .disclosureButton[data-focus-visible],
-  .chip[data-focus-visible],
-  .locationCheckbox[data-focus-visible],
-  .checkbox[data-focus-visible],
-  .starButton[data-focus-visible],
-  .searchInput:focus-visible {
-    outline: var(--focus-width) solid var(--color-focus);
-    outline-offset: var(--focus-offset);
   }
 
   @media (width < 42rem) {

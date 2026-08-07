@@ -175,10 +175,10 @@
     inset-inline: var(--space-1);
     display: grid;
     overflow: hidden;
-    border: 1px solid color-mix(in oklch, var(--color-accent) 22%, var(--color-border));
+    border: 1px solid var(--color-interaction-border-hover);
     border-radius: var(--radius-sm);
     color: var(--color-accent-strong);
-    background: color-mix(in oklch, var(--color-accent) 18%, var(--color-surface));
+    background: var(--color-interaction-hover);
     box-shadow:
       0 0.3rem 0.65rem -0.4rem var(--color-shadow),
       inset 0 1px color-mix(in oklch, var(--color-surface) 70%, transparent);
@@ -221,11 +221,19 @@
     }
   }
 
-  .block:hover {
-    background: color-mix(in oklch, var(--color-accent) 28%, var(--color-surface));
-    box-shadow:
-      0 0.5rem 0.9rem -0.45rem var(--color-shadow),
-      inset 0 1px color-mix(in oklch, var(--color-surface) 75%, transparent);
+  @media (hover: hover) {
+    .block:hover {
+      border-color: var(--color-interaction-border-pressed);
+      background: var(--color-selected-surface-hover);
+      box-shadow:
+        0 0.5rem 0.9rem -0.45rem var(--color-shadow),
+        inset 0 1px color-mix(in oklch, var(--color-surface) 75%, transparent);
+    }
+
+    .block[data-started="true"]:hover {
+      border-color: var(--color-border-strong);
+      background: color-mix(in oklch, var(--color-ink-muted) 9%, var(--color-surface));
+    }
   }
 
   .block[data-started="true"] {
@@ -233,10 +241,6 @@
     color: var(--color-ink-muted);
     background: color-mix(in oklch, var(--color-surface-recessed) 75%, var(--color-surface));
     box-shadow: inset 0 1px color-mix(in oklch, var(--color-surface) 55%, transparent);
-  }
-
-  .block[data-started="true"]:hover {
-    background: var(--color-surface-recessed);
   }
 
   .block[data-started="true"] .blockDetails strong {
@@ -372,7 +376,7 @@
     inset-inline-end: var(--space-2);
     inline-size: 2rem;
     block-size: 2rem;
-    border: 0;
+    border: 1px solid transparent;
     border-radius: var(--radius-pill);
     background: var(--color-surface-recessed);
     font-size: 1.5rem;

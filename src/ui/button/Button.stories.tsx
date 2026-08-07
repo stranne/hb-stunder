@@ -12,5 +12,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Accent: Story = {};
+export const Secondary: Story = { args: { tone: "secondary" } };
 export const Quiet: Story = { args: { tone: "quiet" } };
+export const Danger: Story = { args: { children: "Cancel booking", tone: "danger" } };
 export const Disabled: Story = { args: { isDisabled: true } };

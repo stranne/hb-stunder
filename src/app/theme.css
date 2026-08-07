@@ -14,12 +14,36 @@
     --color-ink-inverse: oklch(98% 0.01 75deg);
     --color-accent: oklch(53% 0.13 165deg);
     --color-accent-strong: oklch(44% 0.12 165deg);
+    --color-accent-pressed: color-mix(in oklch, var(--color-accent-strong) 84%, var(--color-ink));
     --color-current-time: var(--color-accent-strong);
     --color-focus: oklch(58% 0.18 250deg);
     --color-surface-recessed: var(--color-surface-strong);
     --color-surface-elevated: var(--color-surface);
     --color-border: color-mix(in oklch, var(--color-ink) 10%, transparent);
     --color-border-strong: color-mix(in oklch, var(--color-ink) 20%, transparent);
+    --color-control-surface: var(--color-surface);
+    --color-control-border: var(--color-border-strong);
+    --color-interaction-hover: color-mix(in oklch, var(--color-accent) 7%, var(--color-surface));
+    --color-interaction-pressed: color-mix(in oklch, var(--color-accent) 13%, var(--color-surface));
+    --color-interaction-border-hover: color-mix(
+      in oklch,
+      var(--color-accent) 42%,
+      var(--color-border-strong)
+    );
+    --color-interaction-border-pressed: color-mix(
+      in oklch,
+      var(--color-accent) 62%,
+      var(--color-border-strong)
+    );
+    --color-selected-surface: color-mix(in oklch, var(--color-accent) 13%, var(--color-surface));
+    --color-selected-surface-hover: color-mix(
+      in oklch,
+      var(--color-accent) 19%,
+      var(--color-surface)
+    );
+    --color-selected-border: var(--color-accent);
+    --color-selected-keyline: color-mix(in oklch, var(--color-accent) 22%, transparent);
+    --color-selected-ink: var(--color-accent-strong);
     --color-brass: oklch(67% 0.08 85deg);
     --color-brass-strong: oklch(48% 0.08 85deg);
     --color-brass-soft: oklch(94% 0.035 85deg);

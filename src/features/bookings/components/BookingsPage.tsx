@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "../../../ui/button/Button";
 import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
 import { ErrorMessage } from "../../../ui/feedback/ErrorMessage";
+import { StatusLabel } from "../../../ui/status-label/StatusLabel";
 import { cancelGroupActivityBookingMutationOptions } from "../api/bookingMutations";
 import { customerGroupActivityBookingsQueryOptions } from "../api/bookingQueries";
 import type { GroupActivityBooking } from "../model/bookings";
@@ -86,9 +87,9 @@ export function BookingsPage({
                   {location ? <p className={styles.details}>{location}</p> : null}
                 </div>
                 <div className={styles.actions}>
-                  <span className={`${styles.status} ${isWaiting ? styles.waiting : ""}`}>
+                  <StatusLabel tone={isWaiting ? "warning" : "positive"}>
                     {t(isWaiting ? "bookings.waitingList" : "bookings.booked")}
-                  </span>
+                  </StatusLabel>
                   {isOrdinary && bookingId !== undefined && customerId ? (
                     <AsyncConfirmationAction
                       triggerLabel={t("schedule.cancellation.cancelBooking")}
@@ -101,7 +102,7 @@ export function BookingsPage({
                       errorMessage={t("bookings.cancellationError")}
                       onConfirm={() => cancellation.mutateAsync({ customerId, bookingId })}
                       focusFallbackRef={pageHeadingRef}
-                      tone="quiet"
+                      tone="danger"
                     />
                   ) : null}
                 </div>

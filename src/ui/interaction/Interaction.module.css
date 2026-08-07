@@ -1,0 +1,121 @@
+@layer components {
+  .control {
+    cursor: pointer;
+    transition:
+      color var(--motion-fast) var(--ease-out),
+      border-color var(--motion-fast) var(--ease-out),
+      background-color var(--motion-fast) var(--ease-out),
+      box-shadow var(--motion-fast) var(--ease-out);
+  }
+
+  .control:focus-visible,
+  .control[data-focus-visible],
+  .focusRing:focus-visible,
+  .focusRing[data-focus-visible] {
+    outline: var(--focus-width) solid var(--color-focus);
+    outline-offset: var(--focus-offset);
+  }
+
+  .control:disabled,
+  .control[data-disabled] {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  .primary {
+    border-color: transparent;
+    color: var(--color-ink-inverse);
+    background: var(--color-accent);
+  }
+
+  .primary[data-hovered]:not([data-disabled]) {
+    background: var(--color-accent-strong);
+  }
+
+  .primary:active:not(:disabled):not([data-disabled]),
+  .primary[data-pressed]:not([data-disabled]) {
+    background: var(--color-accent-pressed);
+  }
+
+  .secondary {
+    border-color: var(--color-control-border);
+    color: var(--color-ink);
+    background: var(--color-control-surface);
+  }
+
+  .quiet {
+    border-color: transparent;
+    color: var(--color-ink);
+    background: transparent;
+  }
+
+  .secondary[data-hovered]:not([data-disabled]),
+  .quiet[data-hovered]:not([data-disabled]) {
+    border-color: var(--color-interaction-border-hover);
+    background: var(--color-interaction-hover);
+  }
+
+  .secondary:active:not(:disabled):not([data-disabled]),
+  .secondary[data-pressed]:not([data-disabled]),
+  .quiet:active:not(:disabled):not([data-disabled]),
+  .quiet[data-pressed]:not([data-disabled]) {
+    border-color: var(--color-interaction-border-pressed);
+    background: var(--color-interaction-pressed);
+  }
+
+  .danger {
+    border-color: color-mix(in oklch, var(--color-error) 35%, var(--color-control-border));
+    color: var(--color-error-strong);
+    background: var(--color-error-soft);
+  }
+
+  .danger[data-hovered]:not([data-disabled]) {
+    border-color: var(--color-error);
+    background: color-mix(in oklch, var(--color-error) 20%, var(--color-surface));
+  }
+
+  .danger:active:not(:disabled):not([data-disabled]),
+  .danger[data-pressed]:not([data-disabled]) {
+    border-color: var(--color-error-strong);
+    background: color-mix(in oklch, var(--color-error) 27%, var(--color-surface));
+  }
+
+  .selectable[aria-current]:not([aria-current="false"]),
+  .selectable[aria-pressed="true"],
+  .selectable[data-selected],
+  .selectable[data-filters-open] {
+    border-color: var(--color-selected-border);
+    color: var(--color-selected-ink);
+    background: var(--color-selected-surface);
+    box-shadow: inset 0 0 0 1px var(--color-selected-keyline);
+  }
+
+  .selectable[data-selected][data-hovered]:not([data-disabled]),
+  .selectable[data-filters-open][data-hovered]:not([data-disabled]) {
+    border-color: var(--color-selected-border);
+    background: var(--color-selected-surface-hover);
+  }
+
+  @media (hover: hover) {
+    .primary:hover:not(:disabled):not([data-disabled]) {
+      background: var(--color-accent-strong);
+    }
+
+    .secondary:hover:not(:disabled):not([data-disabled]),
+    .quiet:hover:not(:disabled):not([data-disabled]) {
+      border-color: var(--color-interaction-border-hover);
+      background: var(--color-interaction-hover);
+    }
+
+    .danger:hover:not(:disabled):not([data-disabled]) {
+      border-color: var(--color-error);
+      background: color-mix(in oklch, var(--color-error) 20%, var(--color-surface));
+    }
+
+    .selectable[aria-current]:not([aria-current="false"]):hover:not([data-disabled]),
+    .selectable[aria-pressed="true"]:hover:not(:disabled):not([data-disabled]) {
+      border-color: var(--color-selected-border);
+      background: var(--color-selected-surface-hover);
+    }
+  }
+}

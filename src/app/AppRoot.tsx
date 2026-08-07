@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { bookingKeys } from "../features/bookings/api/bookingQueries";
 import { useSession } from "../features/auth/sessionContext";
 import { AppMenu } from "./AppMenu";
+import interactionStyles from "../ui/interaction/Interaction.module.css";
 import { parseScheduleSearch } from "../features/schedule/model/scheduleSearch";
 import styles from "./AppRoot.module.css";
 
@@ -38,6 +39,7 @@ export function AppRoot() {
           <nav className={styles.nav} aria-label={t("navigation.label")}>
             <a
               {...classesLinkProps}
+              className={`${interactionStyles.control} ${interactionStyles.quiet} ${interactionStyles.selectable}`}
               aria-current={
                 location.pathname === "/" && scheduleView === "classes" ? "page" : undefined
               }
@@ -47,6 +49,7 @@ export function AppRoot() {
             </a>
             <a
               {...roomsLinkProps}
+              className={`${interactionStyles.control} ${interactionStyles.quiet} ${interactionStyles.selectable}`}
               aria-current={
                 location.pathname === "/" && scheduleView === "rooms" ? "page" : undefined
               }
@@ -56,6 +59,7 @@ export function AppRoot() {
             </a>
             <a
               {...bookingsLinkProps}
+              className={`${interactionStyles.control} ${interactionStyles.quiet} ${interactionStyles.selectable}`}
               aria-current={location.pathname === "/bookings" ? "page" : undefined}
             >
               <CalendarCheck aria-hidden="true" />

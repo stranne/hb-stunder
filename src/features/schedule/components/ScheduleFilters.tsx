@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { Calendar, FilterList, NavArrowLeft, NavArrowRight } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../../ui/button/Button";
+import interactionStyles from "../../../ui/interaction/Interaction.module.css";
 import { addDays, todayInStockholm } from "../model/scheduleDate";
 import { LOCATION_IDS, type ScheduleSearch } from "../model/scheduleSearch";
 import styles from "./ScheduleFilters.module.css";
@@ -92,7 +93,7 @@ export function ScheduleFilters({
                   key={date}
                   ref={isSelected ? selectedDayRef : undefined}
                   type="button"
-                  className={styles.dayButton}
+                  className={`${styles.dayButton} ${interactionStyles.control} ${interactionStyles.secondary} ${interactionStyles.selectable}`}
                   data-visible={Math.floor(index / DAYS_PER_PAGE) === pageIndex}
                   tabIndex={isSelected ? 0 : -1}
                   aria-label={fullDateFormatter.format(formattedDate)}
@@ -162,6 +163,7 @@ export function ScheduleFilters({
           )}
           aria-expanded={isFiltersOpen}
           aria-controls="schedule-filter-panel"
+          className={interactionStyles.selectable}
           data-filters-open={isFiltersOpen || undefined}
           onPress={() => onFiltersOpenChange?.(!isFiltersOpen)}
         >

@@ -11,6 +11,7 @@ import { Calendar, Clock, MapPin, User, Xmark } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import type { GroupActivityBooking } from "../../bookings/model/bookings";
 import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
+import interactionStyles from "../../../ui/interaction/Interaction.module.css";
 import type { ActivityState, ScheduledActivity } from "../model/schedule";
 import { getActivityState } from "../model/schedule";
 import { todayInStockholm } from "../model/scheduleDate";
@@ -386,7 +387,7 @@ export function RoomCalendar({
             detail ? (
               <>
                 <button
-                  className={styles.close}
+                  className={`${styles.close} ${interactionStyles.control} ${interactionStyles.quiet}`}
                   type="button"
                   onClick={close}
                   aria-label={t("rooms.closeDetails")}
@@ -524,7 +525,7 @@ function RoomBookingAction({
         pendingMessage={t("schedule.cancellation.pending")}
         errorMessage={t("schedule.cancellation.error")}
         onConfirm={() => onCancel(bookingId)}
-        tone="quiet"
+        tone="danger"
         presentation="inline"
       />
     );

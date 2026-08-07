@@ -84,6 +84,21 @@ Reserve pills primarily for primary actions, compact statuses, and selected filt
 
 Aim for warm paper, limestone, plaster, tile, or mineral associations through color, restrained tonal variation, and line work. Avoid obvious texture images, spa clichés, gradients used only for luxury signaling, and decorative noise behind dense content.
 
+## Interaction language
+
+The adopted interaction direction is **quiet architectural states**: the same state uses the same cue, while different component roles may use different intensity.
+
+- Controls remain physically stationary. Hover and press use tonal surfaces and keylines rather than vertical transforms.
+- Hover uses a subtle accent wash and, where a boundary is visible, a stronger border. Press uses a slightly stronger version of the same treatment.
+- Selected, current, and open controls use a persistent soft accent surface, accent foreground, and a structural cue such as a keyline, check, or marker. Full accent fills are primarily reserved for primary actions.
+- Keyboard focus always uses the shared blue external ring and remains visible on top of selected or semantic states.
+- Destructive red is reserved for genuine cancellation and removal actions. It is not used as generic hover or focus feedback.
+- Availability and booking colors describe semantic status, not interaction. Status remains understandable through text and markers rather than color alone.
+- Past or otherwise muted schedule items retain their data-state treatment. If they remain interactive, hover and focus must still be visibly communicated; otherwise they must not show an interactive cursor.
+- Directional or state-explanatory motion, such as a disclosure arrow rotating, is allowed. Decorative control movement is not.
+
+The shared state colors live in `src/app/theme.css`; reusable control recipes live in `src/ui/interaction/Interaction.module.css`. New components should consume these tokens and recipes rather than defining page-specific hover, pressed, selected, focus, disabled, or destructive colors.
+
 ## Color status
 
 Color has deliberately not been redesigned yet. The current warm canvas, dark ink, green accent, semantic states, and blue focus color remain in place.

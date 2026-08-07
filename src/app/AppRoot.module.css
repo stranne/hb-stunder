@@ -28,6 +28,7 @@
     gap: var(--space-2);
     min-block-size: 2.5rem;
     padding: var(--space-2) var(--space-3);
+    border: 1px solid transparent;
     border-radius: var(--radius-sm);
     color: var(--color-ink-muted);
     font-size: var(--text-sm);
@@ -39,22 +40,6 @@
     inline-size: 1.15rem;
     block-size: 1.15rem;
     stroke-width: 1.7;
-  }
-
-  .nav a:hover,
-  .nav a:focus-visible {
-    color: var(--color-ink);
-    background: var(--color-surface-recessed);
-  }
-
-  .nav a[aria-current="page"] {
-    color: var(--color-accent-strong);
-    background: color-mix(in oklch, var(--color-accent) 12%, transparent);
-  }
-
-  .nav a:focus-visible {
-    outline: var(--focus-width) solid var(--color-focus);
-    outline-offset: var(--focus-offset);
   }
 
   .account {

@@ -1,6 +1,6 @@
 import { useRef, useState, type RefObject } from "react";
 import { Dialog, DialogTrigger, Heading, Modal } from "react-aria-components";
-import { Button } from "../button/Button";
+import { Button, type ButtonTone } from "../button/Button";
 import { ErrorMessage } from "../feedback/ErrorMessage";
 import styles from "./AsyncConfirmationAction.module.css";
 
@@ -15,7 +15,7 @@ export interface AsyncConfirmationActionProps {
   errorMessage: string;
   onConfirm: () => Promise<void>;
   focusFallbackRef?: RefObject<HTMLElement | null>;
-  tone?: "accent" | "quiet";
+  tone?: ButtonTone;
   presentation?: "modal" | "inline";
 }
 
@@ -67,7 +67,7 @@ export function AsyncConfirmationAction({
         <Button tone="quiet" isDisabled={isPending} onPress={() => closeConfirmation(close)}>
           {cancelLabel}
         </Button>
-        <Button isDisabled={isPending} onPress={() => void confirm(close)}>
+        <Button tone={tone} isDisabled={isPending} onPress={() => void confirm(close)}>
           {hasFailed ? retryLabel : confirmLabel}
         </Button>
       </div>

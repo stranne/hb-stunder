@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import type { GroupActivityBooking } from "../../bookings/model/bookings";
 import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
 import { StatusLabel } from "../../../ui/status-label/StatusLabel";
+import interactionStyles from "../../../ui/interaction/Interaction.module.css";
 import type { ScheduledActivity } from "../model/schedule";
 import { getActivityState } from "../model/schedule";
 import { ActivitySpotAvailability } from "./ActivitySpotAvailability";
@@ -204,7 +205,7 @@ export function GymClassCard({
         {hasDetails ? (
           <button
             type="button"
-            className={styles.expand}
+            className={`${styles.expand} ${interactionStyles.control} ${interactionStyles.quiet}`}
             aria-expanded={isExpanded}
             aria-controls={detailsId}
             onClick={() => setIsExpanded((expanded) => !expanded)}
@@ -301,7 +302,7 @@ export function GymClassCard({
             errorMessage={t("schedule.cancellation.error")}
             onConfirm={onCancel}
             focusFallbackRef={cardRef}
-            tone="quiet"
+            tone="danger"
           />
         ) : null}
       </div>

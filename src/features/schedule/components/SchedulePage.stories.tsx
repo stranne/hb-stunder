@@ -1,10 +1,11 @@
 import { useQueryClient } from "@tanstack/react-query";
 import type { Meta, StoryObj } from "@storybook/tanstack-react";
-import { delay, http, HttpResponse } from "msw";
+import { delay, http, HttpResponse, type RequestHandler } from "msw";
 import { useEffect, type ComponentProps } from "react";
 import { expect, within } from "storybook/test";
 import { API_BASE_URL } from "../../../api/client";
 import { scheduleForDate } from "../../../mocks/fixtures/schedule";
+import { handlers } from "../../../mocks/handlers";
 import { scheduleKeys } from "../api/scheduleQueries";
 import { SchedulePage } from "./SchedulePage";
 
@@ -13,6 +14,10 @@ const instructorEndpoint = `${API_BASE_URL}/services/groupactivityinstructors`;
 
 function mockSchedule(businessUnit: number) {
   return scheduleForDate("2026-07-28", businessUnit);
+}
+
+function withDefaultHandlers(...storyHandlers: RequestHandler[]) {
+  return { handlers: [...storyHandlers, ...handlers] };
 }
 
 function BackgroundRefreshDemo(props: ComponentProps<typeof SchedulePage>) {
@@ -127,19 +132,19 @@ export const Empty: Story = {
   args: {
     search: { date: "2026-07-29", locations: [1], instructors: [], activityTypes: [] },
   },
-  parameters: { msw: [http.get(endpoint, () => HttpResponse.json([]))] },
+  parameters: { msw: withDefaultHandlers(http.get(endpoint, () => HttpResponse.json([]))) },
 };
 
 export const PartialLocationError: Story = {
   parameters: {
-    msw: [
+    msw: withDefaultHandlers(
       http.get(endpoint, ({ params }) => {
         const businessUnit = Number(params.businessUnit);
         return businessUnit === 4128
           ? HttpResponse.json({ message: "Unavailable" }, { status: 503 })
           : HttpResponse.json(mockSchedule(businessUnit));
       }),
-    ],
+    ),
   },
 };
 
@@ -148,40 +153,42 @@ export const ApiError: Story = {
     search: { date: "2026-07-30", locations: [1], instructors: [], activityTypes: [] },
   },
   parameters: {
-    msw: [http.get(endpoint, () => HttpResponse.json({ message: "Unavailable" }, { status: 503 }))],
+    msw: withDefaultHandlers(
+      http.get(endpoint, () => HttpResponse.json({ message: "Unavailable" }, { status: 503 })),
+    ),
   },
 };
 
 export const FilterOptionsError: Story = {
   parameters: {
-    msw: [
+    msw: withDefaultHandlers(
       http.get(instructorEndpoint, () =>
         HttpResponse.json({ message: "Unavailable" }, { status: 503 }),
       ),
-    ],
+    ),
   },
 };
 
 export const SlowResponse: Story = {
   parameters: {
-    msw: [
+    msw: withDefaultHandlers(
       http.get(endpoint, async ({ params }) => {
         await delay(2_000);
         return HttpResponse.json(mockSchedule(Number(params.businessUnit)));
       }),
-    ],
+    ),
   },
 };
 
 export const BackgroundRefresh: Story = {
   render: (args) => <BackgroundRefreshDemo {...args} />,
   parameters: {
-    msw: [
+    msw: withDefaultHandlers(
       http.get(endpoint, async ({ params }) => {
         await delay(700);
         return HttpResponse.json(mockSchedule(Number(params.businessUnit)));
       }),
-    ],
+    ),
   },
 };
 

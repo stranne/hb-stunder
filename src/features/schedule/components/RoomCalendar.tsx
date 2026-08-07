@@ -287,6 +287,7 @@ export function RoomCalendar({
                   <div
                     className={styles.currentTimeLine}
                     style={currentTimeStyle}
+                    role={roomIndex === 0 ? "img" : undefined}
                     aria-label={
                       roomIndex === 0
                         ? t("rooms.currentTime", { time: timeLabel(now.toISOString(), locale) })

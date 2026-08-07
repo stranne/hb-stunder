@@ -337,5 +337,5 @@ export function GymClassCard({
 
 export function GymClassCardSkeleton() {
   const { t } = useTranslation();
-  return <div className={styles.skeleton} aria-label={t("schedule.loading")} />;
+  return <div className={styles.skeleton} role="status" aria-label={t("schedule.loading")} />;
 }

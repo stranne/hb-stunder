@@ -80,6 +80,7 @@ export function ScheduleFilters({
             className={styles.dayStrip}
             role="group"
             aria-label={t("schedule.filters.upcomingDays")}
+            tabIndex={0}
           >
             {visibleDates.map((date, index) => {
               const formattedDate = dateForFormatting(date);

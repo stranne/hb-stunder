@@ -100,6 +100,8 @@
     --color-brass: oklch(74% 0.08 85deg);
     --color-brass-strong: oklch(82% 0.07 85deg);
     --color-brass-soft: oklch(31% 0.035 85deg);
+    --color-positive: oklch(70% 0.09 155deg);
+    --color-positive-strong: oklch(80% 0.075 155deg);
     --color-shadow: oklch(5% 0.01 155deg / 35%);
   }
 

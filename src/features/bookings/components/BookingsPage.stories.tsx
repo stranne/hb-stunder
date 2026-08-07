@@ -1,13 +1,18 @@
 import type { Meta, StoryObj } from "@storybook/tanstack-react";
-import { delay, http, HttpResponse } from "msw";
+import { delay, http, HttpResponse, type RequestHandler } from "msw";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 import { API_BASE_URL } from "../../../api/client";
 import { mockCustomerBookings } from "../../../mocks/fixtures/bookings";
+import { handlers } from "../../../mocks/handlers";
 import { MOCK_CUSTOMER_ID } from "../../../mocks/mockSession";
 import { BookingsPage } from "./BookingsPage";
 
 const endpoint = `${API_BASE_URL}/customers/:customerId/bookings/groupactivities`;
 const cancellationEndpoint = `${endpoint}/:bookingId`;
+
+function withDefaultHandlers(...storyHandlers: RequestHandler[]) {
+  return { handlers: [...storyHandlers, ...handlers] };
+}
 
 function cancellationHandlers(fails = false) {
   let bookings = [...mockCustomerBookings];
@@ -33,7 +38,7 @@ const meta = {
   },
   parameters: {
     layout: "fullscreen",
-    msw: [http.get(endpoint, () => HttpResponse.json(mockCustomerBookings))],
+    msw: withDefaultHandlers(http.get(endpoint, () => HttpResponse.json(mockCustomerBookings))),
   },
 } satisfies Meta<typeof BookingsPage>;
 
@@ -43,7 +48,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 
 export const CancellationConfirmation: Story = {
-  parameters: { msw: cancellationHandlers() },
+  parameters: { msw: withDefaultHandlers(...cancellationHandlers()) },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const page = within(canvasElement.ownerDocument.body);
@@ -53,7 +58,7 @@ export const CancellationConfirmation: Story = {
 };
 
 export const CancellationError: Story = {
-  parameters: { msw: cancellationHandlers(true) },
+  parameters: { msw: withDefaultHandlers(...cancellationHandlers(true)) },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const page = within(canvasElement.ownerDocument.body);
@@ -64,7 +69,7 @@ export const CancellationError: Story = {
 };
 
 export const CancellationCompleted: Story = {
-  parameters: { msw: cancellationHandlers() },
+  parameters: { msw: withDefaultHandlers(...cancellationHandlers()) },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const page = within(canvasElement.ownerDocument.body);
@@ -84,22 +89,24 @@ export const SignedOut: Story = {
 };
 
 export const Empty: Story = {
-  parameters: { msw: [http.get(endpoint, () => HttpResponse.json([]))] },
+  parameters: { msw: withDefaultHandlers(http.get(endpoint, () => HttpResponse.json([]))) },
 };
 
 export const Loading: Story = {
   parameters: {
-    msw: [
+    msw: withDefaultHandlers(
       http.get(endpoint, async () => {
         await delay("infinite");
         return HttpResponse.json([]);
       }),
-    ],
+    ),
   },
 };
 
 export const Error: Story = {
   parameters: {
-    msw: [http.get(endpoint, () => HttpResponse.json({ message: "Unavailable" }, { status: 503 }))],
+    msw: withDefaultHandlers(
+      http.get(endpoint, () => HttpResponse.json({ message: "Unavailable" }, { status: 503 })),
+    ),
   },
 };

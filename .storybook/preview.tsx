@@ -82,8 +82,8 @@ const preview: Preview = {
     options: {
       storySort: { order: ["Application", "Features", "Design system"] },
     },
-    msw: handlers,
-    a11y: { test: "todo" },
+    msw: { handlers },
+    a11y: { test: "error" },
     viewport: {
       options: {
         mobile: {

@@ -121,6 +121,11 @@
     overflow-x: auto;
     padding: var(--focus-width);
     scrollbar-width: thin;
+
+    &:focus-visible {
+      outline: var(--focus-width) solid var(--color-focus);
+      outline-offset: var(--focus-offset);
+    }
   }
 
   .dayButton {

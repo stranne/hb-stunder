@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { Link, Outlet, useLocation } from "@tanstack/react-router";
+import { Outlet, useLinkProps, useLocation } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Calendar, CalendarCheck, ViewGrid } from "iconoir-react";
 import { useTranslation } from "react-i18next";
@@ -15,6 +15,15 @@ export function AppRoot() {
   const location = useLocation();
   const { customer, canSignIn, signIn, signOut } = useSession();
   const scheduleView = parseScheduleSearch(location.search).view;
+  const classesLinkProps = useLinkProps({
+    to: "/",
+    search: (previous) => ({ ...parseScheduleSearch(previous), view: "classes" }),
+  });
+  const roomsLinkProps = useLinkProps({
+    to: "/",
+    search: (previous) => ({ ...parseScheduleSearch(previous), view: "rooms" }),
+  });
+  const bookingsLinkProps = useLinkProps({ to: "/bookings" });
 
   const handleSignOut = () => {
     if (customer)
@@ -27,35 +36,31 @@ export function AppRoot() {
       <header className={styles.shellHeader}>
         <div className={styles.navigationBar}>
           <nav className={styles.nav} aria-label={t("navigation.label")}>
-            <Link
-              to="/"
-              search={(previous) => ({ ...parseScheduleSearch(previous), view: "classes" })}
-              activeOptions={{ exact: true }}
+            <a
+              {...classesLinkProps}
               aria-current={
                 location.pathname === "/" && scheduleView === "classes" ? "page" : undefined
               }
             >
               <Calendar aria-hidden="true" />
               <span>{t("navigation.classes")}</span>
-            </Link>
-            <Link
-              to="/"
-              search={(previous) => ({ ...parseScheduleSearch(previous), view: "rooms" })}
-              activeOptions={{ exact: true }}
+            </a>
+            <a
+              {...roomsLinkProps}
               aria-current={
                 location.pathname === "/" && scheduleView === "rooms" ? "page" : undefined
               }
             >
               <ViewGrid aria-hidden="true" />
               <span>{t("navigation.rooms")}</span>
-            </Link>
-            <Link
-              to="/bookings"
+            </a>
+            <a
+              {...bookingsLinkProps}
               aria-current={location.pathname === "/bookings" ? "page" : undefined}
             >
               <CalendarCheck aria-hidden="true" />
               <span>{t("navigation.bookings")}</span>
-            </Link>
+            </a>
           </nav>
           <div className={styles.account}>
             <AppMenu

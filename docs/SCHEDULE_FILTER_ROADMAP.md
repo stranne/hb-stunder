@@ -6,6 +6,8 @@ Temporary implementation roadmap for the next product focus. Keep this file trac
 
 Confirmed prototype: `Features/Schedule/Prototypes/Search-first filters` in Storybook establishes normal page scrolling, a removable active-selection summary with category icons and active business locations, favorites-first empty searches, explicit **Browse options**, alphabetical grouping, bounded **Show more** chunks, and checked selections that remain in browse and search results. The prototype is directional rather than a pixel-precise specification; preserve its information architecture while refining the production design.
 
+The first saved-search implementation is now considered an intermediate implementation, not the target interaction. Replace its permanently visible naming input and implicit active/modified state with the grouped-selection design in section 3. Do not polish the current interaction in place if that makes the underlying state model harder to remove.
+
 ## Outcome
 
 Make schedule filtering fast and understandable for both occasional and regular users:
@@ -13,36 +15,38 @@ Make schedule filtering fast and understandable for both occasional and regular 
 - Keep the existing business-unit selection, which already works well.
 - Replace the fragile virtualized lists and nested scrolling with a search-first, normally scrolling experience.
 - Make selected filters visible and easy to remove.
-- Let users save frequently used combinations as named saved searches.
-- Eventually let users combine saved searches without forcing ordinary users to understand a query builder.
+- Let users save the current combination from the selected-filter summary, using a naming dialog only when requested.
+- Represent an applied saved search as a visible, expandable named group in the selected-filter summary; no hidden “active” state.
+- Keep saved-search definitions flat. Eventually consider combining multiple named groups without allowing saved searches to contain other saved searches.
 - Keep favorites as shortcuts for constructing filters, not as a competing filter mode.
 
 ## Filtering semantics
 
-A saved search contains selections in up to three categories: business units, activity types, and instructors.
+A saved search is a flat snapshot containing selections in up to three categories: business units, activity types, and instructors.
 
 - Multiple values inside one category use **OR**.
 - Different populated categories inside one saved search use **AND**.
-- Multiple active saved searches use **OR**.
 - A category with no values does not restrict its saved search.
+- A saved search stores criteria only; it cannot contain or reference another saved search.
+- In the first grouped-selection release, only one saved group can be applied at a time and applying it replaces the ordinary current selection.
 
 Example:
 
 ```text
-(Drottningtorget AND (Hot yoga OR Yin yoga) AND Maya)
-OR
-(Haga AND Spinning AND (Mikael OR Anna))
+MyFilter = Drottningtorget AND (Hot yoga OR Yin yoga) AND Maya
 ```
 
 Dates and presentation modes such as class/room view remain outside saved searches unless later user feedback demonstrates a need to include them.
 
-Temporary refinements should, by default, narrow the combined saved-search result:
+The applied group is the source of truth and is active only while its named group is visibly present in the selected-filter summary. A direct criteria change outside the group's explicit edit flow detaches the selection from the saved search: keep the resulting criteria, but immediately remove the saved name rather than retaining a misleading active/modified state. Choosing **Edit saved search** instead creates an explicit draft and offers **Update**, **Save as new**, and **Cancel**.
+
+If multiple groups are later validated, they should be sibling groups joined with **OR**, never nested groups. Any temporary narrowing would be shown separately and use:
 
 ```text
 (saved search A OR saved search B) AND temporary refinements
 ```
 
-This behavior must be made visible in the interface and tested before it is enabled. Do not silently introduce ambiguous AND/OR behavior.
+Do not implement that expression until the relationship can be made visible and tested. Do not silently introduce ambiguous AND/OR behavior.
 
 ## Delivery plan
 
@@ -72,22 +76,37 @@ This behavior must be made visible in the interface and tested before it is enab
 - [x] Preserve selections when moving between the filter editor and schedule.
 - [x] Confirm browser Back/Forward behavior and URL behavior for opening and closing filters.
 
-### 3. Define and implement saved searches
+### 3. Replace the intermediate saved-search interaction
 
-Use the product term **Saved searches** unless user testing identifies a clearer Swedish/English pair. Avoid exposing implementation terms such as templates or Boolean groups.
+Use the product term **Saved searches** unless user testing identifies a clearer Swedish/English pair. Avoid exposing implementation terms such as templates, predicates, or Boolean groups.
 
-- [x] Define a versioned saved-search model with a stable ID, user-editable name, business-unit IDs, instructor IDs, and activity-type IDs.
-- [x] Keep runtime matching logic separate from storage and UI code.
-- [x] Add unit tests for empty categories, OR within categories, AND across categories, and one active saved search.
-- [x] Initially store saved searches locally alongside schedule preferences, with migration and malformed-data handling.
-- [x] Do not imply account synchronization while storage is local to one browser.
-- [x] Let users create a saved search from the current filter selection.
-- [x] Let users activate one saved search, replacing the current category selections in the first release.
-- [x] Let users rename, edit, duplicate, and delete saved searches.
-- [x] Prevent accidental overwriting: temporary changes to an activated saved search must not mutate its definition without an explicit save/update action.
-- [x] Display each saved search's criteria in readable text, not only its name.
-- [x] Provide useful empty, invalid-reference, duplicate-name, and storage-failure behavior.
-- [x] Decide how deleted or unavailable instructor/product IDs are presented and cleaned up.
+The persisted model, matching rules, migration handling, validation, and management operations already exist and should be retained where compatible. The current always-visible name input and implicit active/modified behavior are superseded.
+
+#### Saving from the current selection
+
+- [ ] Move **Save current selection** into the selected-filter summary, beside its other selection-level actions.
+- [ ] Hide or disable that action when the selection has no meaningful restriction to save.
+- [ ] Open a focused dialog only after the user chooses to save; do not reserve permanent space for a naming input.
+- [ ] In the dialog, show a compact criteria preview, validate the name, and provide explicit **Save** and **Cancel** actions.
+- [ ] After saving, represent the result as a named group in the selected-filter summary and announce success without moving focus unpredictably.
+
+#### Showing and applying saved searches
+
+- [ ] Do not render an empty **Saved searches** heading, panel, or placeholder when none exist. The summary's **Save current selection** action is sufficient discovery for the empty state.
+- [ ] Once at least one exists, show a compact saved-search picker/library near the selected-filter summary; keep management secondary to applying a search.
+- [ ] Applying a saved search replaces the ordinary current selection in this release and inserts one visibly named, expandable group such as **MyFilter** into the selected-filter summary.
+- [ ] The collapsed group shows its name and a concise criteria/count summary. Expanding it shows category-labelled criteria and actions to remove, edit, rename, duplicate, or delete it.
+- [ ] Removing the group clears its applied criteria. Deleting its stored definition requires confirmation and must clearly state what happens to the current selection.
+- [ ] Never track an applied saved search only through styling, a hidden ID, or wording elsewhere in the panel. If the named group is not visible, it is not active.
+
+#### Editing without misleading provenance
+
+- [ ] A direct filter change outside explicit group editing detaches the applied group immediately: preserve the resulting current criteria, remove the saved name, and leave the stored definition unchanged.
+- [ ] **Edit saved search** starts a clearly labelled draft based on that group's definition; changes do not write to storage until **Update** is chosen.
+- [ ] Offer **Save as new** from the edit flow. **Cancel** restores the applied stored definition.
+- [ ] Do not use a persistent “active but modified” state. If an unsaved edit marker is needed inside the explicit edit flow, label it as an editing draft and keep the available resolution actions adjacent.
+- [ ] Retain readable invalid-reference and storage-failure handling, duplicate-name validation, explicit cleanup of unavailable IDs, and the existing local-only storage disclosure.
+- [ ] Add/update model, component, and Storybook coverage for create-dialog cancellation and validation, no-saved-search state, collapsed/expanded applied group, detachment on direct change, update, save-as-new, delete, unavailable criteria, and storage failure.
 
 ### 4. Integrate favorites without adding another mode
 
@@ -97,18 +116,21 @@ Use the product term **Saved searches** unless user testing identifies a clearer
 - [x] Evaluate whether “recently used” adds enough value after saved searches exist; do not add it by default.
 - [x] Reassess the prominence of favorites after saved searches are usable, since saved searches may satisfy most repeat workflows.
 
-### 5. Evaluate combining saved searches
+### 5. Evaluate combining and portability only after the redesign
 
-Do this only after the single-active-search workflow is stable and understandable.
+Do this only after one visible saved group is stable and understandable. Neither multi-group composition nor import/export belongs in the saved-search redesign milestone.
 
-- [ ] Prototype selecting multiple saved-search cards/chips.
-- [ ] Show the **OR** relationship explicitly in the active-search summary.
+- [ ] Test whether users actually need multiple applied groups rather than quickly switching between saved searches.
+- [ ] If needed, prototype multiple sibling named groups in the selected-filter summary and show the **OR** relationship explicitly.
+- [ ] Never allow a saved search to include another saved search. One level of sibling groups is the maximum hierarchy; this prevents cycles, broken transitive references, confusing updates, and hard-to-explain URLs.
 - [ ] Fetch the union of required business-unit schedules, deduplicate activities, and apply each complete saved-search predicate independently.
-- [ ] Add unit tests proving that criteria from separate groups cannot incorrectly cross-match. For example, Maya at Haga must not match merely because one active group contains Maya and another contains Haga.
-- [ ] Define whether manual selections replace active searches or appear in a separately labelled **Narrow results** area.
+- [ ] Add unit tests proving that criteria from separate groups cannot incorrectly cross-match. For example, Maya at Haga must not match merely because one group contains Maya and another contains Haga.
+- [ ] Decide whether manual selections replace named groups or appear in a separately labelled **Narrow results** area.
 - [ ] If temporary narrowing is adopted, test `(group A OR group B) AND refinement` for every category.
 - [ ] Keep a simple one-search path obvious; advanced combinations must not turn the default interface into a visual query builder.
-- [ ] Decide how active groups and temporary refinements are represented in shareable URL state without creating excessively long or unstable URLs.
+- [ ] Decide how named groups and temporary refinements are represented in shareable URL state without creating excessively long or unstable URLs.
+- [ ] Revisit export only when there is evidence that browser-local backup or transfer is needed. Prefer a versioned, human-readable file containing flat definitions.
+- [ ] Consider import only together with schema validation, duplicate-name handling, limits, malformed/unknown-version errors, and an explicit preview before writing. Do not add import merely because export exists.
 
 ### 6. Validation and cleanup
 
@@ -128,9 +150,9 @@ Do this only after the single-active-search workflow is stable and understandabl
 2. Replace virtualization and nested scrolling, including tests and stories.
 3. Improve active-selection summary and schedule-return behavior.
 4. Add the saved-search model, persistence, and matching tests.
-5. Add create/edit/activate/delete saved-search UI.
-6. Review favorites and polish the single-search experience.
-7. Prototype and, only if still worthwhile, implement multi-search OR behavior and temporary narrowing.
+5. Replace the intermediate saved-search UI with save-on-request and a visible expandable named group.
+6. Review favorites and polish the single-group experience, including detachment and explicit editing.
+7. Prototype and, only if still worthwhile, implement sibling-group OR behavior, temporary narrowing, or portability.
 8. Complete accessibility, responsive, translation, and cleanup review; remove this roadmap.
 
 Once implementation begins, work through one complete numbered roadmap section (or another explicitly agreed coherent milestone) per session rather than treating individual checkboxes as session-sized tasks. Each session should leave production behavior complete and tested rather than landing half-connected UI and model changes.
@@ -145,7 +167,7 @@ Once implementation begins, work through one complete numbered roadmap section (
 - Prefer search plus progressive browsing over numbered pagination.
 - Prefer normal page scrolling over virtualized inner lists.
 - Favorites are construction shortcuts; saved searches preserve combinations.
-- Introduce one active saved search before multi-search OR combinations.
+- Introduce one visibly applied saved group before considering multi-group OR combinations; avoid “active” state that is not represented in the selection summary.
 - Keep dates and schedule view outside saved searches initially.
 - Use **Show schedule** for the open filter toggle. Keep it in the existing sticky toolbar on mobile rather than adding a second full-width sticky action that would obscure filter content.
 - Keep filter-view visibility in the URL. Opening and closing the editor create navigable history entries, while immediately applied refinements replace the current entry; Back/Forward restores both visibility and selections.
@@ -155,6 +177,11 @@ Once implementation begins, work through one complete numbered roadmap section (
 - Keep unavailable saved-search references visible with their stored IDs once option loading succeeds, and offer an explicit cleanup action rather than silently changing the definition.
 - Keep favorites prominent only inside the instructor and activity-type selectors as empty-search shortcuts. Saved searches remain the higher-level repeat-workflow feature; favorites do not get a separate mode or top-level section.
 - Do not add recently used options. Saved searches and explicit favorites cover repeat workflows without introducing implicit history, additional storage semantics, or another ordering rule.
+- Put **Save current selection** inside the selected-filter summary and ask for a name in a dialog only after the action is invoked.
+- Render no saved-search library or empty-state panel until at least one saved search exists.
+- An applied saved search is a visible, expandable named group. Direct changes outside explicit editing detach it to an ordinary selection instead of leaving it “active but modified.”
+- Saved-search definitions are flat snapshots. Do not permit saved searches within saved searches; any future composition is limited to one level of sibling groups.
+- Defer import/export until the redesigned single-group workflow is validated and a concrete portability need exists.
 
 ## Open decisions
 
@@ -163,4 +190,5 @@ Once implementation begins, work through one complete numbered roadmap section (
 - [x] Exact navigation label and placement: use **Show schedule** in the existing sticky filter-toggle position.
 - [x] Saved-search naming validation and maximum practical count: require a case-insensitively unique name of 1–60 trimmed characters and cap local storage at 20 searches.
 - [ ] Whether saved searches eventually require account-backed synchronization.
-- [ ] Whether combined saved searches demonstrate enough real value to justify their added semantic and URL complexity.
+- [ ] Whether combined sibling saved searches demonstrate enough real value to justify their added semantic and URL complexity.
+- [ ] Whether users need export for browser-local backup or transfer before account synchronization exists; import remains dependent on a safe preview and conflict-resolution design.

@@ -189,6 +189,22 @@ describe("RoomCalendar", () => {
     expect(within(screen.getByRole("dialog")).queryByRole("button", { name: "Book" })).toBeNull();
   });
 
+  it("shows how many people are queued when an activity is fully booked", () => {
+    render(
+      <RoomCalendar
+        date="2026-07-28"
+        activities={[scheduleFixtures.waitingList]}
+        bookingsByActivity={new Map()}
+        onBook={async () => undefined}
+        onCancel={async () => undefined}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Yinyoga/ }));
+    const details = within(screen.getByRole("dialog"));
+    expect(details.getByText("0 of 20 spots available, 3 in queue")).toBeTruthy();
+  });
+
   it("shows spot and class information without a redundant availability label", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-07-28T05:00:00.000Z"));

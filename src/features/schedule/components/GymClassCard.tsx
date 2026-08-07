@@ -321,6 +321,7 @@ export function GymClassCard({
             available={leftToBook}
             total={totalBookable}
             hasStarted={hasStarted}
+            waitingCount={waitingCount}
           />
           {internalMessage ? (
             <section className={styles.message} data-message-type="internal">

@@ -7,6 +7,7 @@ export interface ActivitySpotAvailabilityProps {
   available?: number;
   total?: number;
   hasStarted?: boolean;
+  waitingCount?: number;
   presentation?: "details" | "edge";
   className?: string;
 }
@@ -16,6 +17,7 @@ export function ActivitySpotAvailability({
   available,
   total,
   hasStarted = false,
+  waitingCount,
   presentation = "details",
   className,
 }: ActivitySpotAvailabilityProps) {
@@ -23,7 +25,10 @@ export function ActivitySpotAvailability({
   if (available === undefined || total === undefined) return null;
 
   const ratio = total > 0 ? Math.max(0, Math.min(1, available / total)) : 0;
-  const label = t("schedule.details.spots", { available, total });
+  const showWaitingCount = available === 0 && waitingCount !== undefined;
+  const label = showWaitingCount
+    ? t("schedule.details.spotsWithQueue", { available, total, count: waitingCount })
+    : t("schedule.details.spots", { available, total });
 
   return (
     <div

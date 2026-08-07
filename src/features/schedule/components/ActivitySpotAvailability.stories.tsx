@@ -43,3 +43,5 @@ export const Edge: Story = {
   ],
 };
 export const Full: Story = { args: { available: 0 } };
+export const FullWithEmptyQueue: Story = { args: { available: 0, waitingCount: 0 } };
+export const FullWithQueue: Story = { args: { available: 0, waitingCount: 12 } };

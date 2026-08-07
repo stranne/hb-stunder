@@ -68,7 +68,9 @@
       "durationMinutes": "{{count}} min",
       "durationHours_one": "{{duration}} timme",
       "durationHours_other": "{{duration}} timmar",
-      "spots": "{{available}} av {{total}} platser tillgängliga"
+      "spots": "{{available}} av {{total}} platser tillgängliga",
+      "spotsWithQueue_one": "{{available}} av {{total}} platser tillgängliga, {{count}} i kö",
+      "spotsWithQueue_other": "{{available}} av {{total}} platser tillgängliga, {{count}} i kö"
     },
     "information": {
       "title": "Klassinformation",

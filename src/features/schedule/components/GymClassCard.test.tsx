@@ -191,7 +191,7 @@ describe("GymClassCard", () => {
 
     expect(screen.getByText("0 in queue")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Show details" }));
-    expect(screen.getByText("0 of 20 spots available")).toBeTruthy();
+    expect(screen.getByText("0 of 20 spots available, 0 in queue")).toBeTruthy();
     expect(container.querySelector("[data-spot-availability]")).toBeTruthy();
   });
 

@@ -74,6 +74,19 @@ export const ActivityDetails: Story = {
     ).not.toBeInTheDocument();
   },
 };
+export const FullyBookedActivityDetails: Story = {
+  args: { activities: [scheduleFixtures.waitingList], customerId: "900001" },
+  play: async ({ canvasElement }) => {
+    await userEvent.click(
+      await within(canvasElement).findByRole("button", {
+        name: /^Öppna detaljer för Yinyoga, 55 min, /,
+      }),
+    );
+    await expect(
+      within(canvasElement.ownerDocument.body).getByText(/3 (in queue|i kö)/),
+    ).toBeVisible();
+  },
+};
 export const ActivityDetailsWithMultipleBusinessUnits: Story = {
   args: { includeBusinessUnitName: true },
   play: async ({ canvasElement }) => {

@@ -361,6 +361,7 @@ export function RoomCalendar({
                           available={activityState.leftToBook}
                           total={activityState.totalBookable}
                           hasStarted={hasStarted}
+                          waitingCount={item.activity.slots?.inWaitingList}
                           presentation="edge"
                         />
                       </div>
@@ -475,6 +476,7 @@ function RoomActivityInformation({
         available={activityState.leftToBook}
         total={activityState.totalBookable}
         hasStarted={activityState.hasStarted}
+        waitingCount={activity.slots?.inWaitingList}
       />
       {externalMessage ? (
         <section className={styles.message} data-message-type="external">

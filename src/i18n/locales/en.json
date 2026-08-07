@@ -68,7 +68,9 @@
       "durationMinutes": "{{count}} min",
       "durationHours_one": "{{duration}} hour",
       "durationHours_other": "{{duration}} hours",
-      "spots": "{{available}} of {{total}} spots available"
+      "spots": "{{available}} of {{total}} spots available",
+      "spotsWithQueue_one": "{{available}} of {{total}} spots available, {{count}} in queue",
+      "spotsWithQueue_other": "{{available}} of {{total}} spots available, {{count}} in queue"
     },
     "information": {
       "title": "Class information",

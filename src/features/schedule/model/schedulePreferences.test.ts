@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
-import { readSchedulePreferencesResult, writeSavedSearches } from "./schedulePreferences";
+import { readSchedulePreferencesResult, writeFavoriteFilters } from "./schedulePreferences";
 
 const storageKey = "hb-stunder.schedule-preferences";
 
@@ -28,65 +28,35 @@ describe("schedule preferences", () => {
         favoriteInstructorIds: [2],
         favoriteActivityTypeIds: [3],
         lastUsed: { locations: [1], instructors: [2], activityTypes: [3] },
-        savedSearches: [],
       },
     });
   });
 
-  it("retains valid searches and reports malformed stored entries", () => {
+  it("ignores saved searches left by an earlier application version", () => {
     window.localStorage.setItem(
       storageKey,
       JSON.stringify({
         version: 2,
-        favoriteInstructorIds: [],
-        favoriteActivityTypeIds: [],
-        savedSearches: [
-          {
-            version: 1,
-            id: "valid",
-            name: " Yoga ",
-            criteria: { businessUnitIds: [1, 1], instructorIds: [2], activityTypeIds: [3] },
-          },
-          { id: "broken" },
-        ],
+        favoriteInstructorIds: [2],
+        favoriteActivityTypeIds: [3],
+        savedSearches: [{ id: "old-search" }],
       }),
     );
 
-    const result = readSchedulePreferencesResult();
-    expect(result.issue).toBe("malformed");
-    expect(result.preferences.savedSearches).toEqual([
-      {
-        version: 1,
-        id: "valid",
-        name: "Yoga",
-        criteria: { businessUnitIds: [1], instructorIds: [2], activityTypeIds: [3] },
+    expect(readSchedulePreferencesResult()).toEqual({
+      preferences: {
+        version: 2,
+        favoriteInstructorIds: [2],
+        favoriteActivityTypeIds: [3],
       },
-    ]);
+    });
   });
 
-  it("rejects malformed wildcard criteria and does not overwrite newer versions", () => {
-    window.localStorage.setItem(
-      storageKey,
-      JSON.stringify({
-        version: 2,
-        savedSearches: [
-          {
-            version: 1,
-            id: "unsafe",
-            name: "Unsafe wildcard",
-            criteria: { businessUnitIds: [1] },
-          },
-        ],
-      }),
-    );
-    expect(readSchedulePreferencesResult()).toMatchObject({
-      issue: "malformed",
-      preferences: { savedSearches: [] },
-    });
-
+  it("does not overwrite preferences from a newer application version", () => {
     const newerPayload = JSON.stringify({ version: 99, futurePreferences: true });
     window.localStorage.setItem(storageKey, newerPayload);
-    expect(writeSavedSearches([])).toBe(false);
+
+    expect(writeFavoriteFilters([], [])).toBe(false);
     expect(window.localStorage.getItem(storageKey)).toBe(newerPayload);
   });
 
@@ -95,6 +65,6 @@ describe("schedule preferences", () => {
       throw new DOMException("Quota exceeded", "QuotaExceededError");
     });
 
-    expect(writeSavedSearches([])).toBe(false);
+    expect(writeFavoriteFilters([], [])).toBe(false);
   });
 });

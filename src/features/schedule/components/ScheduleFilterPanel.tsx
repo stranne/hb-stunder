@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
-import { Check, EditPencil, Erase, Gym, MapPin, Star, User, Xmark } from "iconoir-react";
+import { Check, Erase, Gym, MapPin, Star, User, Xmark } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import {
   Button as AriaButton,
@@ -12,7 +12,6 @@ import {
 import { Button } from "../../../ui/button/Button";
 import { ErrorMessage } from "../../../ui/feedback/ErrorMessage";
 import type { ScheduleFilterOption } from "../api/scheduleFilterQueries";
-import { SavedSearches } from "./SavedSearches";
 import {
   readSchedulePreferences,
   writeFavoriteFilters,
@@ -227,11 +226,6 @@ export function ScheduleFilterPanel({
   const selectionHeadingId = useId();
   const locationHeadingId = useId();
   const preferences = readSchedulePreferences();
-  const [saveActionHost, setSaveActionHost] = useState<HTMLDivElement | null>(null);
-  const [savedSearchLibraryHost, setSavedSearchLibraryHost] = useState<HTMLDivElement | null>(null);
-  const [savedSearchEditorActionHost, setSavedSearchEditorActionHost] =
-    useState<HTMLDivElement | null>(null);
-  const [editingSavedSearchName, setEditingSavedSearchName] = useState<string>();
   const [favoriteInstructorIds, setFavoriteInstructorIds] = useState(
     preferences.favoriteInstructorIds,
   );
@@ -310,7 +304,6 @@ export function ScheduleFilterPanel({
           <div className={styles.summaryHeading}>
             <h3 id={selectionHeadingId}>{t("schedule.filters.selectedFilters")}</h3>
             <div className={styles.summaryActions}>
-              <div ref={setSaveActionHost} />
               {hasSelectedFilters ? (
                 <AriaButton
                   className={styles.iconButton}
@@ -366,39 +359,9 @@ export function ScheduleFilterPanel({
           ) : (
             <p>{t("schedule.filters.noSelectedFilters")}</p>
           )}
-          <SavedSearches
-            search={search}
-            onChange={onChange}
-            instructors={instructors}
-            activityTypes={activityTypes}
-            canValidateReferences={!isLoadingOptions && !hasOptionsError}
-            onEditingChange={setEditingSavedSearchName}
-            saveActionContainer={saveActionHost}
-            libraryContainer={savedSearchLibraryHost}
-            editorActionContainer={savedSearchEditorActionHost}
-          />
         </section>
 
-        <div className={styles.savedSearchLibrary} ref={setSavedSearchLibraryHost} />
-
-        <div
-          id="saved-search-criteria"
-          className={styles.criteriaArea}
-          data-editing={editingSavedSearchName !== undefined || undefined}
-          tabIndex={-1}
-        >
-          {editingSavedSearchName !== undefined ? (
-            <div className={styles.criteriaEditingHeading}>
-              <EditPencil aria-hidden="true" />
-              <div>
-                <h3>
-                  {t("schedule.savedSearches.criteriaTitle", { name: editingSavedSearchName })}
-                </h3>
-                <p>{t("schedule.savedSearches.criteriaInstructions")}</p>
-              </div>
-            </div>
-          ) : null}
-
+        <div className={styles.filterFields}>
           {isLoadingOptions ? (
             <p className={styles.loading} role="status">
               {t("schedule.filters.loadingOptions")}
@@ -476,8 +439,6 @@ export function ScheduleFilterPanel({
               onFavoriteChange={setFavoriteActivityTypeIds}
             />
           </div>
-
-          <div ref={setSavedSearchEditorActionHost} />
         </div>
       </div>
     </section>

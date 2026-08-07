@@ -17,6 +17,7 @@
   .notice,
   .library p,
   .editor p,
+  .editorActions p,
   .confirmation p {
     margin: 0;
     font-size: var(--text-sm);
@@ -140,6 +141,7 @@
   }
 
   .editor,
+  .editorActions,
   .confirmation,
   .saveDialog form {
     display: grid;
@@ -167,6 +169,28 @@
       background: var(--color-surface);
       font: inherit;
     }
+  }
+
+  .criteriaLink {
+    display: inline-flex;
+    min-block-size: 2.75rem;
+    align-items: center;
+    justify-self: start;
+    padding: 0;
+    border: 0;
+    color: var(--color-accent-strong);
+    background: transparent;
+    font: inherit;
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .editorActions {
+    padding: var(--space-4);
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-sm);
+    background: color-mix(in oklch, var(--color-accent) 7%, var(--color-surface));
   }
 
   .criteriaPreview {
@@ -236,6 +260,7 @@
   .iconAction[data-focus-visible],
   .inlineAction[data-focus-visible],
   .applyAction[data-focus-visible],
+  .criteriaLink[data-focus-visible],
   .editor input:focus-visible,
   .saveDialog input:focus-visible {
     outline: var(--focus-width) solid var(--color-focus);

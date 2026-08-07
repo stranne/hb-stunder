@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
-import { Check, Erase, Gym, MapPin, Star, User, Xmark } from "iconoir-react";
+import { Check, EditPencil, Erase, Gym, MapPin, Star, User, Xmark } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import {
   Button as AriaButton,
@@ -229,6 +229,9 @@ export function ScheduleFilterPanel({
   const preferences = readSchedulePreferences();
   const [saveActionHost, setSaveActionHost] = useState<HTMLDivElement | null>(null);
   const [savedSearchLibraryHost, setSavedSearchLibraryHost] = useState<HTMLDivElement | null>(null);
+  const [savedSearchEditorActionHost, setSavedSearchEditorActionHost] =
+    useState<HTMLDivElement | null>(null);
+  const [editingSavedSearchName, setEditingSavedSearchName] = useState<string>();
   const [favoriteInstructorIds, setFavoriteInstructorIds] = useState(
     preferences.favoriteInstructorIds,
   );
@@ -369,89 +372,112 @@ export function ScheduleFilterPanel({
             instructors={instructors}
             activityTypes={activityTypes}
             canValidateReferences={!isLoadingOptions && !hasOptionsError}
+            onEditingChange={setEditingSavedSearchName}
             saveActionContainer={saveActionHost}
             libraryContainer={savedSearchLibraryHost}
+            editorActionContainer={savedSearchEditorActionHost}
           />
         </section>
 
         <div className={styles.savedSearchLibrary} ref={setSavedSearchLibraryHost} />
 
-        {isLoadingOptions ? (
-          <p className={styles.loading} role="status">
-            {t("schedule.filters.loadingOptions")}
-          </p>
-        ) : null}
-        {hasOptionsError ? (
-          <ErrorMessage
-            action={
-              <Button tone="quiet" onPress={onRetryOptions}>
-                {t("schedule.filters.retryOptions")}
-              </Button>
-            }
-          >
-            {t("schedule.filters.optionsError")}
-          </ErrorMessage>
-        ) : null}
+        <div
+          id="saved-search-criteria"
+          className={styles.criteriaArea}
+          data-editing={editingSavedSearchName !== undefined || undefined}
+          tabIndex={-1}
+        >
+          {editingSavedSearchName !== undefined ? (
+            <div className={styles.criteriaEditingHeading}>
+              <EditPencil aria-hidden="true" />
+              <div>
+                <h3>
+                  {t("schedule.savedSearches.criteriaTitle", { name: editingSavedSearchName })}
+                </h3>
+                <p>{t("schedule.savedSearches.criteriaInstructions")}</p>
+              </div>
+            </div>
+          ) : null}
 
-        <section className={styles.locationSection} aria-labelledby={locationHeadingId}>
-          <div className={styles.sectionHeading}>
-            <MapPin aria-hidden="true" />
-            <h3 id={locationHeadingId}>{t("schedule.filters.location")}</h3>
+          {isLoadingOptions ? (
+            <p className={styles.loading} role="status">
+              {t("schedule.filters.loadingOptions")}
+            </p>
+          ) : null}
+          {hasOptionsError ? (
+            <ErrorMessage
+              action={
+                <Button tone="quiet" onPress={onRetryOptions}>
+                  {t("schedule.filters.retryOptions")}
+                </Button>
+              }
+            >
+              {t("schedule.filters.optionsError")}
+            </ErrorMessage>
+          ) : null}
+
+          <section className={styles.locationSection} aria-labelledby={locationHeadingId}>
+            <div className={styles.sectionHeading}>
+              <MapPin aria-hidden="true" />
+              <h3 id={locationHeadingId}>{t("schedule.filters.location")}</h3>
+            </div>
+            <CheckboxGroup
+              className={styles.locationOptions}
+              aria-label={t("schedule.filters.location")}
+              value={search.locations.map(String)}
+              onChange={(values) => {
+                const selected = values.map(Number);
+                changeOrdinaryFilters({
+                  ...search,
+                  locations: selected.length > 0 ? selected : [...LOCATION_IDS],
+                });
+              }}
+            >
+              {SCHEDULE_LOCATIONS.map((location) => (
+                <Checkbox
+                  className={styles.locationCheckbox}
+                  key={location.id}
+                  value={String(location.id)}
+                >
+                  {({ isSelected }) => (
+                    <>
+                      <span className={styles.checkboxBox} aria-hidden="true">
+                        {isSelected ? <Check /> : null}
+                      </span>
+                      {location.name}
+                    </>
+                  )}
+                </Checkbox>
+              ))}
+            </CheckboxGroup>
+          </section>
+
+          <div className={styles.selectors}>
+            <SearchableOptions
+              label={t("schedule.filters.instructor")}
+              icon={<User aria-hidden="true" />}
+              searchLabel={t("schedule.filters.searchInstructors")}
+              emptyLabel={t("schedule.filters.noInstructors")}
+              options={instructors}
+              selectedIds={search.instructors}
+              favoriteIds={favoriteInstructorIds}
+              onSelectedChange={(ids) => changeOrdinaryFilters({ ...search, instructors: ids })}
+              onFavoriteChange={setFavoriteInstructorIds}
+            />
+            <SearchableOptions
+              label={t("schedule.filters.activityType")}
+              icon={<Gym aria-hidden="true" />}
+              searchLabel={t("schedule.filters.searchActivityTypes")}
+              emptyLabel={t("schedule.filters.noActivityTypes")}
+              options={visibleActivityTypes}
+              selectedIds={search.activityTypes}
+              favoriteIds={favoriteActivityTypeIds}
+              onSelectedChange={(ids) => changeOrdinaryFilters({ ...search, activityTypes: ids })}
+              onFavoriteChange={setFavoriteActivityTypeIds}
+            />
           </div>
-          <CheckboxGroup
-            className={styles.locationOptions}
-            aria-label={t("schedule.filters.location")}
-            value={search.locations.map(String)}
-            onChange={(values) => {
-              const selected = values.map(Number);
-              changeOrdinaryFilters({
-                ...search,
-                locations: selected.length > 0 ? selected : [...LOCATION_IDS],
-              });
-            }}
-          >
-            {SCHEDULE_LOCATIONS.map((location) => (
-              <Checkbox
-                className={styles.locationCheckbox}
-                key={location.id}
-                value={String(location.id)}
-              >
-                {({ isSelected }) => (
-                  <>
-                    <span className={styles.checkboxBox} aria-hidden="true">
-                      {isSelected ? <Check /> : null}
-                    </span>
-                    {location.name}
-                  </>
-                )}
-              </Checkbox>
-            ))}
-          </CheckboxGroup>
-        </section>
 
-        <div className={styles.selectors}>
-          <SearchableOptions
-            label={t("schedule.filters.instructor")}
-            icon={<User aria-hidden="true" />}
-            searchLabel={t("schedule.filters.searchInstructors")}
-            emptyLabel={t("schedule.filters.noInstructors")}
-            options={instructors}
-            selectedIds={search.instructors}
-            favoriteIds={favoriteInstructorIds}
-            onSelectedChange={(ids) => changeOrdinaryFilters({ ...search, instructors: ids })}
-            onFavoriteChange={setFavoriteInstructorIds}
-          />
-          <SearchableOptions
-            label={t("schedule.filters.activityType")}
-            icon={<Gym aria-hidden="true" />}
-            searchLabel={t("schedule.filters.searchActivityTypes")}
-            emptyLabel={t("schedule.filters.noActivityTypes")}
-            options={visibleActivityTypes}
-            selectedIds={search.activityTypes}
-            favoriteIds={favoriteActivityTypeIds}
-            onSelectedChange={(ids) => changeOrdinaryFilters({ ...search, activityTypes: ids })}
-            onFavoriteChange={setFavoriteActivityTypeIds}
-          />
+          <div ref={setSavedSearchEditorActionHost} />
         </div>
       </div>
     </section>

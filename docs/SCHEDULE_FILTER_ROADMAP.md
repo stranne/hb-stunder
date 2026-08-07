@@ -38,7 +38,7 @@ MyFilter = Drottningtorget AND (Hot yoga OR Yin yoga) AND Maya
 
 Dates and presentation modes such as class/room view remain outside saved searches unless later user feedback demonstrates a need to include them.
 
-Applying a saved search copies its criteria into the ordinary selection; no active saved-search identity is retained. Choosing **Edit saved search** creates an explicit draft, makes the normal filter controls the editing surface, and keeps **Update**, **Save as new**, and **Cancel** together in a clearly labelled editor.
+Applying a saved search copies its criteria into the ordinary selection; no active saved-search identity is retained. Choosing **Edit saved search** creates an explicit draft and a linear flow: rename first, edit locations/instructors/class types in a clearly highlighted criteria area, then use **Update**, **Save as new**, or **Cancel** after those controls.
 
 If multiple groups are later validated, they should be sibling groups joined with **OR**, never nested groups. Any temporary narrowing would be shown separately and use:
 
@@ -96,13 +96,13 @@ The persisted model, matching rules, migration handling, validation, and managem
 - [x] Once at least one exists, show a compact saved-search list near the selected-filter summary. Use the same row-based visual language as the other search sections, make each row reliably apply its search, and keep management behind a secondary row action.
 - [x] Applying a saved search replaces the ordinary current selection without inserting its name or any saved-search indication into the selected-filter summary.
 - [x] Do not retain a hidden active saved-search identity. Once applied, criteria behave exactly like ordinary filters.
-- [x] Put name and criteria editing, update, save-as-new, duplicate, and delete controls in one clearly labelled saved-search editor. Deleting a stored definition requires confirmation and keeps the current criteria selected.
+- [x] Keep saved-search editing in one clearly labelled, linear flow: name first, criteria second, and update/save-as-new/cancel actions last. Deleting a stored definition requires confirmation and keeps the current criteria selected.
 
 #### Editing without misleading provenance
 
 - [x] Ordinary filter changes never affect stored definitions.
 - [x] The pencil action on a saved-search row starts a clearly labelled draft based on that definition; changes do not write to storage until **Update** is chosen.
-- [x] Explain that the normal filter controls below edit the draft, and keep name editing, criteria preview, **Update**, **Save as new**, and **Cancel** together. **Cancel** restores the stored definition.
+- [x] Visually group the normal location, instructor, and class-type controls as the saved-search draft, then place its criteria preview, **Update**, **Save as new**, and **Cancel** actions after those fields. **Cancel** restores the stored definition.
 - [x] Do not use a persistent active or modified state.
 - [x] Retain readable invalid-reference and storage-failure handling, duplicate-name validation, explicit cleanup of unavailable IDs, and the existing local-only storage disclosure.
 - [x] Add/update model, component, and Storybook coverage for create-dialog cancellation and validation, no-saved-search state, applying as ordinary filters, combined name/criteria editing, update, save-as-new, delete, unavailable criteria, and storage failure.
@@ -178,7 +178,7 @@ Once implementation begins, work through one complete numbered roadmap section (
 - Do not add recently used options. Saved searches and explicit favorites cover repeat workflows without introducing implicit history, additional storage semantics, or another ordering rule.
 - Put **Save current selection** inside the selected-filter summary as a compact, accessibly named icon action and ask for a name in a dialog only after the action is invoked. Keep the similarly secondary **Clear filters** action compact and show it only when there is something to clear.
 - Keep the row-based saved-search library visually separate from the selected-filter summary so stored definitions are not mistaken for active criteria. Render no saved-search library or empty-state panel until at least one saved search exists.
-- A saved search is applied as ordinary criteria. Its pencil action opens one clearly labelled draft editor where the name and criteria are updated together; the normal filter controls below edit that draft.
+- A saved search is applied as ordinary criteria. Its pencil action starts a linear draft flow with the name, a highlighted criteria area using the normal filter controls, and save/cancel actions after the criteria.
 - Saved-search definitions are flat snapshots. Do not permit saved searches within saved searches; any future composition is limited to one level of sibling groups.
 - Defer import/export until the redesigned single-group workflow is validated and a concrete portability need exists.
 

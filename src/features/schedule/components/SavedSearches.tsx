@@ -28,8 +28,10 @@ interface SavedSearchesProps {
   instructors: ScheduleFilterOption[];
   activityTypes: ScheduleFilterOption[];
   canValidateReferences: boolean;
+  onEditingChange?: (name: string | undefined) => void;
   saveActionContainer?: HTMLElement | null;
   libraryContainer?: HTMLElement | null;
+  editorActionContainer?: HTMLElement | null;
 }
 
 type SaveDialogMode = "current" | "draft";
@@ -48,8 +50,10 @@ export function SavedSearches({
   instructors,
   activityTypes,
   canValidateReferences,
+  onEditingChange,
   saveActionContainer,
   libraryContainer,
+  editorActionContainer,
 }: SavedSearchesProps) {
   const { t } = useTranslation();
   const nameId = useId();
@@ -145,6 +149,7 @@ export function SavedSearches({
 
   function apply(savedSearch: SavedSearch) {
     setEditingId(undefined);
+    onEditingChange?.(undefined);
     setConfirmDelete(false);
     onChange(applySavedSearch(search, savedSearch));
     setAnnouncement(t("schedule.savedSearches.applied", { name: savedSearch.name }));
@@ -153,6 +158,7 @@ export function SavedSearches({
   function startEditing(savedSearch: SavedSearch) {
     setEditingId(savedSearch.id);
     setEditName(savedSearch.name);
+    onEditingChange?.(savedSearch.name);
     setConfirmDelete(false);
     setValidationMessage(undefined);
     onChange(applySavedSearch(search, savedSearch));
@@ -171,6 +177,7 @@ export function SavedSearches({
     const savedSearch = createSavedSearch(name, search);
     if (!persist([...savedSearches, savedSearch])) return;
     setEditingId(undefined);
+    onEditingChange?.(undefined);
     setSaveDialogMode(undefined);
     setName("");
     setValidationMessage(undefined);
@@ -223,6 +230,7 @@ export function SavedSearches({
       )
     ) {
       setEditingId(undefined);
+      onEditingChange?.(undefined);
       setValidationMessage(undefined);
       setAnnouncement(t("schedule.savedSearches.updated", { name: updated.name }));
     }
@@ -232,6 +240,7 @@ export function SavedSearches({
     if (!editingSearch) return;
     onChange(applySavedSearch(search, editingSearch));
     setEditingId(undefined);
+    onEditingChange?.(undefined);
     setValidationMessage(undefined);
     setConfirmDelete(false);
   }
@@ -239,6 +248,7 @@ export function SavedSearches({
   function deleteSearch(savedSearch: SavedSearch) {
     if (persist(savedSearches.filter((item) => item.id !== savedSearch.id))) {
       setEditingId(undefined);
+      onEditingChange?.(undefined);
       setConfirmDelete(false);
       setValidationMessage(undefined);
     }
@@ -301,13 +311,7 @@ export function SavedSearches({
                   </AriaButton>
                 </div>
                 {isEditing ? (
-                  <form
-                    className={styles.editor}
-                    onSubmit={(event) => {
-                      event.preventDefault();
-                      update();
-                    }}
-                  >
+                  <div className={styles.editor}>
                     <div className={styles.editorHeading}>
                       <h4>{t("schedule.savedSearches.editTitle")}</h4>
                       <p>{t("schedule.savedSearches.editInstructions")}</p>
@@ -321,84 +325,21 @@ export function SavedSearches({
                       maxLength={SAVED_SEARCH_NAME_MAX_LENGTH}
                       onChange={(event) => {
                         setEditName(event.target.value);
+                        onEditingChange?.(event.target.value);
                         setValidationMessage(undefined);
                       }}
                     />
-                    <p className={styles.criteriaPreview}>
-                      {criteriaText(criteriaFromScheduleSearch(search))}
-                    </p>
-                    {validationMessage ? (
-                      <p className={styles.error} role="alert">
-                        {validationMessage}
-                      </p>
-                    ) : null}
-                    <div className={styles.actions}>
-                      <Button type="submit">
-                        <FloppyDisk aria-hidden="true" />
-                        {t("schedule.savedSearches.update")}
-                      </Button>
-                      <Button
-                        tone="quiet"
-                        onPress={() => {
-                          setName("");
-                          setValidationMessage(undefined);
-                          setSaveDialogMode("draft");
-                        }}
-                      >
-                        {t("schedule.savedSearches.saveAsNew")}
-                      </Button>
-                      <Button tone="quiet" onPress={cancelDraft}>
-                        {t("schedule.savedSearches.cancel")}
-                      </Button>
-                    </div>
-                    <div className={styles.secondaryActions}>
-                      <AriaButton
-                        className={styles.inlineAction}
-                        onPress={() => duplicate(savedSearch)}
-                      >
-                        <Copy aria-hidden="true" />
-                        {t("schedule.savedSearches.duplicate")}
-                      </AriaButton>
-                      <AriaButton
-                        className={styles.inlineAction}
-                        onPress={() => setConfirmDelete(true)}
-                      >
-                        <Trash aria-hidden="true" />
-                        {t("schedule.savedSearches.remove")}
-                      </AriaButton>
-                    </div>
-                    {unavailableIds(savedSearch) > 0 ? (
-                      <p className={styles.notice}>
-                        {t("schedule.savedSearches.unavailableReferences", {
-                          count: unavailableIds(savedSearch),
-                        })}{" "}
-                        <AriaButton
-                          className={styles.inlineAction}
-                          onPress={() => cleanUnavailable(savedSearch)}
-                        >
-                          {t("schedule.savedSearches.removeUnavailable")}
-                        </AriaButton>
-                      </p>
-                    ) : null}
-                    {confirmDelete ? (
-                      <div className={styles.confirmation} role="alert">
-                        <p>
-                          {t("schedule.savedSearches.deleteWarning", { name: savedSearch.name })}
-                        </p>
-                        <div className={styles.actions}>
-                          <Button tone="quiet" onPress={() => deleteSearch(savedSearch)}>
-                            {t("schedule.savedSearches.confirmDelete")}
-                          </Button>
-                          <AriaButton
-                            className={styles.inlineAction}
-                            onPress={() => setConfirmDelete(false)}
-                          >
-                            {t("schedule.savedSearches.cancelDelete")}
-                          </AriaButton>
-                        </div>
-                      </div>
-                    ) : null}
-                  </form>
+                    <AriaButton
+                      className={styles.criteriaLink}
+                      onPress={() => {
+                        const criteria = document.getElementById("saved-search-criteria");
+                        criteria?.scrollIntoView?.({ block: "start" });
+                        criteria?.focus({ preventScroll: true });
+                      }}
+                    >
+                      {t("schedule.savedSearches.editCriteria")}
+                    </AriaButton>
+                  </div>
                 ) : null}
               </div>
             );
@@ -406,6 +347,78 @@ export function SavedSearches({
         </div>
       </section>
     ) : null;
+
+  const editorActions = editingSearch ? (
+    <section className={styles.editorActions} aria-labelledby={`${nameId}-editor-actions-title`}>
+      <div className={styles.editorHeading}>
+        <h3 id={`${nameId}-editor-actions-title`}>
+          {t("schedule.savedSearches.finishTitle", { name: editName })}
+        </h3>
+        <p>{t("schedule.savedSearches.finishInstructions")}</p>
+      </div>
+      <p className={styles.criteriaPreview}>{criteriaText(criteriaFromScheduleSearch(search))}</p>
+      {validationMessage ? (
+        <p className={styles.error} role="alert">
+          {validationMessage}
+        </p>
+      ) : null}
+      <div className={styles.actions}>
+        <Button onPress={update}>
+          <FloppyDisk aria-hidden="true" />
+          {t("schedule.savedSearches.update")}
+        </Button>
+        <Button
+          tone="quiet"
+          onPress={() => {
+            setName("");
+            setValidationMessage(undefined);
+            setSaveDialogMode("draft");
+          }}
+        >
+          {t("schedule.savedSearches.saveAsNew")}
+        </Button>
+        <Button tone="quiet" onPress={cancelDraft}>
+          {t("schedule.savedSearches.cancel")}
+        </Button>
+      </div>
+      <div className={styles.secondaryActions}>
+        <AriaButton className={styles.inlineAction} onPress={() => duplicate(editingSearch)}>
+          <Copy aria-hidden="true" />
+          {t("schedule.savedSearches.duplicate")}
+        </AriaButton>
+        <AriaButton className={styles.inlineAction} onPress={() => setConfirmDelete(true)}>
+          <Trash aria-hidden="true" />
+          {t("schedule.savedSearches.remove")}
+        </AriaButton>
+      </div>
+      {unavailableIds(editingSearch) > 0 ? (
+        <p className={styles.notice}>
+          {t("schedule.savedSearches.unavailableReferences", {
+            count: unavailableIds(editingSearch),
+          })}{" "}
+          <AriaButton
+            className={styles.inlineAction}
+            onPress={() => cleanUnavailable(editingSearch)}
+          >
+            {t("schedule.savedSearches.removeUnavailable")}
+          </AriaButton>
+        </p>
+      ) : null}
+      {confirmDelete ? (
+        <div className={styles.confirmation} role="alert">
+          <p>{t("schedule.savedSearches.deleteWarning", { name: editingSearch.name })}</p>
+          <div className={styles.actions}>
+            <Button tone="quiet" onPress={() => deleteSearch(editingSearch)}>
+              {t("schedule.savedSearches.confirmDelete")}
+            </Button>
+            <AriaButton className={styles.inlineAction} onPress={() => setConfirmDelete(false)}>
+              {t("schedule.savedSearches.cancelDelete")}
+            </AriaButton>
+          </div>
+        </div>
+      ) : null}
+    </section>
+  ) : null;
 
   return (
     <div className={styles.savedSearches}>
@@ -422,6 +435,9 @@ export function SavedSearches({
         ? createPortal(saveAction, saveActionContainer)
         : saveAction}
       {libraryContainer && library ? createPortal(library, libraryContainer) : library}
+      {editorActionContainer && editorActions
+        ? createPortal(editorActions, editorActionContainer)
+        : editorActions}
 
       <Modal
         className={styles.modal}

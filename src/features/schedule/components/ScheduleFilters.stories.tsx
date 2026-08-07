@@ -225,6 +225,20 @@ export const SavedSearchManagement: Story = {
     await expect(
       canvas.getByRole("heading", { name: /edit saved search|redigera sparad sökning/i }),
     ).toBeInTheDocument();
+    const editCriteriaButton = canvas.getByRole("button", {
+      name: /edit locations, instructors, and class types|redigera platser, instruktörer och klasstyper/i,
+    });
+    await userEvent.click(editCriteriaButton);
+    const criteriaHeading = canvas.getByRole("heading", {
+      name: /filter criteria for weekday yoga|filtervillkor för weekday yoga/i,
+    });
+    await expect(criteriaHeading).toBeInTheDocument();
+    await expect(criteriaHeading.closest("#saved-search-criteria")).toHaveFocus();
+    await expect(
+      canvas.getByRole("heading", {
+        name: /save changes to weekday yoga|spara ändringar i weekday yoga/i,
+      }),
+    ).toBeInTheDocument();
   },
 };
 export const SaveSelectionDialog: Story = {

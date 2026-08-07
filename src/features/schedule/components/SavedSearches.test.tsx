@@ -142,6 +142,22 @@ describe("SavedSearches", () => {
     expect(within(summary!).queryByText("Morning classes")).toBeNull();
     expect(within(summary!).queryByRole("heading", { name: "Saved searches" })).toBeNull();
     expect(screen.getByRole("heading", { name: "Saved searches" })).toBeTruthy();
+
+    editSavedSearch("Morning classes");
+    fireEvent.click(
+      screen.getByRole("button", { name: "Edit locations, instructors, and class types" }),
+    );
+    const criteriaHeading = screen.getByRole("heading", {
+      name: "Filter criteria for Morning classes",
+    });
+    const finishHeading = screen.getByRole("heading", {
+      name: "Save changes to Morning classes",
+    });
+    expect(document.activeElement).toBe(criteriaHeading.closest("#saved-search-criteria"));
+    expect(criteriaHeading.compareDocumentPosition(finishHeading)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    expect(within(summary!).queryByText("Morning classes")).toBeNull();
   });
 
   it("edits the name and criteria together, then duplicates the definition", () => {
@@ -149,7 +165,10 @@ describe("SavedSearches", () => {
     saveSearch();
     editSavedSearch("Morning classes");
     expect(screen.getByRole("heading", { name: "Edit saved search" })).toBeTruthy();
-    expect(screen.getByText(/use the filter options below/i)).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Edit locations, instructors, and class types" }),
+    ).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Save changes to Morning classes" })).toBeTruthy();
     fireEvent.change(screen.getByLabelText("Search name"), {
       target: { value: "Weekday classes" },
     });

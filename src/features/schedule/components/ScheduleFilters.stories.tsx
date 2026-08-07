@@ -33,7 +33,6 @@ function InteractiveFilters({
 }) {
   const [search, setSearch] = useState(initialSearch);
   const [isOpen, setIsOpen] = useState(false);
-  const [activeSavedSearchId, setActiveSavedSearchId] = useState<string>();
   return (
     <div>
       <ScheduleFilters
@@ -51,8 +50,6 @@ function InteractiveFilters({
           isLoadingOptions={isLoadingOptions}
           hasOptionsError={hasOptionsError}
           onRetryOptions={() => undefined}
-          activeSavedSearchId={activeSavedSearchId}
-          onActiveSavedSearchChange={setActiveSavedSearchId}
         />
       ) : null}
     </div>
@@ -223,10 +220,10 @@ export const SavedSearchManagement: Story = {
     );
     await expect(canvas.getByText("Weekday yoga")).toBeInTheDocument();
     await userEvent.click(
-      canvas.getByRole("button", { name: /manage weekday yoga|hantera weekday yoga/i }),
+      canvas.getByRole("button", { name: /edit weekday yoga|redigera weekday yoga/i }),
     );
     await expect(
-      canvas.getByRole("button", { name: /edit filters|redigera filter/i }),
+      canvas.getByRole("heading", { name: /edit saved search|redigera sparad sökning/i }),
     ).toBeInTheDocument();
   },
 };
@@ -244,7 +241,7 @@ export const SaveSelectionDialog: Story = {
     await expect(within(canvasElement.ownerDocument.body).getByRole("dialog")).toBeInTheDocument();
   },
 };
-export const SavedSearchApplied: Story = {
+export const ApplyingSavedSearch: Story = {
   loaders: [
     () => {
       window.localStorage.setItem(
@@ -271,12 +268,15 @@ export const SavedSearchApplied: Story = {
       canvas.getByRole("button", { name: /open schedule filters|öppna schemafilter/i }),
     );
     await userEvent.click(canvas.getByRole("button", { name: /^Weekday yoga/ }));
-    const groupName = canvas.getByText("Weekday yoga", { selector: "strong" });
-    await expect(groupName).toBeInTheDocument();
-    const group = groupName.closest("details");
-    await expect(group).toHaveAttribute("open");
-    await userEvent.click(group!.querySelector("summary")!);
-    await expect(group).not.toHaveAttribute("open");
+    const summary = canvas
+      .getByRole("heading", { name: /selected filters|valda filter/i })
+      .closest("section");
+    await expect(within(summary!).queryByText("Weekday yoga")).not.toBeInTheDocument();
+    await expect(
+      within(summary!).getByRole("button", {
+        name: /remove Anna Andersson|ta bort Anna Andersson/i,
+      }),
+    ).toBeInTheDocument();
   },
 };
 export const NoSearchResults: Story = {

@@ -15,10 +15,9 @@
 
   .error,
   .notice,
-  .draft,
   .library p,
-  .groupDetails p,
-  .management p {
+  .editor p,
+  .confirmation p {
     margin: 0;
     font-size: var(--text-sm);
   }
@@ -31,48 +30,8 @@
     color: var(--color-brass-strong);
   }
 
-  .draft {
-    color: var(--color-accent-strong);
-    font-weight: 700;
-  }
-
-  .appliedGroup {
-    border: 1px solid var(--color-accent);
-    border-radius: var(--radius-sm);
-    background: color-mix(in oklch, var(--color-accent) 7%, var(--color-surface));
-
-    summary {
-      min-block-size: 3rem;
-      padding: var(--space-3);
-      cursor: pointer;
-
-      span {
-        display: grid;
-        gap: var(--space-1);
-      }
-
-      small {
-        color: var(--color-ink-muted);
-      }
-    }
-  }
-
-  .groupDetails,
-  .renameForm,
-  .confirmation,
-  .library,
-  .management,
-  .saveDialog form {
-    display: grid;
-    gap: var(--space-3);
-  }
-
-  .groupDetails {
-    padding: 0 var(--space-3) var(--space-3);
-  }
-
   .actions,
-  .renameRow {
+  .secondaryActions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -103,23 +62,39 @@
   }
 
   .inlineAction {
-    padding: 0;
+    display: inline-flex;
+    min-block-size: 2.75rem;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2);
     font-weight: 700;
     text-decoration: underline;
+
+    svg {
+      inline-size: 1rem;
+      block-size: 1rem;
+    }
   }
 
   .library {
+    display: grid;
     min-inline-size: 0;
+    gap: var(--space-3);
     padding-block-end: var(--space-4);
     border-block-end: 1px solid var(--color-border);
   }
 
-  .libraryHeading {
+  .libraryHeading,
+  .editorHeading {
     display: grid;
     gap: var(--space-1);
 
-    h3 {
+    h3,
+    h4 {
       margin: 0;
+    }
+
+    h3 {
       font-size: var(--text-lg);
     }
 
@@ -139,10 +114,6 @@
     min-block-size: 3rem;
     align-items: center;
     border-block-end: 1px solid var(--color-border);
-
-    &[data-selected] {
-      background: color-mix(in oklch, var(--color-accent) 8%, transparent);
-    }
   }
 
   .applyAction {
@@ -168,30 +139,46 @@
     }
   }
 
-  .management {
+  .editor,
+  .confirmation,
+  .saveDialog form {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .editor {
     padding: var(--space-4);
-    border-block-end: 1px solid var(--color-border);
-    background: var(--color-surface-recessed);
+    border: 1px solid var(--color-accent);
+    border-block-start: 0;
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    background: color-mix(in oklch, var(--color-accent) 5%, var(--color-surface));
+
+    > label {
+      font-weight: 700;
+    }
+
+    > input {
+      min-block-size: 2.75rem;
+      box-sizing: border-box;
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-sm);
+      color: var(--color-ink);
+      background: var(--color-surface);
+      font: inherit;
+    }
   }
 
-  .renameForm label {
-    font-weight: 700;
-  }
-
-  .renameRow input {
-    flex: 1 1 14rem;
-  }
-
-  .renameForm input,
-  .saveDialog input {
-    min-block-size: 2.75rem;
-    box-sizing: border-box;
-    padding: var(--space-2) var(--space-3);
-    border: 1px solid var(--color-border-strong);
+  .criteriaPreview {
+    padding: var(--space-3);
     border-radius: var(--radius-sm);
-    color: var(--color-ink);
+    color: var(--color-ink-muted);
     background: var(--color-surface);
-    font: inherit;
+  }
+
+  .secondaryActions {
+    padding-block-start: var(--space-2);
+    border-block-start: 1px solid var(--color-border);
   }
 
   .confirmation {
@@ -233,13 +220,23 @@
     label {
       font-weight: 700;
     }
+
+    input {
+      min-block-size: 2.75rem;
+      box-sizing: border-box;
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-sm);
+      color: var(--color-ink);
+      background: var(--color-surface);
+      font: inherit;
+    }
   }
 
-  .appliedGroup summary:focus-visible,
   .iconAction[data-focus-visible],
   .inlineAction[data-focus-visible],
   .applyAction[data-focus-visible],
-  .renameForm input:focus-visible,
+  .editor input:focus-visible,
   .saveDialog input:focus-visible {
     outline: var(--focus-width) solid var(--color-focus);
     outline-offset: var(--focus-offset);

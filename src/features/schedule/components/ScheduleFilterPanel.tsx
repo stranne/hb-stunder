@@ -30,8 +30,6 @@ export interface ScheduleFilterPanelProps {
   hasOptionsError?: boolean;
   onRetryOptions?: () => void;
   onFavoriteFiltersChange?: (favorites: FavoriteFilterSelection) => void;
-  activeSavedSearchId?: string;
-  onActiveSavedSearchChange?: (id: string | undefined) => void;
 }
 
 const LOCATION_IDS = SCHEDULE_LOCATIONS.map((location) => location.id);
@@ -223,25 +221,14 @@ export function ScheduleFilterPanel({
   hasOptionsError = false,
   onRetryOptions,
   onFavoriteFiltersChange,
-  activeSavedSearchId,
-  onActiveSavedSearchChange,
 }: ScheduleFilterPanelProps) {
   const { t } = useTranslation();
   const headingId = useId();
   const selectionHeadingId = useId();
   const locationHeadingId = useId();
   const preferences = readSchedulePreferences();
-  const [localActiveSavedSearchId, setLocalActiveSavedSearchId] = useState<string>();
-  const [isEditingSavedSearch, setIsEditingSavedSearch] = useState(false);
   const [saveActionHost, setSaveActionHost] = useState<HTMLDivElement | null>(null);
   const [savedSearchLibraryHost, setSavedSearchLibraryHost] = useState<HTMLDivElement | null>(null);
-  const currentActiveSavedSearchId = onActiveSavedSearchChange
-    ? activeSavedSearchId
-    : localActiveSavedSearchId;
-  const setActiveSavedSearchId = (id: string | undefined) => {
-    if (onActiveSavedSearchChange) onActiveSavedSearchChange(id);
-    else setLocalActiveSavedSearchId(id);
-  };
   const [favoriteInstructorIds, setFavoriteInstructorIds] = useState(
     preferences.favoriteInstructorIds,
   );
@@ -289,9 +276,6 @@ export function ScheduleFilterPanel({
   const hasSelectedFilters = selectedLocations.length > 0 || selectedOptions.length > 0;
 
   function changeOrdinaryFilters(next: ScheduleSearch) {
-    // A named group only represents an unmodified saved definition. Ordinary filter
-    // controls preserve their criteria but detach that visible provenance immediately.
-    if (!isEditingSavedSearch) setActiveSavedSearchId(undefined);
     onChange(next);
   }
 
@@ -385,9 +369,6 @@ export function ScheduleFilterPanel({
             instructors={instructors}
             activityTypes={activityTypes}
             canValidateReferences={!isLoadingOptions && !hasOptionsError}
-            activeId={currentActiveSavedSearchId}
-            onActiveChange={setActiveSavedSearchId}
-            onEditingChange={setIsEditingSavedSearch}
             saveActionContainer={saveActionHost}
             libraryContainer={savedSearchLibraryHost}
           />

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/tanstack-react";
 import { expect, userEvent, within } from "storybook/test";
-import { Check, MapPin, Star, User, Xmark } from "iconoir-react";
+import { Check, Gym, MapPin, Star, User, Xmark } from "iconoir-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -55,6 +55,7 @@ const activityTypes = [
 ].map((name, index) => ({ id: index + 101, name }));
 
 interface PrototypeProps {
+  initialLocationIds?: number[];
   initialInstructorIds?: number[];
   initialActivityTypeIds?: number[];
   favoriteInstructorIds?: number[];
@@ -187,6 +188,7 @@ function PrototypeOptions({
 }
 
 function ScheduleFilterPrototype({
+  initialLocationIds = SCHEDULE_LOCATIONS.map((location) => location.id),
   initialInstructorIds = [11],
   initialActivityTypeIds = [108, 114],
   favoriteInstructorIds = [1, 4, 11],
@@ -195,7 +197,7 @@ function ScheduleFilterPrototype({
   initiallyBrowseInstructors,
 }: PrototypeProps) {
   const { t } = useTranslation();
-  const [locations, setLocations] = useState([1, 4128, 3509]);
+  const [locations, setLocations] = useState(initialLocationIds);
   const [selectedInstructorIds, setSelectedInstructorIds] = useState(initialInstructorIds);
   const [selectedActivityTypeIds, setSelectedActivityTypeIds] = useState(initialActivityTypeIds);
   const selectedOptions = useMemo(
@@ -210,10 +212,25 @@ function ScheduleFilterPrototype({
     [selectedActivityTypeIds, selectedInstructorIds],
   );
 
+  const selectedLocations =
+    locations.length < SCHEDULE_LOCATIONS.length
+      ? SCHEDULE_LOCATIONS.filter((location) => locations.includes(location.id))
+      : [];
+  const hasSelectedFilters = selectedLocations.length > 0 || selectedOptions.length > 0;
+
   function clearFilters() {
     setLocations(SCHEDULE_LOCATIONS.map((location) => location.id));
     setSelectedInstructorIds([]);
     setSelectedActivityTypeIds([]);
+  }
+
+  function removeLocation(locationId: number) {
+    const remainingLocations = locations.filter((id) => id !== locationId);
+    setLocations(
+      remainingLocations.length > 0
+        ? remainingLocations
+        : SCHEDULE_LOCATIONS.map((location) => location.id),
+    );
   }
 
   return (
@@ -230,8 +247,20 @@ function ScheduleFilterPrototype({
 
       <section className={styles.summary} aria-labelledby="prototype-selection-heading">
         <h3 id="prototype-selection-heading">{t("schedule.filters.selectedFilters")}</h3>
-        {selectedOptions.length > 0 ? (
+        {hasSelectedFilters ? (
           <div className={styles.chips}>
+            {selectedLocations.map((location) => (
+              <AriaButton
+                className={styles.chip}
+                key={`location-${location.id}`}
+                aria-label={t("schedule.filters.removeSelection", { name: location.name })}
+                onPress={() => removeLocation(location.id)}
+              >
+                <MapPin aria-hidden="true" />
+                {location.name}
+                <Xmark aria-hidden="true" />
+              </AriaButton>
+            ))}
             {selectedOptions.map((option) => (
               <AriaButton
                 className={styles.chip}
@@ -243,6 +272,11 @@ function ScheduleFilterPrototype({
                     : setSelectedActivityTypeIds(toggleId(selectedActivityTypeIds, option.id))
                 }
               >
+                {option.category === "instructor" ? (
+                  <User aria-hidden="true" />
+                ) : (
+                  <Gym aria-hidden="true" />
+                )}
                 {option.name}
                 <Xmark aria-hidden="true" />
               </AriaButton>
@@ -301,6 +335,7 @@ function ScheduleFilterPrototype({
           label={t("schedule.filters.activityType")}
           searchLabel={t("schedule.filters.searchActivityTypes")}
           options={activityTypes}
+          icon={<Gym aria-hidden="true" />}
           selectedIds={selectedActivityTypeIds}
           favoriteIds={favoriteActivityTypeIds}
           onSelectedChange={setSelectedActivityTypeIds}
@@ -350,6 +385,7 @@ export const Default: Story = {
   },
 };
 export const SearchResults: Story = { args: { initialQuery: "an" } };
+export const SelectedBusinessLocations: Story = { args: { initialLocationIds: [1, 4128] } };
 export const SelectedSearchResult: Story = {
   args: { initialQuery: "maya" },
   play: async ({ canvasElement }) => {

@@ -98,6 +98,20 @@
     block-size: 1rem;
   }
 
+  .chip[data-focus-visible] {
+    border-color: var(--color-error);
+    color: var(--color-error-strong);
+    background: var(--color-error-soft);
+  }
+
+  @media (hover: hover) {
+    .chip:hover {
+      border-color: var(--color-error);
+      color: var(--color-error-strong);
+      background: var(--color-error-soft);
+    }
+  }
+
   .locationSection,
   .selector {
     display: grid;

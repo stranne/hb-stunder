@@ -4,7 +4,7 @@
 
 Temporary implementation roadmap for the next product focus. Keep this file tracked while the work spans multiple sessions so decisions and progress are shared with the code. Update the checkboxes and decision notes as work lands, then delete this file in the final cleanup change once every retained decision is represented by the implementation, tests, stories, or permanent documentation.
 
-Current prototype: `Features/Schedule/Prototypes/Search-first filters` in Storybook explores normal page scrolling, a removable active-selection summary, favorites-first empty searches, explicit **Browse options**, alphabetical grouping, bounded **Show more** chunks, and checked selections that remain in browse and search results. Review the desktop, mobile, search, browse, and empty states before confirming the information architecture and replacing production behavior.
+Confirmed prototype: `Features/Schedule/Prototypes/Search-first filters` in Storybook establishes normal page scrolling, a removable active-selection summary with category icons and active business locations, favorites-first empty searches, explicit **Browse options**, alphabetical grouping, bounded **Show more** chunks, and checked selections that remain in browse and search results. The prototype is directional rather than a pixel-precise specification; preserve its information architecture while refining the production design.
 
 ## Outcome
 
@@ -48,7 +48,7 @@ This behavior must be made visible in the interface and tested before it is enab
 
 ### 1. Establish the simple filter experience
 
-- [ ] Confirm the filter information architecture in focused Storybook prototypes before replacing production behavior.
+- [x] Confirm the filter information architecture in focused Storybook prototypes before replacing production behavior.
 - [ ] Preserve the current business-unit pill/checkbox selector with only necessary accessibility or responsive fixes.
 - [ ] Remove the custom list virtualizer, fixed row/group height assumptions, virtual spacers, and manual focus remapping from `ScheduleFilterPanel.tsx`.
 - [ ] Remove inner list and desktop page scrolling constraints; use normal document scrolling.
@@ -59,7 +59,7 @@ This behavior must be made visible in the interface and tested before it is enab
 - [ ] Group instructors alphabetically.
 - [ ] Group activity types by trustworthy API category metadata if available; otherwise group alphabetically. Do not infer or merge distinct products by stripping durations from names without validating their identity and selection behavior.
 - [ ] Avoid duplicate interactive rows when an option appears under Selected, Favorites, and All; choose one clear representation or use non-interactive selection summaries.
-- [ ] Show selected instructors and activity types near the top as removable chips or an equally clear summary.
+- [ ] Show selected business locations (when fewer than all are active), instructors, and activity types near the top as removable chips with category icons.
 - [ ] Keep **Clear filters** adjacent to the active-filter summary.
 - [ ] Ensure loading, partial error, no-result, no-favorite, long-list, and selected-item states are represented.
 - [ ] Verify touch targets, visible focus, screen-reader labels, keyboard order, and browser find behavior.
@@ -133,11 +133,15 @@ Do this only after the single-active-search workflow is stable and understandabl
 7. Prototype and, only if still worthwhile, implement multi-search OR behavior and temporary narrowing.
 8. Complete accessibility, responsive, translation, and cleanup review; remove this roadmap.
 
-Each session should leave production behavior complete and tested rather than landing half-connected UI and model changes.
+Once implementation begins, work through one complete numbered roadmap section (or another explicitly agreed coherent milestone) per session rather than treating individual checkboxes as session-sized tasks. Each session should leave production behavior complete and tested rather than landing half-connected UI and model changes.
 
 ## Decision log
 
 - Keep the business-unit selector as the established interaction.
+- Show business units in the active summary only when fewer than all are selected, and identify every summary chip's category with an icon.
+- Keep each removable chip fully clickable. Keep its remove icon neutral at rest, then use a soft danger hover/focus treatment for the whole chip to clarify the action without adding distracting color or presenting reversible filter changes as strongly destructive.
+- Use Selected + Favorites + an explicit **Browse options** action when search is empty.
+- Treat the prototype as an information-architecture direction, not a pixel-precise production specification.
 - Prefer search plus progressive browsing over numbered pagination.
 - Prefer normal page scrolling over virtualized inner lists.
 - Favorites are construction shortcuts; saved searches preserve combinations.
@@ -147,7 +151,6 @@ Each session should leave production behavior complete and tested rather than la
 
 ## Open decisions
 
-- [ ] Exact empty-search presentation: Selected + Favorites + alphabetical preview, or Selected + Favorites + Browse all.
 - [ ] Whether only one long browse section should be expanded at a time on small screens.
 - [ ] Whether activity-type API metadata provides stable, user-meaningful grouping.
 - [ ] Exact navigation label and placement: **Show schedule**, **Back to schedule**, or a filter-toggle state.

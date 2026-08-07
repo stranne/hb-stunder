@@ -115,8 +115,10 @@
   }
 
   .library {
-    padding: var(--space-3);
-    border-block-start: 1px solid var(--color-border);
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-recessed);
 
     label {
       font-weight: 700;

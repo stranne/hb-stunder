@@ -138,6 +138,19 @@ describe("SavedSearches", () => {
     expect(document.querySelector("details")).not.toBeNull();
   });
 
+  it("keeps compact selection actions in the summary and the saved-search library outside it", () => {
+    render(<PanelHarness />);
+    const summary = screen.getByRole("heading", { name: "Selected filters" }).closest("section");
+    expect(summary).not.toBeNull();
+    expect(within(summary!).getByRole("button", { name: "Save current selection" })).toBeTruthy();
+    expect(within(summary!).getByRole("button", { name: "Clear filters" })).toBeTruthy();
+
+    saveSearch();
+
+    expect(within(summary!).queryByLabelText("Saved searches")).toBeNull();
+    expect(screen.getByLabelText("Saved searches")).toBeTruthy();
+  });
+
   it("renames and duplicates the applied definition", () => {
     render(<Harness />);
     saveSearch();

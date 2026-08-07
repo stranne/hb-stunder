@@ -1,4 +1,5 @@
 import { useEffect, useId, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { Copy, EditPencil, FloppyDisk, Trash, Xmark } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import { Button as AriaButton, Dialog, Heading, Input, Label, Modal } from "react-aria-components";
@@ -30,6 +31,8 @@ interface SavedSearchesProps {
   activeId?: string;
   onActiveChange?: (id: string | undefined) => void;
   onEditingChange?: (isEditing: boolean) => void;
+  saveActionContainer?: HTMLElement | null;
+  libraryContainer?: HTMLElement | null;
 }
 
 type SaveDialogMode = "current" | "draft";
@@ -68,6 +71,8 @@ export function SavedSearches({
   activeId,
   onActiveChange,
   onEditingChange,
+  saveActionContainer,
+  libraryContainer,
 }: SavedSearchesProps) {
   const { t } = useTranslation();
   const nameId = useId();
@@ -300,6 +305,43 @@ export function SavedSearches({
     }
   }
 
+  const saveAction =
+    hasMeaningfulCriteria(search) && !editingId ? (
+      <AriaButton
+        className={styles.iconAction}
+        aria-label={t("schedule.savedSearches.saveCurrent")}
+        onPress={() => {
+          setName("");
+          setValidationMessage(undefined);
+          setSaveDialogMode("current");
+        }}
+      >
+        <FloppyDisk aria-hidden="true" />
+      </AriaButton>
+    ) : null;
+  const library =
+    savedSearches.length > 0 ? (
+      <div className={styles.library}>
+        <Label htmlFor={`${nameId}-picker`}>{t("schedule.savedSearches.title")}</Label>
+        <select
+          id={`${nameId}-picker`}
+          value={currentActiveId ?? ""}
+          onChange={(event) => {
+            const savedSearch = savedSearches.find(({ id }) => id === event.target.value);
+            if (savedSearch) apply(savedSearch);
+          }}
+        >
+          <option value="">{t("schedule.savedSearches.choose")}</option>
+          {savedSearches.map((savedSearch) => (
+            <option key={savedSearch.id} value={savedSearch.id}>
+              {savedSearch.name}
+            </option>
+          ))}
+        </select>
+        <p>{t("schedule.savedSearches.localOnly")}</p>
+      </div>
+    ) : null;
+
   return (
     <div className={styles.savedSearches}>
       {storageIssue ? (
@@ -485,40 +527,11 @@ export function SavedSearches({
         </details>
       ) : null}
 
-      {hasMeaningfulCriteria(search) && !editingId ? (
-        <Button
-          tone="quiet"
-          onPress={() => {
-            setName("");
-            setValidationMessage(undefined);
-            setSaveDialogMode("current");
-          }}
-        >
-          {t("schedule.savedSearches.saveCurrent")}
-        </Button>
-      ) : null}
+      {saveActionContainer && saveAction
+        ? createPortal(saveAction, saveActionContainer)
+        : saveAction}
 
-      {savedSearches.length > 0 ? (
-        <div className={styles.library}>
-          <Label htmlFor={`${nameId}-picker`}>{t("schedule.savedSearches.title")}</Label>
-          <select
-            id={`${nameId}-picker`}
-            value={currentActiveId ?? ""}
-            onChange={(event) => {
-              const savedSearch = savedSearches.find(({ id }) => id === event.target.value);
-              if (savedSearch) apply(savedSearch);
-            }}
-          >
-            <option value="">{t("schedule.savedSearches.choose")}</option>
-            {savedSearches.map((savedSearch) => (
-              <option key={savedSearch.id} value={savedSearch.id}>
-                {savedSearch.name}
-              </option>
-            ))}
-          </select>
-          <p>{t("schedule.savedSearches.localOnly")}</p>
-        </div>
-      ) : null}
+      {libraryContainer && library ? createPortal(library, libraryContainer) : library}
 
       <Modal
         className={styles.modal}

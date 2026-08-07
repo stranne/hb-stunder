@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
-import { Check, Gym, MapPin, Star, User, Xmark } from "iconoir-react";
+import { Check, Erase, Gym, MapPin, Star, User, Xmark } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import {
   Button as AriaButton,
@@ -233,6 +233,8 @@ export function ScheduleFilterPanel({
   const preferences = readSchedulePreferences();
   const [localActiveSavedSearchId, setLocalActiveSavedSearchId] = useState<string>();
   const [isEditingSavedSearch, setIsEditingSavedSearch] = useState(false);
+  const [saveActionHost, setSaveActionHost] = useState<HTMLDivElement | null>(null);
+  const [savedSearchLibraryHost, setSavedSearchLibraryHost] = useState<HTMLDivElement | null>(null);
   const currentActiveSavedSearchId = onActiveSavedSearchChange
     ? activeSavedSearchId
     : localActiveSavedSearchId;
@@ -320,9 +322,18 @@ export function ScheduleFilterPanel({
         <section className={styles.summary} aria-labelledby={selectionHeadingId}>
           <div className={styles.summaryHeading}>
             <h3 id={selectionHeadingId}>{t("schedule.filters.selectedFilters")}</h3>
-            <AriaButton className={styles.clearButton} onPress={clearFilters}>
-              {t("schedule.filters.clearFilters")}
-            </AriaButton>
+            <div className={styles.summaryActions}>
+              <div ref={setSaveActionHost} />
+              {hasSelectedFilters ? (
+                <AriaButton
+                  className={styles.iconButton}
+                  aria-label={t("schedule.filters.clearFilters")}
+                  onPress={clearFilters}
+                >
+                  <Erase aria-hidden="true" />
+                </AriaButton>
+              ) : null}
+            </div>
           </div>
           {hasSelectedFilters ? (
             <div className={styles.chips}>
@@ -377,8 +388,12 @@ export function ScheduleFilterPanel({
             activeId={currentActiveSavedSearchId}
             onActiveChange={setActiveSavedSearchId}
             onEditingChange={setIsEditingSavedSearch}
+            saveActionContainer={saveActionHost}
+            libraryContainer={savedSearchLibraryHost}
           />
         </section>
+
+        <div className={styles.savedSearchLibrary} ref={setSavedSearchLibraryHost} />
 
         {isLoadingOptions ? (
           <p className={styles.loading} role="status">

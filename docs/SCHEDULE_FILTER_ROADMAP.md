@@ -84,7 +84,7 @@ The persisted model, matching rules, migration handling, validation, and managem
 
 #### Saving from the current selection
 
-- [x] Move **Save current selection** into the selected-filter summary, beside its other selection-level actions.
+- [x] Move **Save current selection** into the selected-filter summary as a compact icon action beside its other selection-level actions; keep the saved-search picker outside the summary.
 - [x] Hide or disable that action when the selection has no meaningful restriction to save.
 - [x] Open a focused dialog only after the user chooses to save; do not reserve permanent space for a naming input.
 - [x] In the dialog, show a compact criteria preview, validate the name, and provide explicit **Save** and **Cancel** actions.
@@ -177,8 +177,8 @@ Once implementation begins, work through one complete numbered roadmap section (
 - Keep unavailable saved-search references visible with their stored IDs once option loading succeeds, and offer an explicit cleanup action rather than silently changing the definition.
 - Keep favorites prominent only inside the instructor and activity-type selectors as empty-search shortcuts. Saved searches remain the higher-level repeat-workflow feature; favorites do not get a separate mode or top-level section.
 - Do not add recently used options. Saved searches and explicit favorites cover repeat workflows without introducing implicit history, additional storage semantics, or another ordering rule.
-- Put **Save current selection** inside the selected-filter summary and ask for a name in a dialog only after the action is invoked.
-- Render no saved-search library or empty-state panel until at least one saved search exists.
+- Put **Save current selection** inside the selected-filter summary as a compact, accessibly named icon action and ask for a name in a dialog only after the action is invoked. Keep the similarly secondary **Clear filters** action compact and show it only when there is something to clear.
+- Keep the saved-search picker visually separate from the selected-filter summary so stored definitions are not mistaken for active criteria. Render no saved-search library or empty-state panel until at least one saved search exists.
 - An applied saved search is a visible, expandable named group. Direct changes outside explicit editing detach it to an ordinary selection instead of leaving it “active but modified.”
 - Saved-search definitions are flat snapshots. Do not permit saved searches within saved searches; any future composition is limited to one level of sibling groups.
 - Defer import/export until the redesigned single-group workflow is validated and a concrete portability need exists.

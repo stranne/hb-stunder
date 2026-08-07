@@ -249,12 +249,6 @@
     background: var(--color-surface);
   }
 
-  .footer {
-    display: flex;
-    justify-content: flex-end;
-    padding-block-start: var(--space-2);
-  }
-
   .clearButton[data-focus-visible],
   .disclosureButton[data-focus-visible],
   .chip[data-focus-visible],

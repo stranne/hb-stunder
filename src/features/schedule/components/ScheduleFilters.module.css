@@ -48,12 +48,12 @@
     border-radius: var(--radius-sm);
   }
 
-  .filterToolbar > button[aria-pressed="true"] {
+  .filterToolbar > button[data-filters-open] {
     color: var(--color-ink-inverse);
     background: var(--color-accent);
   }
 
-  .filterToolbar > button[aria-pressed="true"] .count {
+  .filterToolbar > button[data-filters-open] .count {
     color: var(--color-accent-strong);
     background: var(--color-surface);
   }

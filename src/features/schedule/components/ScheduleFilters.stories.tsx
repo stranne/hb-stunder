@@ -50,7 +50,6 @@ function InteractiveFilters({
           isLoadingOptions={isLoadingOptions}
           hasOptionsError={hasOptionsError}
           onRetryOptions={() => undefined}
-          onClose={() => setIsOpen(false)}
         />
       ) : null}
     </div>

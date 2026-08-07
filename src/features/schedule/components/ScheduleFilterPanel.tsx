@@ -29,7 +29,6 @@ export interface ScheduleFilterPanelProps {
   hasOptionsError?: boolean;
   onRetryOptions?: () => void;
   onFavoriteFiltersChange?: (favorites: FavoriteFilterSelection) => void;
-  onClose: () => void;
 }
 
 const LOCATION_IDS = SCHEDULE_LOCATIONS.map((location) => location.id);
@@ -79,10 +78,7 @@ function SearchableOptions({
     () => [...options].sort((a, b) => a.name.localeCompare(b.name, i18n.language)),
     [i18n.language, options],
   );
-  const selected = new Set(selectedIds);
-  const favorites = sortedOptions.filter(
-    (option) => favoriteIds.includes(option.id) && !selected.has(option.id),
-  );
+  const favorites = sortedOptions.filter((option) => favoriteIds.includes(option.id));
   const matches = sortedOptions.filter((option) =>
     normalized(option.name).includes(normalized(query)),
   );
@@ -194,7 +190,6 @@ export function ScheduleFilterPanel({
   hasOptionsError = false,
   onRetryOptions,
   onFavoriteFiltersChange,
-  onClose,
 }: ScheduleFilterPanelProps) {
   const { t } = useTranslation();
   const headingId = useId();
@@ -259,7 +254,7 @@ export function ScheduleFilterPanel({
   }
 
   return (
-    <section className={styles.panel} aria-labelledby={headingId}>
+    <section id="schedule-filter-panel" className={styles.panel} aria-labelledby={headingId}>
       <div className={styles.dialog}>
         <header className={styles.header}>
           <h2 id={headingId}>{t("schedule.filters.filters")}</h2>
@@ -394,10 +389,6 @@ export function ScheduleFilterPanel({
             onSelectedChange={(ids) => onChange({ ...search, activityTypes: ids })}
             onFavoriteChange={setFavoriteActivityTypeIds}
           />
-        </div>
-
-        <div className={styles.footer}>
-          <Button onPress={onClose}>{t("schedule.filters.done")}</Button>
         </div>
       </div>
     </section>

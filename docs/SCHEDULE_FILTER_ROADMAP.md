@@ -54,11 +54,11 @@ This behavior must be made visible in the interface and tested before it is enab
 - [x] Remove inner list and desktop page scrolling constraints; use normal document scrolling.
 - [x] Replace the two-column constrained list layout with a responsive layout that remains comfortable on mobile and desktop.
 - [x] Make instructors and activity types search-first selectors.
-- [x] When search is empty, show selected options first, then favorites, followed by an explicit way to browse all options.
+- [x] When search is empty, show favorites followed by an explicit way to browse all options; selection must not move or filter an option within any list.
 - [x] Make all options discoverable without numbered pagination. Prefer grouped progressive disclosure such as **Show more** in bounded chunks.
 - [x] Group instructors alphabetically.
 - [x] Group activity types by trustworthy API category metadata if available; otherwise group alphabetically. Do not infer or merge distinct products by stripping durations from names without validating their identity and selection behavior.
-- [x] Avoid duplicate interactive rows when an option appears under Selected, Favorites, and All; choose one clear representation or use non-interactive selection summaries.
+- [x] Avoid duplicate rows within each selector. Keep selected options checked in their existing list position as well as represented by removable active-summary chips.
 - [x] Show selected business locations (when fewer than all are active), instructors, and activity types near the top as removable chips with category icons.
 - [x] Keep **Clear filters** adjacent to the active-filter summary.
 - [x] Ensure loading, partial error, no-result, no-favorite, long-list, and selected-item states are represented.
@@ -66,11 +66,11 @@ This behavior must be made visible in the interface and tested before it is enab
 
 ### 2. Replace the modal-style completion behavior
 
-- [ ] Remove the bottom-right **Done** footer, because changes currently apply immediately and the filter is no longer a modal.
-- [ ] Make the sticky filter toggle clearly return to the schedule while the filter view is open, or provide a prominent **Show schedule** action near the active summary.
-- [ ] On mobile, evaluate a full-width sticky **Show schedule** action only if it does not recreate problematic nested or obscured scrolling.
-- [ ] Preserve selections when moving between the filter editor and schedule.
-- [ ] Confirm browser Back/Forward behavior and URL behavior for opening and closing filters.
+- [x] Remove the bottom-right **Done** footer, because changes currently apply immediately and the filter is no longer a modal.
+- [x] Make the sticky filter toggle clearly return to the schedule while the filter view is open, or provide a prominent **Show schedule** action near the active summary.
+- [x] On mobile, evaluate a full-width sticky **Show schedule** action only if it does not recreate problematic nested or obscured scrolling.
+- [x] Preserve selections when moving between the filter editor and schedule.
+- [x] Confirm browser Back/Forward behavior and URL behavior for opening and closing filters.
 
 ### 3. Define and implement saved searches
 
@@ -140,13 +140,15 @@ Once implementation begins, work through one complete numbered roadmap section (
 - Keep the business-unit selector as the established interaction.
 - Show business units in the active summary only when fewer than all are selected, and identify every summary chip's category with an icon.
 - Keep each removable chip fully clickable. Keep its remove icon neutral at rest, then use a soft danger hover/focus treatment for the whole chip to clarify the action without adding distracting color or presenting reversible filter changes as strongly destructive.
-- Use Selected + Favorites + an explicit **Browse options** action when search is empty.
+- Use Favorites + an explicit **Browse options** action when search is empty. Selection only changes checked state: it must never reorder or filter an option in favorites, browse, or search results.
 - Treat the prototype as an information-architecture direction, not a pixel-precise production specification.
 - Prefer search plus progressive browsing over numbered pagination.
 - Prefer normal page scrolling over virtualized inner lists.
 - Favorites are construction shortcuts; saved searches preserve combinations.
 - Introduce one active saved search before multi-search OR combinations.
 - Keep dates and schedule view outside saved searches initially.
+- Use **Show schedule** for the open filter toggle. Keep it in the existing sticky toolbar on mobile rather than adding a second full-width sticky action that would obscure filter content.
+- Keep filter-view visibility in the URL. Opening and closing the editor create navigable history entries, while immediately applied refinements replace the current entry; Back/Forward restores both visibility and selections.
 - The current activity-type API data has business-unit availability but no stable, user-meaningful category metadata, so group activity types alphabetically.
 - Track this roadmap temporarily and delete it when the work is complete.
 
@@ -154,7 +156,7 @@ Once implementation begins, work through one complete numbered roadmap section (
 
 - [ ] Whether only one long browse section should be expanded at a time on small screens.
 - [x] Whether activity-type API metadata provides stable, user-meaningful grouping. It currently does not; use alphabetical groups.
-- [ ] Exact navigation label and placement: **Show schedule**, **Back to schedule**, or a filter-toggle state.
+- [x] Exact navigation label and placement: use **Show schedule** in the existing sticky filter-toggle position.
 - [ ] Saved-search naming validation and maximum practical count.
 - [ ] Whether saved searches eventually require account-backed synchronization.
 - [ ] Whether combined saved searches demonstrate enough real value to justify their added semantic and URL complexity.

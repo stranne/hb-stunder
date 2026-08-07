@@ -67,6 +67,21 @@ export const FiltersOpen: Story = {
       filters: true,
     },
   },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "The sticky filter action becomes Show schedule while immediate selections remain editable; no modal-style Done footer is shown.",
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByRole("button", { name: /show schedule|visa schema/i }),
+    ).toBeInTheDocument();
+    await expect(canvas.queryByRole("button", { name: /done|klar/i })).not.toBeInTheDocument();
+  },
 };
 
 export const Mobile: Story = {

@@ -117,7 +117,7 @@
       "today": "Idag",
       "filters": "Filter",
       "openFilters": "Öppna schemafilter",
-      "closeFilters": "Stäng schemafilter",
+      "showSchedule": "Visa schema",
       "clearFilters": "Rensa filter",
       "instructor": "Instruktör",
       "activityType": "Klasstyp",
@@ -144,8 +144,7 @@
       "removeFavorite": "Ta bort {{name}} från favoriter",
       "loadingOptions": "Laddar filteralternativ…",
       "optionsError": "Vissa filteralternativ kunde inte laddas.",
-      "retryOptions": "Försök ladda filteralternativ igen",
-      "done": "Klar"
+      "retryOptions": "Försök ladda filteralternativ igen"
     },
     "availability": {
       "available_one": "{{count}} plats",

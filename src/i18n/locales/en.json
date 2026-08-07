@@ -117,7 +117,7 @@
       "today": "Today",
       "filters": "Filters",
       "openFilters": "Open schedule filters",
-      "closeFilters": "Close schedule filters",
+      "showSchedule": "Show schedule",
       "clearFilters": "Clear filters",
       "instructor": "Instructor",
       "activityType": "Class type",
@@ -144,8 +144,7 @@
       "removeFavorite": "Remove {{name}} from favorites",
       "loadingOptions": "Loading filter options…",
       "optionsError": "Some filter options could not be loaded.",
-      "retryOptions": "Retry filter options",
-      "done": "Done"
+      "retryOptions": "Retry filter options"
     },
     "availability": {
       "available_one": "{{count}} spot",

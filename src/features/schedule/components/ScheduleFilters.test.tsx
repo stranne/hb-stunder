@@ -63,7 +63,6 @@ function FilterTestView({
           hasOptionsError={hasOptionsError}
           onRetryOptions={onRetryOptions}
           onFavoriteFiltersChange={onFavoriteFiltersChange}
-          onClose={() => setIsOpen(false)}
         />
       ) : null}
     </>
@@ -90,13 +89,14 @@ describe("ScheduleFilters", () => {
     fireEvent.keyUp(filterButton, { key: "Enter" });
 
     expect(document.activeElement).toBe(filterButton);
-    expect(filterButton.getAttribute("aria-pressed")).toBe("true");
+    expect(filterButton.getAttribute("aria-expanded")).toBe("true");
+    expect(filterButton.textContent).toContain("Show schedule");
     expect(screen.getByRole("region", { name: "Filters" })).toBeTruthy();
 
     fireEvent.keyDown(filterButton, { key: "Enter" });
     fireEvent.keyUp(filterButton, { key: "Enter" });
 
-    expect(filterButton.getAttribute("aria-pressed")).toBe("false");
+    expect(filterButton.getAttribute("aria-expanded")).toBe("false");
     expect(screen.queryByRole("region", { name: "Filters" })).toBeNull();
   });
 
@@ -293,7 +293,15 @@ describe("ScheduleFilters", () => {
     expect(selector.getByRole("checkbox", { name: "Instructor 045" })).toBeTruthy();
   });
 
-  it("shows selected options once in the removable summary and keeps them searchable", () => {
+  it("keeps selected options checked in place without filtering or reordering the list", () => {
+    window.localStorage.setItem(
+      "hb-stunder.schedule-preferences",
+      JSON.stringify({
+        version: 1,
+        favoriteInstructorIds: [1, 45],
+        favoriteActivityTypeIds: [],
+      }),
+    );
     const instructors = Array.from({ length: 45 }, (_, index) => ({
       id: index + 1,
       name: `Instructor ${String(index + 1).padStart(3, "0")}`,
@@ -309,7 +317,13 @@ describe("ScheduleFilters", () => {
     fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
 
     expect(screen.getByRole("button", { name: "Remove Instructor 045" })).toBeTruthy();
-    expect(screen.queryByRole("checkbox", { name: "Instructor 045" })).toBeNull();
+    const firstFavorite = screen.getByRole("checkbox", { name: "Instructor 001" });
+    const selectedFavorite = screen.getByRole("checkbox", { name: "Instructor 045" });
+    expect(
+      firstFavorite.compareDocumentPosition(selectedFavorite) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect((firstFavorite as HTMLInputElement).checked).toBe(false);
+    expect((selectedFavorite as HTMLInputElement).checked).toBe(true);
 
     fireEvent.change(screen.getByRole("searchbox", { name: "Search instructors" }), {
       target: { value: "Instructor 045" },
@@ -379,7 +393,7 @@ describe("ScheduleFilters", () => {
     fireEvent.change(screen.getByLabelText("Choose date…"), { target: { value: chosenDate } });
     fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
     fireEvent.click(screen.getByRole("checkbox", { name: "Hagabadet Drottningtorget" }));
-    fireEvent.click(screen.getByRole("button", { name: "Done" }));
+    fireEvent.click(screen.getByRole("button", { name: "Show schedule" }));
     fireEvent.click(
       within(screen.getByRole("group", { name: "Upcoming days" })).getAllByRole("button")[0]!,
     );

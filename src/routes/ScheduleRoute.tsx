@@ -35,7 +35,12 @@ export function ScheduleRoute() {
   return (
     <SchedulePage
       search={search}
-      onSearchChange={(nextSearch) => void navigate({ search: nextSearch, replace: true })}
+      onSearchChange={(nextSearch) =>
+        void navigate({
+          search: nextSearch,
+          replace: nextSearch.filters === search.filters,
+        })
+      }
       customerId={customer?.customerId}
     />
   );

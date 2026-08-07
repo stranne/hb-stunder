@@ -117,20 +117,46 @@ describe("SchedulePage", () => {
     renderPage([1]);
 
     const openButton = screen.getByRole("button", { name: "Open schedule filters" });
-    expect(openButton.getAttribute("aria-pressed")).toBe("false");
+    expect(openButton.getAttribute("aria-expanded")).toBe("false");
     expect(screen.getByRole("region", { name: "Scheduled classes" })).toBeTruthy();
 
     fireEvent.click(openButton);
 
-    const closeButton = screen.getByRole("button", { name: "Close schedule filters" });
-    expect(closeButton.getAttribute("aria-pressed")).toBe("true");
+    const showScheduleButton = screen.getByRole("button", { name: "Show schedule" });
+    expect(showScheduleButton.getAttribute("aria-expanded")).toBe("true");
     expect(screen.getByRole("region", { name: "Filters" })).toBeTruthy();
     expect(screen.queryByRole("region", { name: "Scheduled classes" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Done" })).toBeNull();
 
-    fireEvent.click(closeButton);
+    fireEvent.click(showScheduleButton);
 
     expect(screen.queryByRole("region", { name: "Filters" })).toBeNull();
     expect(screen.getByRole("region", { name: "Scheduled classes" })).toBeTruthy();
+  });
+
+  it("preserves immediate selections when returning to and reopening the filter view", async () => {
+    server.use(
+      http.get(scheduleEndpoint, () => HttpResponse.json([])),
+      http.get(`${REAL_API_BASE_URL}/services/groupactivityinstructors`, () =>
+        HttpResponse.json([{ id: 21, name: "Maya" }]),
+      ),
+    );
+    renderPage([1]);
+
+    fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
+    const browseButtons = await screen.findAllByRole("button", { name: "Browse options" });
+    fireEvent.click(browseButtons[0]!);
+    fireEvent.click(await screen.findByRole("checkbox", { name: "Maya" }));
+
+    fireEvent.click(screen.getByRole("button", { name: "Show schedule" }));
+    expect(screen.getByRole("region", { name: "Scheduled classes" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
+    const reopenedBrowseButtons = await screen.findAllByRole("button", { name: "Browse options" });
+    fireEvent.click(reopenedBrowseButtons[0]!);
+
+    expect(
+      ((await screen.findByRole("checkbox", { name: "Maya" })) as HTMLInputElement).checked,
+    ).toBe(true);
   });
 
   it("includes business unit names when multiple locations are enabled", async () => {

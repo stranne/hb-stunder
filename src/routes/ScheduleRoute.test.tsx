@@ -7,6 +7,7 @@ import type { ScheduleSearch } from "../features/schedule/model/scheduleSearch";
 const mocks = vi.hoisted(() => ({
   navigate: vi.fn(() => Promise.resolve()),
   renderedSearch: undefined as ScheduleSearch | undefined,
+  onSearchChange: undefined as ((search: ScheduleSearch) => void) | undefined,
   routeSearch: {
     date: "2026-07-29",
     locations: [1, 4128, 3509],
@@ -25,8 +26,15 @@ vi.mock("../features/auth/sessionContext", () => ({
 }));
 
 vi.mock("../features/schedule/components/SchedulePage", () => ({
-  SchedulePage: ({ search }: { search: ScheduleSearch }) => {
+  SchedulePage: ({
+    search,
+    onSearchChange,
+  }: {
+    search: ScheduleSearch;
+    onSearchChange: (search: ScheduleSearch) => void;
+  }) => {
     mocks.renderedSearch = search;
+    mocks.onSearchChange = onSearchChange;
     return null;
   },
 }));
@@ -38,6 +46,7 @@ beforeEach(() => {
   window.history.replaceState(null, "", "/");
   mocks.navigate.mockClear();
   mocks.renderedSearch = undefined;
+  mocks.onSearchChange = undefined;
   mocks.routeSearch = {
     date: "2026-07-29",
     locations: [1, 4128, 3509],
@@ -95,7 +104,32 @@ describe("ScheduleRoute", () => {
     expect(mocks.navigate).not.toHaveBeenCalled();
   });
 
-  it("renders changed router search after browser navigation", () => {
+  it("adds filter-view changes to history while replacing immediate refinements", () => {
+    const view = render(<ScheduleRoute />);
+
+    mocks.onSearchChange?.({ ...mocks.routeSearch, filters: true });
+    expect(mocks.navigate).toHaveBeenLastCalledWith({
+      search: { ...mocks.routeSearch, filters: true },
+      replace: false,
+    });
+
+    mocks.routeSearch = { ...mocks.routeSearch, filters: true };
+    view.rerender(<ScheduleRoute />);
+    mocks.onSearchChange?.({ ...mocks.routeSearch, instructors: [21] });
+    expect(mocks.navigate).toHaveBeenLastCalledWith({
+      search: { ...mocks.routeSearch, instructors: [21] },
+      replace: true,
+    });
+
+    mocks.onSearchChange?.({ ...mocks.routeSearch, filters: false });
+    expect(mocks.navigate).toHaveBeenLastCalledWith({
+      search: { ...mocks.routeSearch, filters: false },
+      replace: false,
+    });
+    view.unmount();
+  });
+
+  it("renders filter visibility and selections restored by browser Back or Forward", () => {
     window.history.replaceState(null, "", "/?locations=1");
     const view = render(<ScheduleRoute />);
 
@@ -103,6 +137,8 @@ describe("ScheduleRoute", () => {
       ...mocks.routeSearch,
       date: "2026-07-30",
       locations: [3509],
+      instructors: [21],
+      filters: true,
     };
     view.rerender(<ScheduleRoute />);
 

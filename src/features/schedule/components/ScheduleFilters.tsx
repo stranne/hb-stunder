@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { FilterList, NavArrowLeft, NavArrowRight } from "iconoir-react";
+import { Calendar, FilterList, NavArrowLeft, NavArrowRight } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../../ui/button/Button";
 import { addDays, todayInStockholm } from "../model/scheduleDate";
@@ -157,14 +157,20 @@ export function ScheduleFilters({
           tone="quiet"
           excludeFromTabOrder={false}
           aria-label={t(
-            isFiltersOpen ? "schedule.filters.closeFilters" : "schedule.filters.openFilters",
+            isFiltersOpen ? "schedule.filters.showSchedule" : "schedule.filters.openFilters",
           )}
-          aria-pressed={isFiltersOpen}
+          aria-expanded={isFiltersOpen}
+          aria-controls="schedule-filter-panel"
+          data-filters-open={isFiltersOpen || undefined}
           onPress={() => onFiltersOpenChange?.(!isFiltersOpen)}
         >
-          <FilterList className={styles.filterIcon} aria-hidden="true" />
+          {isFiltersOpen ? (
+            <Calendar className={styles.filterIcon} aria-hidden="true" />
+          ) : (
+            <FilterList className={styles.filterIcon} aria-hidden="true" />
+          )}
           <span className={styles.filterLabel}>
-            {t("schedule.filters.filters")}
+            {t(isFiltersOpen ? "schedule.filters.showSchedule" : "schedule.filters.filters")}
             {activeFilterCount > 0 ? (
               <span className={styles.count}>{activeFilterCount}</span>
             ) : null}

@@ -150,7 +150,6 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
           hasOptionsError={failedFilterQueries.length > 0}
           onRetryOptions={retryFilterOptions}
           onFavoriteFiltersChange={setFavoriteFilters}
-          onClose={() => onSearchChange({ ...search, filters: false })}
         />
       ) : (
         <>

@@ -78,9 +78,11 @@ function saveSearch(name = "Morning classes") {
 }
 
 function selectSavedSearch(name: string) {
-  const picker = screen.getByLabelText("Saved searches") as HTMLSelectElement;
-  const option = within(picker).getByRole("option", { name });
-  fireEvent.change(picker, { target: { value: option.getAttribute("value") } });
+  fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${name}`) }));
+}
+
+function manageSavedSearch(name: string) {
+  fireEvent.click(screen.getByRole("button", { name: `Manage ${name}` }));
 }
 
 describe("SavedSearches", () => {
@@ -111,16 +113,13 @@ describe("SavedSearches", () => {
     render(<Harness />);
     saveSearch();
 
+    expect(screen.getByRole("heading", { name: "Saved searches" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /^Morning classes/ })).toBeTruthy();
     expect(
-      within(screen.getByLabelText("Saved searches")).getByRole("option", {
-        name: "Morning classes",
-      }),
-    ).toBeTruthy();
-    expect(
-      screen.getByText(
+      screen.getAllByText(
         "Locations: Hagabadet i Haga · Instructors: Anna Andersson · Class types: Body pump",
-      ),
-    ).toBeTruthy();
+      ).length,
+    ).toBeGreaterThan(0);
     expect(screen.getByText("Morning classes saved and applied.")).toBeTruthy();
     expect(
       JSON.parse(window.localStorage.getItem("hb-stunder.schedule-preferences") ?? "null"),
@@ -129,11 +128,10 @@ describe("SavedSearches", () => {
 
   it("does not render a library when there are no definitions, then applies one from its picker", () => {
     render(<Harness />);
-    expect(screen.queryByLabelText("Saved searches")).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Saved searches" })).toBeNull();
     saveSearch();
-    expect(screen.getByLabelText("Saved searches")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Saved searches" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Remove applied search" }));
-    fireEvent.change(screen.getByLabelText("Saved searches"), { target: { value: "" } });
     selectSavedSearch("Morning classes");
     expect(document.querySelector("details")).not.toBeNull();
   });
@@ -147,29 +145,25 @@ describe("SavedSearches", () => {
 
     saveSearch();
 
-    expect(within(summary!).queryByLabelText("Saved searches")).toBeNull();
-    expect(screen.getByLabelText("Saved searches")).toBeTruthy();
+    expect(within(summary!).queryByRole("heading", { name: "Saved searches" })).toBeNull();
+    expect(screen.getByRole("heading", { name: "Saved searches" })).toBeTruthy();
+
+    manageSavedSearch("Morning classes");
+    expect(within(summary!).queryByRole("button", { name: "Edit filters" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Edit filters" })).toBeTruthy();
   });
 
   it("renames and duplicates the applied definition", () => {
     render(<Harness />);
     saveSearch();
-    fireEvent.click(screen.getByRole("button", { name: "Rename Morning classes" }));
+    manageSavedSearch("Morning classes");
     fireEvent.change(screen.getByLabelText("Rename saved search"), {
       target: { value: "Weekday classes" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Save name" }));
-    expect(
-      within(screen.getByLabelText("Saved searches")).getByRole("option", {
-        name: "Weekday classes",
-      }),
-    ).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Duplicate Weekday classes" }));
-    expect(
-      within(screen.getByLabelText("Saved searches")).getByRole("option", {
-        name: "Copy of Weekday classes",
-      }),
-    ).toBeTruthy();
+    expect(screen.getByRole("button", { name: /^Weekday classes/ })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Duplicate" }));
+    expect(screen.getByRole("button", { name: /^Copy of Weekday classes/ })).toBeTruthy();
   });
 
   it("detaches an applied group when ordinary or external filters change", () => {
@@ -195,22 +189,24 @@ describe("SavedSearches", () => {
   it("keeps ordinary controls attached while explicitly editing a saved-search draft", () => {
     render(<PanelHarness />);
     saveSearch();
-    fireEvent.click(screen.getByRole("button", { name: "Edit saved search" }));
+    manageSavedSearch("Morning classes");
+    fireEvent.click(screen.getByRole("button", { name: "Edit filters" }));
     fireEvent.click(screen.getByRole("checkbox", { name: "Hagabadet Drottningtorget" }));
     expect(document.querySelector("details")).not.toBeNull();
-    expect(screen.getByText("Editing draft — changes are not saved yet.")).toBeTruthy();
+    expect(screen.getByText("Editing filters — changes are not saved yet.")).toBeTruthy();
   });
 
   it("keeps edits as a draft until update and cancel restores the stored definition", () => {
     render(<Harness />);
     saveSearch();
-    fireEvent.click(screen.getByRole("button", { name: "Edit saved search" }));
+    manageSavedSearch("Morning classes");
+    fireEvent.click(screen.getByRole("button", { name: "Edit filters" }));
     fireEvent.click(screen.getByRole("button", { name: "Refine filters" }));
-    expect(screen.getByText("Editing draft — changes are not saved yet.")).toBeTruthy();
+    expect(screen.getByText("Editing filters — changes are not saved yet.")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
     expect(screen.getAllByText(/Instructors: Anna Andersson/).length).toBeGreaterThan(0);
 
-    fireEvent.click(screen.getByRole("button", { name: "Edit saved search" }));
+    fireEvent.click(screen.getByRole("button", { name: "Edit filters" }));
     fireEvent.click(screen.getByRole("button", { name: "Refine filters" }));
     fireEvent.click(screen.getByRole("button", { name: "Update" }));
     const stored = JSON.parse(
@@ -222,21 +218,19 @@ describe("SavedSearches", () => {
   it("offers save as new and confirms deletion without clearing current filters", () => {
     render(<Harness />);
     saveSearch();
-    fireEvent.click(screen.getByRole("button", { name: "Edit saved search" }));
+    manageSavedSearch("Morning classes");
+    fireEvent.click(screen.getByRole("button", { name: "Edit filters" }));
     fireEvent.click(screen.getByRole("button", { name: "Refine filters" }));
     fireEvent.click(screen.getByRole("button", { name: "Save as new" }));
     fireEvent.change(screen.getByLabelText("Name this search"), {
       target: { value: "Evening classes" },
     });
     fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Save" }));
-    expect(
-      within(screen.getByLabelText("Saved searches")).getByRole("option", {
-        name: "Evening classes",
-      }),
-    ).toBeTruthy();
+    expect(screen.getByRole("button", { name: /^Evening classes/ })).toBeTruthy();
 
-    fireEvent.click(screen.getByRole("button", { name: "Delete Evening classes" }));
-    expect(screen.getByText(/keeps the current filters selected/)).toBeTruthy();
+    manageSavedSearch("Evening classes");
+    fireEvent.click(screen.getByRole("button", { name: "Remove saved search" }));
+    expect(screen.getByText(/Current filters will stay selected/)).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Confirm delete" }));
     expect(screen.queryByText("Evening classes")).toBeNull();
   });
@@ -271,8 +265,9 @@ describe("SavedSearches", () => {
     );
     render(<Harness />);
     selectSavedSearch("Legacy options");
+    manageSavedSearch("Legacy options");
     expect(screen.getByText(/3 unavailable options/i)).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Remove unavailable options" }));
-    expect(screen.getByText("All classes")).toBeTruthy();
+    expect(screen.getAllByText("All classes").length).toBeGreaterThan(0);
   });
 });

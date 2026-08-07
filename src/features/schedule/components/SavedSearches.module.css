@@ -17,7 +17,8 @@
   .notice,
   .draft,
   .library p,
-  .groupDetails p {
+  .groupDetails p,
+  .management p {
     margin: 0;
     font-size: var(--text-sm);
   }
@@ -25,9 +26,11 @@
   .error {
     color: var(--color-error-strong);
   }
+
   .notice {
     color: var(--color-brass-strong);
   }
+
   .draft {
     color: var(--color-accent-strong);
     font-weight: 700;
@@ -47,6 +50,7 @@
         display: grid;
         gap: var(--space-1);
       }
+
       small {
         color: var(--color-ink-muted);
       }
@@ -57,6 +61,7 @@
   .renameForm,
   .confirmation,
   .library,
+  .management,
   .saveDialog form {
     display: grid;
     gap: var(--space-3);
@@ -66,7 +71,8 @@
     padding: 0 var(--space-3) var(--space-3);
   }
 
-  .actions {
+  .actions,
+  .renameRow {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -74,12 +80,12 @@
   }
 
   .iconAction,
-  .inlineAction {
+  .inlineAction,
+  .applyAction {
     border: 0;
     color: var(--color-accent-strong);
     background: transparent;
     font: inherit;
-    font-weight: 700;
     cursor: pointer;
   }
 
@@ -98,11 +104,85 @@
 
   .inlineAction {
     padding: 0;
+    font-weight: 700;
     text-decoration: underline;
   }
 
+  .library {
+    min-inline-size: 0;
+    padding-block-end: var(--space-4);
+    border-block-end: 1px solid var(--color-border);
+  }
+
+  .libraryHeading {
+    display: grid;
+    gap: var(--space-1);
+
+    h3 {
+      margin: 0;
+      font-size: var(--text-lg);
+    }
+
+    p {
+      color: var(--color-ink-muted);
+    }
+  }
+
+  .searchList,
+  .searchItem {
+    display: grid;
+  }
+
+  .searchRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 2.75rem;
+    min-block-size: 3rem;
+    align-items: center;
+    border-block-end: 1px solid var(--color-border);
+
+    &[data-selected] {
+      background: color-mix(in oklch, var(--color-accent) 8%, transparent);
+    }
+  }
+
+  .applyAction {
+    display: grid;
+    min-inline-size: 0;
+    min-block-size: 3rem;
+    align-content: center;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-3);
+    color: var(--color-ink);
+    text-align: start;
+
+    span {
+      overflow-wrap: anywhere;
+      font-weight: 700;
+    }
+
+    small {
+      overflow: hidden;
+      color: var(--color-ink-muted);
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .management {
+    padding: var(--space-4);
+    border-block-end: 1px solid var(--color-border);
+    background: var(--color-surface-recessed);
+  }
+
+  .renameForm label {
+    font-weight: 700;
+  }
+
+  .renameRow input {
+    flex: 1 1 14rem;
+  }
+
   .renameForm input,
-  .library select,
   .saveDialog input {
     min-block-size: 2.75rem;
     box-sizing: border-box;
@@ -112,20 +192,6 @@
     color: var(--color-ink);
     background: var(--color-surface);
     font: inherit;
-  }
-
-  .library {
-    padding: var(--space-4);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    background: var(--color-surface-recessed);
-
-    label {
-      font-weight: 700;
-    }
-    p {
-      color: var(--color-ink-muted);
-    }
   }
 
   .confirmation {
@@ -158,10 +224,12 @@
     p {
       margin: 0;
     }
+
     h2 {
       font-family: var(--font-display);
       font-size: var(--text-2xl);
     }
+
     label {
       font-weight: 700;
     }
@@ -170,8 +238,8 @@
   .appliedGroup summary:focus-visible,
   .iconAction[data-focus-visible],
   .inlineAction[data-focus-visible],
+  .applyAction[data-focus-visible],
   .renameForm input:focus-visible,
-  .library select:focus-visible,
   .saveDialog input:focus-visible {
     outline: var(--focus-width) solid var(--color-focus);
     outline-offset: var(--focus-offset);

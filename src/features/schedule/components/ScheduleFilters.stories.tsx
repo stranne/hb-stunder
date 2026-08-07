@@ -222,6 +222,12 @@ export const SavedSearchManagement: Story = {
       canvas.getByRole("button", { name: /open schedule filters|öppna schemafilter/i }),
     );
     await expect(canvas.getByText("Weekday yoga")).toBeInTheDocument();
+    await userEvent.click(
+      canvas.getByRole("button", { name: /manage weekday yoga|hantera weekday yoga/i }),
+    );
+    await expect(
+      canvas.getByRole("button", { name: /edit filters|redigera filter/i }),
+    ).toBeInTheDocument();
   },
 };
 export const SaveSelectionDialog: Story = {
@@ -264,10 +270,7 @@ export const SavedSearchApplied: Story = {
     await userEvent.click(
       canvas.getByRole("button", { name: /open schedule filters|öppna schemafilter/i }),
     );
-    await userEvent.selectOptions(
-      canvas.getByLabelText(/saved searches|sparade sökningar/i),
-      "weekday-yoga",
-    );
+    await userEvent.click(canvas.getByRole("button", { name: /^Weekday yoga/ }));
     const groupName = canvas.getByText("Weekday yoga", { selector: "strong" });
     await expect(groupName).toBeInTheDocument();
     const group = groupName.closest("details");

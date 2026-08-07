@@ -81,9 +81,9 @@ export function SavedSearches({
   const [localActiveId, setLocalActiveId] = useState<string>();
   const [isExpanded, setIsExpanded] = useState(true);
   const [editingId, setEditingId] = useState<string>();
+  const [managingId, setManagingId] = useState<string>();
   const [saveDialogMode, setSaveDialogMode] = useState<SaveDialogMode>();
   const [name, setName] = useState("");
-  const [rename, setRename] = useState(false);
   const [renameValue, setRenameValue] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [validationMessage, setValidationMessage] = useState<string>();
@@ -91,6 +91,7 @@ export function SavedSearches({
   const [announcement, setAnnouncement] = useState("");
   const currentActiveId = onActiveChange ? activeId : localActiveId;
   const activeSearch = savedSearches.find(({ id }) => id === currentActiveId);
+  const managedSearch = savedSearches.find(({ id }) => id === managingId);
   const instructorNames = new Map(instructors.map((option) => [option.id, option.name]));
   const activityTypeNames = new Map(activityTypes.map((option) => [option.id, option.name]));
   const locationNames = new Map<number, string>(
@@ -208,7 +209,24 @@ export function SavedSearches({
     setActive(savedSearch.id);
     setEditingId(undefined);
     setIsExpanded(true);
-    setRename(false);
+    setConfirmDelete(false);
+    onChange(applySavedSearch(search, savedSearch));
+  }
+
+  function manage(savedSearch: SavedSearch) {
+    if (editingId && activeSearch) cancelDraft();
+    const isClosing = managingId === savedSearch.id;
+    setManagingId(isClosing ? undefined : savedSearch.id);
+    setRenameValue(isClosing ? "" : savedSearch.name);
+    setConfirmDelete(false);
+    setValidationMessage(undefined);
+  }
+
+  function editCriteria(savedSearch: SavedSearch) {
+    setActive(savedSearch.id);
+    setEditingId(savedSearch.id);
+    setManagingId(savedSearch.id);
+    setIsExpanded(true);
     setConfirmDelete(false);
     onChange(applySavedSearch(search, savedSearch));
   }
@@ -227,6 +245,7 @@ export function SavedSearches({
     if (!persist([...savedSearches, savedSearch])) return;
     setActive(savedSearch.id);
     setEditingId(undefined);
+    setManagingId(undefined);
     setIsExpanded(true);
     setSaveDialogMode(undefined);
     setName("");
@@ -256,6 +275,24 @@ export function SavedSearches({
         activityTypes: savedSearch.criteria.activityTypeIds,
       }),
     ]);
+  }
+
+  function renameManaged() {
+    if (!managedSearch) return;
+    const error = nameError(renameValue, managedSearch.id);
+    if (error) {
+      setValidationMessage(error);
+      return;
+    }
+    if (
+      persist(
+        savedSearches.map((item) =>
+          item.id === managedSearch.id ? { ...item, name: renameValue.trim() } : item,
+        ),
+      )
+    ) {
+      setValidationMessage(undefined);
+    }
   }
 
   function update() {
@@ -321,25 +358,156 @@ export function SavedSearches({
     ) : null;
   const library =
     savedSearches.length > 0 ? (
-      <div className={styles.library}>
-        <Label htmlFor={`${nameId}-picker`}>{t("schedule.savedSearches.title")}</Label>
-        <select
-          id={`${nameId}-picker`}
-          value={currentActiveId ?? ""}
-          onChange={(event) => {
-            const savedSearch = savedSearches.find(({ id }) => id === event.target.value);
-            if (savedSearch) apply(savedSearch);
-          }}
-        >
-          <option value="">{t("schedule.savedSearches.choose")}</option>
-          {savedSearches.map((savedSearch) => (
-            <option key={savedSearch.id} value={savedSearch.id}>
-              {savedSearch.name}
-            </option>
-          ))}
-        </select>
-        <p>{t("schedule.savedSearches.localOnly")}</p>
-      </div>
+      <section className={styles.library} aria-labelledby={`${nameId}-library-title`}>
+        <div className={styles.libraryHeading}>
+          <h3 id={`${nameId}-library-title`}>{t("schedule.savedSearches.title")}</h3>
+          <p>{t("schedule.savedSearches.localOnly")}</p>
+        </div>
+        <div className={styles.searchList}>
+          {savedSearches.map((savedSearch) => {
+            const isManaged = managingId === savedSearch.id;
+            const isEditing = editingId === savedSearch.id;
+            return (
+              <div className={styles.searchItem} key={savedSearch.id}>
+                <div
+                  className={styles.searchRow}
+                  data-selected={currentActiveId === savedSearch.id || undefined}
+                >
+                  <AriaButton className={styles.applyAction} onPress={() => apply(savedSearch)}>
+                    <span>{savedSearch.name}</span>
+                    <small>{criteriaText(savedSearch.criteria)}</small>
+                  </AriaButton>
+                  <AriaButton
+                    className={styles.iconAction}
+                    aria-label={t("schedule.savedSearches.manageNamed", { name: savedSearch.name })}
+                    onPress={() => manage(savedSearch)}
+                  >
+                    <EditPencil aria-hidden="true" />
+                  </AriaButton>
+                </div>
+                {isManaged ? (
+                  <div className={styles.management}>
+                    {isEditing ? (
+                      <>
+                        <p className={styles.draft}>{t("schedule.savedSearches.editingDraft")}</p>
+                        <p>{criteriaText(criteriaFromScheduleSearch(search))}</p>
+                        <div className={styles.actions}>
+                          <Button onPress={update}>
+                            <FloppyDisk aria-hidden="true" />
+                            {t("schedule.savedSearches.update")}
+                          </Button>
+                          <Button
+                            tone="quiet"
+                            onPress={() => {
+                              setName("");
+                              setValidationMessage(undefined);
+                              setSaveDialogMode("draft");
+                            }}
+                          >
+                            {t("schedule.savedSearches.saveAsNew")}
+                          </Button>
+                          <Button tone="quiet" onPress={cancelDraft}>
+                            {t("schedule.savedSearches.cancel")}
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <form
+                          className={styles.renameForm}
+                          onSubmit={(event) => {
+                            event.preventDefault();
+                            renameManaged();
+                          }}
+                        >
+                          <Label htmlFor={`${nameId}-rename-${savedSearch.id}`}>
+                            {t("schedule.savedSearches.rename")}
+                          </Label>
+                          <div className={styles.renameRow}>
+                            <Input
+                              id={`${nameId}-rename-${savedSearch.id}`}
+                              value={renameValue}
+                              maxLength={SAVED_SEARCH_NAME_MAX_LENGTH}
+                              onChange={(event) => {
+                                setRenameValue(event.target.value);
+                                setValidationMessage(undefined);
+                              }}
+                            />
+                            <Button type="submit">{t("schedule.savedSearches.saveName")}</Button>
+                          </div>
+                        </form>
+                        {validationMessage ? (
+                          <p className={styles.error} role="alert">
+                            {validationMessage}
+                          </p>
+                        ) : null}
+                        <div className={styles.actions}>
+                          <Button tone="quiet" onPress={() => editCriteria(savedSearch)}>
+                            <EditPencil aria-hidden="true" />
+                            {t("schedule.savedSearches.editFilters")}
+                          </Button>
+                          <Button tone="quiet" onPress={() => duplicate(savedSearch)}>
+                            <Copy aria-hidden="true" />
+                            {t("schedule.savedSearches.duplicate")}
+                          </Button>
+                          <Button tone="quiet" onPress={() => setConfirmDelete(true)}>
+                            <Trash aria-hidden="true" />
+                            {t("schedule.savedSearches.remove")}
+                          </Button>
+                        </div>
+                        {unavailableIds(savedSearch) > 0 ? (
+                          <p className={styles.notice}>
+                            {t("schedule.savedSearches.unavailableReferences", {
+                              count: unavailableIds(savedSearch),
+                            })}{" "}
+                            <AriaButton
+                              className={styles.inlineAction}
+                              onPress={() => cleanUnavailable(savedSearch)}
+                            >
+                              {t("schedule.savedSearches.removeUnavailable")}
+                            </AriaButton>
+                          </p>
+                        ) : null}
+                        {confirmDelete ? (
+                          <div className={styles.confirmation} role="alert">
+                            <p>
+                              {t("schedule.savedSearches.deleteWarning", {
+                                name: savedSearch.name,
+                              })}
+                            </p>
+                            <Button
+                              tone="quiet"
+                              onPress={() => {
+                                if (
+                                  persist(
+                                    savedSearches.filter((item) => item.id !== savedSearch.id),
+                                  )
+                                ) {
+                                  if (currentActiveId === savedSearch.id) setActive(undefined);
+                                  setManagingId(undefined);
+                                  setConfirmDelete(false);
+                                }
+                              }}
+                            >
+                              {t("schedule.savedSearches.confirmDelete")}
+                            </Button>
+                            <AriaButton
+                              className={styles.inlineAction}
+                              onPress={() => setConfirmDelete(false)}
+                            >
+                              {t("schedule.savedSearches.cancelDelete")}
+                            </AriaButton>
+                          </div>
+                        ) : null}
+                      </>
+                    )}
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+      </section>
     ) : null;
 
   return (
@@ -364,165 +532,21 @@ export function SavedSearches({
               <strong>{activeSearch.name}</strong>
               <small>
                 {t("schedule.savedSearches.criteriaCount", {
-                  count: criteriaCount(
-                    editingId ? criteriaFromScheduleSearch(search) : activeSearch.criteria,
-                  ),
+                  count: criteriaCount(activeSearch.criteria),
                 })}
                 {" · "}
-                {criteriaText(
-                  editingId ? criteriaFromScheduleSearch(search) : activeSearch.criteria,
-                )}
+                {criteriaText(activeSearch.criteria)}
               </small>
             </span>
           </summary>
           <div className={styles.groupDetails}>
-            {editingId ? (
-              <p className={styles.draft}>{t("schedule.savedSearches.editingDraft")}</p>
-            ) : null}
-            <p>
-              {criteriaText(editingId ? criteriaFromScheduleSearch(search) : activeSearch.criteria)}
-            </p>
-            {unavailableIds(activeSearch) > 0 ? (
-              <p className={styles.notice}>
-                {t("schedule.savedSearches.unavailableReferences", {
-                  count: unavailableIds(activeSearch),
-                })}{" "}
-                <AriaButton
-                  className={styles.inlineAction}
-                  onPress={() => cleanUnavailable(activeSearch)}
-                >
-                  {t("schedule.savedSearches.removeUnavailable")}
-                </AriaButton>
-              </p>
-            ) : null}
-            {rename ? (
-              <form
-                className={styles.renameForm}
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  const error = nameError(renameValue, activeSearch.id);
-                  if (error) {
-                    setValidationMessage(error);
-                    return;
-                  }
-                  if (
-                    persist(
-                      savedSearches.map((item) =>
-                        item.id === activeSearch.id ? { ...item, name: renameValue.trim() } : item,
-                      ),
-                    )
-                  ) {
-                    setRename(false);
-                    setValidationMessage(undefined);
-                  }
-                }}
-              >
-                <Label htmlFor={`${nameId}-rename`}>{t("schedule.savedSearches.rename")}</Label>
-                <Input
-                  id={`${nameId}-rename`}
-                  value={renameValue}
-                  maxLength={SAVED_SEARCH_NAME_MAX_LENGTH}
-                  onChange={(event) => setRenameValue(event.target.value)}
-                />
-                <div className={styles.actions}>
-                  <Button type="submit">{t("schedule.savedSearches.saveName")}</Button>
-                  <Button tone="quiet" onPress={() => setRename(false)}>
-                    {t("schedule.savedSearches.cancel")}
-                  </Button>
-                </div>
-              </form>
-            ) : null}
+            <p>{criteriaText(activeSearch.criteria)}</p>
             <div className={styles.actions}>
-              {editingId ? (
-                <>
-                  <Button onPress={update}>
-                    <FloppyDisk aria-hidden="true" />
-                    {t("schedule.savedSearches.update")}
-                  </Button>
-                  <Button
-                    tone="quiet"
-                    onPress={() => {
-                      setName("");
-                      setValidationMessage(undefined);
-                      setSaveDialogMode("draft");
-                    }}
-                  >
-                    {t("schedule.savedSearches.saveAsNew")}
-                  </Button>
-                  <Button tone="quiet" onPress={cancelDraft}>
-                    {t("schedule.savedSearches.cancel")}
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button tone="quiet" onPress={removeApplied}>
-                    <Xmark aria-hidden="true" />
-                    {t("schedule.savedSearches.removeApplied")}
-                  </Button>
-                  <Button
-                    tone="quiet"
-                    onPress={() => {
-                      onChange(applySavedSearch(search, activeSearch));
-                      setEditingId(activeSearch.id);
-                    }}
-                  >
-                    <EditPencil aria-hidden="true" />
-                    {t("schedule.savedSearches.edit")}
-                  </Button>
-                  <AriaButton
-                    className={styles.iconAction}
-                    aria-label={t("schedule.savedSearches.renameNamed", {
-                      name: activeSearch.name,
-                    })}
-                    onPress={() => {
-                      setRename(true);
-                      setRenameValue(activeSearch.name);
-                    }}
-                  >
-                    <EditPencil aria-hidden="true" />
-                  </AriaButton>
-                  <AriaButton
-                    className={styles.iconAction}
-                    aria-label={t("schedule.savedSearches.duplicateNamed", {
-                      name: activeSearch.name,
-                    })}
-                    onPress={() => duplicate(activeSearch)}
-                  >
-                    <Copy aria-hidden="true" />
-                  </AriaButton>
-                  <AriaButton
-                    className={styles.iconAction}
-                    aria-label={t("schedule.savedSearches.deleteNamed", {
-                      name: activeSearch.name,
-                    })}
-                    onPress={() => setConfirmDelete(true)}
-                  >
-                    <Trash aria-hidden="true" />
-                  </AriaButton>
-                </>
-              )}
+              <Button tone="quiet" onPress={removeApplied}>
+                <Xmark aria-hidden="true" />
+                {t("schedule.savedSearches.removeApplied")}
+              </Button>
             </div>
-            {confirmDelete ? (
-              <div className={styles.confirmation} role="alert">
-                <p>
-                  {t("schedule.savedSearches.deleteAppliedWarning", { name: activeSearch.name })}
-                </p>
-                <Button
-                  tone="quiet"
-                  onPress={() => {
-                    if (persist(savedSearches.filter((item) => item.id !== activeSearch.id))) {
-                      setActive(undefined);
-                      setConfirmDelete(false);
-                    }
-                  }}
-                >
-                  {t("schedule.savedSearches.confirmDelete")}
-                </Button>
-                <AriaButton className={styles.inlineAction} onPress={() => setConfirmDelete(false)}>
-                  {t("schedule.savedSearches.cancelDelete")}
-                </AriaButton>
-              </div>
-            ) : null}
           </div>
         </details>
       ) : null}

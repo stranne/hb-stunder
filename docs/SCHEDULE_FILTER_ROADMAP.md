@@ -93,18 +93,18 @@ The persisted model, matching rules, migration handling, validation, and managem
 #### Showing and applying saved searches
 
 - [x] Do not render an empty **Saved searches** heading, panel, or placeholder when none exist. The summary's **Save current selection** action is sufficient discovery for the empty state.
-- [x] Once at least one exists, show a compact saved-search picker/library near the selected-filter summary; keep management secondary to applying a search.
+- [x] Once at least one exists, show a compact saved-search list near the selected-filter summary. Use the same row-based visual language as the other search sections, make each row reliably apply its search, and keep management behind a secondary row action.
 - [x] Applying a saved search replaces the ordinary current selection in this release and inserts one visibly named, expandable group such as **MyFilter** into the selected-filter summary.
-- [x] The collapsed group shows its name and a concise criteria/count summary. Expanding it shows category-labelled criteria and actions to remove, edit, rename, duplicate, or delete it.
-- [x] Removing the group clears its applied criteria. Deleting its stored definition requires confirmation and must clearly state what happens to the current selection.
+- [x] The collapsed group shows its name and a concise criteria/count summary. Expanding it shows category-labelled criteria and an action to remove the applied group; management of the stored definition does not appear inside the selected-filter summary.
+- [x] Put rename, filter editing, update, duplicate, and delete controls in the saved-search list. Removing the applied group clears its criteria. Deleting its stored definition requires confirmation and must clearly state what happens to the current selection.
 - [x] Never track an applied saved search only through styling, a hidden ID, or wording elsewhere in the panel. If the named group is not visible, it is not active.
 
 #### Editing without misleading provenance
 
 - [x] A direct filter change outside explicit group editing detaches the applied group immediately: preserve the resulting current criteria, remove the saved name, and leave the stored definition unchanged.
-- [x] **Edit saved search** starts a clearly labelled draft based on that group's definition; changes do not write to storage until **Update** is chosen.
-- [x] Offer **Save as new** from the edit flow. **Cancel** restores the applied stored definition.
-- [x] Do not use a persistent “active but modified” state. If an unsaved edit marker is needed inside the explicit edit flow, label it as an editing draft and keep the available resolution actions adjacent.
+- [x] **Edit filters** from the saved-search management row starts a clearly labelled draft based on that definition; changes do not write to storage until **Update** is chosen.
+- [x] Keep **Update**, **Save as new**, and **Cancel** together in the saved-search management section rather than placing editing controls in the selected-filter group. **Cancel** restores the applied stored definition.
+- [x] Do not use a persistent “active but modified” state. Label the explicit draft in the saved-search management section and keep the available resolution actions adjacent.
 - [x] Retain readable invalid-reference and storage-failure handling, duplicate-name validation, explicit cleanup of unavailable IDs, and the existing local-only storage disclosure.
 - [x] Add/update model, component, and Storybook coverage for create-dialog cancellation and validation, no-saved-search state, collapsed/expanded applied group, detachment on direct change, update, save-as-new, delete, unavailable criteria, and storage failure.
 
@@ -178,8 +178,8 @@ Once implementation begins, work through one complete numbered roadmap section (
 - Keep favorites prominent only inside the instructor and activity-type selectors as empty-search shortcuts. Saved searches remain the higher-level repeat-workflow feature; favorites do not get a separate mode or top-level section.
 - Do not add recently used options. Saved searches and explicit favorites cover repeat workflows without introducing implicit history, additional storage semantics, or another ordering rule.
 - Put **Save current selection** inside the selected-filter summary as a compact, accessibly named icon action and ask for a name in a dialog only after the action is invoked. Keep the similarly secondary **Clear filters** action compact and show it only when there is something to clear.
-- Keep the saved-search picker visually separate from the selected-filter summary so stored definitions are not mistaken for active criteria. Render no saved-search library or empty-state panel until at least one saved search exists.
-- An applied saved search is a visible, expandable named group. Direct changes outside explicit editing detach it to an ordinary selection instead of leaving it “active but modified.”
+- Keep the row-based saved-search library visually separate from the selected-filter summary so stored definitions are not mistaken for active criteria. Render no saved-search library or empty-state panel until at least one saved search exists.
+- An applied saved search is a visible, expandable named group, but its stored definition is renamed, edited, duplicated, and removed from the library rather than from that selected-filter group. Direct changes outside explicit editing detach it to an ordinary selection instead of leaving it “active but modified.”
 - Saved-search definitions are flat snapshots. Do not permit saved searches within saved searches; any future composition is limited to one level of sibling groups.
 - Defer import/export until the redesigned single-group workflow is validated and a concrete portability need exists.
 

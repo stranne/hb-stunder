@@ -11,6 +11,7 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: process.env.VITE_BASE_PATH ?? "/",
   fmt: {
     ignorePatterns: ["openapi/openapi.yaml", "public/mockServiceWorker.js", "src/api/generated/**"],
   },

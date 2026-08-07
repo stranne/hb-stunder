@@ -1,0 +1,73 @@
+name: Verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.20.0
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.11.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Check formatting, lint, and types
+        run: pnpm check
+
+      - name: Run unit tests
+        run: pnpm test
+
+      - name: Run Storybook interaction and accessibility tests
+        run: pnpm test-storybook
+
+      - name: Build application
+        run: pnpm build
+
+      - name: Build Storybook
+        run: pnpm build-storybook
+
+      - name: Prepare GitHub Pages preview
+        env:
+          VITE_BASE_PATH: /hb-stunder/
+        run: |
+          pnpm exec vp build
+          cp dist/index.html dist/404.html
+          test -f dist/.nojekyll
+          grep -q '/hb-stunder/assets/' dist/index.html
+
+      - name: Upload deployable site preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: github-pages-preview
+          path: dist
+          if-no-files-found: error
+          retention-days: 7

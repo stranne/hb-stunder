@@ -49,20 +49,20 @@ This behavior must be made visible in the interface and tested before it is enab
 ### 1. Establish the simple filter experience
 
 - [x] Confirm the filter information architecture in focused Storybook prototypes before replacing production behavior.
-- [ ] Preserve the current business-unit pill/checkbox selector with only necessary accessibility or responsive fixes.
-- [ ] Remove the custom list virtualizer, fixed row/group height assumptions, virtual spacers, and manual focus remapping from `ScheduleFilterPanel.tsx`.
-- [ ] Remove inner list and desktop page scrolling constraints; use normal document scrolling.
-- [ ] Replace the two-column constrained list layout with a responsive layout that remains comfortable on mobile and desktop.
-- [ ] Make instructors and activity types search-first selectors.
-- [ ] When search is empty, show selected options first, then favorites, followed by an explicit way to browse all options.
-- [ ] Make all options discoverable without numbered pagination. Prefer grouped progressive disclosure such as **Show more** in bounded chunks.
-- [ ] Group instructors alphabetically.
-- [ ] Group activity types by trustworthy API category metadata if available; otherwise group alphabetically. Do not infer or merge distinct products by stripping durations from names without validating their identity and selection behavior.
-- [ ] Avoid duplicate interactive rows when an option appears under Selected, Favorites, and All; choose one clear representation or use non-interactive selection summaries.
-- [ ] Show selected business locations (when fewer than all are active), instructors, and activity types near the top as removable chips with category icons.
-- [ ] Keep **Clear filters** adjacent to the active-filter summary.
-- [ ] Ensure loading, partial error, no-result, no-favorite, long-list, and selected-item states are represented.
-- [ ] Verify touch targets, visible focus, screen-reader labels, keyboard order, and browser find behavior.
+- [x] Preserve the current business-unit pill/checkbox selector with only necessary accessibility or responsive fixes.
+- [x] Remove the custom list virtualizer, fixed row/group height assumptions, virtual spacers, and manual focus remapping from `ScheduleFilterPanel.tsx`.
+- [x] Remove inner list and desktop page scrolling constraints; use normal document scrolling.
+- [x] Replace the two-column constrained list layout with a responsive layout that remains comfortable on mobile and desktop.
+- [x] Make instructors and activity types search-first selectors.
+- [x] When search is empty, show selected options first, then favorites, followed by an explicit way to browse all options.
+- [x] Make all options discoverable without numbered pagination. Prefer grouped progressive disclosure such as **Show more** in bounded chunks.
+- [x] Group instructors alphabetically.
+- [x] Group activity types by trustworthy API category metadata if available; otherwise group alphabetically. Do not infer or merge distinct products by stripping durations from names without validating their identity and selection behavior.
+- [x] Avoid duplicate interactive rows when an option appears under Selected, Favorites, and All; choose one clear representation or use non-interactive selection summaries.
+- [x] Show selected business locations (when fewer than all are active), instructors, and activity types near the top as removable chips with category icons.
+- [x] Keep **Clear filters** adjacent to the active-filter summary.
+- [x] Ensure loading, partial error, no-result, no-favorite, long-list, and selected-item states are represented.
+- [x] Verify touch targets, visible focus, screen-reader labels, keyboard order, and browser find behavior.
 
 ### 2. Replace the modal-style completion behavior
 
@@ -147,12 +147,13 @@ Once implementation begins, work through one complete numbered roadmap section (
 - Favorites are construction shortcuts; saved searches preserve combinations.
 - Introduce one active saved search before multi-search OR combinations.
 - Keep dates and schedule view outside saved searches initially.
+- The current activity-type API data has business-unit availability but no stable, user-meaningful category metadata, so group activity types alphabetically.
 - Track this roadmap temporarily and delete it when the work is complete.
 
 ## Open decisions
 
 - [ ] Whether only one long browse section should be expanded at a time on small screens.
-- [ ] Whether activity-type API metadata provides stable, user-meaningful grouping.
+- [x] Whether activity-type API metadata provides stable, user-meaningful grouping. It currently does not; use alphabetical groups.
 - [ ] Exact navigation label and placement: **Show schedule**, **Back to schedule**, or a filter-toggle state.
 - [ ] Saved-search naming validation and maximum practical count.
 - [ ] Whether saved searches eventually require account-backed synchronization.

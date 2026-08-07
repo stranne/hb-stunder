@@ -367,6 +367,8 @@ describe("SchedulePage", () => {
 
     expect(await screen.findByText("Haga class")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
+    const browseButtons = await screen.findAllByRole("button", { name: "Browse options" });
+    browseButtons.forEach((button) => fireEvent.click(button));
 
     expect(await screen.findByRole("checkbox", { name: "Local instructor" })).toBeTruthy();
     expect(screen.getByRole("checkbox", { name: "Other instructor" })).toBeTruthy();

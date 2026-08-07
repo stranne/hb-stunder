@@ -1,103 +1,80 @@
 @layer components {
   .panel {
-    display: flex;
-    flex: 1;
-    min-block-size: 0;
     inline-size: min(calc(100% - 2rem), 64rem);
     margin-inline: auto;
+    color: var(--color-ink);
+  }
+
+  .dialog {
+    display: grid;
+    gap: var(--space-8);
+    padding: var(--space-6);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     background: var(--color-surface);
   }
 
-  .dialog {
+  .header h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 5vw, 2.5rem);
+    line-height: 1;
+  }
+
+  .summary {
     display: grid;
-    flex: 1;
-    min-block-size: 0;
-    gap: var(--space-6);
-    padding: var(--space-6);
-    outline: none;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-recessed);
+
+    h3,
+    p {
+      margin: 0;
+    }
+
+    p {
+      color: var(--color-ink-muted);
+      font-size: var(--text-sm);
+    }
   }
 
-  .footer {
-    display: flex;
-    justify-content: flex-end;
-    margin-inline: calc(-1 * var(--space-6));
-    margin-block: calc(-1 * var(--space-6));
-    padding: var(--space-3) var(--space-6);
-    border-block-start: 1px solid var(--color-border);
-    background: var(--color-surface);
-  }
-
-  .headingRow {
+  .summaryHeading {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-3);
-
-    h2 {
-      margin: 0;
-      font-family: var(--font-display);
-      font-size: var(--text-lg);
-    }
   }
 
-  .clearButton {
-    padding: var(--space-2);
+  .clearButton,
+  .disclosureButton {
+    min-block-size: 2.75rem;
+    padding: var(--space-2) var(--space-3);
     border: 0;
+    border-radius: var(--radius-sm);
     color: var(--color-accent-strong);
     background: transparent;
     font: inherit;
     font-weight: 700;
     cursor: pointer;
-
-    &[data-focus-visible] {
-      outline: var(--focus-width) solid var(--color-focus);
-      outline-offset: var(--focus-offset);
-    }
   }
 
-  .optionColumns {
-    display: grid;
-    gap: var(--space-6);
-  }
-
-  .section {
-    display: grid;
-    gap: var(--space-3);
-    min-inline-size: 0;
-
-    h3 {
-      margin: 0;
-      font-size: var(--text-base);
-    }
-  }
-
-  .sectionHeading {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-
-    svg {
-      inline-size: 1.1rem;
-      block-size: 1.1rem;
-      color: var(--color-ink-muted);
-    }
-  }
-
+  .chips,
   .locationOptions {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
   }
 
+  .chip,
   .locationCheckbox {
-    display: flex;
+    display: inline-flex;
+    min-block-size: 2.75rem;
     align-items: center;
     gap: var(--space-2);
-    min-block-size: 2.5rem;
     padding: var(--space-2) var(--space-3);
-    border: 1px solid color-mix(in oklch, var(--color-ink) 18%, transparent);
+    border: 1px solid var(--color-border-strong);
     border-radius: var(--radius-pill);
     color: var(--color-ink);
     background: var(--color-surface);
@@ -105,17 +82,52 @@
     cursor: pointer;
   }
 
+  .chip svg {
+    inline-size: 1rem;
+    block-size: 1rem;
+  }
+
+  .chip[data-focus-visible] {
+    border-color: var(--color-error);
+    color: var(--color-error-strong);
+    background: var(--color-error-soft);
+  }
+
+  @media (hover: hover) {
+    .chip:hover {
+      border-color: var(--color-error);
+      color: var(--color-error-strong);
+      background: var(--color-error-soft);
+    }
+  }
+
+  .locationSection,
+  .selector {
+    display: grid;
+    min-inline-size: 0;
+    gap: var(--space-3);
+  }
+
+  .sectionHeading {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+
+    h3 {
+      margin: 0;
+      font-size: var(--text-lg);
+    }
+
+    svg {
+      inline-size: 1.15rem;
+      block-size: 1.15rem;
+      color: var(--color-ink-muted);
+    }
+  }
+
   .locationCheckbox[data-selected] {
     border-color: var(--color-accent);
     background: color-mix(in oklch, var(--color-accent) 12%, var(--color-surface));
-  }
-
-  .locationCheckbox[data-focus-visible],
-  .checkbox[data-focus-visible],
-  .starButton[data-focus-visible],
-  .searchField input:focus-visible {
-    outline: var(--focus-width) solid var(--color-focus);
-    outline-offset: var(--focus-offset);
   }
 
   .checkboxBox {
@@ -127,7 +139,6 @@
     border: 1px solid color-mix(in oklch, var(--color-ink) 35%, transparent);
     border-radius: 0.3rem;
     color: var(--color-ink-inverse);
-    font-size: 0.8rem;
 
     svg {
       inline-size: 0.9rem;
@@ -142,125 +153,73 @@
     background: var(--color-accent);
   }
 
-  .searchField {
+  .selectors {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-
-    input {
-      min-block-size: 2.75rem;
-      min-inline-size: 0;
-      padding: var(--space-2) var(--space-3);
-      border: 1px solid color-mix(in oklch, var(--color-ink) 20%, transparent);
-      border-radius: var(--radius-sm);
-      color: var(--color-ink);
-      background: var(--color-surface);
-      font: inherit;
-    }
-
-    button {
-      inline-size: 2.75rem;
-      margin-inline-start: -2.75rem;
-      border: 0;
-      color: var(--color-ink-muted);
-      background: transparent;
-      font: inherit;
-      font-size: 1.25rem;
-      cursor: pointer;
-
-      svg {
-        inline-size: 1.1rem;
-        block-size: 1.1rem;
-      }
-    }
+    gap: var(--space-12);
   }
 
-  .optionList {
-    display: grid;
-    align-content: start;
-    max-block-size: 13rem;
-    overflow-y: auto;
-    overscroll-behavior-y: contain;
-    border-block: 1px solid color-mix(in oklch, var(--color-ink) 10%, transparent);
+  .selector {
+    padding-block-end: var(--space-4);
+    border-block-end: 1px solid var(--color-border);
   }
 
+  .searchInput {
+    inline-size: 100%;
+    min-block-size: 3rem;
+    box-sizing: border-box;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    color: var(--color-ink);
+    background: var(--color-surface);
+    font: inherit;
+  }
+
+  .optionGroups,
   .optionGroup {
     display: grid;
   }
 
-  .optionGroupLabel {
-    position: sticky;
-    z-index: 1;
-    inset-block-start: 0;
-    display: flex;
-    block-size: 36px;
-    align-items: center;
-    padding-inline: var(--space-2);
-    border-block-end: 1px solid color-mix(in oklch, var(--color-ink) 10%, transparent);
+  .optionGroups {
+    gap: var(--space-2);
+  }
+
+  .groupTitle {
+    margin: var(--space-2) 0 0;
     color: var(--color-ink-muted);
-    background: var(--color-surface);
     font-size: var(--text-sm);
-    font-weight: 700;
   }
 
   .optionRow {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 2.75rem;
-    block-size: 44px;
+    min-block-size: 3rem;
     align-items: center;
-    overflow: hidden;
-    border-block-end: 1px solid color-mix(in oklch, var(--color-ink) 8%, transparent);
+    border-block-end: 1px solid var(--color-border);
   }
 
   .checkbox {
     display: flex;
+    min-block-size: 3rem;
+    min-inline-size: 0;
     align-items: center;
     gap: var(--space-3);
-    block-size: 44px;
-    min-inline-size: 0;
-    padding: var(--space-2);
     cursor: pointer;
   }
 
   .optionName {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .virtualSpacer {
-    flex: none;
-    pointer-events: none;
-  }
-
-  .optionSummary {
-    margin: calc(-1 * var(--space-1)) 0 0;
-    color: var(--color-ink-muted);
-    font-size: var(--text-sm);
-  }
-
-  .visuallyHidden {
-    position: absolute;
-    inline-size: 1px;
-    block-size: 1px;
-    padding: 0;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    clip-path: inset(50%);
-    border: 0;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
   }
 
   .starButton {
     display: grid;
-    inline-size: 2.25rem;
-    block-size: 2.25rem;
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
     place-items: center;
     border: 0;
     border-radius: var(--radius-pill);
     color: var(--color-ink-muted);
     background: transparent;
-    font: inherit;
-    font-size: 1.2rem;
     cursor: pointer;
 
     svg {
@@ -269,62 +228,60 @@
     }
 
     &[data-selected] {
-      color: var(--color-brass);
+      color: var(--color-brass-strong);
+
+      svg {
+        fill: var(--color-brass-soft);
+      }
     }
   }
 
-  .loading,
-  .empty {
+  .empty,
+  .loading {
     margin: 0;
     color: var(--color-ink-muted);
     font-size: var(--text-sm);
   }
 
-  @media (width >= 64rem) {
-    .panel {
-      overflow: hidden;
-    }
+  .disclosureButton {
+    justify-self: start;
+    border: 1px solid var(--color-border-strong);
+    background: var(--color-surface);
+  }
 
-    .dialog {
-      grid-template-rows: auto auto minmax(0, 1fr) auto;
-      overflow: hidden;
-    }
+  .footer {
+    display: flex;
+    justify-content: flex-end;
+    padding-block-start: var(--space-2);
+  }
 
-    .locationSection {
-      grid-template-columns: auto minmax(0, 1fr);
-      align-items: center;
-      column-gap: var(--space-6);
-    }
-
-    .optionColumns {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      align-items: stretch;
-      min-block-size: 0;
-    }
-
-    .optionColumns > .section {
-      grid-template-rows: auto auto auto minmax(0, 1fr);
-      min-block-size: 0;
-    }
-
-    .optionList {
-      block-size: 100%;
-      min-block-size: 0;
-      max-block-size: none;
-    }
+  .clearButton[data-focus-visible],
+  .disclosureButton[data-focus-visible],
+  .chip[data-focus-visible],
+  .locationCheckbox[data-focus-visible],
+  .checkbox[data-focus-visible],
+  .starButton[data-focus-visible],
+  .searchInput:focus-visible {
+    outline: var(--focus-width) solid var(--color-focus);
+    outline-offset: var(--focus-offset);
   }
 
   @media (width < 42rem) {
-    .dialog {
-      padding: var(--space-6) var(--space-4);
+    .panel {
+      inline-size: calc(100% - var(--space-4) - var(--space-4));
     }
 
-    .footer {
-      position: sticky;
-      inset-block-end: 0;
-      margin-inline: calc(-1 * var(--space-4));
-      margin-block-end: calc(-1 * var(--space-6));
-      padding-inline: var(--space-4);
+    .dialog {
+      gap: var(--space-6);
+      padding: var(--space-4);
+    }
+
+    .summaryHeading {
+      align-items: start;
+    }
+
+    .clearButton {
+      flex: none;
     }
   }
 }

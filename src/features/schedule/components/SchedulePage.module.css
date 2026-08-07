@@ -116,13 +116,6 @@
     background: var(--color-warning-soft);
   }
 
-  @media (width >= 64rem) {
-    .page[data-filters-open="true"] {
-      block-size: calc(100dvh - 3.25rem - 1px);
-      overflow: hidden;
-    }
-  }
-
   @media (width < 40rem) {
     .roomsPage,
     .page[data-filters-open="true"] {

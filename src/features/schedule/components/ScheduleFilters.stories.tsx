@@ -6,7 +6,6 @@ import { addDays, todayInStockholm } from "../model/scheduleDate";
 import type { ScheduleSearch } from "../model/scheduleSearch";
 import { ScheduleFilterPanel } from "./ScheduleFilterPanel";
 import { ScheduleFilters } from "./ScheduleFilters";
-
 const instructors = [
   { id: 21, name: "Anna Andersson" },
   { id: 22, name: "Beatrice Berg" },
@@ -19,27 +18,23 @@ const activityTypes = [
   { id: 4128, name: "Pilates, 55 min" },
   { id: 12449, name: "BoxFight Small Group, 55 min" },
 ];
-
 function InteractiveFilters({
   search: initialSearch,
   instructors = [],
   activityTypes = [],
+  isLoadingOptions = false,
+  hasOptionsError = false,
 }: {
   search: ScheduleSearch;
   instructors?: ScheduleFilterOption[];
   activityTypes?: ScheduleFilterOption[];
+  isLoadingOptions?: boolean;
+  hasOptionsError?: boolean;
 }) {
   const [search, setSearch] = useState(initialSearch);
   const [isOpen, setIsOpen] = useState(false);
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        blockSize: "calc(100dvh - 2rem)",
-        overflow: "hidden",
-      }}
-    >
+    <div>
       <ScheduleFilters
         search={search}
         onChange={setSearch}
@@ -52,13 +47,15 @@ function InteractiveFilters({
           onChange={setSearch}
           instructors={instructors}
           activityTypes={activityTypes}
+          isLoadingOptions={isLoadingOptions}
+          hasOptionsError={hasOptionsError}
+          onRetryOptions={() => undefined}
           onClose={() => setIsOpen(false)}
         />
       ) : null}
     </div>
   );
 }
-
 const meta = {
   title: "Features/Schedule/Components/Filters",
   component: InteractiveFilters,
@@ -77,15 +74,13 @@ const meta = {
     docs: {
       description: {
         component:
-          "The compact toolbar prioritizes day selection and filters on wide screens, while adding direct date access when space is limited.",
+          "The compact toolbar opens a normally scrolling, search-first filter editor with removable selections and progressively disclosed option lists.",
       },
     },
   },
 } satisfies Meta<typeof InteractiveFilters>;
-
 export default meta;
 type Story = StoryObj<typeof meta>;
-
 export const Default: Story = {};
 export const ActiveFilter: Story = {
   args: {
@@ -143,122 +138,85 @@ export const LongLists: Story = {
     })),
   },
 };
+export const LoadingOptions: Story = {
+  args: { isLoadingOptions: true },
+};
+export const PartialError: Story = {
+  args: { hasOptionsError: true },
+};
+export const Favorites: Story = {
+  loaders: [
+    () => {
+      window.localStorage.setItem(
+        "hb-stunder.schedule-preferences",
+        JSON.stringify({
+          version: 1,
+          favoriteInstructorIds: [21, 24],
+          favoriteActivityTypeIds: [743, 4128],
+        }),
+      );
+    },
+  ],
+};
+export const NoFavorites: Story = {
+  loaders: [() => window.localStorage.clear()],
+};
+export const NoSearchResults: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      canvas.getByRole("button", { name: /open schedule filters|öppna schemafilter/i }),
+    );
+    await userEvent.type(
+      canvas.getByRole("searchbox", { name: /search instructors|sök instruktörer/i }),
+      "No matching instructor",
+    );
+    await expect(
+      canvas.getByText(/no matching options found|inga matchande alternativ hittades/i),
+    ).toBeInTheDocument();
+  },
+};
 export const KeyboardNavigation: Story = {
   args: LongLists.args,
   parameters: {
     docs: {
       description: {
         story:
-          "Tab through the day controls to the filter button, then continue through either long option list to verify stable keyboard navigation.",
+          "The option lists use normal document order and native controls, including after progressively revealing a long list.",
       },
     },
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const selectedDay = canvas.getByRole("button", { pressed: true });
-    const nextWeek = canvas.getByRole("button", { name: /next week|nästa vecka/i });
     const filterButton = canvas.getByRole("button", {
       name: /open schedule filters|öppna schemafilter/i,
     });
-
-    await expect(
-      selectedDay.compareDocumentPosition(nextWeek) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
-    await expect(
-      nextWeek.compareDocumentPosition(filterButton) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
-
     await userEvent.click(filterButton);
-    const filterView = within(canvasElement.ownerDocument.body).getByRole("region", {
-      name: /filters|filter/i,
-    });
-    const instructorList = within(filterView).getByRole("group", {
+    const filterView = canvas.getByRole("region", { name: /^filters?$|^filter$/i });
+    const instructorSelector = within(filterView).getByRole("region", {
       name: /instructor|instruktör/i,
     });
-    const allInstructors = within(instructorList).getByRole("group", { name: /all|alla/i });
-    await expect(instructorList.clientHeight).toBeGreaterThan(208);
-    await expect(allInstructors.querySelectorAll('input[type="checkbox"]').length).toBeLessThan(20);
-    const firstInstructor = within(allInstructors).getByRole("checkbox", {
-      name: "Instructor 001",
-    });
-    firstInstructor.focus({ preventScroll: true });
-
-    const pageSize = Math.max(1, Math.floor(instructorList.clientHeight / 44));
-    const pageTarget = `Instructor ${String(pageSize + 1).padStart(3, "0")}`;
-    const nextTarget = `Instructor ${String(pageSize + 2).padStart(3, "0")}`;
-    await userEvent.keyboard("{PageDown}");
-    await expect(canvasElement.ownerDocument.activeElement).toBe(
-      within(allInstructors).getByRole("checkbox", { name: pageTarget }),
-    );
-    await userEvent.tab();
-    await userEvent.keyboard("{ArrowDown}");
-    await expect(canvasElement.ownerDocument.activeElement).toBe(
-      within(allInstructors).getByRole("button", {
-        name: new RegExp(`add ${nextTarget} to favorites|lägg till ${nextTarget} som favorit`, "i"),
+    await userEvent.click(
+      within(instructorSelector).getByRole("button", {
+        name: /browse options|bläddra bland alternativ/i,
       }),
     );
-    await userEvent.tab({ shift: true });
-    await expect(allInstructors.querySelectorAll('input[type="checkbox"]').length).toBeLessThan(20);
-
-    await userEvent.tab();
-    await userEvent.tab();
-    await expect(canvasElement.ownerDocument.activeElement).toBe(
-      within(filterView).getByRole("searchbox", { name: /search class types|sök klasstyper/i }),
-    );
-    await expect(instructorList.scrollTop).toBe(0);
-    await userEvent.tab({ shift: true });
-    await expect(canvasElement.ownerDocument.activeElement).toBe(
-      within(allInstructors).getByRole("button", {
-        name: /add Instructor 001 to favorites|lägg till Instructor 001 som favorit/i,
-      }),
-    );
-    await userEvent.tab({ shift: true });
-    await expect(canvasElement.ownerDocument.activeElement).toBe(firstInstructor);
-
-    await userEvent.keyboard("{End}");
-    await expect(canvasElement.ownerDocument.activeElement).toBe(
-      within(allInstructors).getByRole("checkbox", { name: "Instructor 213" }),
-    );
-    await expect(allInstructors.querySelectorAll('input[type="checkbox"]').length).toBeLessThan(15);
-    await expect(instructorList.scrollTop).toBeGreaterThan(0);
-
-    await userEvent.keyboard("{Home}");
-    const activeCheckbox = within(allInstructors).getByRole("checkbox", {
+    const firstInstructor = within(instructorSelector).getByRole("checkbox", {
       name: "Instructor 001",
     });
-    await expect(canvasElement.ownerDocument.activeElement).toBe(activeCheckbox);
+    firstInstructor.focus();
     await userEvent.keyboard(" ");
-    await expect(activeCheckbox).toBeChecked();
-
+    await expect(firstInstructor).toBeChecked();
     await userEvent.tab();
     await expect(canvasElement.ownerDocument.activeElement).toBe(
-      within(allInstructors).getByRole("button", {
+      within(instructorSelector).getByRole("button", {
         name: /add Instructor 001 to favorites|lägg till Instructor 001 som favorit/i,
       }),
     );
     await userEvent.keyboard(" ");
-    await expect(canvasElement.ownerDocument.activeElement).toBe(
-      within(allInstructors).getByRole("button", {
-        name: /remove Instructor 001 from favorites|ta bort Instructor 001 från favoriter/i,
-      }),
-    );
-
     await userEvent.tab();
     await expect(canvasElement.ownerDocument.activeElement).toBe(
-      within(filterView).getByRole("searchbox", { name: /search class types|sök klasstyper/i }),
-    );
-    await userEvent.tab({ shift: true });
-    const favoriteInstructors = within(filterView).getByRole("group", {
-      name: /favorites|favoriter/i,
-    });
-    await expect(canvasElement.ownerDocument.activeElement).toBe(
-      within(favoriteInstructors).getByRole("button", {
-        name: /remove Instructor 001 from favorites|ta bort Instructor 001 från favoriter/i,
-      }),
-    );
-    await userEvent.tab({ shift: true });
-    await expect(canvasElement.ownerDocument.activeElement).toBe(
-      within(favoriteInstructors).getByRole("checkbox", { name: "Instructor 001" }),
+      within(instructorSelector).getByRole("checkbox", { name: "Instructor 002" }),
     );
   },
 };

@@ -7,8 +7,6 @@ See [`docs/PROJECT_FOUNDATION.md`](docs/PROJECT_FOUNDATION.md) for product and a
 ## Requirements
 
 - Node.js `^20.19.0`, `^22.18.0`, or `>=24.11.0`
-- pnpm `11.17.0`
-- Vite+ `0.2.6`
 
 ## Commands
 
@@ -23,6 +21,8 @@ pnpm api:generate
 ```
 
 Vite+ owns development, checking, testing, and production builds. Dependency versions related to Vite+ and Storybook are pinned because Vite+ is still young.
+
+GitHub Actions runs checking, unit tests, Storybook interaction and accessibility tests, and both production builds. It also uploads a short-lived GitHub Pages-compatible preview artifact; deployment remains disabled until the project is ready to publish.
 
 ## API generation
 
@@ -42,7 +42,7 @@ API timestamps such as `2026-07-28T06:00:00.000Z` must be interpreted as UTC and
 
 `pnpm dev` uses the real API. Sign in with your Hagabadet username and password; authenticated requests include the returned bearer token. By default the token and customer identity are kept for the browser session. The optional **Keep me signed in** choice persists them on that device only until the JWT expires; expired sessions are removed automatically. The password is never stored. Sign-out clears all stored session data and the customer booking cache.
 
-The complete ordinary group-activity happy path—sign in, create a booking, list it under **My bookings**, cancel it, and observe its removal—has been manually verified against the real API on localhost. Waiting-list mutations, failure-specific responses, token renewal, deployed-origin CORS, idempotency/rate limits, and API usage permission remain unverified.
+The complete ordinary group-activity happy path—sign in, create a booking, list it under **My bookings**, cancel it, and observe its removal—has been manually verified against the real API on localhost. Waiting-list mutations, failure-specific responses, token renewal, idempotency/rate limits, and API usage permission remain unverified. A sanitized CORS probe from the planned GitHub Pages origin is recorded in [`docs/BOOKING_READINESS.md`](docs/BOOKING_READINESS.md); an authenticated end-to-end run from the deployed application is still required.
 
 MSW is configured beneath the generated HTTP client. It is disabled by default and can only start in development:
 

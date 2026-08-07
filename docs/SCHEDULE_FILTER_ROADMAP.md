@@ -91,11 +91,11 @@ Use the product term **Saved searches** unless user testing identifies a clearer
 
 ### 4. Integrate favorites without adding another mode
 
-- [ ] Keep favorite instructors and activity types as shortcuts shown while creating or editing a filter.
-- [ ] Ensure favoriting an option never activates it as a filter.
-- [ ] Allow favorites to be added or removed without causing list jumps or focus loss.
-- [ ] Evaluate whether “recently used” adds enough value after saved searches exist; do not add it by default.
-- [ ] Reassess the prominence of favorites after saved searches are usable, since saved searches may satisfy most repeat workflows.
+- [x] Keep favorite instructors and activity types as shortcuts shown while creating or editing a filter.
+- [x] Ensure favoriting an option never activates it as a filter.
+- [x] Allow favorites to be added or removed without causing list jumps or focus loss.
+- [x] Evaluate whether “recently used” adds enough value after saved searches exist; do not add it by default.
+- [x] Reassess the prominence of favorites after saved searches are usable, since saved searches may satisfy most repeat workflows.
 
 ### 5. Evaluate combining saved searches
 
@@ -153,6 +153,8 @@ Once implementation begins, work through one complete numbered roadmap section (
 - Track this roadmap temporarily and delete it when the work is complete.
 - Saved-search names are trimmed, unique regardless of case, limited to 60 characters, and capped at 20 local searches per browser.
 - Keep unavailable saved-search references visible with their stored IDs once option loading succeeds, and offer an explicit cleanup action rather than silently changing the definition.
+- Keep favorites prominent only inside the instructor and activity-type selectors as empty-search shortcuts. Saved searches remain the higher-level repeat-workflow feature; favorites do not get a separate mode or top-level section.
+- Do not add recently used options. Saved searches and explicit favorites cover repeat workflows without introducing implicit history, additional storage semantics, or another ordering rule.
 
 ## Open decisions
 

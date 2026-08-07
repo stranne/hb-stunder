@@ -76,6 +76,9 @@ function SearchableOptions({
   const [query, setQuery] = useState("");
   const [isBrowsing, setIsBrowsing] = useState(false);
   const [visibleCount, setVisibleCount] = useState(BROWSE_CHUNK_SIZE);
+  const favoriteButtonRefs = useRef(new Map<number, HTMLButtonElement>());
+  const browseButtonRef = useRef<HTMLButtonElement>(null);
+  const pendingFavoriteFocus = useRef<number | "browse" | undefined>(undefined);
 
   const sortedOptions = useMemo(
     () => [...options].sort((a, b) => a.name.localeCompare(b.name, i18n.language)),
@@ -99,9 +102,28 @@ function SearchableOptions({
     new Map(),
   );
 
+  useEffect(() => {
+    const focusTarget = pendingFavoriteFocus.current;
+    if (focusTarget === undefined) return;
+
+    pendingFavoriteFocus.current = undefined;
+    if (focusTarget === "browse") browseButtonRef.current?.focus();
+    else favoriteButtonRefs.current.get(focusTarget)?.focus();
+  }, [favoriteIds]);
+
   function changeQuery(value: string) {
     setQuery(value);
     if (!value) setVisibleCount(BROWSE_CHUNK_SIZE);
+  }
+
+  function changeFavorite(optionId: number) {
+    if (!query && !isBrowsing && favoriteIds.includes(optionId)) {
+      const removedIndex = favorites.findIndex((option) => option.id === optionId);
+      pendingFavoriteFocus.current =
+        favorites[removedIndex + 1]?.id ?? favorites[removedIndex - 1]?.id ?? "browse";
+    }
+
+    onFavoriteChange(toggleId(favoriteIds, optionId));
   }
 
   return (
@@ -144,9 +166,13 @@ function SearchableOptions({
                     )}
                   </Checkbox>
                   <ToggleButton
+                    ref={(button) => {
+                      if (button) favoriteButtonRefs.current.set(option.id, button);
+                      else favoriteButtonRefs.current.delete(option.id);
+                    }}
                     className={styles.starButton}
                     isSelected={favoriteIds.includes(option.id)}
-                    onChange={() => onFavoriteChange(toggleId(favoriteIds, option.id))}
+                    onChange={() => changeFavorite(option.id)}
                     aria-label={t(
                       favoriteIds.includes(option.id)
                         ? "schedule.filters.removeFavorite"
@@ -166,7 +192,11 @@ function SearchableOptions({
       ) : null}
 
       {!query && !isBrowsing ? (
-        <AriaButton className={styles.disclosureButton} onPress={() => setIsBrowsing(true)}>
+        <AriaButton
+          ref={browseButtonRef}
+          className={styles.disclosureButton}
+          onPress={() => setIsBrowsing(true)}
+        >
           {t("schedule.filters.browseOptions")}
         </AriaButton>
       ) : null}

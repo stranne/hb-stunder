@@ -146,19 +146,37 @@ export const LoadingOptions: Story = {
 export const PartialError: Story = {
   args: { hasOptionsError: true },
 };
+const loadFavorites = () => {
+  window.localStorage.setItem(
+    "hb-stunder.schedule-preferences",
+    JSON.stringify({
+      version: 1,
+      favoriteInstructorIds: [21, 24],
+      favoriteActivityTypeIds: [743, 4128],
+    }),
+  );
+};
 export const Favorites: Story = {
-  loaders: [
-    () => {
-      window.localStorage.setItem(
-        "hb-stunder.schedule-preferences",
-        JSON.stringify({
-          version: 1,
-          favoriteInstructorIds: [21, 24],
-          favoriteActivityTypeIds: [743, 4128],
-        }),
-      );
-    },
-  ],
+  loaders: [loadFavorites],
+};
+export const FavoriteRemovalFocus: Story = {
+  loaders: [loadFavorites],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      canvas.getByRole("button", { name: /open schedule filters|öppna schemafilter/i }),
+    );
+    await userEvent.click(
+      canvas.getByRole("button", {
+        name: /remove Anna Andersson from favorites|ta bort Anna Andersson från favoriter/i,
+      }),
+    );
+    await expect(
+      canvas.getByRole("button", {
+        name: /remove Fatima Farah from favorites|ta bort Fatima Farah från favoriter/i,
+      }),
+    ).toHaveFocus();
+  },
 };
 export const NoFavorites: Story = {
   loaders: [() => window.localStorage.clear()],

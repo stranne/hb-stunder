@@ -200,10 +200,11 @@ describe("ScheduleFilters", () => {
   });
 
   it("searches instructors and keeps favorite quick picks ordered by name", () => {
+    const onChange = vi.fn();
     render(
       <FilterTestView
         search={search}
-        onChange={vi.fn()}
+        onChange={onChange}
         instructors={[
           { id: 20, name: "Aaron Ahl" },
           { id: 21, name: "Anna Andersson" },
@@ -222,6 +223,12 @@ describe("ScheduleFilters", () => {
       instructorSelector.getByRole("button", { name: "Add Anna Andersson to favorites" }),
     );
 
+    expect(onChange).not.toHaveBeenCalled();
+    expect(
+      (instructorSelector.getByRole("checkbox", { name: "Beatrice Berg" }) as HTMLInputElement)
+        .checked,
+    ).toBe(false);
+
     fireEvent.change(instructorSelector.getByRole("searchbox", { name: "Search instructors" }), {
       target: { value: "beatrice" },
     });
@@ -230,6 +237,45 @@ describe("ScheduleFilters", () => {
     expect(instructorSelector.queryByRole("checkbox", { name: "Anna Andersson" })).toBeNull();
     expect(window.localStorage.getItem("hb-stunder.schedule-preferences")).toContain("21");
     expect(window.localStorage.getItem("hb-stunder.schedule-preferences")).toContain("22");
+  });
+
+  it("moves focus to the next shortcut when a favorite is removed", () => {
+    window.localStorage.setItem(
+      "hb-stunder.schedule-preferences",
+      JSON.stringify({
+        version: 1,
+        favoriteInstructorIds: [21, 22],
+        favoriteActivityTypeIds: [],
+      }),
+    );
+    render(
+      <FilterTestView
+        search={search}
+        onChange={vi.fn()}
+        instructors={[
+          { id: 21, name: "Anna Andersson" },
+          { id: 22, name: "Beatrice Berg" },
+        ]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
+    const instructorSelector = within(screen.getByRole("region", { name: "Instructor" }));
+    fireEvent.click(
+      instructorSelector.getByRole("button", { name: "Remove Anna Andersson from favorites" }),
+    );
+
+    expect(instructorSelector.queryByRole("checkbox", { name: "Anna Andersson" })).toBeNull();
+    expect(document.activeElement).toBe(
+      instructorSelector.getByRole("button", { name: "Remove Beatrice Berg from favorites" }),
+    );
+
+    fireEvent.click(
+      instructorSelector.getByRole("button", { name: "Remove Beatrice Berg from favorites" }),
+    );
+    expect(document.activeElement).toBe(
+      instructorSelector.getByRole("button", { name: "Browse options" }),
+    );
   });
 
   it("shows class types for selected business units and fails open for unknown metadata", () => {

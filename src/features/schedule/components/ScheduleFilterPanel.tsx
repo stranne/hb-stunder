@@ -231,6 +231,15 @@ export function ScheduleFilterPanel({
   const selectionHeadingId = useId();
   const locationHeadingId = useId();
   const preferences = readSchedulePreferences();
+  const [localActiveSavedSearchId, setLocalActiveSavedSearchId] = useState<string>();
+  const [isEditingSavedSearch, setIsEditingSavedSearch] = useState(false);
+  const currentActiveSavedSearchId = onActiveSavedSearchChange
+    ? activeSavedSearchId
+    : localActiveSavedSearchId;
+  const setActiveSavedSearchId = (id: string | undefined) => {
+    if (onActiveSavedSearchChange) onActiveSavedSearchChange(id);
+    else setLocalActiveSavedSearchId(id);
+  };
   const [favoriteInstructorIds, setFavoriteInstructorIds] = useState(
     preferences.favoriteInstructorIds,
   );
@@ -277,8 +286,15 @@ export function ScheduleFilterPanel({
   ];
   const hasSelectedFilters = selectedLocations.length > 0 || selectedOptions.length > 0;
 
+  function changeOrdinaryFilters(next: ScheduleSearch) {
+    // A named group only represents an unmodified saved definition. Ordinary filter
+    // controls preserve their criteria but detach that visible provenance immediately.
+    if (!isEditingSavedSearch) setActiveSavedSearchId(undefined);
+    onChange(next);
+  }
+
   function clearFilters() {
-    onChange({
+    changeOrdinaryFilters({
       ...search,
       locations: [...LOCATION_IDS],
       instructors: [],
@@ -288,7 +304,7 @@ export function ScheduleFilterPanel({
 
   function removeLocation(locationId: number) {
     const remainingLocations = search.locations.filter((id) => id !== locationId);
-    onChange({
+    changeOrdinaryFilters({
       ...search,
       locations: remainingLocations.length > 0 ? remainingLocations : [...LOCATION_IDS],
     });
@@ -329,11 +345,11 @@ export function ScheduleFilterPanel({
                   aria-label={t("schedule.filters.removeSelection", { name: option.name })}
                   onPress={() =>
                     option.category === "instructor"
-                      ? onChange({
+                      ? changeOrdinaryFilters({
                           ...search,
                           instructors: toggleId(search.instructors, option.id),
                         })
-                      : onChange({
+                      : changeOrdinaryFilters({
                           ...search,
                           activityTypes: toggleId(search.activityTypes, option.id),
                         })
@@ -352,17 +368,17 @@ export function ScheduleFilterPanel({
           ) : (
             <p>{t("schedule.filters.noSelectedFilters")}</p>
           )}
+          <SavedSearches
+            search={search}
+            onChange={onChange}
+            instructors={instructors}
+            activityTypes={activityTypes}
+            canValidateReferences={!isLoadingOptions && !hasOptionsError}
+            activeId={currentActiveSavedSearchId}
+            onActiveChange={setActiveSavedSearchId}
+            onEditingChange={setIsEditingSavedSearch}
+          />
         </section>
-
-        <SavedSearches
-          search={search}
-          onChange={onChange}
-          instructors={instructors}
-          activityTypes={activityTypes}
-          canValidateReferences={!isLoadingOptions && !hasOptionsError}
-          activeId={activeSavedSearchId}
-          onActiveChange={onActiveSavedSearchChange}
-        />
 
         {isLoadingOptions ? (
           <p className={styles.loading} role="status">
@@ -392,7 +408,7 @@ export function ScheduleFilterPanel({
             value={search.locations.map(String)}
             onChange={(values) => {
               const selected = values.map(Number);
-              onChange({
+              changeOrdinaryFilters({
                 ...search,
                 locations: selected.length > 0 ? selected : [...LOCATION_IDS],
               });
@@ -426,7 +442,7 @@ export function ScheduleFilterPanel({
             options={instructors}
             selectedIds={search.instructors}
             favoriteIds={favoriteInstructorIds}
-            onSelectedChange={(ids) => onChange({ ...search, instructors: ids })}
+            onSelectedChange={(ids) => changeOrdinaryFilters({ ...search, instructors: ids })}
             onFavoriteChange={setFavoriteInstructorIds}
           />
           <SearchableOptions
@@ -437,7 +453,7 @@ export function ScheduleFilterPanel({
             options={visibleActivityTypes}
             selectedIds={search.activityTypes}
             favoriteIds={favoriteActivityTypeIds}
-            onSelectedChange={(ids) => onChange({ ...search, activityTypes: ids })}
+            onSelectedChange={(ids) => changeOrdinaryFilters({ ...search, activityTypes: ids })}
             onFavoriteChange={setFavoriteActivityTypeIds}
           />
         </div>

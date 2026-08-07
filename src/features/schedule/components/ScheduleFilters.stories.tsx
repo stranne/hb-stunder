@@ -224,6 +224,58 @@ export const SavedSearchManagement: Story = {
     await expect(canvas.getByText("Weekday yoga")).toBeInTheDocument();
   },
 };
+export const SaveSelectionDialog: Story = {
+  args: ActiveFilter.args,
+  loaders: [() => window.localStorage.clear()],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      canvas.getByRole("button", { name: /open schedule filters|öppna schemafilter/i }),
+    );
+    await userEvent.click(
+      canvas.getByRole("button", { name: /save current selection|spara aktuellt urval/i }),
+    );
+    await expect(within(canvasElement.ownerDocument.body).getByRole("dialog")).toBeInTheDocument();
+  },
+};
+export const SavedSearchApplied: Story = {
+  loaders: [
+    () => {
+      window.localStorage.setItem(
+        "hb-stunder.schedule-preferences",
+        JSON.stringify({
+          version: 2,
+          favoriteInstructorIds: [],
+          favoriteActivityTypeIds: [],
+          savedSearches: [
+            {
+              version: 1,
+              id: "weekday-yoga",
+              name: "Weekday yoga",
+              criteria: { businessUnitIds: [1], instructorIds: [21], activityTypeIds: [3392] },
+            },
+          ],
+        }),
+      );
+    },
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      canvas.getByRole("button", { name: /open schedule filters|öppna schemafilter/i }),
+    );
+    await userEvent.selectOptions(
+      canvas.getByLabelText(/saved searches|sparade sökningar/i),
+      "weekday-yoga",
+    );
+    const groupName = canvas.getByText("Weekday yoga", { selector: "strong" });
+    await expect(groupName).toBeInTheDocument();
+    const group = groupName.closest("details");
+    await expect(group).toHaveAttribute("open");
+    await userEvent.click(group!.querySelector("summary")!);
+    await expect(group).not.toHaveAttribute("open");
+  },
+};
 export const NoSearchResults: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

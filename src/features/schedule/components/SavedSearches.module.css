@@ -1,96 +1,69 @@
 @layer components {
   .savedSearches {
     display: grid;
-    gap: var(--space-4);
-    padding-block-end: var(--space-6);
-    border-block-end: 1px solid var(--color-border);
+    gap: var(--space-3);
   }
 
-  .heading h3,
-  .heading p,
-  .card p,
-  .createForm p,
-  .empty {
+  .announcement {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .error,
+  .notice,
+  .draft,
+  .library p,
+  .groupDetails p {
     margin: 0;
-  }
-
-  .heading h3 {
-    font-size: var(--text-lg);
-  }
-
-  .heading p,
-  .empty,
-  .card p {
-    color: var(--color-ink-muted);
     font-size: var(--text-sm);
   }
 
-  .createForm,
-  .renameForm {
-    display: grid;
-    gap: var(--space-2);
+  .error {
+    color: var(--color-error-strong);
   }
-
-  .createForm label,
-  .renameForm label {
+  .notice {
+    color: var(--color-brass-strong);
+  }
+  .draft {
+    color: var(--color-accent-strong);
     font-weight: 700;
   }
 
-  .formRow {
-    display: flex;
-    align-items: stretch;
-    gap: var(--space-2);
+  .appliedGroup {
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-sm);
+    background: color-mix(in oklch, var(--color-accent) 7%, var(--color-surface));
 
-    input {
-      min-block-size: 2.75rem;
-      min-inline-size: 0;
-      flex: 1;
-      box-sizing: border-box;
-      padding: var(--space-2) var(--space-3);
-      border: 1px solid var(--color-border-strong);
-      border-radius: var(--radius-sm);
-      color: var(--color-ink);
-      background: var(--color-surface);
-      font: inherit;
+    summary {
+      min-block-size: 3rem;
+      padding: var(--space-3);
+      cursor: pointer;
+
+      span {
+        display: grid;
+        gap: var(--space-1);
+      }
+      small {
+        color: var(--color-ink-muted);
+      }
     }
   }
 
-  .list {
+  .groupDetails,
+  .renameForm,
+  .confirmation,
+  .library,
+  .saveDialog form {
     display: grid;
     gap: var(--space-3);
-    margin: 0;
-    padding: 0;
-    list-style: none;
   }
 
-  .card {
-    display: grid;
-    gap: var(--space-3);
-    padding: var(--space-4);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    background: var(--color-surface);
-
-    &[data-active] {
-      border-color: var(--color-accent);
-      background: color-mix(in oklch, var(--color-accent) 6%, var(--color-surface));
-    }
-  }
-
-  .cardHeading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-3);
-
-    span {
-      padding: var(--space-1) var(--space-2);
-      border-radius: var(--radius-pill);
-      color: var(--color-accent-strong);
-      background: color-mix(in oklch, var(--color-accent) 12%, var(--color-surface));
-      font-size: var(--text-sm);
-      font-weight: 700;
-    }
+  .groupDetails {
+    padding: 0 var(--space-3) var(--space-3);
   }
 
   .actions {
@@ -128,27 +101,77 @@
     text-decoration: underline;
   }
 
-  .notice {
-    color: var(--color-brass-strong) !important;
+  .renameForm input,
+  .library select,
+  .saveDialog input {
+    min-block-size: 2.75rem;
+    box-sizing: border-box;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    color: var(--color-ink);
+    background: var(--color-surface);
+    font: inherit;
   }
 
-  .error {
-    margin: 0;
-    color: var(--color-error-strong);
-    font-size: var(--text-sm);
+  .library {
+    padding: var(--space-3);
+    border-block-start: 1px solid var(--color-border);
+
+    label {
+      font-weight: 700;
+    }
+    p {
+      color: var(--color-ink-muted);
+    }
   }
 
-  .formRow input:focus-visible,
+  .confirmation {
+    padding: var(--space-3);
+    border: 1px solid var(--color-error);
+    border-radius: var(--radius-sm);
+    background: var(--color-error-soft);
+  }
+
+  .modal {
+    position: fixed;
+    z-index: var(--layer-dialog);
+    inset: 0;
+    display: grid;
+    padding: var(--space-4);
+    background: var(--color-overlay);
+    place-items: center;
+  }
+
+  .saveDialog {
+    inline-size: min(32rem, 100%);
+    max-block-size: calc(100dvh - 2rem);
+    overflow: auto;
+    padding: var(--space-6);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-raised);
+
+    h2,
+    p {
+      margin: 0;
+    }
+    h2 {
+      font-family: var(--font-display);
+      font-size: var(--text-2xl);
+    }
+    label {
+      font-weight: 700;
+    }
+  }
+
+  .appliedGroup summary:focus-visible,
   .iconAction[data-focus-visible],
-  .inlineAction[data-focus-visible] {
+  .inlineAction[data-focus-visible],
+  .renameForm input:focus-visible,
+  .library select:focus-visible,
+  .saveDialog input:focus-visible {
     outline: var(--focus-width) solid var(--color-focus);
     outline-offset: var(--focus-offset);
-  }
-
-  @media (width < 32rem) {
-    .formRow {
-      align-items: stretch;
-      flex-direction: column;
-    }
   }
 }

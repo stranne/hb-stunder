@@ -1,7 +1,8 @@
 @layer components {
   .shellHeader {
-    border-block-end: 1px solid var(--color-border);
-    background: var(--color-canvas);
+    border-block-end: 1px solid color-mix(in oklch, var(--color-chrome-ink) 18%, transparent);
+    color: var(--color-chrome-ink);
+    background: var(--color-chrome);
   }
 
   .navigationBar {
@@ -30,10 +31,14 @@
     padding: var(--space-2) var(--space-3);
     border: 1px solid transparent;
     border-radius: var(--radius-sm);
-    color: var(--color-ink-muted);
+    color: var(--color-chrome-muted);
     font-size: var(--text-sm);
     font-weight: 750;
     text-decoration: none;
+  }
+
+  .nav a[aria-current] {
+    color: var(--color-selected-ink);
   }
 
   .nav a svg {
@@ -47,7 +52,11 @@
     justify-self: end;
     min-inline-size: 0;
     padding-inline-start: var(--space-2);
-    border-inline-start: 1px solid var(--color-border);
+    border-inline-start: 1px solid color-mix(in oklch, var(--color-chrome-ink) 18%, transparent);
+  }
+
+  .account button {
+    color: var(--color-chrome-ink);
   }
 
   @media (width < 40rem) {
@@ -67,9 +76,9 @@
       inline-size: 100%;
       min-block-size: 3.75rem;
       padding: var(--space-1) var(--space-2) calc(var(--space-1) + env(safe-area-inset-bottom));
-      border-block-start: 1px solid var(--color-border);
-      background: color-mix(in oklch, var(--color-surface) 96%, transparent);
-      box-shadow: 0 -0.25rem 1rem color-mix(in oklch, var(--color-shadow) 65%, transparent);
+      border-block-start: 1px solid color-mix(in oklch, var(--color-chrome-ink) 18%, transparent);
+      background: color-mix(in oklch, var(--color-chrome) 96%, transparent);
+      box-shadow: 0 -0.25rem 1rem color-mix(in oklch, var(--color-shadow) 75%, transparent);
       backdrop-filter: blur(0.75rem);
     }
 

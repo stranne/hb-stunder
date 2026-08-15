@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f3f1ea" />
+    <meta name="theme-color" content="#e8e1d5" />
     <script>
       (() => {
         let preference;
@@ -16,7 +16,7 @@
           preference === "dark" ||
           (preference !== "light" && matchMedia("(prefers-color-scheme: dark)").matches);
         document.documentElement.dataset.colorMode = isDark ? "dark" : "light";
-        document.querySelector('meta[name="theme-color"]').content = isDark ? "#121b1a" : "#f3f1ea";
+        document.querySelector('meta[name="theme-color"]').content = isDark ? "#181820" : "#e8e1d5";
       })();
     </script>
     <title>HB Stunder</title>

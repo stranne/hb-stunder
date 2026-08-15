@@ -24,17 +24,17 @@
 
   .primary {
     border-color: transparent;
-    color: var(--color-ink-inverse);
-    background: var(--color-accent);
+    color: var(--color-action-ink);
+    background: var(--color-action);
   }
 
   .primary[data-hovered]:not([data-disabled]) {
-    background: var(--color-accent-strong);
+    background: var(--color-action-strong);
   }
 
   .primary:active:not(:disabled):not([data-disabled]),
   .primary[data-pressed]:not([data-disabled]) {
-    background: var(--color-accent-pressed);
+    background: var(--color-action-pressed);
   }
 
   .secondary {
@@ -98,7 +98,7 @@
 
   @media (hover: hover) {
     .primary:hover:not(:disabled):not([data-disabled]) {
-      background: var(--color-accent-strong);
+      background: var(--color-action-strong);
     }
 
     .secondary:hover:not(:disabled):not([data-disabled]),

@@ -9,7 +9,8 @@ const colorTokens = [
   ["Elevated", "--color-surface-elevated"],
   ["Ink", "--color-ink"],
   ["Muted ink", "--color-ink-muted"],
-  ["Action", "--color-accent"],
+  ["Action", "--color-action"],
+  ["Selection", "--color-accent"],
   ["Brass", "--color-brass"],
   ["Waiting", "--color-warning"],
   ["Error", "--color-error"],
@@ -122,7 +123,7 @@ function PalettePanel({ mode }: { mode: "light" | "dark" }) {
         <h2
           style={{ margin: "0.25rem 0 0", fontFamily: "var(--font-display)", fontSize: "1.6rem" }}
         >
-          Nordic Bathhouse
+          Chromatic Architecture
         </h2>
       </header>
       <article
@@ -165,8 +166,8 @@ function PalettePanel({ mode }: { mode: "light" | "dark" }) {
             paddingInline: "1rem",
             border: 0,
             borderRadius: "var(--radius-pill)",
-            color: "var(--color-ink-inverse)",
-            background: "var(--color-accent)",
+            color: "var(--color-action-ink)",
+            background: "var(--color-action)",
             font: "inherit",
             fontWeight: 700,
           }}

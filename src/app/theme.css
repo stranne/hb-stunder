@@ -7,19 +7,26 @@
   :root,
   [data-color-mode="light"] {
     color-scheme: light;
-    --color-canvas: #f3f1ea;
-    --color-surface: #fcfbf7;
-    --color-surface-strong: #e2e5df;
-    --color-surface-recessed: #e9e6dc;
+    --color-canvas: #e8e1d5;
+    --color-surface: #fffcf5;
+    --color-surface-strong: #c7b9a3;
+    --color-surface-recessed: #d8cdbc;
     --color-surface-elevated: #ffffff;
-    --color-ink: #1f2d2b;
-    --color-ink-muted: #5e6b67;
-    --color-ink-inverse: #fcfbf7;
-    --color-accent: #176b68;
-    --color-accent-strong: #0f5552;
-    --color-accent-pressed: color-mix(in oklch, var(--color-accent-strong) 84%, var(--color-ink));
+    --color-ink: #292832;
+    --color-ink-muted: #60575c;
+    --color-ink-inverse: #fffcf5;
+    --color-chrome: #27364a;
+    --color-chrome-ink: #faf3e6;
+    --color-chrome-muted: #c8d4e0;
+    --color-action: #b8462e;
+    --color-action-strong: #963720;
+    --color-action-pressed: #792a18;
+    --color-action-ink: #fffcf5;
+    --color-accent: #2b6385;
+    --color-accent-strong: #19465f;
+    --color-accent-pressed: #13394f;
     --color-current-time: var(--color-accent-strong);
-    --color-focus: #265fd4;
+    --color-focus: #5b45c7;
     --color-border: color-mix(in oklch, var(--color-ink) 13%, transparent);
     --color-border-strong: color-mix(in oklch, var(--color-ink) 24%, transparent);
     --color-control-surface: var(--color-surface);
@@ -36,29 +43,25 @@
       var(--color-accent) 62%,
       var(--color-border-strong)
     );
-    --color-selected-surface: color-mix(in oklch, var(--color-accent) 13%, var(--color-surface));
-    --color-selected-surface-hover: color-mix(
-      in oklch,
-      var(--color-accent) 19%,
-      var(--color-surface)
-    );
+    --color-selected-surface: #d8e8ee;
+    --color-selected-surface-hover: #c5dde6;
     --color-selected-border: var(--color-accent);
     --color-selected-keyline: color-mix(in oklch, var(--color-accent) 22%, transparent);
     --color-selected-ink: var(--color-accent-strong);
-    --color-brass: #9a6e2f;
-    --color-brass-strong: #75501f;
-    --color-brass-soft: #f3e9d9;
-    --color-positive: #2f7450;
-    --color-positive-strong: #225b3c;
-    --color-positive-soft: #e5f1e8;
-    --color-warning: #895512;
-    --color-warning-strong: #70440d;
-    --color-warning-soft: #f5e9d3;
-    --color-error: #b0443f;
-    --color-error-strong: #8d312d;
-    --color-error-soft: #f7e3e0;
-    --color-overlay: color-mix(in oklch, var(--color-ink) 45%, transparent);
-    --color-shadow: rgb(31 45 43 / 12%);
+    --color-brass: #b88936;
+    --color-brass-strong: #795416;
+    --color-brass-soft: #f1dfb9;
+    --color-positive: #2d7552;
+    --color-positive-strong: #185a3a;
+    --color-positive-soft: #d7ead9;
+    --color-warning: #a35d16;
+    --color-warning-strong: #743a08;
+    --color-warning-soft: #f3d5a6;
+    --color-error: #aa3d58;
+    --color-error-strong: #7e233c;
+    --color-error-soft: #f3d0d7;
+    --color-overlay: color-mix(in oklch, var(--color-ink) 48%, transparent);
+    --color-shadow: rgb(41 40 50 / 18%);
 
     --font-sans: "Commissioner Variable", Commissioner, ui-sans-serif, system-ui, sans-serif;
     --font-display: "Newsreader Variable", Newsreader, Georgia, serif;
@@ -92,19 +95,26 @@
 
   [data-color-mode="dark"] {
     color-scheme: dark;
-    --color-canvas: #121b1a;
-    --color-surface: #182322;
-    --color-surface-strong: #2c3a37;
-    --color-surface-recessed: #0d1515;
-    --color-surface-elevated: #202d2b;
-    --color-ink: #e7ece7;
-    --color-ink-muted: #a7b1ac;
-    --color-ink-inverse: #10201e;
-    --color-accent: #78c7be;
-    --color-accent-strong: #a5e1da;
-    --color-accent-pressed: color-mix(in oklch, var(--color-accent-strong) 84%, var(--color-ink));
+    --color-canvas: #181820;
+    --color-surface: #292832;
+    --color-surface-strong: #484550;
+    --color-surface-recessed: #101c26;
+    --color-surface-elevated: #353340;
+    --color-ink: #f4ebdd;
+    --color-ink-muted: #bcb1a7;
+    --color-ink-inverse: #182027;
+    --color-chrome: #0e2638;
+    --color-chrome-ink: #eaf3f7;
+    --color-chrome-muted: #b9cfda;
+    --color-action: #f08a68;
+    --color-action-strong: #ffad8e;
+    --color-action-pressed: #d96f50;
+    --color-action-ink: #182027;
+    --color-accent: #77b7d1;
+    --color-accent-strong: #abd5e6;
+    --color-accent-pressed: #5d9ab4;
     --color-current-time: var(--color-accent-strong);
-    --color-focus: #93b9ff;
+    --color-focus: #b6a8ff;
     --color-border: color-mix(in oklch, var(--color-ink) 18%, transparent);
     --color-border-strong: color-mix(in oklch, var(--color-ink) 32%, transparent);
     --color-control-surface: var(--color-surface);
@@ -121,18 +131,14 @@
       var(--color-accent) 66%,
       var(--color-border-strong)
     );
-    --color-selected-surface: color-mix(in oklch, var(--color-accent) 17%, var(--color-surface));
-    --color-selected-surface-hover: color-mix(
-      in oklch,
-      var(--color-accent) 24%,
-      var(--color-surface)
-    );
+    --color-selected-surface: #263f50;
+    --color-selected-surface-hover: #31536a;
     --color-selected-border: var(--color-accent);
     --color-selected-keyline: color-mix(in oklch, var(--color-accent) 30%, transparent);
     --color-selected-ink: var(--color-accent-strong);
-    --color-brass: #d5ae6d;
-    --color-brass-strong: #edcb8a;
-    --color-brass-soft: #3c3020;
+    --color-brass: #dbb66f;
+    --color-brass-strong: #f1d49a;
+    --color-brass-soft: #40331f;
     --color-positive: #82d3a1;
     --color-positive-strong: #a6e4ba;
     --color-positive-soft: #193126;

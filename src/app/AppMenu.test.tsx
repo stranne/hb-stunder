@@ -11,11 +11,17 @@ beforeEach(async () => {
 
 afterEach(cleanup);
 
+const preferenceProps = {
+  colorModePreference: "system" as const,
+  onColorModeChange: vi.fn(),
+};
+
 describe("AppMenu", () => {
   it("shows the signed-in customer and signs out from the account section", () => {
     const onSignOut = vi.fn();
     render(
       <AppMenu
+        {...preferenceProps}
         customer={{ customerId: "900001", displayName: "Anna Andersson" }}
         canSignIn
         onSignIn={vi.fn()}
@@ -36,6 +42,7 @@ describe("AppMenu", () => {
   it("does not show an identification number when a name is unavailable", () => {
     render(
       <AppMenu
+        {...preferenceProps}
         customer={{ customerId: "900001" }}
         canSignIn
         onSignIn={vi.fn()}
@@ -50,7 +57,7 @@ describe("AppMenu", () => {
   });
 
   it("offers sign-in inside the menu when there is no customer", async () => {
-    render(<AppMenu canSignIn onSignIn={vi.fn()} onSignOut={vi.fn()} />);
+    render(<AppMenu {...preferenceProps} canSignIn onSignIn={vi.fn()} onSignOut={vi.fn()} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
     fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
@@ -58,7 +65,7 @@ describe("AppMenu", () => {
   });
 
   it("changes language from the preference section", async () => {
-    render(<AppMenu canSignIn onSignIn={vi.fn()} onSignOut={vi.fn()} />);
+    render(<AppMenu {...preferenceProps} canSignIn onSignIn={vi.fn()} onSignOut={vi.fn()} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
     fireEvent.click(screen.getByRole("radio", { name: "Svenska" }));
@@ -66,5 +73,24 @@ describe("AppMenu", () => {
     await waitFor(() => expect(i18n.resolvedLanguage).toBe("sv"));
     expect(document.documentElement.lang).toBe("sv");
     expect(screen.getByText("Språk")).toBeTruthy();
+  });
+
+  it("changes the color mode preference", () => {
+    const onColorModeChange = vi.fn();
+    render(
+      <AppMenu
+        {...preferenceProps}
+        onColorModeChange={onColorModeChange}
+        canSignIn
+        onSignIn={vi.fn()}
+        onSignOut={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
+    expect(screen.getByRole("radio", { name: "Use system setting" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("radio", { name: "Dark" }));
+
+    expect(onColorModeChange).toHaveBeenCalledWith("dark");
   });
 });

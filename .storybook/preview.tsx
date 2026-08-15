@@ -29,18 +29,6 @@ const preview: Preview = {
         ],
       },
     },
-    themeStudy: {
-      description: "Color and surface study",
-      defaultValue: "limestone",
-      toolbar: {
-        icon: "paintbrush",
-        items: [
-          { value: "limestone", title: "Limestone + bathhouse green" },
-          { value: "plaster", title: "Plaster + oxblood" },
-          { value: "mineral", title: "Pale mineral + blue-green" },
-        ],
-      },
-    },
     colorMode: {
       description: "Color mode",
       defaultValue: "light",
@@ -65,18 +53,23 @@ const preview: Preview = {
     },
   },
   decorators: [
-    (Story, context) => (
-      <StoryEnvironment
-        key={context.id}
-        locale={String(context.globals.locale ?? "sv")}
-        reducedMotion={context.globals.reducedMotion === "reduce"}
-        themeStudy={String(context.globals.themeStudy ?? "limestone")}
-        colorMode={String(context.globals.colorMode ?? "light")}
-        initiallySignedIn={context.parameters.session?.initiallySignedIn === true}
-      >
-        <Story />
-      </StoryEnvironment>
-    ),
+    (Story, context) => {
+      const colorMode = String(context.globals.colorMode ?? "light");
+      window.localStorage.setItem("hb-stunder-color-mode", colorMode);
+      document.documentElement.dataset.colorMode = colorMode;
+
+      return (
+        <StoryEnvironment
+          key={context.id}
+          locale={String(context.globals.locale ?? "sv")}
+          reducedMotion={context.globals.reducedMotion === "reduce"}
+          colorMode={colorMode}
+          initiallySignedIn={context.parameters.session?.initiallySignedIn === true}
+        >
+          <Story />
+        </StoryEnvironment>
+      );
+    },
   ],
   parameters: {
     options: {

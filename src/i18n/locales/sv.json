@@ -16,6 +16,12 @@
     "open": "Öppna menyn",
     "openFor": "Öppna menyn för {{name}}",
     "language": "Språk",
+    "appearance": "Utseende",
+    "colorMode": {
+      "system": "Följ systeminställningen",
+      "light": "Ljust",
+      "dark": "Mörkt"
+    },
     "account": "Konto"
   },
   "auth": {

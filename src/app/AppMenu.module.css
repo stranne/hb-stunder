@@ -46,9 +46,15 @@
     }
   }
 
-  .languageGroup {
+  .languageGroup,
+  .colorModeGroup {
     display: grid;
     gap: var(--space-2);
+  }
+
+  .colorModeGroup {
+    padding-block-start: var(--space-3);
+    border-block-start: 1px solid var(--color-border);
   }
 
   .sectionLabel {

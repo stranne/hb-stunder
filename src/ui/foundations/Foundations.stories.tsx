@@ -91,13 +91,7 @@ function Foundations() {
   );
 }
 
-const studyNames = {
-  limestone: "Limestone + bathhouse green",
-  plaster: "Plaster + oxblood",
-  mineral: "Pale mineral + blue-green",
-} as const;
-
-function StudyPanel({ study, mode }: { study: keyof typeof studyNames; mode: "light" | "dark" }) {
+function PalettePanel({ mode }: { mode: "light" | "dark" }) {
   const statusStyle = (background: string, color: string): CSSProperties => ({
     padding: "0.45rem 0.75rem",
     borderRadius: "var(--radius-pill)",
@@ -109,7 +103,6 @@ function StudyPanel({ study, mode }: { study: keyof typeof studyNames; mode: "li
 
   return (
     <section
-      data-theme-study={study}
       data-color-mode={mode}
       style={{
         display: "grid",
@@ -129,7 +122,7 @@ function StudyPanel({ study, mode }: { study: keyof typeof studyNames; mode: "li
         <h2
           style={{ margin: "0.25rem 0 0", fontFamily: "var(--font-display)", fontSize: "1.6rem" }}
         >
-          {studyNames[study]}
+          Nordic Bathhouse
         </h2>
       </header>
       <article
@@ -200,23 +193,20 @@ function StudyPanel({ study, mode }: { study: keyof typeof studyNames; mode: "li
   );
 }
 
-function AllStudies() {
+function ModeComparison() {
   return (
-    <main style={{ minHeight: "100vh", padding: "1rem", background: "#777" }}>
+    <main style={{ minHeight: "100vh", padding: "1rem", background: "#68706d" }}>
       <div
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 25rem), 1fr))",
           gap: "1rem",
-          maxWidth: "90rem",
+          maxWidth: "60rem",
           marginInline: "auto",
         }}
       >
-        {(Object.keys(studyNames) as Array<keyof typeof studyNames>).flatMap((study) =>
-          (["light", "dark"] as const).map((mode) => (
-            <StudyPanel key={`${study}-${mode}`} study={study} mode={mode} />
-          )),
-        )}
+        <PalettePanel mode="light" />
+        <PalettePanel mode="dark" />
       </div>
     </main>
   );
@@ -232,10 +222,6 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Overview: Story = {};
-export const LimestoneLight: Story = { globals: { themeStudy: "limestone", colorMode: "light" } };
-export const LimestoneDark: Story = { globals: { themeStudy: "limestone", colorMode: "dark" } };
-export const PlasterLight: Story = { globals: { themeStudy: "plaster", colorMode: "light" } };
-export const PlasterDark: Story = { globals: { themeStudy: "plaster", colorMode: "dark" } };
-export const MineralLight: Story = { globals: { themeStudy: "mineral", colorMode: "light" } };
-export const MineralDark: Story = { globals: { themeStudy: "mineral", colorMode: "dark" } };
-export const Comparison: Story = { render: () => <AllStudies /> };
+export const Light: Story = { globals: { colorMode: "light" } };
+export const Dark: Story = { globals: { colorMode: "dark" } };
+export const Comparison: Story = { render: () => <ModeComparison /> };

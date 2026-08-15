@@ -3,7 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f7f3eb" />
+    <meta name="theme-color" content="#f3f1ea" />
+    <script>
+      (() => {
+        let preference;
+        try {
+          preference = localStorage.getItem("hb-stunder-color-mode");
+        } catch {
+          // System appearance still works when storage is unavailable.
+        }
+        const isDark =
+          preference === "dark" ||
+          (preference !== "light" && matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.dataset.colorMode = isDark ? "dark" : "light";
+        document.querySelector('meta[name="theme-color"]').content = isDark ? "#121b1a" : "#f3f1ea";
+      })();
+    </script>
     <title>HB Stunder</title>
   </head>
   <body>

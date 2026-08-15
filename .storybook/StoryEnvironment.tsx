@@ -6,14 +6,12 @@ import i18n from "../src/i18n";
 export function StoryEnvironment({
   locale,
   reducedMotion,
-  themeStudy,
   colorMode,
   initiallySignedIn,
   children,
 }: {
   locale: string;
   reducedMotion: boolean;
-  themeStudy: string;
   colorMode: string;
   initiallySignedIn: boolean;
   children: ReactNode;
@@ -31,14 +29,12 @@ export function StoryEnvironment({
 
   useEffect(() => {
     const root = document.documentElement;
-    root.dataset.themeStudy = themeStudy;
     root.dataset.colorMode = colorMode;
 
     return () => {
-      delete root.dataset.themeStudy;
       delete root.dataset.colorMode;
     };
-  }, [colorMode, themeStudy]);
+  }, [colorMode]);
 
   return (
     <QueryClientProvider client={queryClient}>

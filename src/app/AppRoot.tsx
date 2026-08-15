@@ -1,11 +1,18 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Outlet, useLinkProps, useLocation } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Calendar, CalendarCheck, ViewGrid } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import { bookingKeys } from "../features/bookings/api/bookingQueries";
 import { useSession } from "../features/auth/sessionContext";
 import { AppMenu } from "./AppMenu";
+import {
+  applyColorMode,
+  readColorModePreference,
+  writeColorModePreference,
+  type ColorModePreference,
+} from "./colorMode";
 import interactionStyles from "../ui/interaction/Interaction.module.css";
 import { parseScheduleSearch } from "../features/schedule/model/scheduleSearch";
 import styles from "./AppRoot.module.css";
@@ -16,6 +23,18 @@ export function AppRoot() {
   const location = useLocation();
   const { customer, canSignIn, signIn, signOut } = useSession();
   const scheduleView = parseScheduleSearch(location.search).view;
+  const [colorModePreference, setColorModePreference] = useState(readColorModePreference);
+
+  useEffect(() => {
+    applyColorMode(colorModePreference);
+    if (colorModePreference !== "system") return;
+
+    if (!window.matchMedia) return;
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = () => applyColorMode("system");
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, [colorModePreference]);
   const classesLinkProps = useLinkProps({
     to: "/",
     search: (previous) => ({ ...parseScheduleSearch(previous), view: "classes" }),
@@ -30,6 +49,11 @@ export function AppRoot() {
     if (customer)
       queryClient.removeQueries({ queryKey: bookingKeys.customer(customer.customerId) });
     signOut();
+  };
+
+  const handleColorModeChange = (preference: ColorModePreference) => {
+    writeColorModePreference(preference);
+    setColorModePreference(preference);
   };
 
   return (
@@ -72,6 +96,8 @@ export function AppRoot() {
               canSignIn={canSignIn}
               onSignIn={signIn}
               onSignOut={handleSignOut}
+              colorModePreference={colorModePreference}
+              onColorModeChange={handleColorModeChange}
             />
           </div>
         </div>

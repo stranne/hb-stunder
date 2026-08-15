@@ -6,6 +6,7 @@ import type { CustomerSession } from "../features/auth/sessionContext";
 import { SignInAction } from "../features/auth/SignInAction";
 import { Button } from "../ui/button/Button";
 import interactionStyles from "../ui/interaction/Interaction.module.css";
+import type { ColorModePreference } from "./colorMode";
 import { supportedLanguages, type SupportedLanguage } from "../i18n";
 import styles from "./AppMenu.module.css";
 
@@ -14,6 +15,8 @@ interface AppMenuProps {
   canSignIn: boolean;
   onSignIn: (credentials: LoginCredentials, remember?: boolean) => Promise<void> | void;
   onSignOut: () => void;
+  colorModePreference: ColorModePreference;
+  onColorModeChange: (preference: ColorModePreference) => void;
 }
 
 const languageNames: Record<SupportedLanguage, string> = {
@@ -21,7 +24,14 @@ const languageNames: Record<SupportedLanguage, string> = {
   en: "English",
 };
 
-export function AppMenu({ customer, canSignIn, onSignIn, onSignOut }: AppMenuProps) {
+export function AppMenu({
+  customer,
+  canSignIn,
+  onSignIn,
+  onSignOut,
+  colorModePreference,
+  onColorModeChange,
+}: AppMenuProps) {
   const { t, i18n } = useTranslation();
   const language = supportedLanguages.includes(i18n.resolvedLanguage as SupportedLanguage)
     ? (i18n.resolvedLanguage as SupportedLanguage)
@@ -56,6 +66,28 @@ export function AppMenu({ customer, canSignIn, onSignIn, onSignOut }: AppMenuPro
                   value={supportedLanguage}
                 >
                   <span>{languageNames[supportedLanguage]}</span>
+                  <span className={styles.check} aria-hidden="true">
+                    <Check />
+                  </span>
+                </Radio>
+              ))}
+            </div>
+          </RadioGroup>
+
+          <RadioGroup
+            className={styles.colorModeGroup}
+            value={colorModePreference}
+            onChange={(value) => onColorModeChange(value as ColorModePreference)}
+          >
+            <Label className={styles.sectionLabel}>{t("menu.appearance")}</Label>
+            <div className={styles.options}>
+              {(["system", "light", "dark"] as const).map((mode) => (
+                <Radio
+                  className={`${styles.option} ${interactionStyles.control} ${interactionStyles.quiet} ${interactionStyles.selectable}`}
+                  key={mode}
+                  value={mode}
+                >
+                  <span>{t(`menu.colorMode.${mode}`)}</span>
                   <span className={styles.check} aria-hidden="true">
                     <Check />
                   </span>

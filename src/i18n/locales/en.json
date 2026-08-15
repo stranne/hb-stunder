@@ -16,6 +16,12 @@
     "open": "Open menu",
     "openFor": "Open menu for {{name}}",
     "language": "Language",
+    "appearance": "Appearance",
+    "colorMode": {
+      "system": "Use system setting",
+      "light": "Light",
+      "dark": "Dark"
+    },
     "account": "Account"
   },
   "auth": {

@@ -132,12 +132,7 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
         className={styles.stickyControls}
         data-elevated={areControlsElevated || undefined}
       >
-        <ScheduleFilters
-          search={search}
-          onChange={onSearchChange}
-          isFiltersOpen={isFiltersOpen}
-          onFiltersOpenChange={(isOpen) => onSearchChange({ ...search, filters: isOpen })}
-        />
+        <ScheduleFilters search={search} onChange={onSearchChange} />
       </div>
 
       {isFiltersOpen ? (

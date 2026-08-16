@@ -18,6 +18,7 @@ import {
 import { REAL_API_BASE_URL } from "../../../api/config";
 import i18n from "../../../i18n";
 import type { ScheduleSearch } from "../model/scheduleSearch";
+import { ScheduleFilterToggle } from "./ScheduleFilterToggle";
 
 let SchedulePage: typeof import("./SchedulePage").SchedulePage;
 const scheduleEndpoint = `${REAL_API_BASE_URL}/businessunits/:businessUnit/groupactivities`;
@@ -47,7 +48,16 @@ function TestPage({
   customerId?: string;
 }) {
   const [search, setSearch] = useState(initialSearch);
-  return <SchedulePage search={search} onSearchChange={setSearch} customerId={customerId} />;
+  return (
+    <>
+      <ScheduleFilterToggle
+        search={search}
+        isOpen={search.filters ?? false}
+        onOpenChange={(isOpen) => setSearch({ ...search, filters: isOpen })}
+      />
+      <SchedulePage search={search} onSearchChange={setSearch} customerId={customerId} />
+    </>
+  );
 }
 
 function renderPage(locations: number[], customerId?: string) {

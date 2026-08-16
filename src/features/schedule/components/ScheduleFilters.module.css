@@ -1,53 +1,18 @@
 @layer components {
   .filters {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas: "days toolbar";
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "days"
+      "date";
     align-items: center;
     gap: var(--space-2);
     padding-block: var(--space-2);
     background: var(--color-canvas);
   }
 
-  .filterToolbar {
-    grid-area: toolbar;
-    display: flex;
-    align-items: center;
-  }
-
-  .filterIcon {
-    inline-size: 1.15rem;
-    block-size: 1.15rem;
-  }
-
-  .filterLabel {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  .count {
-    display: inline-grid;
-    min-inline-size: 1.5rem;
-    min-block-size: 1.5rem;
-    place-items: center;
-    border-radius: var(--radius-pill);
-    color: var(--color-ink-inverse);
-    background: var(--color-accent);
-    font-size: 0.75rem;
-  }
-
-  .filterToolbar > button {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-1);
-    min-block-size: 3.5rem;
-    border-radius: var(--radius-sm);
-  }
-
   .datePickerInput {
+    grid-area: date;
     display: none;
     min-block-size: 2.5rem;
     min-inline-size: 8.5rem;
@@ -168,24 +133,6 @@
   }
 
   @media (width < 52rem) {
-    .filters {
-      grid-template-columns: minmax(0, 1fr);
-      grid-template-areas:
-        "days"
-        "toolbar";
-    }
-
-    .filterToolbar {
-      justify-content: space-between;
-      gap: var(--space-2);
-    }
-
-    .filterToolbar > button {
-      flex-direction: row;
-      gap: var(--space-2);
-      min-block-size: 2.75rem;
-    }
-
     .datePickerInput {
       display: block;
     }

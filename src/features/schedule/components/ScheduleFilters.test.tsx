@@ -7,6 +7,7 @@ import i18n from "../../../i18n";
 import { addDays, todayInStockholm } from "../model/scheduleDate";
 import type { ScheduleSearch } from "../model/scheduleSearch";
 import { ScheduleFilterPanel } from "./ScheduleFilterPanel";
+import { ScheduleFilterToggle } from "./ScheduleFilterToggle";
 import { ScheduleFilters } from "./ScheduleFilters";
 
 beforeAll(async () => {
@@ -47,12 +48,8 @@ function FilterTestView({
 
   return (
     <>
-      <ScheduleFilters
-        search={search}
-        onChange={onChange}
-        isFiltersOpen={isOpen}
-        onFiltersOpenChange={setIsOpen}
-      />
+      <ScheduleFilterToggle search={search} isOpen={isOpen} onOpenChange={setIsOpen} />
+      <ScheduleFilters search={search} onChange={onChange} />
       {isOpen ? (
         <ScheduleFilterPanel
           search={search}
@@ -70,18 +67,14 @@ function FilterTestView({
 }
 
 describe("ScheduleFilters", () => {
-  it("toggles the filter view from the keyboard", () => {
+  it("toggles the filter view from a separate, consistently labelled action", () => {
     render(<FilterTestView search={search} onChange={vi.fn()} />);
 
-    const selectedDay = screen.getByRole("button", { pressed: true });
-    const nextWeekButton = screen.getByRole("button", { name: "Next week" });
     const filterButton = screen.getByRole("button", { name: "Open schedule filters" });
+    const selectedDay = screen.getByRole("button", { pressed: true });
     expect(filterButton.tabIndex).toBe(0);
     expect(
-      selectedDay.compareDocumentPosition(nextWeekButton) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
-    expect(
-      nextWeekButton.compareDocumentPosition(filterButton) & Node.DOCUMENT_POSITION_FOLLOWING,
+      filterButton.compareDocumentPosition(selectedDay) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
 
     filterButton.focus();
@@ -90,7 +83,7 @@ describe("ScheduleFilters", () => {
 
     expect(document.activeElement).toBe(filterButton);
     expect(filterButton.getAttribute("aria-expanded")).toBe("true");
-    expect(filterButton.textContent).toContain("Show schedule");
+    expect(filterButton.textContent).toContain("Filters");
     expect(screen.getByRole("region", { name: "Filters" })).toBeTruthy();
 
     fireEvent.keyDown(filterButton, { key: "Enter" });

@@ -1,11 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { Outlet, useLinkProps, useLocation } from "@tanstack/react-router";
+import { Outlet, useLinkProps, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Calendar, CalendarCheck, ViewGrid } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import { bookingKeys } from "../features/bookings/api/bookingQueries";
 import { useSession } from "../features/auth/sessionContext";
+import { ScheduleFilterToggle } from "../features/schedule/components/ScheduleFilterToggle";
 import { AppMenu } from "./AppMenu";
 import {
   applyColorMode,
@@ -21,8 +22,11 @@ export function AppRoot() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const location = useLocation();
+  const navigate = useNavigate();
   const { customer, canSignIn, signIn, signOut } = useSession();
-  const scheduleView = parseScheduleSearch(location.search).view;
+  const isScheduleRoute = location.pathname === "/";
+  const scheduleSearch = parseScheduleSearch(location.search);
+  const scheduleView = scheduleSearch.view;
   const [colorModePreference, setColorModePreference] = useState(readColorModePreference);
 
   useEffect(() => {
@@ -90,15 +94,29 @@ export function AppRoot() {
               <span>{t("navigation.bookings")}</span>
             </a>
           </nav>
-          <div className={styles.account}>
-            <AppMenu
-              customer={customer}
-              canSignIn={canSignIn}
-              onSignIn={signIn}
-              onSignOut={handleSignOut}
-              colorModePreference={colorModePreference}
-              onColorModeChange={handleColorModeChange}
-            />
+          <div className={styles.utilities}>
+            {isScheduleRoute ? (
+              <ScheduleFilterToggle
+                search={scheduleSearch}
+                isOpen={scheduleSearch.filters ?? false}
+                onOpenChange={(isOpen) =>
+                  void navigate({
+                    to: "/",
+                    search: { ...scheduleSearch, filters: isOpen },
+                  })
+                }
+              />
+            ) : null}
+            <div className={styles.account}>
+              <AppMenu
+                customer={customer}
+                canSignIn={canSignIn}
+                onSignIn={signIn}
+                onSignOut={handleSignOut}
+                colorModePreference={colorModePreference}
+                onColorModeChange={handleColorModeChange}
+              />
+            </div>
           </div>
         </div>
       </header>

@@ -5,6 +5,7 @@ import type { ScheduleFilterOption } from "../api/scheduleFilterQueries";
 import { addDays, todayInStockholm } from "../model/scheduleDate";
 import type { ScheduleSearch } from "../model/scheduleSearch";
 import { ScheduleFilterPanel } from "./ScheduleFilterPanel";
+import { ScheduleFilterToggle } from "./ScheduleFilterToggle";
 import { ScheduleFilters } from "./ScheduleFilters";
 const instructors = [
   { id: 21, name: "Anna Andersson" },
@@ -35,12 +36,17 @@ function InteractiveFilters({
   const [isOpen, setIsOpen] = useState(false);
   return (
     <div>
-      <ScheduleFilters
-        search={search}
-        onChange={setSearch}
-        isFiltersOpen={isOpen}
-        onFiltersOpenChange={setIsOpen}
-      />
+      <header
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          padding: "var(--space-2)",
+          background: "var(--color-chrome)",
+        }}
+      >
+        <ScheduleFilterToggle search={search} isOpen={isOpen} onOpenChange={setIsOpen} />
+      </header>
+      <ScheduleFilters search={search} onChange={setSearch} />
       {isOpen ? (
         <ScheduleFilterPanel
           search={search}
@@ -73,7 +79,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "The compact toolbar opens a normally scrolling, search-first filter editor with removable selections and progressively disclosed option lists.",
+          "The contextual filter action opens a normally scrolling, search-first editor, while date selection remains a separate schedule control.",
       },
     },
   },

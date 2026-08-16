@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
-import { Calendar, FilterList, NavArrowLeft, NavArrowRight } from "iconoir-react";
+import { NavArrowLeft, NavArrowRight } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../../ui/button/Button";
 import interactionStyles from "../../../ui/interaction/Interaction.module.css";
 import { addDays, todayInStockholm } from "../model/scheduleDate";
-import { LOCATION_IDS, type ScheduleSearch } from "../model/scheduleSearch";
+import type { ScheduleSearch } from "../model/scheduleSearch";
 import styles from "./ScheduleFilters.module.css";
 
 const DAYS_PER_PAGE = 7;
@@ -13,30 +13,19 @@ const VISIBLE_DAYS = 21;
 export interface ScheduleFiltersProps {
   search: ScheduleSearch;
   onChange: (search: ScheduleSearch) => void;
-  isFiltersOpen?: boolean;
-  onFiltersOpenChange?: (isOpen: boolean) => void;
 }
 
 function dateForFormatting(date: string) {
   return new Date(`${date}T12:00:00Z`);
 }
 
-export function ScheduleFilters({
-  search,
-  onChange,
-  isFiltersOpen = false,
-  onFiltersOpenChange,
-}: ScheduleFiltersProps) {
+export function ScheduleFilters({ search, onChange }: ScheduleFiltersProps) {
   const { t, i18n } = useTranslation();
   const today = todayInStockholm();
   const lastVisibleDate = addDays(today, VISIBLE_DAYS - 1);
   const visibleDates = Array.from({ length: VISIBLE_DAYS }, (_, index) => addDays(today, index));
   const selectedIndex = visibleDates.indexOf(search.date);
   const pageIndex = selectedIndex < 0 ? 0 : Math.floor(selectedIndex / DAYS_PER_PAGE);
-  const activeFilterCount =
-    Number(search.locations.length < LOCATION_IDS.length) +
-    Number(search.instructors.length > 0) +
-    Number(search.activityTypes.length > 0);
   const locale = i18n.resolvedLanguage ?? i18n.language;
   const weekdayFormatter = new Intl.DateTimeFormat(locale, { weekday: "short" });
   const monthFormatter = new Intl.DateTimeFormat(locale, { month: "short" });
@@ -141,45 +130,18 @@ export function ScheduleFilters({
         ) : null}
       </div>
 
-      <div className={styles.filterToolbar}>
-        <input
-          className={styles.datePickerInput}
-          aria-label={t("schedule.filters.chooseDate")}
-          type="date"
-          min={today}
-          max={lastVisibleDate}
-          value={search.date}
-          onChange={(event) => {
-            const date = event.currentTarget.value;
-            if (date) changeDate(date);
-          }}
-        />
-        <Button
-          type="button"
-          tone="quiet"
-          excludeFromTabOrder={false}
-          aria-label={t(
-            isFiltersOpen ? "schedule.filters.showSchedule" : "schedule.filters.openFilters",
-          )}
-          aria-expanded={isFiltersOpen}
-          aria-controls="schedule-filter-panel"
-          className={interactionStyles.selectable}
-          data-filters-open={isFiltersOpen || undefined}
-          onPress={() => onFiltersOpenChange?.(!isFiltersOpen)}
-        >
-          {isFiltersOpen ? (
-            <Calendar className={styles.filterIcon} aria-hidden="true" />
-          ) : (
-            <FilterList className={styles.filterIcon} aria-hidden="true" />
-          )}
-          <span className={styles.filterLabel}>
-            {t(isFiltersOpen ? "schedule.filters.showSchedule" : "schedule.filters.filters")}
-            {activeFilterCount > 0 ? (
-              <span className={styles.count}>{activeFilterCount}</span>
-            ) : null}
-          </span>
-        </Button>
-      </div>
+      <input
+        className={styles.datePickerInput}
+        aria-label={t("schedule.filters.chooseDate")}
+        type="date"
+        min={today}
+        max={lastVisibleDate}
+        value={search.date}
+        onChange={(event) => {
+          const date = event.currentTarget.value;
+          if (date) changeDate(date);
+        }}
+      />
     </div>
   );
 }

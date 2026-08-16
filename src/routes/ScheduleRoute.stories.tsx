@@ -25,10 +25,30 @@ type Story = StoryObj<typeof meta>;
 
 export const Classes: Story = {
   play: async ({ canvasElement }) => {
-    const links = within(canvasElement).getAllByRole("link");
+    const canvas = within(canvasElement);
+    const links = canvas.getAllByRole("link");
     await expect(links.filter((link) => link.getAttribute("aria-current") === "page")).toEqual([
       expect.objectContaining({ textContent: "Klasser" }),
     ]);
+    await expect(
+      canvas.getByRole("button", { name: /open schedule filters|öppna schemafilter/i }),
+    ).toHaveTextContent(/filters|filter/i);
+  },
+};
+
+export const ActiveFilters: Story = {
+  parameters: {
+    tanstack: {
+      router: {
+        route: indexRoute,
+        query: {
+          date: "2026-07-28",
+          locations: [1],
+          instructors: [21],
+          activityTypes: [],
+        },
+      },
+    },
   },
 };
 
@@ -48,10 +68,14 @@ export const Rooms: Story = {
     },
   },
   play: async ({ canvasElement }) => {
-    const links = within(canvasElement).getAllByRole("link");
+    const canvas = within(canvasElement);
+    const links = canvas.getAllByRole("link");
     await expect(links.filter((link) => link.getAttribute("aria-current") === "page")).toEqual([
       expect.objectContaining({ textContent: "Rum" }),
     ]);
+    await expect(
+      canvas.getByRole("button", { name: /open schedule filters|öppna schemafilter/i }),
+    ).toBeInTheDocument();
   },
 };
 

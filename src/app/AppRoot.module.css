@@ -47,10 +47,17 @@
     stroke-width: 1.7;
   }
 
-  .account {
+  .utilities {
     grid-column: 3;
+    display: flex;
+    align-items: center;
     justify-self: end;
     min-inline-size: 0;
+  }
+
+  .account {
+    min-inline-size: 0;
+    margin-inline-start: var(--space-2);
     padding-inline-start: var(--space-2);
     border-inline-start: 1px solid color-mix(in oklch, var(--color-chrome-ink) 18%, transparent);
   }
@@ -71,7 +78,7 @@
       inset-inline: 0;
       inset-block-end: 0;
       display: grid;
-      grid-template-columns: minmax(0, 3fr) minmax(4.5rem, 1fr);
+      grid-template-columns: minmax(0, 3fr) minmax(8rem, 2fr);
       gap: 0;
       inline-size: 100%;
       min-block-size: 3.75rem;
@@ -101,11 +108,23 @@
       text-align: center;
     }
 
-    .account {
+    .utilities {
       grid-column: 2;
       display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-self: stretch;
+      justify-self: stretch;
+    }
+
+    .account {
+      display: grid;
       align-items: center;
-      padding-inline-start: var(--space-1);
+      margin-inline-start: 0;
+      padding-inline-start: 0;
+    }
+
+    .utilities > .account:only-child {
+      grid-column: 2;
     }
 
     .content {

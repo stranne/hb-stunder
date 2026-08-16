@@ -39,7 +39,7 @@ describe("color mode", () => {
 
     expect(document.documentElement.dataset.colorMode).toBe("dark");
     expect(document.querySelector('meta[name="theme-color"]')?.getAttribute("content")).toBe(
-      "#181820",
+      "#111110",
     );
   });
 });

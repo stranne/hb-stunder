@@ -1,7 +1,5 @@
 # Booking and authentication readiness
 
-> **Initial deployment scope:** Production builds are browsing-only unless `VITE_ENABLE_CUSTOMER_FEATURES=true` is explicitly set. The default release build does not restore customer sessions, offer sign-in, show the **My bookings** navigation item, or enable customer mutations. Keep this opt-in disabled for public deployments until API usage permission and the unresolved production-integration contracts below are confirmed.
-
 > **Current implementation:** `pnpm dev` submits credentials to `/auth/login`, derives the access token and customer identity from the response, persists them for the browser session by default or on the device after explicit opt-in, and uses bearer authentication for booking read/create/delete operations. Persisted sessions are accepted only while their JWT `exp` claim remains valid; passwords are never stored. Authorized manual verification has completed the ordinary group-activity happy path in one browser session: sign in, create a booking, observe it under **My bookings**, cancel it, and observe its removal. This confirms the current non-empty booking decoder, POST/GET/DELETE reconciliation, and localhost CORS for those requests. It does not validate token renewal, waiting-list mutation behavior, failure contracts, or an authenticated end-to-end run from the deployed application. MSW remains available when explicitly enabled.
 
 ## Scope and evidence

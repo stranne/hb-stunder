@@ -42,14 +42,6 @@ API timestamps such as `2026-07-28T06:00:00.000Z` must be interpreted as UTC and
 
 `pnpm dev` uses the real API. Sign in with your Hagabadet username and password; authenticated requests include the returned bearer token. By default the token and customer identity are kept for the browser session. The optional **Keep me signed in** choice persists them on that device only until the JWT expires; expired sessions are removed automatically. The password is never stored. Sign-out clears all stored session data and the customer booking cache.
 
-Production builds are browsing-only by default: sign-in, the **My bookings** navigation item, and all customer mutations remain unavailable until API usage permission and the unresolved contracts are confirmed. An authorized production build must opt in explicitly:
-
-```sh
-VITE_ENABLE_CUSTOMER_FEATURES=true pnpm build
-```
-
-Do not enable this for a public deployment based on CORS compatibility alone. The ordinary localhost happy path is verified, but production-origin authentication and API usage permission remain release gates.
-
 The complete ordinary group-activity happy path—sign in, create a booking, list it under **My bookings**, cancel it, and observe its removal—has been manually verified against the real API on localhost. Waiting-list mutations, failure-specific responses, token renewal, idempotency/rate limits, and API usage permission remain unverified. A sanitized CORS probe from the planned GitHub Pages origin is recorded in [`docs/BOOKING_READINESS.md`](docs/BOOKING_READINESS.md); an authenticated end-to-end run from the deployed application is still required.
 
 MSW is configured beneath the generated HTTP client. It is disabled by default and can only start in development:

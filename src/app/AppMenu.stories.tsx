@@ -50,6 +50,9 @@ export const SignedOut: Story = {
 };
 export const SignInUnavailable: Story = {
   args: { customer: undefined, canSignIn: false },
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole("button"));
+  },
 };
 export const English: Story = { globals: { locale: "en" } };
 export const Dark: Story = {

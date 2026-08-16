@@ -24,6 +24,7 @@ export function AppRoot() {
   const { customer, canSignIn, signIn, signOut } = useSession();
   const scheduleSearch = parseScheduleSearch(location.search);
   const scheduleView = scheduleSearch.view;
+  const bookingsEnabled = canSignIn || customer !== undefined;
   const activeFilterCount =
     Number(scheduleSearch.locations.length < LOCATION_IDS.length) +
     Number(scheduleSearch.instructors.length > 0) +
@@ -69,7 +70,11 @@ export function AppRoot() {
     <>
       <header className={styles.shellHeader}>
         <div className={styles.navigationBar}>
-          <nav className={styles.nav} aria-label={t("navigation.label")}>
+          <nav
+            className={styles.nav}
+            aria-label={t("navigation.label")}
+            data-bookings-enabled={bookingsEnabled || undefined}
+          >
             <a
               {...classesLinkProps}
               className={`${interactionStyles.control} ${interactionStyles.quiet} ${interactionStyles.selectable}`}
@@ -90,14 +95,16 @@ export function AppRoot() {
               <ViewGrid aria-hidden="true" />
               <span>{t("navigation.rooms")}</span>
             </a>
-            <a
-              {...bookingsLinkProps}
-              className={`${interactionStyles.control} ${interactionStyles.quiet} ${interactionStyles.selectable}`}
-              aria-current={location.pathname === "/bookings" ? "page" : undefined}
-            >
-              <CalendarCheck aria-hidden="true" />
-              <span>{t("navigation.bookings")}</span>
-            </a>
+            {bookingsEnabled ? (
+              <a
+                {...bookingsLinkProps}
+                className={`${interactionStyles.control} ${interactionStyles.quiet} ${interactionStyles.selectable}`}
+                aria-current={location.pathname === "/bookings" ? "page" : undefined}
+              >
+                <CalendarCheck aria-hidden="true" />
+                <span>{t("navigation.bookings")}</span>
+              </a>
+            ) : null}
             <a
               {...filtersLinkProps}
               className={`${interactionStyles.control} ${interactionStyles.quiet} ${interactionStyles.selectable}`}

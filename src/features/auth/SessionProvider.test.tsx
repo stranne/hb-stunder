@@ -172,4 +172,26 @@ describe("SessionProvider", () => {
     expect(screen.getByText("available")).toBeTruthy();
     expect(screen.getByText("signed-out")).toBeTruthy();
   });
+
+  it("does not restore or create a session when customer features are disabled", () => {
+    window.localStorage.setItem(
+      "hb-stunder.session",
+      JSON.stringify({
+        accessToken: jwtWithExpiry(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        customerId: "42",
+        displayName: "Test Member",
+      }),
+    );
+
+    render(
+      <SessionProvider mockEnabled={false} customerFeaturesEnabled={false}>
+        <SessionStatus />
+      </SessionProvider>,
+    );
+
+    expect(screen.getByText("unavailable")).toBeTruthy();
+    expect(screen.getByText("signed-out")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
+    expect(screen.getByText("signed-out")).toBeTruthy();
+  });
 });

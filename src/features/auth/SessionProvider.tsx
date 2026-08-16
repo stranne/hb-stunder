@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { setApiAccessToken } from "../../api/client";
+import { CUSTOMER_FEATURES_ENABLED } from "../../api/config";
 import { MOCK_CUSTOMER_ID } from "../../mocks/mockSession";
 import {
   accessTokenExpiresAt,
@@ -54,16 +55,24 @@ export function SessionProvider({
   children,
   mockEnabled = mockSignInEnabled(),
   initiallySignedIn,
+  customerFeaturesEnabled = CUSTOMER_FEATURES_ENABLED,
 }: {
   children: ReactNode;
   mockEnabled?: boolean;
   initiallySignedIn?: boolean;
+  customerFeaturesEnabled?: boolean;
 }) {
   const [session, setSession] = useState<AuthenticatedSession | CustomerSession | undefined>(() =>
-    initiallySignedIn
-      ? { customerId: MOCK_CUSTOMER_ID, displayName: "Mock Customer" }
-      : restoreSession(mockEnabled),
+    customerFeaturesEnabled
+      ? initiallySignedIn
+        ? { customerId: MOCK_CUSTOMER_ID, displayName: "Mock Customer" }
+        : restoreSession(mockEnabled)
+      : undefined,
   );
+
+  useEffect(() => {
+    if (!customerFeaturesEnabled) setApiAccessToken(undefined);
+  }, [customerFeaturesEnabled]);
 
   useEffect(() => {
     if (!("accessToken" in (session ?? {}))) return;
@@ -118,8 +127,10 @@ export function SessionProvider({
               session.displayName !== session.customerId ? session.displayName : undefined,
           }
         : undefined,
-      canSignIn: true,
+      canSignIn: customerFeaturesEnabled,
       signIn: async (credentials: LoginCredentials, remember = false) => {
+        if (!customerFeaturesEnabled) return;
+
         if (mockEnabled) {
           window.localStorage.setItem(MOCK_SESSION_STORAGE_KEY, "signed-in");
           setSession({ customerId: MOCK_CUSTOMER_ID, displayName: "Mock Customer" });
@@ -141,7 +152,7 @@ export function SessionProvider({
         setSession(undefined);
       },
     }),
-    [session, mockEnabled],
+    [session, mockEnabled, customerFeaturesEnabled],
   );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

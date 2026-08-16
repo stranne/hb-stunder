@@ -46,7 +46,7 @@ function InteractiveFilters({
       >
         <ScheduleFilterToggle search={search} isOpen={isOpen} onOpenChange={setIsOpen} />
       </header>
-      <ScheduleFilters search={search} onChange={setSearch} />
+      {!isOpen ? <ScheduleFilters search={search} onChange={setSearch} /> : null}
       {isOpen ? (
         <ScheduleFilterPanel
           search={search}
@@ -79,7 +79,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "The contextual filter action opens a normally scrolling, search-first editor, while date selection remains a separate schedule control.",
+          "The contextual filter action replaces date selection with a normally scrolling, search-first editor and provides an explicit return to the schedule.",
       },
     },
   },

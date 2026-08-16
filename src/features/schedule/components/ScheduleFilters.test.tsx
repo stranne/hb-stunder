@@ -49,7 +49,7 @@ function FilterTestView({
   return (
     <>
       <ScheduleFilterToggle search={search} isOpen={isOpen} onOpenChange={setIsOpen} />
-      <ScheduleFilters search={search} onChange={onChange} />
+      {!isOpen ? <ScheduleFilters search={search} onChange={onChange} /> : null}
       {isOpen ? (
         <ScheduleFilterPanel
           search={search}
@@ -83,7 +83,8 @@ describe("ScheduleFilters", () => {
 
     expect(document.activeElement).toBe(filterButton);
     expect(filterButton.getAttribute("aria-expanded")).toBe("true");
-    expect(filterButton.textContent).toContain("Filters");
+    expect(filterButton.textContent).toContain("Show schedule");
+    expect(screen.queryByRole("group", { name: "Upcoming days" })).toBeNull();
     expect(screen.getByRole("region", { name: "Filters" })).toBeTruthy();
 
     fireEvent.keyDown(filterButton, { key: "Enter" });
@@ -91,6 +92,7 @@ describe("ScheduleFilters", () => {
 
     expect(filterButton.getAttribute("aria-expanded")).toBe("false");
     expect(screen.queryByRole("region", { name: "Filters" })).toBeNull();
+    expect(screen.getByRole("group", { name: "Upcoming days" })).toBeTruthy();
   });
 
   it("shows three weeks of named upcoming days and selects a day directly", () => {

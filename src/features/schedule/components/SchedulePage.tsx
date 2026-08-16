@@ -31,6 +31,7 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
   const pageRef = useRef<HTMLElement>(null);
   const stickyControlsRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
+  const isFiltersOpen = search.filters ?? false;
   const [areControlsElevated, setAreControlsElevated] = useState(false);
   const [favoriteFilters, setFavoriteFilters] = useState(() => {
     const { favoriteInstructorIds, favoriteActivityTypeIds } = readSchedulePreferences();
@@ -61,8 +62,9 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
     return () => {
       observer?.disconnect();
       window.removeEventListener("scroll", updateElevation);
+      page.style.removeProperty("--schedule-sticky-offset");
     };
-  }, []);
+  }, [isFiltersOpen]);
   const createBooking = useMutation(createGroupActivityBookingMutationOptions(queryClient));
   const cancelBooking = useMutation(cancelGroupActivityBookingMutationOptions(queryClient));
   const scheduleQueries = useQueries({
@@ -104,7 +106,6 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
   });
   const groupedSchedule = groupActivitiesByStart(scheduleData);
   const view = search.view ?? "classes";
-  const isFiltersOpen = search.filters ?? false;
   const isPending = scheduleQueries.some((query) => query.isPending);
   const isFetching = scheduleQueries.some((query) => query.isFetching);
   const failedScheduleQueries = scheduleQueries.filter((query) => query.isError);
@@ -127,13 +128,15 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
       data-filters-open={isFiltersOpen || undefined}
       aria-label={t(view === "rooms" ? "rooms.title" : "schedule.title")}
     >
-      <div
-        ref={stickyControlsRef}
-        className={styles.stickyControls}
-        data-elevated={areControlsElevated || undefined}
-      >
-        <ScheduleFilters search={search} onChange={onSearchChange} />
-      </div>
+      {!isFiltersOpen ? (
+        <div
+          ref={stickyControlsRef}
+          className={styles.stickyControls}
+          data-elevated={areControlsElevated || undefined}
+        >
+          <ScheduleFilters search={search} onChange={onSearchChange} />
+        </div>
+      ) : null}
 
       {isFiltersOpen ? (
         <ScheduleFilterPanel

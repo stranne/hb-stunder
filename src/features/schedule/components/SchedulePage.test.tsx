@@ -134,13 +134,16 @@ describe("SchedulePage", () => {
 
     const showScheduleButton = screen.getByRole("button", { name: "Show schedule" });
     expect(showScheduleButton.getAttribute("aria-expanded")).toBe("true");
+    expect(showScheduleButton.textContent).toContain("Show schedule");
     expect(screen.getByRole("region", { name: "Filters" })).toBeTruthy();
+    expect(screen.queryByRole("group", { name: "Upcoming days" })).toBeNull();
     expect(screen.queryByRole("region", { name: "Scheduled classes" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Done" })).toBeNull();
 
     fireEvent.click(showScheduleButton);
 
     expect(screen.queryByRole("region", { name: "Filters" })).toBeNull();
+    expect(screen.getByRole("group", { name: "Upcoming days" })).toBeTruthy();
     expect(screen.getByRole("region", { name: "Scheduled classes" })).toBeTruthy();
   });
 

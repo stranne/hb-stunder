@@ -76,15 +76,16 @@ export const FiltersOpen: Story = {
     docs: {
       description: {
         story:
-          "The schedule content is replaced by the filter editor; the application shell provides the persistent filter action.",
+          "The filter editor replaces both the schedule and its date selector; the application shell provides the persistent return action.",
       },
     },
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await expect(canvas.getByRole("region", { name: /^filters?$|^filter$/i })).toBeInTheDocument();
     await expect(
-      canvas.getByRole("region", { name: /^filters?$|^filter$/i }),
-    ).toBeInTheDocument();
+      canvas.queryByRole("group", { name: /upcoming days|kommande dagar/i }),
+    ).not.toBeInTheDocument();
     await expect(canvas.queryByRole("button", { name: /done|klar/i })).not.toBeInTheDocument();
   },
 };

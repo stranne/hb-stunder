@@ -1,4 +1,4 @@
-import { FilterList } from "iconoir-react";
+import { Calendar, FilterList } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../../ui/button/Button";
 import interactionStyles from "../../../ui/interaction/Interaction.module.css";
@@ -29,8 +29,14 @@ export function ScheduleFilterToggle({ search, isOpen, onOpenChange }: ScheduleF
       data-filters-open={isOpen || undefined}
       onPress={() => onOpenChange(!isOpen)}
     >
-      <FilterList className={styles.icon} aria-hidden="true" />
-      <span className={styles.label}>{t("schedule.filters.filters")}</span>
+      {isOpen ? (
+        <Calendar className={styles.icon} aria-hidden="true" />
+      ) : (
+        <FilterList className={styles.icon} aria-hidden="true" />
+      )}
+      <span className={styles.label}>
+        {t(isOpen ? "schedule.filters.showSchedule" : "schedule.filters.filters")}
+      </span>
       {activeFilterCount > 0 ? (
         <span className={styles.count} aria-hidden="true">
           {activeFilterCount}

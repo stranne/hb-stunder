@@ -38,7 +38,7 @@ export function ScheduleRoute() {
       onSearchChange={(nextSearch) =>
         void navigate({
           search: nextSearch,
-          replace: nextSearch.filters === search.filters,
+          replace: true,
         })
       }
       customerId={customer?.customerId}

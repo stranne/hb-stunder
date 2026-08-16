@@ -109,10 +109,10 @@ describe("schedule model", () => {
       instructors: [21, 25],
       activityTypes: [201, 203],
       view: "classes",
-      filters: false,
     });
     expect(parseScheduleSearch({ view: "rooms" }).view).toBe("rooms");
-    expect(parseScheduleSearch({ filters: "true" }).filters).toBe(true);
+    expect(parseScheduleSearch({ view: "filters" }).view).toBe("filters");
+    expect(parseScheduleSearch({ view: "unknown" }).view).toBe("classes");
   });
 
   it("groups classes by their exact start time without changing order inside a group", () => {

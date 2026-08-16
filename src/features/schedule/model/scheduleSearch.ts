@@ -8,7 +8,7 @@ export const SCHEDULE_LOCATIONS = [
 
 export const LOCATION_IDS = SCHEDULE_LOCATIONS.map(({ id }) => id);
 
-export type ScheduleView = "classes" | "rooms";
+export type ScheduleView = "classes" | "rooms" | "filters";
 
 export interface ScheduleSearch {
   date: string;
@@ -17,8 +17,6 @@ export interface ScheduleSearch {
   activityTypes: number[];
   /** Omitted links remain compatible and open the classes view. */
   view?: ScheduleView;
-  /** Whether the schedule content is replaced by the filter view. */
-  filters?: boolean;
 }
 
 function parseIds(value: unknown): number[] {
@@ -50,7 +48,6 @@ export function parseScheduleSearch(search: Record<string, unknown>): ScheduleSe
     locations: locations.length > 0 ? locations : [...LOCATION_IDS],
     instructors: parseIds(search.instructors),
     activityTypes: parseIds(search.activityTypes),
-    view: search.view === "rooms" ? "rooms" : "classes",
-    filters: search.filters === true || search.filters === "true",
+    view: search.view === "rooms" || search.view === "filters" ? search.view : "classes",
   };
 }

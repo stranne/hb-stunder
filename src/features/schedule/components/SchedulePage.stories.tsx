@@ -69,7 +69,7 @@ export const FiltersOpen: Story = {
       locations: [1, 4128, 3509],
       instructors: [],
       activityTypes: [],
-      filters: true,
+      view: "filters",
     },
   },
   parameters: {

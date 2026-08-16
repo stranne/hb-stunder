@@ -47,6 +47,18 @@
     stroke-width: 1.7;
   }
 
+  .filterCount {
+    display: inline-grid;
+    min-inline-size: 1.4rem;
+    min-block-size: 1.4rem;
+    place-items: center;
+    border-radius: var(--radius-pill);
+    color: var(--color-ink-inverse);
+    background: var(--color-accent);
+    font-size: 0.7rem;
+    line-height: 1;
+  }
+
   .utilities {
     grid-column: 3;
     display: flex;
@@ -78,7 +90,7 @@
       inset-inline: 0;
       inset-block-end: 0;
       display: grid;
-      grid-template-columns: minmax(0, 3fr) minmax(8rem, 2fr);
+      grid-template-columns: minmax(0, 4fr) minmax(4rem, 1fr);
       gap: 0;
       inline-size: 100%;
       min-block-size: 3.75rem;
@@ -92,11 +104,12 @@
     .nav {
       grid-column: 1;
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 0;
     }
 
     .nav a {
+      position: relative;
       display: grid;
       grid-template-rows: 1.25rem auto;
       justify-items: center;
@@ -108,10 +121,19 @@
       text-align: center;
     }
 
+    .filterCount {
+      position: absolute;
+      inset-block-start: var(--space-1);
+      inset-inline-start: calc(50% + 0.25rem);
+      min-inline-size: 1rem;
+      min-block-size: 1rem;
+      font-size: 0.6rem;
+    }
+
     .utilities {
       grid-column: 2;
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: minmax(0, 1fr);
       align-self: stretch;
       justify-self: stretch;
     }
@@ -121,10 +143,6 @@
       align-items: center;
       margin-inline-start: 0;
       padding-inline-start: 0;
-    }
-
-    .utilities > .account:only-child {
-      grid-column: 2;
     }
 
     .content {

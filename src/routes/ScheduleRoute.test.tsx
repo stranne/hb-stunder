@@ -104,32 +104,17 @@ describe("ScheduleRoute", () => {
     expect(mocks.navigate).not.toHaveBeenCalled();
   });
 
-  it("adds filter-view changes to history while replacing immediate refinements", () => {
-    const view = render(<ScheduleRoute />);
+  it("replaces history entries for immediate schedule refinements", () => {
+    render(<ScheduleRoute />);
 
-    mocks.onSearchChange?.({ ...mocks.routeSearch, filters: true });
-    expect(mocks.navigate).toHaveBeenLastCalledWith({
-      search: { ...mocks.routeSearch, filters: true },
-      replace: false,
-    });
-
-    mocks.routeSearch = { ...mocks.routeSearch, filters: true };
-    view.rerender(<ScheduleRoute />);
     mocks.onSearchChange?.({ ...mocks.routeSearch, instructors: [21] });
     expect(mocks.navigate).toHaveBeenLastCalledWith({
       search: { ...mocks.routeSearch, instructors: [21] },
       replace: true,
     });
-
-    mocks.onSearchChange?.({ ...mocks.routeSearch, filters: false });
-    expect(mocks.navigate).toHaveBeenLastCalledWith({
-      search: { ...mocks.routeSearch, filters: false },
-      replace: false,
-    });
-    view.unmount();
   });
 
-  it("renders filter visibility and selections restored by browser Back or Forward", () => {
+  it("renders the view and selections restored by browser Back or Forward", () => {
     window.history.replaceState(null, "", "/?locations=1");
     const view = render(<ScheduleRoute />);
 
@@ -138,7 +123,7 @@ describe("ScheduleRoute", () => {
       date: "2026-07-30",
       locations: [3509],
       instructors: [21],
-      filters: true,
+      view: "filters",
     };
     view.rerender(<ScheduleRoute />);
 

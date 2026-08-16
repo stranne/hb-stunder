@@ -52,8 +52,8 @@ function TestPage({
     <>
       <ScheduleFilterToggle
         search={search}
-        isOpen={search.filters ?? false}
-        onOpenChange={(isOpen) => setSearch({ ...search, filters: isOpen })}
+        isOpen={search.view === "filters"}
+        onOpenChange={(isOpen) => setSearch({ ...search, view: isOpen ? "filters" : "classes" })}
       />
       <SchedulePage search={search} onSearchChange={setSearch} customerId={customerId} />
     </>

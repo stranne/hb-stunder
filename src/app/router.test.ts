@@ -8,7 +8,6 @@ const defaultSearch = {
   instructors: [],
   activityTypes: [],
   view: "classes" as const,
-  filters: false,
 };
 
 describe("schedule route search", () => {
@@ -23,13 +22,14 @@ describe("schedule route search", () => {
     expect(location.searchStr).toBe("?date=2026-08-05");
   });
 
-  it("keeps the filter view state in the URL", () => {
+  it("keeps the filter page in the view query parameter", () => {
     const location = router.buildLocation({
       to: "/",
-      search: { ...defaultSearch, filters: true },
+      search: { ...defaultSearch, view: "filters" },
     });
 
-    expect(new URLSearchParams(location.searchStr).get("filters")).toBe("true");
+    expect(new URLSearchParams(location.searchStr).get("view")).toBe("filters");
+    expect(new URLSearchParams(location.searchStr).has("filters")).toBe(false);
   });
 
   it("keeps an actual filter selection in the URL", () => {

@@ -1,12 +1,11 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { Outlet, useLinkProps, useLocation, useNavigate } from "@tanstack/react-router";
+import { Outlet, useLinkProps, useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import { Calendar, CalendarCheck, ViewGrid } from "iconoir-react";
+import { Calendar, CalendarCheck, FilterList, ViewGrid } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import { bookingKeys } from "../features/bookings/api/bookingQueries";
 import { useSession } from "../features/auth/sessionContext";
-import { ScheduleFilterToggle } from "../features/schedule/components/ScheduleFilterToggle";
 import { AppMenu } from "./AppMenu";
 import {
   applyColorMode,
@@ -15,18 +14,20 @@ import {
   type ColorModePreference,
 } from "./colorMode";
 import interactionStyles from "../ui/interaction/Interaction.module.css";
-import { parseScheduleSearch } from "../features/schedule/model/scheduleSearch";
+import { LOCATION_IDS, parseScheduleSearch } from "../features/schedule/model/scheduleSearch";
 import styles from "./AppRoot.module.css";
 
 export function AppRoot() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const location = useLocation();
-  const navigate = useNavigate();
   const { customer, canSignIn, signIn, signOut } = useSession();
-  const isScheduleRoute = location.pathname === "/";
   const scheduleSearch = parseScheduleSearch(location.search);
   const scheduleView = scheduleSearch.view;
+  const activeFilterCount =
+    Number(scheduleSearch.locations.length < LOCATION_IDS.length) +
+    Number(scheduleSearch.instructors.length > 0) +
+    Number(scheduleSearch.activityTypes.length > 0);
   const [colorModePreference, setColorModePreference] = useState(readColorModePreference);
 
   useEffect(() => {
@@ -46,6 +47,10 @@ export function AppRoot() {
   const roomsLinkProps = useLinkProps({
     to: "/",
     search: (previous) => ({ ...parseScheduleSearch(previous), view: "rooms" }),
+  });
+  const filtersLinkProps = useLinkProps({
+    to: "/",
+    search: (previous) => ({ ...parseScheduleSearch(previous), view: "filters" }),
   });
   const bookingsLinkProps = useLinkProps({ to: "/bookings" });
 
@@ -93,20 +98,23 @@ export function AppRoot() {
               <CalendarCheck aria-hidden="true" />
               <span>{t("navigation.bookings")}</span>
             </a>
+            <a
+              {...filtersLinkProps}
+              className={`${interactionStyles.control} ${interactionStyles.quiet} ${interactionStyles.selectable}`}
+              aria-current={
+                location.pathname === "/" && scheduleView === "filters" ? "page" : undefined
+              }
+            >
+              <FilterList aria-hidden="true" />
+              <span>{t("schedule.filters.filters")}</span>
+              {activeFilterCount > 0 ? (
+                <span className={styles.filterCount} aria-hidden="true">
+                  {activeFilterCount}
+                </span>
+              ) : null}
+            </a>
           </nav>
           <div className={styles.utilities}>
-            {isScheduleRoute ? (
-              <ScheduleFilterToggle
-                search={scheduleSearch}
-                isOpen={scheduleSearch.filters ?? false}
-                onOpenChange={(isOpen) =>
-                  void navigate({
-                    to: "/",
-                    search: { ...scheduleSearch, filters: isOpen },
-                  })
-                }
-              />
-            ) : null}
             <div className={styles.account}>
               <AppMenu
                 customer={customer}

@@ -31,7 +31,7 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
   const pageRef = useRef<HTMLElement>(null);
   const stickyControlsRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
-  const isFiltersOpen = search.filters ?? false;
+  const isFiltersOpen = search.view === "filters";
   const [areControlsElevated, setAreControlsElevated] = useState(false);
   const [favoriteFilters, setFavoriteFilters] = useState(() => {
     const { favoriteInstructorIds, favoriteActivityTypeIds } = readSchedulePreferences();
@@ -126,7 +126,13 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
       ref={pageRef}
       className={`${styles.page} ${view === "rooms" ? styles.roomsPage : ""}`}
       data-filters-open={isFiltersOpen || undefined}
-      aria-label={t(view === "rooms" ? "rooms.title" : "schedule.title")}
+      aria-label={t(
+        view === "filters"
+          ? "schedule.filters.filters"
+          : view === "rooms"
+            ? "rooms.title"
+            : "schedule.title",
+      )}
     >
       {!isFiltersOpen ? (
         <div

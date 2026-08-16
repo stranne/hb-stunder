@@ -30,9 +30,7 @@ export const Classes: Story = {
     await expect(links.filter((link) => link.getAttribute("aria-current") === "page")).toEqual([
       expect.objectContaining({ textContent: "Klasser" }),
     ]);
-    await expect(
-      canvas.getByRole("button", { name: /open schedule filters|öppna schemafilter/i }),
-    ).toHaveTextContent(/filters|filter/i);
+    await expect(canvas.getByRole("link", { name: /filters|filter/i })).toBeInTheDocument();
   },
 };
 
@@ -73,9 +71,32 @@ export const Rooms: Story = {
     await expect(links.filter((link) => link.getAttribute("aria-current") === "page")).toEqual([
       expect.objectContaining({ textContent: "Rum" }),
     ]);
-    await expect(
-      canvas.getByRole("button", { name: /open schedule filters|öppna schemafilter/i }),
-    ).toBeInTheDocument();
+    await expect(canvas.getByRole("link", { name: /filters|filter/i })).toBeInTheDocument();
+  },
+};
+
+export const Filters: Story = {
+  parameters: {
+    tanstack: {
+      router: {
+        route: indexRoute,
+        query: {
+          date: "2026-07-28",
+          locations: [1, 4128, 3509],
+          instructors: [],
+          activityTypes: [],
+          view: "filters",
+        },
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const links = canvas.getAllByRole("link");
+    await expect(links.filter((link) => link.getAttribute("aria-current") === "page")).toEqual([
+      expect.objectContaining({ textContent: "Filter" }),
+    ]);
+    await expect(canvas.getByRole("main", { name: "Filter" })).toBeInTheDocument();
   },
 };
 

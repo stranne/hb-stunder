@@ -101,7 +101,7 @@ The shared state colors live in `src/app/theme.css`; reusable control recipes li
 
 ## Color status
 
-Color has deliberately not been redesigned yet. The current warm canvas, dark ink, green accent, semantic states, and blue focus color remain in place.
+Primary actions use the established blue accent rather than the error-adjacent red previously used for buttons. The warm canvas, dark ink, semantic state colors, and blue focus color remain in place; red stays reserved for genuine destructive actions and error feedback.
 
 A dedicated color exploration should:
 

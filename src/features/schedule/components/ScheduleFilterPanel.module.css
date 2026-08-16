@@ -1,6 +1,7 @@
 @layer components {
   .panel {
     inline-size: min(calc(100% - 2rem), 64rem);
+    margin-block-start: var(--space-3);
     margin-inline: auto;
     color: var(--color-ink);
   }

@@ -44,6 +44,25 @@ describe("BookingsRoute", () => {
     let requests = 0;
     server.use(
       http.get(
+        `${REAL_API_BASE_URL}/businessunits/:businessUnit/groupactivities/:activityId`,
+        ({ params }) => {
+          expect(params.businessUnit).toBe("1");
+          expect(params.activityId).toBe("101");
+          return HttpResponse.json({
+            id: 101,
+            name: "Today strength",
+            duration: {
+              start: "2026-07-28T06:00:00.000Z",
+              end: "2026-07-28T07:00:00.000Z",
+            },
+            businessUnit: { id: 1, name: "Älvstranden" },
+            locations: [{ id: 12, name: "Träningsstudio" }],
+            instructors: [{ id: 21, name: "Alex Example" }],
+            slots: { totalBookable: 18, leftToBook: 8, hasWaitingList: false },
+          });
+        },
+      ),
+      http.get(
         `${REAL_API_BASE_URL}/customers/:customerId/bookings/groupactivities`,
         ({ params }) => {
           requests += 1;
@@ -60,7 +79,7 @@ describe("BookingsRoute", () => {
               groupActivity: { id: 101, name: "Today strength" },
               groupActivityBooking: { id: 701 },
               duration: { start: "2026-07-28T06:00:00.000Z" },
-              businessUnit: { name: "Älvstranden" },
+              businessUnit: { id: 1, name: "Älvstranden" },
               type: "groupActivityBooking",
             },
           ]);
@@ -79,8 +98,10 @@ describe("BookingsRoute", () => {
 
     expect(await screen.findByText("Today strength")).toBeTruthy();
     expect(screen.getByText("Tomorrow yoga")).toBeTruthy();
-    expect(screen.getByText("Booked")).toBeTruthy();
+    expect(screen.getByText("Already booked")).toBeTruthy();
     expect(screen.getByText("On waiting list")).toBeTruthy();
+    expect(await screen.findByText("Alex Example")).toBeTruthy();
+    expect(screen.getByText(/Träningsstudio, Älvstranden/)).toBeTruthy();
     expect(requests).toBe(1);
 
     const items = screen.getAllByRole("listitem");

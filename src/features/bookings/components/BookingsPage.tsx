@@ -1,10 +1,12 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../../ui/button/Button";
-import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
 import { ErrorMessage } from "../../../ui/feedback/ErrorMessage";
-import { StatusLabel } from "../../../ui/status-label/StatusLabel";
+import { groupActivityQueryOptions } from "../../schedule/api/scheduleQueries";
+import { GymClassCard } from "../../schedule/components/GymClassCard";
+import type { ScheduledActivity } from "../../schedule/model/schedule";
+import { readSchedulePreferences } from "../../schedule/model/schedulePreferences";
 import { cancelGroupActivityBookingMutationOptions } from "../api/bookingMutations";
 import { customerGroupActivityBookingsQueryOptions } from "../api/bookingQueries";
 import type { GroupActivityBooking } from "../model/bookings";
@@ -25,6 +27,15 @@ function bookingTime(booking: GroupActivityBooking, language: string) {
   }).format(start);
 }
 
+function activityFromBooking(booking: GroupActivityBooking): ScheduledActivity {
+  return {
+    id: booking.groupActivity?.id,
+    name: booking.groupActivity?.name,
+    duration: booking.duration,
+    businessUnit: booking.businessUnit,
+  };
+}
+
 export function BookingsPage({
   customerId,
   canSignIn,
@@ -40,6 +51,12 @@ export function BookingsPage({
   const sortedBookings = [...(bookings.data ?? [])].sort((left, right) =>
     (left.duration?.start ?? "").localeCompare(right.duration?.start ?? ""),
   );
+  const activityQueries = useQueries({
+    queries: sortedBookings.map((booking) =>
+      groupActivityQueryOptions(booking.businessUnit?.id, booking.groupActivity?.id),
+    ),
+  });
+  const { favoriteInstructorIds, favoriteActivityTypeIds } = readSchedulePreferences();
 
   return (
     <main className={styles.page}>
@@ -64,17 +81,24 @@ export function BookingsPage({
       ) : sortedBookings.length === 0 ? (
         <p className={styles.notice}>{t("bookings.empty")}</p>
       ) : (
-        <ul className={styles.list} aria-label={t("bookings.listLabel")}>
+        <ul
+          className={styles.list}
+          aria-label={t("bookings.listLabel")}
+          aria-busy={activityQueries.some((query) => query.isFetching)}
+        >
           {sortedBookings.map((booking, index) => {
-            const isWaiting = booking.type === "groupActivityWaitingListBooking";
-            const isOrdinary = booking.type === "groupActivityBooking";
             const bookingId = booking.groupActivityBooking?.id;
-            const name = booking.groupActivity?.name ?? t("bookings.unnamedClass");
-            const location = booking.businessUnit?.name ?? booking.businessUnit?.location;
+            const activity = activityQueries[index]?.data ?? activityFromBooking(booking);
+            const onCancel =
+              booking.type === "groupActivityBooking" &&
+              bookingId !== undefined &&
+              customerId !== undefined
+                ? () => cancellation.mutateAsync({ customerId, bookingId })
+                : undefined;
 
             return (
               <li
-                className={styles.card}
+                className={styles.booking}
                 key={
                   bookingId ?? `${booking.groupActivity?.id}-${booking.duration?.start}-${index}`
                 }
@@ -82,30 +106,17 @@ export function BookingsPage({
                 <time className={styles.date} dateTime={booking.duration?.start}>
                   {bookingTime(booking, i18n.resolvedLanguage ?? "en") ?? t("bookings.timeUnknown")}
                 </time>
-                <div>
-                  <h2>{name}</h2>
-                  {location ? <p className={styles.details}>{location}</p> : null}
-                </div>
-                <div className={styles.actions}>
-                  <StatusLabel tone={isWaiting ? "warning" : "positive"}>
-                    {t(isWaiting ? "bookings.waitingList" : "bookings.booked")}
-                  </StatusLabel>
-                  {isOrdinary && bookingId !== undefined && customerId ? (
-                    <AsyncConfirmationAction
-                      triggerLabel={t("schedule.cancellation.cancelBooking")}
-                      title={t("schedule.cancellation.confirmTitle")}
-                      message={t("schedule.cancellation.confirmMessage", { name })}
-                      cancelLabel={t("schedule.cancellation.keepBooking")}
-                      confirmLabel={t("schedule.cancellation.confirm")}
-                      retryLabel={t("schedule.cancellation.retry")}
-                      pendingMessage={t("schedule.cancellation.pending")}
-                      errorMessage={t("bookings.cancellationError")}
-                      onConfirm={() => cancellation.mutateAsync({ customerId, bookingId })}
-                      focusFallbackRef={pageHeadingRef}
-                      tone="danger"
-                    />
-                  ) : null}
-                </div>
+                <GymClassCard
+                  activity={activity}
+                  booking={booking}
+                  onCancel={onCancel}
+                  headingLevel={2}
+                  includeBusinessUnitName
+                  favoriteInstructorIds={favoriteInstructorIds}
+                  favoriteActivityTypeIds={favoriteActivityTypeIds}
+                  cancellationErrorMessage={t("bookings.cancellationError")}
+                  cancellationFocusFallbackRef={pageHeadingRef}
+                />
               </li>
             );
           })}

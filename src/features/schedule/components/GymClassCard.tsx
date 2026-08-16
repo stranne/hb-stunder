@@ -1,5 +1,5 @@
 import { Clock, MapPin, NavArrowDown, User } from "iconoir-react";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 import type { GroupActivityBooking } from "../../bookings/model/bookings";
 import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
@@ -20,6 +20,8 @@ export interface GymClassCardProps {
   favoriteInstructorIds?: number[];
   favoriteActivityTypeIds?: number[];
   includeBusinessUnitName?: boolean;
+  cancellationErrorMessage?: string;
+  cancellationFocusFallbackRef?: RefObject<HTMLElement | null>;
 }
 
 function classTitleParts(name: string) {
@@ -50,6 +52,8 @@ export function GymClassCard({
   favoriteInstructorIds = [],
   favoriteActivityTypeIds = [],
   includeBusinessUnitName = false,
+  cancellationErrorMessage,
+  cancellationFocusFallbackRef,
 }: GymClassCardProps) {
   const { i18n, t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -299,9 +303,9 @@ export function GymClassCard({
             confirmLabel={t("schedule.cancellation.confirm")}
             retryLabel={t("schedule.cancellation.retry")}
             pendingMessage={t("schedule.cancellation.pending")}
-            errorMessage={t("schedule.cancellation.error")}
+            errorMessage={cancellationErrorMessage ?? t("schedule.cancellation.error")}
             onConfirm={onCancel}
-            focusFallbackRef={cardRef}
+            focusFallbackRef={cancellationFocusFallbackRef ?? cardRef}
             tone="danger"
           />
         ) : null}

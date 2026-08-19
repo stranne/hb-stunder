@@ -68,6 +68,10 @@ export const BookedActivities: Story = {
       ],
     ]),
   },
+  play: async ({ canvasElement }) => {
+    await userEvent.click(within(canvasElement).getByRole("button", { name: /Redan bokad/ }));
+    await expect(within(canvasElement.ownerDocument.body).getByText("Redan bokad")).toBeVisible();
+  },
 };
 export const ConsecutiveActivities: Story = {
   args: {

@@ -11,6 +11,7 @@ import { Calendar, Clock, MapPin, User, Xmark } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import type { GroupActivityBooking } from "../../bookings/model/bookings";
 import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
+import { StatusLabel } from "../../../ui/status-label/StatusLabel";
 import interactionStyles from "../../../ui/interaction/Interaction.module.css";
 import type { ActivityState, ScheduledActivity } from "../model/schedule";
 import { getActivityState } from "../model/schedule";
@@ -522,23 +523,35 @@ function RoomBookingAction({
   const { t } = useTranslation();
   const { availability } = activityState;
   const bookingId = booking?.groupActivityBooking?.id;
-  if (booking?.type === "groupActivityBooking" && bookingId !== undefined && customerId) {
+  if (booking) {
+    const isWaitingListBooking = booking.type === "groupActivityWaitingListBooking";
     return (
-      <AsyncConfirmationAction
-        triggerLabel={t("schedule.cancellation.cancelBooking")}
-        title={t("schedule.cancellation.confirmTitle")}
-        message={t("schedule.cancellation.confirmMessage", {
-          name: activity.name ?? t("schedule.unnamedClass"),
-        })}
-        cancelLabel={t("schedule.cancellation.keepBooking")}
-        confirmLabel={t("schedule.cancellation.confirm")}
-        retryLabel={t("schedule.cancellation.retry")}
-        pendingMessage={t("schedule.cancellation.pending")}
-        errorMessage={t("schedule.cancellation.error")}
-        onConfirm={() => onCancel(bookingId)}
-        tone="danger"
-        presentation="inline"
-      />
+      <div className={styles.bookingActions}>
+        <StatusLabel tone={isWaitingListBooking ? "warning" : "positive"}>
+          {t(
+            isWaitingListBooking
+              ? "schedule.availability.waitingListBooked"
+              : "schedule.availability.booked",
+          )}
+        </StatusLabel>
+        {!isWaitingListBooking && bookingId !== undefined && customerId ? (
+          <AsyncConfirmationAction
+            triggerLabel={t("schedule.cancellation.cancelBooking")}
+            title={t("schedule.cancellation.confirmTitle")}
+            message={t("schedule.cancellation.confirmMessage", {
+              name: activity.name ?? t("schedule.unnamedClass"),
+            })}
+            cancelLabel={t("schedule.cancellation.keepBooking")}
+            confirmLabel={t("schedule.cancellation.confirm")}
+            retryLabel={t("schedule.cancellation.retry")}
+            pendingMessage={t("schedule.cancellation.pending")}
+            errorMessage={t("schedule.cancellation.error")}
+            onConfirm={() => onCancel(bookingId)}
+            tone="danger"
+            presentation="inline"
+          />
+        ) : null}
+      </div>
     );
   }
   const canBook = !booking && customerId && activity.id !== undefined && activityState.canBook;

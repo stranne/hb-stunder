@@ -194,6 +194,11 @@ describe("RoomCalendar", () => {
 
     const activity = screen.getByRole("button", { name: /Yinyoga.*Already booked/ });
     expect(activity.parentElement?.dataset.bookingState).toBe("booked");
+
+    fireEvent.click(activity);
+    const details = within(screen.getByRole("dialog"));
+    expect(details.getByText("Already booked")).toBeTruthy();
+    expect(details.getByRole("button", { name: "Cancel booking" })).toBeTruthy();
   });
 
   it("does not offer booking outside the activity booking window", () => {

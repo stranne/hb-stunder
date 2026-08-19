@@ -38,6 +38,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install Chromium
+        timeout-minutes: 2
         run: pnpm exec playwright install chromium
 
       - name: Check formatting, lint, and types

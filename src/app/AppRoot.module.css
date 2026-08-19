@@ -47,16 +47,26 @@
     stroke-width: 1.7;
   }
 
-  .filterCount {
+  .navCount {
     display: inline-grid;
     min-inline-size: 1.4rem;
     min-block-size: 1.4rem;
+    padding-inline: 0.2rem;
     place-items: center;
     border-radius: var(--radius-pill);
     color: var(--color-ink-inverse);
     background: var(--color-accent);
     font-size: 0.7rem;
     line-height: 1;
+  }
+
+  .visuallyHidden {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   .utilities {
@@ -121,7 +131,7 @@
       text-align: center;
     }
 
-    .filterCount {
+    .navCount {
       position: absolute;
       inset-block-start: var(--space-1);
       inset-inline-start: calc(50% + 0.25rem);

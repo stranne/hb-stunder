@@ -310,6 +310,15 @@ export function RoomCalendar({
                       favoriteActivityTypeIds.includes(item.activity.groupActivityProduct.id);
                     const activityState = getActivityState(item.activity, now.getTime());
                     const { hasStarted } = activityState;
+                    const booking =
+                      item.activity.id === undefined
+                        ? undefined
+                        : bookingsByActivity.get(item.activity.id);
+                    const bookingState = booking
+                      ? booking.type === "groupActivityWaitingListBooking"
+                        ? "waitingListBooked"
+                        : "booked"
+                      : undefined;
                     const spotDetails =
                       activityState.leftToBook !== undefined &&
                       activityState.totalBookable !== undefined
@@ -325,6 +334,7 @@ export function RoomCalendar({
                       item.businessUnitName,
                       instructors,
                       spotDetails,
+                      bookingState ? t(`schedule.availability.${bookingState}`) : undefined,
                       hasStarted ? t("schedule.availability.started") : undefined,
                     ]
                       .filter(Boolean)
@@ -335,6 +345,7 @@ export function RoomCalendar({
                         className={styles.block}
                         style={{ top: top + 1, height: Math.max(30, blockHeight - 2) }}
                         data-started={hasStarted || undefined}
+                        data-booking-state={bookingState}
                       >
                         <button
                           type="button"

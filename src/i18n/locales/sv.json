@@ -9,7 +9,9 @@
     "schedule": "Klasser",
     "classes": "Klasser",
     "rooms": "Rum",
-    "bookings": "Mina bokningar"
+    "bookings": "Mina bokningar",
+    "bookingCount_one": "{{count}} bokning",
+    "bookingCount_other": "{{count}} bokningar"
   },
   "menu": {
     "label": "Meny",

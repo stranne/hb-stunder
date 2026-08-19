@@ -165,6 +165,37 @@ describe("RoomCalendar", () => {
     );
   });
 
+  it("marks a booked activity in the room calendar and includes its status in the label", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-07-28T05:00:00.000Z"));
+    const activityId = scheduleFixtures.available.id!;
+
+    render(
+      <RoomCalendar
+        date="2026-07-28"
+        activities={[scheduleFixtures.available]}
+        bookingsByActivity={
+          new Map([
+            [
+              activityId,
+              {
+                type: "groupActivityBooking" as const,
+                groupActivity: { id: activityId },
+                groupActivityBooking: { id: 700001 },
+              },
+            ],
+          ])
+        }
+        customerId="900001"
+        onBook={async () => undefined}
+        onCancel={async () => undefined}
+      />,
+    );
+
+    const activity = screen.getByRole("button", { name: /Yinyoga.*Already booked/ });
+    expect(activity.parentElement?.dataset.bookingState).toBe("booked");
+  });
+
   it("does not offer booking outside the activity booking window", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-07-28T05:00:00.000Z"));

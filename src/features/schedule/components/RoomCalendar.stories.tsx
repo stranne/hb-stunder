@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/tanstack-react";
 import { expect, userEvent, within } from "storybook/test";
 import { scheduleFixtures } from "../../../mocks/fixtures/schedule";
+import type { GroupActivityBooking } from "../../bookings/model/bookings";
 import { todayInStockholm } from "../model/scheduleDate";
 import { RoomCalendar } from "./RoomCalendar";
 
@@ -34,6 +35,38 @@ export const SurfaceDepth: Story = {
       { ...scheduleFixtures.almostFull, locations: [{ id: 12, name: "Ägget" }] },
       { ...scheduleFixtures.full, locations: [{ id: 17, name: "Träningsstudio" }] },
     ],
+  },
+};
+export const BookedActivities: Story = {
+  args: {
+    date: "2099-07-28",
+    activities: [
+      {
+        ...scheduleFixtures.available,
+        duration: { start: "2099-07-28T06:00:00.000Z", end: "2099-07-28T07:00:00.000Z" },
+      },
+      {
+        ...scheduleFixtures.waitingList,
+        duration: { start: "2099-07-28T17:00:00.000Z", end: "2099-07-28T18:15:00.000Z" },
+      },
+    ],
+    bookingsByActivity: new Map([
+      [
+        scheduleFixtures.available.id!,
+        {
+          type: "groupActivityBooking",
+          groupActivity: { id: scheduleFixtures.available.id },
+          groupActivityBooking: { id: 700001 },
+        } satisfies GroupActivityBooking,
+      ],
+      [
+        scheduleFixtures.waitingList.id!,
+        {
+          type: "groupActivityWaitingListBooking",
+          groupActivity: { id: scheduleFixtures.waitingList.id },
+        } satisfies GroupActivityBooking,
+      ],
+    ]),
   },
 };
 export const ConsecutiveActivities: Story = {

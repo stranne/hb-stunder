@@ -16,21 +16,28 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const play: Story["play"] = async ({ canvasElement }) => {
+const expectActiveBookingsLink = async (canvasElement: HTMLElement) => {
   const links = within(canvasElement).getAllByRole("link");
   await expect(links.filter((link) => link.getAttribute("aria-current") === "page")).toEqual([
-    expect.objectContaining({ textContent: "Mina bokningar" }),
+    expect.objectContaining({ textContent: expect.stringContaining("Mina bokningar") }),
   ]);
 };
 
-export const SignedIn: Story = { play };
+const signedInPlay: Story["play"] = async ({ canvasElement }) => {
+  await expectActiveBookingsLink(canvasElement);
+  await expect(
+    await within(canvasElement).findByRole("link", { name: "Mina bokningar 2 bokningar" }),
+  ).toBeVisible();
+};
+
+export const SignedIn: Story = { play: signedInPlay };
 
 export const SignedOut: Story = {
   parameters: { session: { initiallySignedIn: false } },
-  play,
+  play: async ({ canvasElement }) => expectActiveBookingsLink(canvasElement),
 };
 
 export const Mobile: Story = {
   globals: { viewport: { value: "mobile", isRotated: false } },
-  play,
+  play: signedInPlay,
 };

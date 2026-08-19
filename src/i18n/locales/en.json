@@ -9,7 +9,9 @@
     "schedule": "Classes",
     "classes": "Classes",
     "rooms": "Rooms",
-    "bookings": "My bookings"
+    "bookings": "My bookings",
+    "bookingCount_one": "{{count}} booking",
+    "bookingCount_other": "{{count}} bookings"
   },
   "menu": {
     "label": "Menu",

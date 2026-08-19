@@ -187,6 +187,22 @@
       box-shadow var(--motion-fast) var(--ease-out);
   }
 
+  .block[data-booking-state="booked"] {
+    --booking-state-color: var(--color-positive);
+    --booking-state-background: var(--color-positive-soft);
+  }
+
+  .block[data-booking-state="waitingListBooked"] {
+    --booking-state-color: var(--color-warning);
+    --booking-state-background: var(--color-warning-soft);
+  }
+
+  .block[data-booking-state]:not([data-started="true"]) {
+    border-color: color-mix(in oklch, var(--booking-state-color) 60%, var(--color-border));
+    border-inline-start: 0.25rem solid var(--booking-state-color);
+    background: color-mix(in oklch, var(--booking-state-background) 65%, var(--color-surface));
+  }
+
   .blockDetails {
     display: grid;
     align-content: start;
@@ -233,6 +249,11 @@
     .block[data-started="true"]:hover {
       border-color: var(--color-border-strong);
       background: color-mix(in oklch, var(--color-ink-muted) 9%, var(--color-surface));
+    }
+
+    .block[data-booking-state]:not([data-started="true"]):hover {
+      border-color: var(--booking-state-color);
+      background: color-mix(in oklch, var(--booking-state-background) 82%, var(--color-surface));
     }
   }
 

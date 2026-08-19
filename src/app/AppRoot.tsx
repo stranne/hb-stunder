@@ -1,10 +1,13 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Outlet, useLinkProps, useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Calendar, CalendarCheck, FilterList, ViewGrid } from "iconoir-react";
 import { useTranslation } from "react-i18next";
-import { bookingKeys } from "../features/bookings/api/bookingQueries";
+import {
+  bookingKeys,
+  customerGroupActivityBookingsQueryOptions,
+} from "../features/bookings/api/bookingQueries";
 import { useSession } from "../features/auth/sessionContext";
 import { AppMenu } from "./AppMenu";
 import {
@@ -29,6 +32,8 @@ export function AppRoot() {
     Number(scheduleSearch.instructors.length > 0) +
     Number(scheduleSearch.activityTypes.length > 0);
   const [colorModePreference, setColorModePreference] = useState(readColorModePreference);
+  const bookings = useQuery(customerGroupActivityBookingsQueryOptions(customer?.customerId));
+  const bookingCount = bookings.data?.length;
 
   useEffect(() => {
     applyColorMode(colorModePreference);
@@ -97,6 +102,16 @@ export function AppRoot() {
             >
               <CalendarCheck aria-hidden="true" />
               <span>{t("navigation.bookings")}</span>
+              {bookingCount !== undefined ? (
+                <>
+                  <span className={styles.navCount} aria-hidden="true">
+                    {bookingCount}
+                  </span>
+                  <span className={styles.visuallyHidden}>
+                    {t("navigation.bookingCount", { count: bookingCount })}
+                  </span>
+                </>
+              ) : null}
             </a>
             <a
               {...filtersLinkProps}
@@ -108,7 +123,7 @@ export function AppRoot() {
               <FilterList aria-hidden="true" />
               <span>{t("schedule.filters.filters")}</span>
               {activeFilterCount > 0 ? (
-                <span className={styles.filterCount} aria-hidden="true">
+                <span className={styles.navCount} aria-hidden="true">
                   {activeFilterCount}
                 </span>
               ) : null}

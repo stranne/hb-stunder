@@ -22,7 +22,7 @@ pnpm api:generate
 
 Vite+ owns development, checking, testing, and production builds. Dependency versions related to Vite+ and Storybook are pinned because Vite+ is still young.
 
-GitHub Actions runs checking, unit tests, Storybook interaction and accessibility tests, and both production builds. It also uploads a short-lived GitHub Pages-compatible preview artifact; deployment remains disabled until the project is ready to publish.
+GitHub Actions runs checking, unit tests, Storybook interaction and accessibility tests, and both production builds. Successful pushes to `main` deploy the application to GitHub Pages.
 
 ## API generation
 

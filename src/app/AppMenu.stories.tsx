@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/tanstack-react";
 import { useState, type ComponentProps } from "react";
-import { fn, userEvent, within } from "storybook/test";
+import { expect, fn, userEvent, within } from "storybook/test";
 import { AppMenu } from "./AppMenu";
 
 function InteractiveAppMenu(props: ComponentProps<typeof AppMenu>) {
@@ -63,5 +63,14 @@ export const Dark: Story = {
   },
 };
 export const Mobile: Story = {
-  globals: { viewport: { value: "mobile", isRotated: false } },
+  args: { customer: undefined },
+  globals: { locale: "en", viewport: { value: "mobile", isRotated: false } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const page = within(document.body);
+    await userEvent.click(canvas.getByRole("button", { name: "Open menu" }));
+    await userEvent.click(page.getByRole("button", { name: "Sign in" }));
+    await expect(page.getByRole("heading", { name: "Sign in to Hagabadet" })).toBeVisible();
+    await expect(page.queryByText("Language")).not.toBeInTheDocument();
+  },
 };

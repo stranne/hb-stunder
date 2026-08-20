@@ -62,6 +62,7 @@ describe("AppMenu", () => {
     fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
     fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
     expect(await screen.findByRole("heading", { name: "Sign in to Hagabadet" })).toBeTruthy();
+    await waitFor(() => expect(screen.queryByText("Language")).toBeNull());
   });
 
   it("changes language from the preference section", async () => {

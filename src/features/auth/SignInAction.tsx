@@ -1,14 +1,5 @@
 import { useState, type FormEvent } from "react";
-import {
-  Checkbox,
-  Dialog,
-  DialogTrigger,
-  Heading,
-  Input,
-  Label,
-  Modal,
-  TextField,
-} from "react-aria-components";
+import { Checkbox, Dialog, Heading, Input, Label, Modal, TextField } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../ui/button/Button";
 import { ErrorMessage } from "../../ui/feedback/ErrorMessage";
@@ -21,6 +12,28 @@ export function SignInAction({
 }: {
   onSignIn: (credentials: LoginCredentials, remember: boolean) => Promise<void> | void;
   tone?: "accent" | "quiet";
+}) {
+  const { t } = useTranslation();
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <>
+      <Button tone={tone} onPress={() => setIsOpen(true)}>
+        {t("auth.signIn")}
+      </Button>
+      <SignInDialog isOpen={isOpen} onOpenChange={setIsOpen} onSignIn={onSignIn} />
+    </>
+  );
+}
+
+export function SignInDialog({
+  isOpen,
+  onOpenChange,
+  onSignIn,
+}: {
+  isOpen: boolean;
+  onOpenChange: (isOpen: boolean) => void;
+  onSignIn: (credentials: LoginCredentials, remember: boolean) => Promise<void> | void;
 }) {
   const { t } = useTranslation();
   const [isPending, setIsPending] = useState(false);
@@ -45,6 +58,7 @@ export function SignInAction({
         },
         remember,
       );
+      setHasFailed(false);
       close();
     } catch {
       setHasFailed(true);
@@ -54,52 +68,52 @@ export function SignInAction({
   };
 
   return (
-    <DialogTrigger>
-      <Button tone={tone} onPress={() => setHasFailed(false)}>
-        {t("auth.signIn")}
-      </Button>
-      <Modal
-        className={styles.modal}
-        isDismissable={!isPending}
-        isKeyboardDismissDisabled={isPending}
-      >
-        <Dialog className={styles.dialog}>
-          {({ close }) => (
-            <form onSubmit={(event) => void submit(event, close)}>
-              <Heading slot="title">{t("auth.title")}</Heading>
-              <TextField className={styles.field} name="username" isRequired autoFocus>
-                <Label>{t("auth.username")}</Label>
-                <Input autoComplete="username" />
-              </TextField>
-              <TextField className={styles.field} name="password" type="password" isRequired>
-                <Label>{t("auth.password")}</Label>
-                <Input autoComplete="current-password" />
-              </TextField>
-              <Checkbox className={styles.remember} name="remember">
-                <span className={styles.checkbox} aria-hidden="true" />
-                <span>
-                  {t("auth.remember")}
-                  <small>{t("auth.rememberWarning")}</small>
-                </span>
-              </Checkbox>
-              <div className={styles.actions}>
-                <Button type="button" tone="quiet" isDisabled={isPending} onPress={close}>
-                  {t("auth.cancel")}
-                </Button>
-                <Button type="submit" isDisabled={isPending}>
-                  {t("auth.signIn")}
-                </Button>
-              </div>
-              {hasFailed ? <ErrorMessage>{t("auth.error")}</ErrorMessage> : null}
-              {isPending ? (
-                <p className={styles.status} role="status">
-                  {t("auth.pending")}
-                </p>
-              ) : null}
-            </form>
-          )}
-        </Dialog>
-      </Modal>
-    </DialogTrigger>
+    <Modal
+      className={styles.modal}
+      isOpen={isOpen}
+      onOpenChange={(open) => {
+        setHasFailed(false);
+        onOpenChange(open);
+      }}
+      isDismissable={!isPending}
+      isKeyboardDismissDisabled={isPending}
+    >
+      <Dialog className={styles.dialog}>
+        {({ close }) => (
+          <form onSubmit={(event) => void submit(event, close)}>
+            <Heading slot="title">{t("auth.title")}</Heading>
+            <TextField className={styles.field} name="username" isRequired autoFocus>
+              <Label>{t("auth.username")}</Label>
+              <Input autoComplete="username" />
+            </TextField>
+            <TextField className={styles.field} name="password" type="password" isRequired>
+              <Label>{t("auth.password")}</Label>
+              <Input autoComplete="current-password" />
+            </TextField>
+            <Checkbox className={styles.remember} name="remember">
+              <span className={styles.checkbox} aria-hidden="true" />
+              <span>
+                {t("auth.remember")}
+                <small>{t("auth.rememberWarning")}</small>
+              </span>
+            </Checkbox>
+            <div className={styles.actions}>
+              <Button type="button" tone="quiet" isDisabled={isPending} onPress={close}>
+                {t("auth.cancel")}
+              </Button>
+              <Button type="submit" isDisabled={isPending}>
+                {t("auth.signIn")}
+              </Button>
+            </div>
+            {hasFailed ? <ErrorMessage>{t("auth.error")}</ErrorMessage> : null}
+            {isPending ? (
+              <p className={styles.status} role="status">
+                {t("auth.pending")}
+              </p>
+            ) : null}
+          </form>
+        )}
+      </Dialog>
+    </Modal>
   );
 }

@@ -37,6 +37,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const SignedIn: Story = {
+  globals: { colorMode: "light" },
   play: async ({ canvasElement }) => {
     await userEvent.click(within(canvasElement).getByRole("button"));
   },

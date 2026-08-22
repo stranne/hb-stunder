@@ -8,6 +8,9 @@ const mocks = vi.hoisted(() => ({
   navigate: vi.fn(() => Promise.resolve()),
   renderedSearch: undefined as ScheduleSearch | undefined,
   onSearchChange: undefined as ((search: ScheduleSearch) => void) | undefined,
+  onSelectedActivityChange: undefined as
+    | ((activity: number | undefined, replace?: boolean) => void)
+    | undefined,
   routeSearch: {
     date: "2026-07-29",
     locations: [1, 4128, 3509],
@@ -29,12 +32,15 @@ vi.mock("../features/schedule/components/SchedulePage", () => ({
   SchedulePage: ({
     search,
     onSearchChange,
+    onSelectedActivityChange,
   }: {
     search: ScheduleSearch;
     onSearchChange: (search: ScheduleSearch) => void;
+    onSelectedActivityChange: (activity: number | undefined, replace?: boolean) => void;
   }) => {
     mocks.renderedSearch = search;
     mocks.onSearchChange = onSearchChange;
+    mocks.onSelectedActivityChange = onSelectedActivityChange;
     return null;
   },
 }));
@@ -47,6 +53,7 @@ beforeEach(() => {
   mocks.navigate.mockClear();
   mocks.renderedSearch = undefined;
   mocks.onSearchChange = undefined;
+  mocks.onSelectedActivityChange = undefined;
   mocks.routeSearch = {
     date: "2026-07-29",
     locations: [1, 4128, 3509],
@@ -109,7 +116,23 @@ describe("ScheduleRoute", () => {
 
     mocks.onSearchChange?.({ ...mocks.routeSearch, instructors: [21] });
     expect(mocks.navigate).toHaveBeenLastCalledWith({
-      search: { ...mocks.routeSearch, instructors: [21] },
+      search: { ...mocks.routeSearch, instructors: [21], activity: undefined },
+      replace: true,
+    });
+  });
+
+  it("pushes opened class details and replaces them when closed", () => {
+    render(<ScheduleRoute />);
+
+    mocks.onSelectedActivityChange?.(123);
+    expect(mocks.navigate).toHaveBeenLastCalledWith({
+      search: { ...mocks.routeSearch, activity: 123 },
+      replace: false,
+    });
+
+    mocks.onSelectedActivityChange?.(undefined, true);
+    expect(mocks.navigate).toHaveBeenLastCalledWith({
+      search: { ...mocks.routeSearch, activity: undefined },
       replace: true,
     });
   });

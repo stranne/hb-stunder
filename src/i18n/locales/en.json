@@ -64,6 +64,7 @@
     "loading": "Loading classes",
     "empty": "No classes found for this day.",
     "error": "The schedule could not be loaded.",
+    "sharedClassUnavailable": "This class could not be found or is no longer available.",
     "partialError_one": "Classes from one location could not be loaded.",
     "partialError_other": "Classes from {{count}} locations could not be loaded.",
     "retry": "Try again",
@@ -113,6 +114,13 @@
       "pending": "Cancelling booking…",
       "error": "The booking could not be cancelled. Your schedule has not changed.",
       "retry": "Try cancelling again"
+    },
+    "actions": {
+      "share": "Share class",
+      "addToCalendar": "Add to calendar",
+      "copied": "Class link copied",
+      "calendarAdded": "Calendar file ready",
+      "error": "The action could not be completed"
     },
     "filters": {
       "label": "Schedule filters",

@@ -17,6 +17,7 @@ import type { ActivityState, ScheduledActivity } from "../model/schedule";
 import { getActivityState } from "../model/schedule";
 import { todayInStockholm } from "../model/scheduleDate";
 import { ActivitySpotAvailability } from "./ActivitySpotAvailability";
+import { ClassUtilityActions } from "./ClassUtilityActions";
 import { FavoriteInstructorNames, FavoriteMarker } from "./ScheduleFavoriteLabels";
 import styles from "./RoomCalendar.module.css";
 
@@ -39,6 +40,8 @@ export interface RoomCalendarProps {
   favoriteInstructorIds?: number[];
   favoriteActivityTypeIds?: number[];
   includeBusinessUnitName?: boolean;
+  selectedActivityId?: number;
+  onSelectedActivityChange?: (activity: number | undefined, replace?: boolean) => void;
 }
 
 function minutesInStockholm(value?: string) {
@@ -101,10 +104,12 @@ export function RoomCalendar({
   favoriteInstructorIds = [],
   favoriteActivityTypeIds = [],
   includeBusinessUnitName = false,
+  selectedActivityId,
+  onSelectedActivityChange,
 }: RoomCalendarProps) {
   const { i18n, t } = useTranslation();
   const locale = i18n.resolvedLanguage ?? i18n.language;
-  const [detail, setDetail] = useState<RoomActivity | undefined>();
+  const [internalDetail, setInternalDetail] = useState<RoomActivity | undefined>();
   const [now, setNow] = useState(() => new Date());
   const scrollerRef = useRef<HTMLDivElement>(null);
   const headerViewportRef = useRef<HTMLDivElement>(null);
@@ -149,6 +154,17 @@ export function RoomCalendar({
       ];
     }),
   );
+  const detail = onSelectedActivityChange
+    ? roomActivities.find(({ activity }) => activity.id === selectedActivityId)
+    : internalDetail;
+  const openDetail = (item: RoomActivity) => {
+    if (onSelectedActivityChange) onSelectedActivityChange(item.activity.id);
+    else setInternalDetail(item);
+  };
+  const closeDetail = () => {
+    if (onSelectedActivityChange) onSelectedActivityChange(undefined, true);
+    else setInternalDetail(undefined);
+  };
   const rooms = [...new Map(roomActivities.map((item) => [item.roomKey, item])).values()].sort(
     (left, right) =>
       nameCollator.compare(left.businessUnitName ?? "", right.businessUnitName ?? "") ||
@@ -351,7 +367,7 @@ export function RoomCalendar({
                         <button
                           type="button"
                           className={styles.blockDetails}
-                          onClick={() => setDetail(item)}
+                          onClick={() => openDetail(item)}
                           aria-label={t("rooms.openDetails", { details: activityDetails })}
                         >
                           <strong>
@@ -390,7 +406,7 @@ export function RoomCalendar({
         className={styles.dialogBackdrop}
         isOpen={detail !== undefined}
         onOpenChange={(isOpen) => {
-          if (!isOpen) setDetail(undefined);
+          if (!isOpen) closeDetail();
         }}
         isDismissable
       >
@@ -454,7 +470,14 @@ export function RoomCalendar({
                   ) : null}
                 </div>
                 {detailState ? (
-                  <RoomActivityInformation activity={detail.activity} activityState={detailState} />
+                  <RoomActivityInformation
+                    activity={detail.activity}
+                    activityState={detailState}
+                    canAddToCalendar={
+                      detailBooking !== undefined &&
+                      detailBooking.type !== "groupActivityWaitingListBooking"
+                    }
+                  />
                 ) : null}
                 <RoomBookingAction
                   activity={detail.activity}
@@ -476,9 +499,11 @@ export function RoomCalendar({
 function RoomActivityInformation({
   activity,
   activityState,
+  canAddToCalendar,
 }: {
   activity: ScheduledActivity;
   activityState: ActivityState;
+  canAddToCalendar: boolean;
 }) {
   const { t } = useTranslation();
   const externalMessage = activity.externalMessage?.trim();
@@ -491,6 +516,12 @@ function RoomActivityInformation({
         total={activityState.totalBookable}
         hasStarted={activityState.hasStarted}
         waitingCount={activity.slots?.inWaitingList}
+      />
+      <ClassUtilityActions
+        activity={activity}
+        view="rooms"
+        canAddToCalendar={canAddToCalendar}
+        align="end"
       />
       {externalMessage ? (
         <section className={styles.message} data-message-type="external">

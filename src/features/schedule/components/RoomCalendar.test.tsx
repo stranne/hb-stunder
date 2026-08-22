@@ -198,6 +198,8 @@ describe("RoomCalendar", () => {
     fireEvent.click(activity);
     const details = within(screen.getByRole("dialog"));
     expect(details.getByText("Already booked")).toBeTruthy();
+    expect(details.getByRole("button", { name: "Share class" })).toBeTruthy();
+    expect(details.getByRole("button", { name: "Add to calendar" })).toBeTruthy();
     expect(details.getByRole("button", { name: "Cancel booking" })).toBeTruthy();
   });
 
@@ -309,10 +311,12 @@ describe("RoomCalendar", () => {
     });
     expect(within(activity).getByText("Yinyoga, 55 min")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Book" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Share class" })).toBeNull();
 
     fireEvent.click(activity);
     const details = screen.getByRole("dialog");
     expect(within(details).getByText(/^Time: 08:00.*09:00/)).toBeTruthy();
+    expect(within(details).getByRole("button", { name: "Share class" })).toBeTruthy();
     fireEvent.click(within(details).getByRole("button", { name: "Book" }));
 
     expect(screen.getAllByRole("dialog")).toHaveLength(1);
@@ -386,5 +390,37 @@ describe("RoomCalendar", () => {
     );
 
     expect(screen.getByLabelText(/Current time: 12:30/)).toBeTruthy();
+  });
+
+  it("opens and closes room details through URL-owned selection", () => {
+    const onSelectedActivityChange = vi.fn();
+    const view = render(
+      <RoomCalendar
+        date="2026-07-28"
+        activities={[scheduleFixtures.available]}
+        bookingsByActivity={new Map()}
+        selectedActivityId={scheduleFixtures.available.id}
+        onSelectedActivityChange={onSelectedActivityChange}
+        onBook={async () => undefined}
+        onCancel={async () => undefined}
+      />,
+    );
+
+    expect(screen.getByRole("dialog")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Close details" }));
+    expect(onSelectedActivityChange).toHaveBeenCalledWith(undefined, true);
+
+    view.rerender(
+      <RoomCalendar
+        date="2026-07-28"
+        activities={[scheduleFixtures.available]}
+        bookingsByActivity={new Map()}
+        onSelectedActivityChange={onSelectedActivityChange}
+        onBook={async () => undefined}
+        onCancel={async () => undefined}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /^Open details for Yinyoga/ }));
+    expect(onSelectedActivityChange).toHaveBeenLastCalledWith(scheduleFixtures.available.id);
   });
 });

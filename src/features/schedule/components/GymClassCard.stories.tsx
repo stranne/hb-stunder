@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/tanstack-react";
 import { useState } from "react";
-import { expect, userEvent, within } from "storybook/test";
+import { expect, userEvent, waitFor, within } from "storybook/test";
 import { scheduleFixtures } from "../../../mocks/fixtures/schedule";
 import { Button } from "../../../ui/button/Button";
 import type { ScheduledActivity } from "../model/schedule";
@@ -63,6 +63,7 @@ const meta = {
   component: GymClassCard,
   args: {
     activity: upcomingAvailable,
+    allowShare: true,
     onBook: async (): Promise<void> => undefined,
   },
   decorators: [
@@ -167,6 +168,32 @@ export const Ended: Story = {
     ).not.toBeInTheDocument();
   },
 };
+export const EndedNarrow: Story = {
+  args: {
+    activity: {
+      ...scheduledInYear(scheduleFixtures.available, 2000),
+      name: "Bodypump, 60 min",
+    },
+  },
+  decorators: [
+    (Story) => (
+      <div style={{ width: "20rem" }}>
+        <Story />
+      </div>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const card = within(canvasElement).getByRole("article");
+    await expect(within(card).getByText(/10 (participated|deltog)/)).toBeVisible();
+    await expect(
+      within(card).queryByRole("button", { name: /Share class|Dela klass/ }),
+    ).not.toBeInTheDocument();
+    await userEvent.click(within(card).getByRole("button", { name: /Show details|Visa detaljer/ }));
+    await waitFor(() =>
+      expect(within(card).getByRole("button", { name: /Share class|Dela klass/ })).toBeVisible(),
+    );
+  },
+};
 export const WithClassInformation: Story = {
   args: { activity: scheduledInYear(scheduleFixtures.withMessages, 2099) },
 };
@@ -203,6 +230,18 @@ export const ExistingBooking: Story = {
     const card = within(canvasElement).getByRole("article");
     await expect(card).toHaveAttribute("data-availability", "booked");
     await expect(within(card).getByText(/Already booked|Redan bokad/)).toBeVisible();
+    await expect(
+      within(card).getByRole("button", { name: /Add to calendar|Lägg till i kalender/ }),
+    ).toBeVisible();
+  },
+};
+export const DeepLinked: Story = {
+  args: { isExpanded: true },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByRole("article")).toHaveAttribute(
+      "data-selected",
+      "true",
+    );
   },
 };
 export const CancellationConfirmation: Story = {

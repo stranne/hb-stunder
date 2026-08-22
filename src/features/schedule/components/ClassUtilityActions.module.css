@@ -1,0 +1,45 @@
+@layer components {
+  .wrapper,
+  .actions {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .actions {
+    gap: var(--space-1);
+  }
+
+  .wrapper[data-align="end"] {
+    display: flex;
+    inline-size: 100%;
+    justify-content: end;
+    margin-block-start: var(--space-2);
+  }
+
+  .iconButton {
+    display: inline-grid;
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+    padding: 0;
+    place-items: center;
+    border: 1px solid transparent;
+    border-radius: var(--radius-pill);
+    color: var(--color-ink-muted);
+    background: transparent;
+  }
+
+  .iconButton svg {
+    inline-size: 1.05rem;
+    block-size: 1.05rem;
+    stroke-width: 1.8;
+  }
+
+  .visuallyHidden {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

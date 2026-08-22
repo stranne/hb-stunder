@@ -208,6 +208,73 @@ describe("GymClassCard", () => {
     expect(screen.queryByText("8 spots")).toBeNull();
   });
 
+  it("shows sharing only in expanded class-view details and keeps calendar export independent", () => {
+    const { rerender } = render(<GymClassCard activity={scheduleFixtures.available} allowShare />);
+
+    expect(screen.queryByRole("button", { name: "Share class" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Add to calendar" })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Show details" }));
+    expect(screen.getByRole("button", { name: "Share class" }).textContent).toBe("");
+
+    rerender(
+      <GymClassCard
+        activity={scheduleFixtures.available}
+        allowShare
+        isExpanded
+        booking={{
+          groupActivity: { id: scheduleFixtures.available.id },
+          groupActivityBooking: { id: 700001 },
+          type: "groupActivityBooking",
+        }}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Share class" }).textContent).toBe("");
+    expect(screen.getByRole("button", { name: "Add to calendar" }).textContent).toBe("");
+
+    rerender(
+      <GymClassCard
+        activity={scheduleFixtures.available}
+        isExpanded
+        booking={{
+          groupActivity: { id: scheduleFixtures.available.id },
+          groupActivityBooking: { id: 700001 },
+          type: "groupActivityBooking",
+        }}
+      />,
+    );
+
+    expect(screen.queryByRole("button", { name: "Share class" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Add to calendar" })).toBeTruthy();
+  });
+
+  it("follows controlled detail state for deep-linked classes", () => {
+    const onExpandedChange = vi.fn();
+    const { container, rerender } = render(
+      <GymClassCard
+        activity={scheduleFixtures.available}
+        isExpanded
+        onExpandedChange={onExpandedChange}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Hide details" })).toBeTruthy();
+    expect(container.querySelector("[data-selected='true']")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Hide details" }));
+    expect(onExpandedChange).toHaveBeenCalledWith(false);
+
+    rerender(
+      <GymClassCard
+        activity={scheduleFixtures.available}
+        isExpanded={false}
+        onExpandedChange={onExpandedChange}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Show details" })).toBeTruthy();
+  });
+
   it("does not offer booking actions and shows participants while an activity is ongoing", () => {
     const onBook = vi.fn(async () => undefined);
     vi.mocked(Date.now).mockReturnValue(Date.parse("2026-07-28T17:00:00.000Z"));

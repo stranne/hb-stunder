@@ -8,6 +8,7 @@ import interactionStyles from "../../../ui/interaction/Interaction.module.css";
 import type { ScheduledActivity } from "../model/schedule";
 import { getActivityState } from "../model/schedule";
 import { ActivitySpotAvailability } from "./ActivitySpotAvailability";
+import { ClassUtilityActions } from "./ClassUtilityActions";
 import { FavoriteInstructorNames, FavoriteMarker } from "./ScheduleFavoriteLabels";
 import styles from "./GymClassCard.module.css";
 
@@ -22,6 +23,9 @@ export interface GymClassCardProps {
   includeBusinessUnitName?: boolean;
   cancellationErrorMessage?: string;
   cancellationFocusFallbackRef?: RefObject<HTMLElement | null>;
+  allowShare?: boolean;
+  isExpanded?: boolean;
+  onExpandedChange?: (isExpanded: boolean) => void;
 }
 
 function classTitleParts(name: string) {
@@ -54,9 +58,13 @@ export function GymClassCard({
   includeBusinessUnitName = false,
   cancellationErrorMessage,
   cancellationFocusFallbackRef,
+  allowShare = false,
+  isExpanded: controlledExpanded,
+  onExpandedChange,
 }: GymClassCardProps) {
   const { i18n, t } = useTranslation();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [internalExpanded, setInternalExpanded] = useState(false);
+  const isExpanded = controlledExpanded ?? internalExpanded;
   const detailsId = useId();
   const cardRef = useRef<HTMLElement>(null);
   const activityState = getActivityState(activity);
@@ -154,6 +162,15 @@ export function GymClassCard({
     start && end
       ? `${timeFormatter.format(start)}–${timeFormatter.format(end)}`
       : t("schedule.timeUnknown");
+  const setExpanded = (expanded: boolean) => {
+    setInternalExpanded(expanded);
+    onExpandedChange?.(expanded);
+  };
+
+  useEffect(() => {
+    if (controlledExpanded !== true) return;
+    cardRef.current?.scrollIntoView?.({ block: "center" });
+  }, [controlledExpanded]);
 
   return (
     <article
@@ -161,13 +178,14 @@ export function GymClassCard({
       className={`${styles.card} ${hasDetails ? styles.clickable : ""}`}
       data-availability={displayedAvailabilityKind}
       data-started={(hasStarted && !activity.cancelled) || undefined}
+      data-selected={controlledExpanded || undefined}
       onClick={(event) => {
         if (
           !hasDetails ||
           (event.target as Element).closest("button, a, input, select, textarea, [role='button']")
         )
           return;
-        setIsExpanded((expanded) => !expanded);
+        setExpanded(!isExpanded);
       }}
       tabIndex={-1}
     >
@@ -212,7 +230,7 @@ export function GymClassCard({
             className={`${styles.expand} ${interactionStyles.control} ${interactionStyles.quiet}`}
             aria-expanded={isExpanded}
             aria-controls={detailsId}
-            onClick={() => setIsExpanded((expanded) => !expanded)}
+            onClick={() => setExpanded(!isExpanded)}
           >
             <span className={styles.visuallyHidden}>
               {t(isExpanded ? "schedule.details.hide" : "schedule.details.show")}
@@ -222,60 +240,68 @@ export function GymClassCard({
         ) : null}
       </div>
       <div className={styles.actions}>
-        <StatusLabel
-          tone={statusTone}
-          dynamic={!hasStarted && availability.kind !== "cancelled"}
-          aria-live="polite"
-          aria-atomic="true"
-        >
-          {waitingCountLabel ? (
-            waitingCountLabel
-          ) : booking ? (
-            t(
-              isWaitingListBooking
-                ? "schedule.availability.waitingListBooked"
-                : "schedule.availability.booked",
-            )
-          ) : availability.kind === "cancelled" ? (
-            availabilityLabel
-          ) : hasStarted ? (
-            participantCount !== undefined ? (
+        <div className={styles.statusActions}>
+          <StatusLabel
+            tone={statusTone}
+            dynamic={!hasStarted && availability.kind !== "cancelled"}
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            {waitingCountLabel ? (
+              waitingCountLabel
+            ) : booking ? (
               t(
-                hasEnded
-                  ? "schedule.availability.participated"
-                  : "schedule.availability.participating",
-                { count: participantCount },
+                isWaitingListBooking
+                  ? "schedule.availability.waitingListBooked"
+                  : "schedule.availability.booked",
               )
-            ) : null
-          ) : hasRemaining ? (
-            <>
-              <span
-                className={styles.availabilityNumber}
-                data-availability-value
-                data-direction={availabilityChanged ? availabilityDirection : undefined}
-                data-updated={availabilityChanged || undefined}
-              >
+            ) : availability.kind === "cancelled" ? (
+              availabilityLabel
+            ) : hasStarted ? (
+              participantCount !== undefined ? (
+                t(
+                  hasEnded
+                    ? "schedule.availability.participated"
+                    : "schedule.availability.participating",
+                  { count: participantCount },
+                )
+              ) : null
+            ) : hasRemaining ? (
+              <>
                 <span
-                  key={availability.remaining}
-                  className={styles.currentNumber}
-                  data-current-value
+                  className={styles.availabilityNumber}
+                  data-availability-value
+                  data-direction={availabilityChanged ? availabilityDirection : undefined}
+                  data-updated={availabilityChanged || undefined}
                 >
-                  {availability.remaining}
-                </span>
-                {availabilityChanged ? (
-                  <span className={styles.previousNumber} data-previous-value aria-hidden="true">
-                    {previousRemaining}
+                  <span
+                    key={availability.remaining}
+                    className={styles.currentNumber}
+                    data-current-value
+                  >
+                    {availability.remaining}
                   </span>
-                ) : null}
-              </span>{" "}
-              <span className={styles.availabilityText} data-availability-text>
-                {availabilityText}
-              </span>
-            </>
-          ) : (
-            availabilityLabel
-          )}
-        </StatusLabel>
+                  {availabilityChanged ? (
+                    <span className={styles.previousNumber} data-previous-value aria-hidden="true">
+                      {previousRemaining}
+                    </span>
+                  ) : null}
+                </span>{" "}
+                <span className={styles.availabilityText} data-availability-text>
+                  {availabilityText}
+                </span>
+              </>
+            ) : (
+              availabilityLabel
+            )}
+          </StatusLabel>
+          <ClassUtilityActions
+            activity={activity}
+            view="classes"
+            canShare={false}
+            canAddToCalendar={booking !== undefined && !isWaitingListBooking}
+          />
+        </div>
         {canBook && onBook ? (
           <AsyncConfirmationAction
             triggerLabel={t(`${bookingCopy}.book`)}
@@ -328,6 +354,9 @@ export function GymClassCard({
             hasStarted={hasStarted}
             waitingCount={waitingCount}
           />
+          {allowShare ? (
+            <ClassUtilityActions activity={activity} view="classes" align="end" />
+          ) : null}
           {internalMessage ? (
             <section className={styles.message} data-message-type="internal">
               <h3>{t("schedule.information.aboutClass")}</h3>

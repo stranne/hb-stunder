@@ -40,4 +40,16 @@ describe("schedule route search", () => {
 
     expect(new URLSearchParams(location.searchStr).get("locations")).toBe("[4128]");
   });
+
+  it("keeps a selected class in a shareable view URL", () => {
+    const location = router.buildLocation({
+      to: "/",
+      search: { ...defaultSearch, locations: [1], view: "rooms", activity: 123 },
+    });
+    const search = new URLSearchParams(location.searchStr);
+
+    expect(search.get("activity")).toBe("123");
+    expect(search.get("view")).toBe("rooms");
+    expect(search.get("locations")).toBe("[1]");
+  });
 });

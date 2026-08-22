@@ -37,8 +37,14 @@ export function ScheduleRoute() {
       search={search}
       onSearchChange={(nextSearch) =>
         void navigate({
-          search: nextSearch,
+          search: { ...nextSearch, activity: undefined },
           replace: true,
+        })
+      }
+      onSelectedActivityChange={(activity, replace = false) =>
+        void navigate({
+          search: { ...search, activity },
+          replace,
         })
       }
       customerId={customer?.customerId}

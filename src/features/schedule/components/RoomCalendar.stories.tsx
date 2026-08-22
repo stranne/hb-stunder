@@ -70,7 +70,12 @@ export const BookedActivities: Story = {
   },
   play: async ({ canvasElement }) => {
     await userEvent.click(within(canvasElement).getByRole("button", { name: /Redan bokad/ }));
-    await expect(within(canvasElement.ownerDocument.body).getByText("Redan bokad")).toBeVisible();
+    const page = within(canvasElement.ownerDocument.body);
+    await expect(page.getByText("Redan bokad")).toBeVisible();
+    await expect(page.getByRole("button", { name: /Dela klass|Share class/ })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /Lägg till i kalender|Add to calendar/ }),
+    ).toBeVisible();
   },
 };
 export const ConsecutiveActivities: Story = {
@@ -109,6 +114,11 @@ export const ActivityDetails: Story = {
     await expect(
       within(canvasElement.ownerDocument.body).queryByText(/10 (participated|deltog)/),
     ).not.toBeInTheDocument();
+    await expect(
+      within(canvasElement.ownerDocument.body).getByRole("button", {
+        name: /Dela klass|Share class/,
+      }),
+    ).toBeVisible();
   },
 };
 export const FullyBookedActivityDetails: Story = {

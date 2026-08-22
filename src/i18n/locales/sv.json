@@ -64,6 +64,7 @@
     "loading": "Laddar klasser",
     "empty": "Inga klasser hittades för den här dagen.",
     "error": "Schemat kunde inte laddas.",
+    "sharedClassUnavailable": "Klassen kunde inte hittas eller är inte längre tillgänglig.",
     "partialError_one": "Klasser från en plats kunde inte laddas.",
     "partialError_other": "Klasser från {{count}} platser kunde inte laddas.",
     "retry": "Försök igen",
@@ -113,6 +114,13 @@
       "pending": "Avbokningen pågår…",
       "error": "Bokningen kunde inte avbokas. Ditt schema har inte ändrats.",
       "retry": "Försök avboka igen"
+    },
+    "actions": {
+      "share": "Dela klass",
+      "addToCalendar": "Lägg till i kalender",
+      "copied": "Länken till klassen har kopierats",
+      "calendarAdded": "Kalenderfilen är klar",
+      "error": "Åtgärden kunde inte slutföras"
     },
     "filters": {
       "label": "Schemafilter",

@@ -23,10 +23,16 @@ import styles from "./SchedulePage.module.css";
 export interface SchedulePageProps {
   search: ScheduleSearch;
   onSearchChange: (search: ScheduleSearch) => void;
+  onSelectedActivityChange?: (activity: number | undefined, replace?: boolean) => void;
   customerId?: string;
 }
 
-export function SchedulePage({ search, onSearchChange, customerId }: SchedulePageProps) {
+export function SchedulePage({
+  search,
+  onSearchChange,
+  onSelectedActivityChange,
+  customerId,
+}: SchedulePageProps) {
   const { t, i18n } = useTranslation();
   const pageRef = useRef<HTMLElement>(null);
   const stickyControlsRef = useRef<HTMLDivElement>(null);
@@ -112,6 +118,10 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
   const isError =
     scheduleQueries.length > 0 && failedScheduleQueries.length === scheduleQueries.length;
   const isPartialError = failedScheduleQueries.length > 0 && !isError;
+  const isSelectedActivityMissing =
+    search.activity !== undefined &&
+    !isPending &&
+    !availableScheduleData.some(({ id }) => id === search.activity);
   const failedFilterQueries = [instructors, activityTypes].filter((query) => query.isError);
 
   const retrySchedule = () => {
@@ -187,7 +197,10 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
                 {t("schedule.error")}
               </ErrorMessage>
             ) : null}
-            {!isPending && !isError && scheduleData.length === 0 ? (
+            {isSelectedActivityMissing ? (
+              <p className={styles.notice}>{t("schedule.sharedClassUnavailable")}</p>
+            ) : null}
+            {!isPending && !isError && !isSelectedActivityMissing && scheduleData.length === 0 ? (
               <p className={styles.notice}>
                 {t(view === "rooms" ? "rooms.empty" : "schedule.empty")}
               </p>
@@ -201,6 +214,8 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
                 favoriteInstructorIds={favoriteFilters.favoriteInstructorIds}
                 favoriteActivityTypeIds={favoriteFilters.favoriteActivityTypeIds}
                 includeBusinessUnitName={search.locations.length > 1}
+                selectedActivityId={search.activity}
+                onSelectedActivityChange={onSelectedActivityChange}
                 onBook={(activity) =>
                   createBooking.mutateAsync({
                     customerId: customerId!,
@@ -247,6 +262,17 @@ export function SchedulePage({ search, onSearchChange, customerId }: SchedulePag
                             favoriteInstructorIds={favoriteFilters.favoriteInstructorIds}
                             favoriteActivityTypeIds={favoriteFilters.favoriteActivityTypeIds}
                             includeBusinessUnitName={search.locations.length > 1}
+                            allowShare
+                            {...(onSelectedActivityChange
+                              ? {
+                                  isExpanded: search.activity === activity.id,
+                                  onExpandedChange: (isExpanded: boolean) =>
+                                    onSelectedActivityChange(
+                                      isExpanded ? activity.id : undefined,
+                                      !isExpanded,
+                                    ),
+                                }
+                              : {})}
                             onBook={
                               customerId === undefined || activity.id === undefined
                                 ? undefined

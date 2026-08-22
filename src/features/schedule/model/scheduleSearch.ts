@@ -15,6 +15,8 @@ export interface ScheduleSearch {
   locations: number[];
   instructors: number[];
   activityTypes: number[];
+  /** Opens one class from a shared or restored URL. */
+  activity?: number;
   /** Omitted links remain compatible and open the classes view. */
   view?: ScheduleView;
 }
@@ -42,12 +44,14 @@ function parseIds(value: unknown): number[] {
 
 export function parseScheduleSearch(search: Record<string, unknown>): ScheduleSearch {
   const locations = parseIds(search.locations ?? search.location);
+  const activity = parseIds(search.activity)[0];
 
   return {
     date: isDateString(search.date) ? search.date : todayInStockholm(),
     locations: locations.length > 0 ? locations : [...LOCATION_IDS],
     instructors: parseIds(search.instructors),
     activityTypes: parseIds(search.activityTypes),
+    ...(activity === undefined ? {} : { activity }),
     view: search.view === "rooms" || search.view === "filters" ? search.view : "classes",
   };
 }

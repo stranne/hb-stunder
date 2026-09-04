@@ -45,6 +45,7 @@ export function ScheduleRoute() {
         void navigate({
           search: { ...search, activity },
           replace,
+          resetScroll: false,
         })
       }
       customerId={customer?.customerId}

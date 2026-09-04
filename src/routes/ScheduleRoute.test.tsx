@@ -128,12 +128,14 @@ describe("ScheduleRoute", () => {
     expect(mocks.navigate).toHaveBeenLastCalledWith({
       search: { ...mocks.routeSearch, activity: 123 },
       replace: false,
+      resetScroll: false,
     });
 
     mocks.onSelectedActivityChange?.(undefined, true);
     expect(mocks.navigate).toHaveBeenLastCalledWith({
       search: { ...mocks.routeSearch, activity: undefined },
       replace: true,
+      resetScroll: false,
     });
   });
 

@@ -2,13 +2,15 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { Meta, StoryObj } from "@storybook/tanstack-react";
 import { delay, http, HttpResponse, type RequestHandler } from "msw";
 import { useEffect, type ComponentProps } from "react";
-import { expect, within } from "storybook/test";
+import { expect, waitFor, within } from "storybook/test";
 import { API_BASE_URL } from "../../../api/client";
 import { scheduleForDate } from "../../../mocks/fixtures/schedule";
 import { handlers } from "../../../mocks/handlers";
 import { scheduleKeys } from "../api/scheduleQueries";
 import { addDays, todayInStockholm } from "../model/scheduleDate";
 import { SchedulePage } from "./SchedulePage";
+import roomStyles from "./RoomCalendar.module.css";
+import pageStyles from "./SchedulePage.module.css";
 
 const endpoint = `${API_BASE_URL}/businessunits/:businessUnit/groupactivities`;
 const instructorEndpoint = `${API_BASE_URL}/services/groupactivityinstructors`;
@@ -178,12 +180,40 @@ export const Rooms: Story = {
 
 export const RoomsScrolled: Story = {
   ...Rooms,
+  args: { search: { ...upcomingSearch, view: "rooms" } },
   play: async ({ canvasElement }) => {
     await within(canvasElement).findByLabelText("Rumskalender", { selector: "div" });
     const storyWindow = canvasElement.ownerDocument.defaultView;
     storyWindow?.scrollTo(0, 360);
-    await expect(storyWindow?.scrollY).toBeGreaterThan(0);
+    await waitFor(async () => {
+      await expect(storyWindow?.scrollY).toBeGreaterThan(0);
+      const controls = canvasElement.querySelector(`.${pageStyles.stickyControls}`)!;
+      const header = canvasElement.querySelector(`.${roomStyles.stickyHeader}`)!;
+      await expect(header.getBoundingClientRect().top).toBeCloseTo(
+        controls.getBoundingClientRect().bottom,
+        0,
+      );
+    });
   },
+};
+
+export const RoomsWithSelectedFilters: Story = {
+  args: { search: { ...upcomingSearch, view: "rooms" } },
+  globals: { colorMode: "dark" },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "The complete filter chips and Clear filters control remain visible above the calendar header. Check their lower edges as well as the sticky header after scrolling.",
+      },
+    },
+  },
+};
+
+export const RoomsWithWrappedFilters: Story = {
+  ...RoomsWithSelectedFilters,
+  args: { search: { ...upcomingSearch, locations: [1, 4128], view: "rooms" } },
+  globals: { colorMode: "dark", viewport: { value: "mobile", isRotated: false } },
 };
 
 export const RoomsMobile: Story = {

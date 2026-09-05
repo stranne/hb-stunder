@@ -61,7 +61,6 @@
     border-start-start-radius: var(--radius-md);
     border-start-end-radius: var(--radius-md);
     background: var(--color-surface-elevated);
-    box-shadow: 0 calc(-1 * var(--radius-md)) 0 var(--radius-md) var(--color-canvas);
   }
 
   .stickyHeader::after {

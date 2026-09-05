@@ -65,6 +65,7 @@
     "empty": "No classes found for this day.",
     "error": "The schedule could not be loaded.",
     "sharedClassUnavailable": "This class could not be found or is no longer available.",
+    "bookingStatusError": "Your booking status could not be checked. Booking is temporarily unavailable.",
     "partialError_one": "Classes from one location could not be loaded.",
     "partialError_other": "Classes from {{count}} locations could not be loaded.",
     "retry": "Try again",

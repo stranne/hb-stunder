@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vite-plus/test";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import type { ScheduledActivity } from "./schedule";
 import { classShareUrl } from "./classSharing";
 
@@ -13,6 +13,18 @@ const activity = {
 } satisfies ScheduledActivity;
 
 describe("classShareUrl", () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it.each(["/", "/hb-stunder/"])("links from My bookings to the schedule under %s", (basePath) => {
+    vi.stubEnv("BASE_URL", basePath);
+    const result = new URL(
+      classShareUrl(activity, "classes", `https://example.test${basePath}bookings`),
+    );
+    expect(result.pathname).toBe(basePath);
+    expect(result.searchParams.get("activity")).toBe("123");
+    expect(result.searchParams.get("date")).toBe("2026-07-29");
+  });
+
   it("creates a filter-independent deep link in the requested view", () => {
     const result = new URL(
       classShareUrl(

@@ -7,10 +7,18 @@ import { API_BASE_URL } from "../../../api/client";
 import { scheduleForDate } from "../../../mocks/fixtures/schedule";
 import { handlers } from "../../../mocks/handlers";
 import { scheduleKeys } from "../api/scheduleQueries";
+import { addDays, todayInStockholm } from "../model/scheduleDate";
 import { SchedulePage } from "./SchedulePage";
 
 const endpoint = `${API_BASE_URL}/businessunits/:businessUnit/groupactivities`;
 const instructorEndpoint = `${API_BASE_URL}/services/groupactivityinstructors`;
+const bookingsEndpoint = `${API_BASE_URL}/customers/:customerId/bookings/groupactivities`;
+const upcomingSearch = {
+  date: addDays(todayInStockholm(), 1),
+  locations: [1],
+  instructors: [],
+  activityTypes: [],
+};
 
 function mockSchedule(businessUnit: number) {
   return scheduleForDate("2026-07-28", businessUnit);
@@ -61,6 +69,68 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+export const BookingsLoading: Story = {
+  args: { customerId: "900001", search: upcomingSearch },
+  parameters: {
+    msw: withDefaultHandlers(
+      http.get(bookingsEndpoint, async () => {
+        await delay("infinite");
+        return HttpResponse.json([]);
+      }),
+    ),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.findByText(/Loading your bookings|Laddar dina bokningar/),
+    ).resolves.toBeInTheDocument();
+    await expect(canvas.queryByRole("button", { name: /^(Book|Boka)$/ })).not.toBeInTheDocument();
+  },
+};
+
+export const BookingsError: Story = {
+  args: { customerId: "900001", search: upcomingSearch },
+  parameters: {
+    msw: withDefaultHandlers(
+      http.get(bookingsEndpoint, () => new HttpResponse(null, { status: 503 })),
+    ),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.findByRole("alert")).resolves.toHaveTextContent(
+      /booking status|bokningsstatus/,
+    );
+    await expect(canvas.queryByRole("button", { name: /^(Book|Boka)$/ })).not.toBeInTheDocument();
+  },
+};
+
+export const RoomsBookingsError: Story = {
+  ...BookingsError,
+  args: { customerId: "900001", search: { ...upcomingSearch, view: "rooms" } },
+};
+
+export const SharedClassLoadError: Story = {
+  args: {
+    search: {
+      date: "2026-07-28",
+      locations: [1],
+      instructors: [],
+      activityTypes: [],
+      activity: 101,
+    },
+  },
+  parameters: {
+    msw: withDefaultHandlers(http.get(endpoint, () => new HttpResponse(null, { status: 503 }))),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await canvas.findByRole("alert");
+    await expect(
+      canvas.queryByText(/This class could not be found|Klassen kunde inte hittas/),
+    ).not.toBeInTheDocument();
+  },
+};
 
 export const FiltersOpen: Story = {
   args: {

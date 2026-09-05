@@ -8,6 +8,7 @@ export function classShareUrl(
   baseUrl = window.location.href,
 ) {
   const url = new URL(baseUrl);
+  url.pathname = new URL(import.meta.env.BASE_URL, url).pathname;
   const start = activity.duration?.start ? new Date(activity.duration.start) : undefined;
 
   url.searchParams.delete("locations");

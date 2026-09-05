@@ -81,6 +81,7 @@ export function SchedulePage({
   const instructors = useQuery(instructorQueryOptions());
   const activityTypes = useQuery(activityTypeQueryOptions());
   const bookings = useQuery(customerGroupActivityBookingsQueryOptions(customerId));
+  const canCreateBooking = customerId !== undefined && bookings.isSuccess;
   const bookingsByActivity = bookingsByActivityId(bookings.data ?? []);
   const availableScheduleData = [
     ...new Map(
@@ -121,6 +122,8 @@ export function SchedulePage({
   const isSelectedActivityMissing =
     search.activity !== undefined &&
     !isPending &&
+    !isFetching &&
+    failedScheduleQueries.length === 0 &&
     !availableScheduleData.some(({ id }) => id === search.activity);
   const failedFilterQueries = [instructors, activityTypes].filter((query) => query.isError);
 
@@ -167,6 +170,28 @@ export function SchedulePage({
         />
       ) : (
         <>
+          {customerId !== undefined && bookings.isPending ? (
+            <p className={styles.statusRegion} role="status">
+              {t("bookings.loading")}
+            </p>
+          ) : null}
+          {customerId !== undefined && bookings.isError ? (
+            <div className={styles.statusRegion}>
+              <ErrorMessage
+                action={
+                  <Button
+                    tone="quiet"
+                    isDisabled={bookings.isFetching}
+                    onPress={() => void bookings.refetch()}
+                  >
+                    {t("bookings.retry")}
+                  </Button>
+                }
+              >
+                {t("schedule.bookingStatusError")}
+              </ErrorMessage>
+            </div>
+          ) : null}
           {isPartialError ? (
             <div className={styles.statusRegion}>
               <ErrorMessage
@@ -216,12 +241,15 @@ export function SchedulePage({
                 includeBusinessUnitName={search.locations.length > 1}
                 selectedActivityId={search.activity}
                 onSelectedActivityChange={onSelectedActivityChange}
-                onBook={(activity) =>
-                  createBooking.mutateAsync({
-                    customerId: customerId!,
-                    groupActivity: activity.id!,
-                    allowWaitingList: getAvailability(activity).kind === "waitingList",
-                  })
+                onBook={
+                  canCreateBooking
+                    ? (activity) =>
+                        createBooking.mutateAsync({
+                          customerId: customerId!,
+                          groupActivity: activity.id!,
+                          allowWaitingList: getAvailability(activity).kind === "waitingList",
+                        })
+                    : undefined
                 }
                 onCancel={(bookingId) =>
                   cancelBooking.mutateAsync({ customerId: customerId!, bookingId })
@@ -274,7 +302,7 @@ export function SchedulePage({
                                 }
                               : {})}
                             onBook={
-                              customerId === undefined || activity.id === undefined
+                              !canCreateBooking || activity.id === undefined
                                 ? undefined
                                 : () =>
                                     createBooking.mutateAsync({

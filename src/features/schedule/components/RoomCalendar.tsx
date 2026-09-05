@@ -35,7 +35,7 @@ export interface RoomCalendarProps {
   date: string;
   bookingsByActivity: Map<number, GroupActivityBooking>;
   customerId?: string;
-  onBook: (activity: ScheduledActivity) => Promise<void>;
+  onBook?: (activity: ScheduledActivity) => Promise<void>;
   onCancel: (bookingId: number) => Promise<void>;
   favoriteInstructorIds?: number[];
   favoriteActivityTypeIds?: number[];
@@ -586,7 +586,7 @@ function RoomBookingAction({
     );
   }
   const canBook = !booking && customerId && activity.id !== undefined && activityState.canBook;
-  if (!canBook) return null;
+  if (!canBook || !onBook) return null;
   const waiting = availability.kind === "waitingList";
   return (
     <AsyncConfirmationAction

@@ -65,6 +65,7 @@
     "empty": "Inga klasser hittades för den här dagen.",
     "error": "Schemat kunde inte laddas.",
     "sharedClassUnavailable": "Klassen kunde inte hittas eller är inte längre tillgänglig.",
+    "bookingStatusError": "Din bokningsstatus kunde inte kontrolleras. Det går inte att boka just nu.",
     "partialError_one": "Klasser från en plats kunde inte laddas.",
     "partialError_other": "Klasser från {{count}} platser kunde inte laddas.",
     "retry": "Försök igen",

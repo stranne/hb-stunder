@@ -32,6 +32,7 @@ function activity(id: number, name: string) {
   return {
     id,
     name,
+    locations: [{ id: 1, name: "Studio" }],
     duration: {
       start: "2026-07-28T06:00:00.000Z",
       end: "2026-07-28T07:00:00.000Z",
@@ -60,7 +61,11 @@ function TestPage({
   );
 }
 
-function renderPage(locations: number[], customerId?: string) {
+function renderPage(
+  locations: number[],
+  customerId?: string,
+  search: Partial<ScheduleSearch> = {},
+) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
@@ -74,6 +79,7 @@ function renderPage(locations: number[], customerId?: string) {
           locations,
           instructors: [],
           activityTypes: [],
+          ...search,
         }}
         customerId={customerId}
       />
@@ -94,6 +100,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.useRealTimers();
   vi.restoreAllMocks();
   cleanup();
   clients.splice(0).forEach((client) => client.clear());
@@ -103,6 +110,83 @@ afterEach(() => {
 afterAll(() => server.close());
 
 describe("SchedulePage", () => {
+  it.each(["classes", "rooms"] as const)(
+    "waits for customer bookings before offering booking in %s",
+    async (view) => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(new Date("2026-07-28T05:00:00.000Z"));
+      let respond!: () => void;
+      const responseReady = new Promise<void>((resolve) => {
+        respond = resolve;
+      });
+      server.use(
+        http.get(scheduleEndpoint, () => HttpResponse.json([activity(101, "Available class")])),
+        http.get(
+          `${REAL_API_BASE_URL}/customers/:customerId/bookings/groupactivities`,
+          async () => {
+            await responseReady;
+            return HttpResponse.json([]);
+          },
+        ),
+      );
+      renderPage([1], "900001", { view });
+      await screen.findByText("Available class");
+      if (view === "rooms")
+        fireEvent.click(screen.getByRole("button", { name: /Available class/ }));
+      try {
+        expect(screen.queryByRole("button", { name: "Book" })).toBeNull();
+      } finally {
+        respond();
+      }
+      expect(await screen.findByRole("button", { name: "Book" })).toBeTruthy();
+    },
+  );
+
+  it.each(["classes", "rooms"] as const)(
+    "offers recovery instead of booking when customer bookings fail in %s",
+    async (view) => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(new Date("2026-07-28T05:00:00.000Z"));
+      let requests = 0;
+      server.use(
+        http.get(scheduleEndpoint, () => HttpResponse.json([activity(101, "Available class")])),
+        http.get(`${REAL_API_BASE_URL}/customers/:customerId/bookings/groupactivities`, () =>
+          ++requests === 1 ? new HttpResponse(null, { status: 503 }) : HttpResponse.json([]),
+        ),
+      );
+      renderPage([1], "900001", { view });
+      await screen.findByText("Available class");
+      await screen.findByRole("alert");
+      expect(screen.queryByRole("button", { name: "Book" })).toBeNull();
+      fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+      await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
+      if (view === "rooms")
+        fireEvent.click(screen.getByRole("button", { name: /Available class/ }));
+      expect(await screen.findByRole("button", { name: "Book" })).toBeTruthy();
+      expect(requests).toBe(2);
+    },
+  );
+
+  it("does not report a shared class as missing until every location loads successfully", async () => {
+    let requests = 0;
+    server.use(
+      http.get(scheduleEndpoint, ({ params }) => {
+        if (Number(params.businessUnit) === 4128 && ++requests === 1)
+          return new HttpResponse(null, { status: 503 });
+        return HttpResponse.json([]);
+      }),
+    );
+    renderPage([1, 4128], undefined, { activity: 101 });
+    await screen.findByRole("alert");
+    expect(
+      screen.queryByText("This class could not be found or is no longer available."),
+    ).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    expect(
+      await screen.findByText("This class could not be found or is no longer available."),
+    ).toBeTruthy();
+  });
+
   it("elevates the sticky controls only after the page scrolls beneath them", () => {
     server.use(http.get(scheduleEndpoint, () => HttpResponse.json([])));
     renderPage([1]);

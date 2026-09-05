@@ -24,6 +24,33 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+export const MobileRoomSelection: Story = {
+  globals: { viewport: { value: "mobile", isRotated: false } },
+  parameters: { layout: "fullscreen" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const picker = canvas.getByRole("combobox", { name: /Visa rum|Show room/ });
+    await userEvent.selectOptions(picker, "1-12");
+    await expect(canvas.getByRole("button", { name: /Body pump/ })).toBeVisible();
+    await expect(canvas.queryByRole("button", { name: /Yinyoga/ })).not.toBeInTheDocument();
+    await userEvent.selectOptions(picker, "");
+    await expect(canvas.getByRole("button", { name: /Yinyoga/ })).toBeVisible();
+  },
+};
+export const MobileSameRoomNames: Story = {
+  ...MobileRoomSelection,
+  play: undefined,
+  args: {
+    activities: [
+      scheduleFixtures.available,
+      {
+        ...scheduleFixtures.almostFull,
+        businessUnit: { id: 4128, name: "Hagabadet Drottningtorget" },
+        locations: scheduleFixtures.available.locations,
+      },
+    ],
+  },
+};
 export const SurfaceDepth: Story = {
   args: {
     activities: [

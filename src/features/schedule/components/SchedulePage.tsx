@@ -17,6 +17,7 @@ import type { ScheduleSearch } from "../model/scheduleSearch";
 import { GymClassCard, GymClassCardSkeleton } from "./GymClassCard";
 import { ScheduleFilterPanel } from "./ScheduleFilterPanel";
 import { ScheduleFilters } from "./ScheduleFilters";
+import { ScheduleFilterSummary } from "./ScheduleFilterSummary";
 import { RoomCalendar } from "./RoomCalendar";
 import styles from "./SchedulePage.module.css";
 
@@ -170,6 +171,12 @@ export function SchedulePage({
         />
       ) : (
         <>
+          <ScheduleFilterSummary
+            search={search}
+            onChange={onSearchChange}
+            instructors={instructors.data}
+            activityTypes={activityTypes.data}
+          />
           {customerId !== undefined && bookings.isPending ? (
             <p className={styles.statusRegion} role="status">
               {t("bookings.loading")}

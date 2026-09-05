@@ -145,6 +145,7 @@
       "noActivityTypes": "Inga klasstyper hittades.",
       "noSearchResults": "Inga matchande alternativ hittades.",
       "selectedFilters": "Valda filter",
+      "allLocations": "Alla platser",
       "noSelectedFilters": "Inga instruktörer eller klasstyper har valts.",
       "removeSelection": "Ta bort {{name}}",
       "searchResults": "Sökresultat",
@@ -188,6 +189,8 @@
   },
   "rooms": {
     "title": "Rum",
+    "chooseRoom": "Visa rum",
+    "allRooms": "Alla rum",
     "calendarLabel": "Rumskalender",
     "empty": "Inga rum har aktiviteter som matchar dessa filter.",
     "unnamedRoom": "Rum",

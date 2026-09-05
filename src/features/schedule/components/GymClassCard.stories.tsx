@@ -80,6 +80,21 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Available: Story = {};
+export const MobileLongMetadata: Story = {
+  globals: { viewport: { value: "mobile", isRotated: false } },
+  args: {
+    activity: {
+      ...upcomingAvailable,
+      name: "Återhämtande yoga med guidad avslappning, 55 min",
+      instructors: [
+        { id: 21, name: "Alexandra Example" },
+        { id: 22, name: "Robin Example" },
+      ],
+      locations: [{ id: 1, name: "Träningsstudio" }],
+    },
+    includeBusinessUnitName: true,
+  },
+};
 export const LongClassListItem: Story = {
   args: {
     activity: {

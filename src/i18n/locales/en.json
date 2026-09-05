@@ -145,6 +145,7 @@
       "noActivityTypes": "No class types found.",
       "noSearchResults": "No matching options found.",
       "selectedFilters": "Selected filters",
+      "allLocations": "All locations",
       "noSelectedFilters": "No instructors or class types selected.",
       "removeSelection": "Remove {{name}}",
       "searchResults": "Search results",
@@ -188,6 +189,8 @@
   },
   "rooms": {
     "title": "Rooms",
+    "chooseRoom": "Show room",
+    "allRooms": "All rooms",
     "calendarLabel": "Room calendar",
     "empty": "No rooms have activities matching these filters.",
     "unnamedRoom": "Room",

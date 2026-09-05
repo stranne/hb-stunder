@@ -110,6 +110,7 @@ export function RoomCalendar({
   const { i18n, t } = useTranslation();
   const locale = i18n.resolvedLanguage ?? i18n.language;
   const [internalDetail, setInternalDetail] = useState<RoomActivity | undefined>();
+  const [selectedRoomKey, setSelectedRoomKey] = useState("");
   const [now, setNow] = useState(() => new Date());
   const scrollerRef = useRef<HTMLDivElement>(null);
   const headerViewportRef = useRef<HTMLDivElement>(null);
@@ -188,6 +189,7 @@ export function RoomCalendar({
     }
     return groups;
   }, []);
+  const selectedRoom = rooms.find((room) => room.roomKey === selectedRoomKey);
   const groupLayoutKey = businessUnitGroups.map(({ key, count }) => `${key}:${count}`).join("|");
   const timedActivities = roomActivities.filter(
     ({ activity }) =>
@@ -213,13 +215,13 @@ export function RoomCalendar({
   const calendarInset = 12;
   const contentHeight = Math.max(hourHeight * 4, ((endMinute - startMinute) / 60) * hourHeight);
   const gridStyle = {
-    gridTemplateColumns: `4rem repeat(${rooms.length}, minmax(12rem, 1fr))`,
+    gridTemplateColumns: "4rem var(--room-columns)",
     "--calendar-height": `${contentHeight + calendarInset * 2}px`,
     "--calendar-inset": `${calendarInset}px`,
     "--hour-height": `${hourHeight}px`,
   } as CSSProperties;
   const roomHeaderStyle = {
-    gridTemplateColumns: `repeat(${rooms.length}, minmax(12rem, 1fr))`,
+    gridTemplateColumns: "var(--room-columns)",
   } as CSSProperties;
   const currentTimeStyle =
     currentMinute === undefined
@@ -250,7 +252,39 @@ export function RoomCalendar({
 
   return (
     <>
-      <div className={styles.calendarFrame} aria-label={t("rooms.calendarLabel")}>
+      <div
+        className={styles.calendarFrame}
+        aria-label={t("rooms.calendarLabel")}
+        data-single-room={selectedRoom ? true : undefined}
+        style={{ "--room-columns": `repeat(${rooms.length}, minmax(12rem, 1fr))` } as CSSProperties}
+      >
+        <label className={styles.roomPicker}>
+          <span>{t("rooms.chooseRoom")}</span>
+          <select
+            className={interactionStyles.focusRing}
+            value={selectedRoom?.roomKey ?? ""}
+            onChange={(event) => {
+              setSelectedRoomKey(event.target.value);
+              if (scrollerRef.current) scrollerRef.current.scrollLeft = 0;
+              if (roomHeadersRef.current)
+                roomHeadersRef.current.style.transform = "translateX(0px)";
+              updateBusinessUnitLabels(0);
+            }}
+          >
+            <option value="">{t("rooms.allRooms")}</option>
+            {businessUnitGroups.map((group) => (
+              <optgroup key={group.key} label={group.name ?? t("schedule.filters.location")}>
+                {rooms
+                  .filter((room) => room.businessUnitKey === group.key)
+                  .map((room) => (
+                    <option key={room.roomKey} value={room.roomKey}>
+                      {room.roomName}
+                    </option>
+                  ))}
+              </optgroup>
+            ))}
+          </select>
+        </label>
         <div className={styles.stickyHeader}>
           <div className={styles.corner} />
           <div ref={headerViewportRef} className={styles.headerViewport}>
@@ -259,7 +293,10 @@ export function RoomCalendar({
                 <div
                   className={styles.businessUnitGroup}
                   key={group.key}
-                  style={{ gridColumn: `${group.start + 1} / span ${group.count}` }}
+                  data-room-visible={!selectedRoom || selectedRoom.businessUnitKey === group.key}
+                  style={
+                    { "--room-column": `${group.start + 1} / span ${group.count}` } as CSSProperties
+                  }
                 >
                   {group.name ? (
                     <div className={styles.businessUnitVisibleLabel}>
@@ -272,7 +309,8 @@ export function RoomCalendar({
                 <div
                   className={styles.roomHeader}
                   key={room.roomKey}
-                  style={{ gridColumn: roomIndex + 1 }}
+                  data-room-visible={!selectedRoom || selectedRoom.roomKey === room.roomKey}
+                  style={{ "--room-column": roomIndex + 1 } as CSSProperties}
                 >
                   <strong>{room.roomName}</strong>
                 </div>
@@ -300,18 +338,30 @@ export function RoomCalendar({
               ))}
             </div>
             {rooms.map((room, roomIndex) => (
-              <div className={styles.roomTrack} key={room.roomKey}>
+              <div
+                className={styles.roomTrack}
+                key={room.roomKey}
+                data-room-visible={!selectedRoom || selectedRoom.roomKey === room.roomKey}
+              >
                 {currentTimeStyle ? (
                   <div
                     className={styles.currentTimeLine}
                     style={currentTimeStyle}
-                    role={roomIndex === 0 ? "img" : undefined}
+                    role={
+                      (selectedRoom ? selectedRoom.roomKey === room.roomKey : roomIndex === 0)
+                        ? "img"
+                        : undefined
+                    }
                     aria-label={
-                      roomIndex === 0
+                      (selectedRoom ? selectedRoom.roomKey === room.roomKey : roomIndex === 0)
                         ? t("rooms.currentTime", { time: timeLabel(now.toISOString(), locale) })
                         : undefined
                     }
-                    aria-hidden={roomIndex === 0 ? undefined : true}
+                    aria-hidden={
+                      (selectedRoom ? selectedRoom.roomKey === room.roomKey : roomIndex === 0)
+                        ? undefined
+                        : true
+                    }
                   />
                 ) : null}
                 {timedActivities

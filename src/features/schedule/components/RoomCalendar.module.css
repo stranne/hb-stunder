@@ -1,4 +1,43 @@
 @layer components {
+  .roomPicker {
+    display: none;
+  }
+
+  @media (width < 40rem) {
+    .roomPicker {
+      display: grid;
+      gap: var(--space-2);
+      padding: var(--space-3);
+      font-size: var(--text-sm);
+      font-weight: 600;
+    }
+
+    .roomPicker select {
+      inline-size: 100%;
+      min-inline-size: 0;
+      min-block-size: 2.75rem;
+      padding-inline: var(--space-2);
+      border: 1px solid var(--color-control-border);
+      border-radius: var(--radius-sm);
+      color: var(--color-ink);
+      background: var(--color-control-surface);
+      font: inherit;
+    }
+
+    .calendarFrame[data-single-room] .calendar,
+    .calendarFrame[data-single-room] .roomHeaders {
+      --room-columns: minmax(0, 1fr);
+      inline-size: 100%;
+    }
+    .calendarFrame [data-room-visible="false"] {
+      display: none;
+    }
+    .calendarFrame[data-single-room] .roomHeader,
+    .calendarFrame[data-single-room] .businessUnitGroup {
+      grid-column: 1;
+    }
+  }
+
   .calendarFrame {
     inline-size: 100%;
     min-inline-size: 0;
@@ -65,6 +104,7 @@
   }
 
   .businessUnitGroup {
+    grid-column: var(--room-column);
     --business-unit-visible-start: 0px;
     --business-unit-visible-width: 100%;
 
@@ -100,6 +140,7 @@
   }
 
   .roomHeader {
+    grid-column: var(--room-column);
     display: grid;
     grid-row: 2;
     align-content: center;
@@ -421,7 +462,6 @@
 
   @media (width < 40rem) {
     .calendarFrame {
-      margin-inline: calc(var(--space-4) * -1);
       border-radius: 0;
     }
 

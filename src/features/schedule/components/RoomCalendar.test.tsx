@@ -28,8 +28,8 @@ describe("RoomCalendar", () => {
       />,
     );
 
-    expect(screen.getByText("Yogastudio")).toBeTruthy();
-    expect(screen.getByText("Ägget")).toBeTruthy();
+    expect(screen.getByText("Yogastudio", { selector: "strong" })).toBeTruthy();
+    expect(screen.getByText("Ägget", { selector: "strong" })).toBeTruthy();
     expect(screen.getAllByText("Hagabadet i Haga")).toHaveLength(1);
     expect(screen.queryByText("Hotyogastudio")).toBeNull();
   });

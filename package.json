@@ -54,7 +54,7 @@
     "use-sync-external-store": "1.6.0",
     "vite": "catalog:",
     "vite-plus": "catalog:",
-    "vitest": "4.1.10"
+    "vitest": "4.1.11"
   },
   "devEngines": {
     "packageManager": {

@@ -13,7 +13,7 @@ const preview: Preview = {
   loaders: [
     mswLoader(async () => {
       const worker = setupWorker();
-      await worker.start({ onUnhandledRequest: "error" });
+      await worker.start({ onUnhandledRequest: "error", quiet: true });
       return worker;
     }),
   ],

@@ -1,11 +1,12 @@
 import {
   createRootRoute,
+  createLazyRoute,
   createRoute,
   createRouter,
   stripSearchParams,
 } from "@tanstack/react-router";
 import { LOCATION_IDS, parseScheduleSearch } from "../features/schedule/model/scheduleSearch";
-import { BookingsRoute } from "../routes/BookingsRoute";
+import { ViewLoading } from "../ui/feedback/ViewLoading";
 import { ScheduleRoute } from "../routes/ScheduleRoute";
 import { AppRoot } from "./AppRoot";
 
@@ -30,7 +31,10 @@ export const indexRoute = createRoute({
 export const bookingsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/bookings",
-  component: BookingsRoute,
+  pendingComponent: ViewLoading,
+}).lazy(async () => {
+  const { BookingsRoute } = await import("../routes/BookingsRoute");
+  return createLazyRoute("/bookings")({ component: BookingsRoute });
 });
 
 const routeTree = rootRoute.addChildren([indexRoute, bookingsRoute]);

@@ -10,6 +10,7 @@
     "lint": "vp lint",
     "test": "vp test --run --project=unit",
     "test-storybook": "vp test --run --project=storybook",
+    "test:production": "pnpm build && node scripts/check-code-splitting.mjs",
     "preview": "vp preview",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",

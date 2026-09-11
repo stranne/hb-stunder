@@ -1,5 +1,5 @@
 import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useLayoutEffect, useRef, useState } from "react";
+import { lazy, Suspense, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   cancelGroupActivityBookingMutationOptions,
@@ -9,17 +9,23 @@ import { customerGroupActivityBookingsQueryOptions } from "../../bookings/api/bo
 import { bookingsByActivityId } from "../../bookings/model/bookings";
 import { Button } from "../../../ui/button/Button";
 import { ErrorMessage } from "../../../ui/feedback/ErrorMessage";
+import { ViewLoading } from "../../../ui/feedback/ViewLoading";
 import { activityTypeQueryOptions, instructorQueryOptions } from "../api/scheduleFilterQueries";
 import { scheduleQueryOptions } from "../api/scheduleQueries";
 import { getAvailability, groupActivitiesByStart } from "../model/schedule";
 import { readSchedulePreferences } from "../model/schedulePreferences";
 import type { ScheduleSearch } from "../model/scheduleSearch";
 import { GymClassCard, GymClassCardSkeleton } from "./GymClassCard";
-import { ScheduleFilterPanel } from "./ScheduleFilterPanel";
 import { ScheduleFilters } from "./ScheduleFilters";
 import { ScheduleFilterSummary } from "./ScheduleFilterSummary";
-import { RoomCalendar } from "./RoomCalendar";
 import styles from "./SchedulePage.module.css";
+
+const ScheduleFilterPanel = lazy(() =>
+  import("./ScheduleFilterPanel").then((module) => ({ default: module.ScheduleFilterPanel })),
+);
+const RoomCalendar = lazy(() =>
+  import("./RoomCalendar").then((module) => ({ default: module.RoomCalendar })),
+);
 
 export interface SchedulePageProps {
   search: ScheduleSearch;
@@ -159,16 +165,18 @@ export function SchedulePage({
       ) : null}
 
       {isFiltersOpen ? (
-        <ScheduleFilterPanel
-          search={search}
-          onChange={onSearchChange}
-          instructors={instructors.data}
-          activityTypes={activityTypes.data}
-          isLoadingOptions={instructors.isPending || activityTypes.isPending}
-          hasOptionsError={failedFilterQueries.length > 0}
-          onRetryOptions={retryFilterOptions}
-          onFavoriteFiltersChange={setFavoriteFilters}
-        />
+        <Suspense fallback={<ViewLoading />}>
+          <ScheduleFilterPanel
+            search={search}
+            onChange={onSearchChange}
+            instructors={instructors.data}
+            activityTypes={activityTypes.data}
+            isLoadingOptions={instructors.isPending || activityTypes.isPending}
+            hasOptionsError={failedFilterQueries.length > 0}
+            onRetryOptions={retryFilterOptions}
+            onFavoriteFiltersChange={setFavoriteFilters}
+          />
+        </Suspense>
       ) : (
         <>
           <ScheduleFilterSummary
@@ -238,30 +246,32 @@ export function SchedulePage({
               </p>
             ) : null}
             {!isPending && !isError && scheduleData.length > 0 && view === "rooms" ? (
-              <RoomCalendar
-                activities={scheduleData}
-                date={search.date}
-                bookingsByActivity={bookingsByActivity}
-                customerId={customerId}
-                favoriteInstructorIds={favoriteFilters.favoriteInstructorIds}
-                favoriteActivityTypeIds={favoriteFilters.favoriteActivityTypeIds}
-                includeBusinessUnitName={search.locations.length > 1}
-                selectedActivityId={search.activity}
-                onSelectedActivityChange={onSelectedActivityChange}
-                onBook={
-                  canCreateBooking
-                    ? (activity) =>
-                        createBooking.mutateAsync({
-                          customerId: customerId!,
-                          groupActivity: activity.id!,
-                          allowWaitingList: getAvailability(activity).kind === "waitingList",
-                        })
-                    : undefined
-                }
-                onCancel={(bookingId) =>
-                  cancelBooking.mutateAsync({ customerId: customerId!, bookingId })
-                }
-              />
+              <Suspense fallback={<ViewLoading />}>
+                <RoomCalendar
+                  activities={scheduleData}
+                  date={search.date}
+                  bookingsByActivity={bookingsByActivity}
+                  customerId={customerId}
+                  favoriteInstructorIds={favoriteFilters.favoriteInstructorIds}
+                  favoriteActivityTypeIds={favoriteFilters.favoriteActivityTypeIds}
+                  includeBusinessUnitName={search.locations.length > 1}
+                  selectedActivityId={search.activity}
+                  onSelectedActivityChange={onSelectedActivityChange}
+                  onBook={
+                    canCreateBooking
+                      ? (activity) =>
+                          createBooking.mutateAsync({
+                            customerId: customerId!,
+                            groupActivity: activity.id!,
+                            allowWaitingList: getAvailability(activity).kind === "waitingList",
+                          })
+                      : undefined
+                  }
+                  onCancel={(bookingId) =>
+                    cancelBooking.mutateAsync({ customerId: customerId!, bookingId })
+                  }
+                />
+              </Suspense>
             ) : null}
             {!isPending && !isError && view === "classes"
               ? groupedSchedule.map((group) => (

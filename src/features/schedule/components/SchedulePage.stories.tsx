@@ -154,7 +154,9 @@ export const FiltersOpen: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole("region", { name: /^filters?$|^filter$/i })).toBeInTheDocument();
+    await expect(
+      await canvas.findByRole("region", { name: /^filters?$|^filter$/i }),
+    ).toBeInTheDocument();
     await expect(
       canvas.queryByRole("group", { name: /upcoming days|kommande dagar/i }),
     ).not.toBeInTheDocument();

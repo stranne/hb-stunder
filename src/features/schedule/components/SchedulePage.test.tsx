@@ -206,7 +206,7 @@ describe("SchedulePage", () => {
     expect(controls?.getAttribute("data-elevated")).toBeNull();
   });
 
-  it("replaces the schedule with a toggled filter view", () => {
+  it("replaces the schedule with a toggled filter view", async () => {
     server.use(http.get(scheduleEndpoint, () => HttpResponse.json([])));
     renderPage([1]);
 
@@ -219,7 +219,7 @@ describe("SchedulePage", () => {
     const showScheduleButton = screen.getByRole("button", { name: "Show schedule" });
     expect(showScheduleButton.getAttribute("aria-expanded")).toBe("true");
     expect(showScheduleButton.textContent).toContain("Show schedule");
-    expect(screen.getByRole("region", { name: "Filters" })).toBeTruthy();
+    expect(await screen.findByRole("region", { name: "Filters" })).toBeTruthy();
     expect(screen.queryByRole("group", { name: "Upcoming days" })).toBeNull();
     expect(screen.queryByRole("region", { name: "Scheduled classes" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Done" })).toBeNull();

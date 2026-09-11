@@ -14,6 +14,7 @@ See [`docs/PROJECT_FOUNDATION.md`](docs/PROJECT_FOUNDATION.md) for product and a
 pnpm dev
 pnpm check
 pnpm test
+pnpm run test:production
 pnpm build
 pnpm storybook
 pnpm build-storybook
@@ -21,6 +22,8 @@ pnpm api:generate
 ```
 
 Vite+ owns development, checking, testing, and production builds. Dependency versions related to Vite+ and Storybook are pinned because Vite+ is still young.
+
+`pnpm run test:production` builds the app and checks chunk sizes, on-demand view loading, navigation, filter persistence, and booking flows in Chromium using local API fixtures. It includes a throttled mobile run and saves screenshots under `node_modules/.cache/code-splitting`. Install the browser with `pnpm exec playwright install chromium` if needed.
 
 GitHub Actions runs checking, unit tests, Storybook interaction and accessibility tests, and both production builds. Successful pushes to `main` deploy the application to GitHub Pages.
 

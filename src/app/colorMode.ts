@@ -29,7 +29,7 @@ export function applyColorMode(preference: ColorModePreference): ResolvedColorMo
   document.documentElement.dataset.colorMode = colorMode;
   document
     .querySelector('meta[name="theme-color"]')
-    ?.setAttribute("content", colorMode === "dark" ? "#0a2a22" : "#0c3b30");
+    ?.setAttribute("content", colorMode === "dark" ? "#0f0e0c" : "#1f1d1a");
   return colorMode;
 }
 

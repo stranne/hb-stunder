@@ -91,7 +91,7 @@ Pills are reserved for actions, filter chips, and compact statuses. Fields, dial
 
 ### Surface character
 
-Warm paper, limestone, and glazed tile come from color, tonal variation, and line work. Avoid texture images, spa clichés, decorative gradients, and noise behind dense content.
+Warm paper and limestone come from color, tonal variation, and line work. Avoid texture images, spa clichés, decorative gradients, and noise behind dense content.
 
 ## Interaction language
 
@@ -100,8 +100,8 @@ The adopted interaction direction is **quiet architectural states**: the same st
 - Controls remain physically stationary. Hover and press use tonal surfaces and keylines rather than vertical transforms.
 - Hover uses a subtle accent wash and, where a boundary is visible, a stronger border. Press uses a slightly stronger version of the same treatment.
 - Selected, current, and open controls use a persistent soft accent surface, accent foreground, and a structural cue such as a keyline, check, or marker. Full accent fills are primarily reserved for primary actions; the selected day's arch is the deliberate exception.
-- Keyboard focus always uses the shared water-blue ring and remains visible on top of selected or semantic states. On the green band it uses `--color-focus-chrome`.
-- The green band remaps the shared interaction tokens in `src/app/AppRoot.module.css`, because the recipes otherwise assume a light surface.
+- Keyboard focus always uses the shared water-blue ring and remains visible on top of selected or semantic states. On the dark band it uses `--color-focus-chrome`.
+- The dark band remaps the shared interaction tokens in `src/app/AppRoot.module.css`, because the recipes otherwise assume a light surface.
 - Destructive oxblood is reserved for genuine cancellation and removal actions. It is an outlined control at rest, so that cancelling never outranks booking. It is not used as generic hover or focus feedback.
 - Availability and booking colors describe semantic status, not interaction. Status remains understandable through text and markers rather than color alone.
 - Past or otherwise muted schedule items retain their data-state treatment. If they remain interactive, hover and focus must still be visibly communicated; otherwise they must not show an interactive cursor.
@@ -111,30 +111,46 @@ The shared state colors live in `src/app/theme.css`; reusable control recipes li
 
 ## Color
 
-The adopted palette is **limestone and bathhouse green**, taken directly from the app icon (`docs/design/app-icon-source.png`). It was the leading study in the earlier color exploration and gives the interface the same identity as the icon on a phone's home screen.
+The adopted palette is **warm ink and brass**: a warm white canvas, near-black ink, and one note of brass. Color is otherwise reserved for meaning, so green now says only that a spot is available or a class is booked, and never competes with a primary action.
 
-| Role                    | Light                     | Dark                       | Source                 |
-| ----------------------- | ------------------------- | -------------------------- | ---------------------- |
-| Canvas                  | `#f5f0e6` limestone paper | `#0f1a16` dark glazed tile |                        |
-| Band and primary action | `#0c3b30`, `#12503f`      | `#0a2a22`, `#a8d8bd`       | Icon background        |
-| Ink                     | `#17261f`                 | `#f1ebdd`                  | Icon egg, in dark mode |
-| Accent on the band      | `#e6b562`                 | `#e6b562`                  | Icon motion lines      |
-| Focus                   | `#1f6fb2`                 | `#7fbdf0`                  | Icon water drop        |
-| Destructive             | `#a3413f`                 | `#d9695f`                  |                        |
+| Role                    | Light     | Dark      | Note                       |
+| ----------------------- | --------- | --------- | -------------------------- |
+| Canvas                  | `#fbf9f3` | `#141311` |                            |
+| Ink                     | `#1f1d1a` | `#f3eee3` |                            |
+| Band                    | `#1f1d1a` | `#0f0e0c` |                            |
+| Primary action          | `#1f1d1a` | `#e1cf9f` | Pale gold on black in dark |
+| Accent on the band      | `#d9bd7c` | `#d9bd7c` | Brass                      |
+| Availability and booked | `#2f7a55` | `#4fb07f` | Bathhouse green            |
+| Focus                   | `#1f6fb2` | `#7fbdf0` | Water blue from the icon   |
+| Destructive             | `#a3413f` | `#d9695f` |                            |
 
-Dark mode is independently tuned rather than inverted: a green-black ground, warm cream type, and a pale celadon primary action.
+Dark mode is independently tuned rather than inverted: golden light on a warm near-black ground.
+
+The app icon keeps its bathhouse green, and the web manifest's splash background matches it so that the icon sits on its own color at launch. The previous palette, limestone and bathhouse green drawn from the icon, is in the commit before this one.
+
+Mix colors with `color-mix(in srgb, ...)`. See the note at the top of `src/app/theme.css` for why oklch mixes turn near-neutral tints pink.
 
 All text pairs meet WCAG AA. Storybook's accessibility checks enforce this, including on the dark-mode stories. The Foundations stories show the tokens side by side.
+
+## Relationship to Hagabadet
+
+HB Stunder is unofficial and signs people in with their Hagabadet credentials, so it must never be mistaken for Hagabadet's own site. It may share the restraint of a well-run bathhouse without borrowing its identity.
+
+- **Shared character:** warm white with near-black ink, a single brass accent, a firm serif for headings, pill-shaped controls, and a centered name in the masthead.
+- **Never borrowed:** the logo, photography, Minion Pro and Libre Franklin, exact color values, and page copy. The wordmark, the egg mark, and the arch remain HB Stunder's own.
+- **Deliberately different:** the schedule is left-aligned and dense because it is scanned, not read, and shows classes without first asking for a location. White text on brass is avoided because it fails contrast requirements.
+- **Required:** the account menu and the sign-in dialog state that the app is unofficial and not affiliated with Hagabadet. Keep this notice visible wherever credentials are requested.
 
 ## Layout
 
 - Every view opens with a title in the same position. The schedule title is the selected date, which scrolls away so that only the date strip stays pinned.
 - The class list, filters, and bookings share one reading width (`--page-width`). The room calendar takes up to 100rem, and runs edge to edge on phones.
+- The masthead places navigation on the left, the wordmark in the center, and the account menu on the right. Below 64rem the wordmark moves to the left because there is no room to center it.
 - On phones, the wordmark and account menu scroll away at the top, while navigation stays under the thumb.
 
 ## Recommended next steps
 
-- Evaluate the palette on real devices, particularly the green band against the phone's status bar.
+- Evaluate the palette on real devices, particularly the dark band against the phone's status bar.
 - Consider a "now" divider in today's class list, so that past classes do not push the next class below the fold.
 - Consider a sign-in action in the signed-out My bookings empty state.
 
@@ -142,4 +158,4 @@ All text pairs meet WCAG AA. Storybook's accessibility checks enforce this, incl
 
 Use this prompt to continue the design work in a fresh session:
 
-> Continue the HB Stunder visual design work. Read `docs/DESIGN_DIRECTION.md`, `docs/PROJECT_FOUNDATION.md`, and the current theme/components before proposing changes. The foundation is Newsreader + Commissioner with Iconoir. The concept is “contemporary bathhouse”: warm, architectural, Scandinavian, accessible, and highly functional rather than a generic fitness app or imitation luxury spa. The palette (limestone and bathhouse green, from the app icon), the timetable layout, and the arch as signature shape are adopted. Refine within that system, and discuss alternatives with me before changing direction site-wide.
+> Continue the HB Stunder visual design work. Read `docs/DESIGN_DIRECTION.md`, `docs/PROJECT_FOUNDATION.md`, and the current theme/components before proposing changes. The foundation is Newsreader + Commissioner with Iconoir. The concept is “contemporary bathhouse”: warm, architectural, Scandinavian, accessible, and highly functional rather than a generic fitness app or imitation luxury spa. The palette (warm ink and brass), the timetable layout, and the arch as signature shape are adopted. Read the section on the relationship to Hagabadet before borrowing anything from its site. Refine within that system, and discuss alternatives with me before changing direction site-wide.

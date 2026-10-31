@@ -6,7 +6,7 @@
     gap: var(--space-3);
     inline-size: 100%;
     padding: var(--space-3) var(--space-4);
-    border: 1px solid color-mix(in oklch, var(--color-error) 38%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-error) 38%, transparent);
     border-radius: var(--radius-sm);
     color: var(--color-error-strong);
     background: var(--color-error-soft);

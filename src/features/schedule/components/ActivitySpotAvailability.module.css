@@ -58,7 +58,7 @@
   .edge .bar {
     block-size: 0.1875rem;
     border-radius: 0;
-    background: color-mix(in oklch, var(--color-ink-muted) 12%, transparent);
+    background: color-mix(in srgb, var(--color-ink-muted) 12%, transparent);
   }
 
   .edge .bar span {

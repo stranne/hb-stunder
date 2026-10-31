@@ -35,6 +35,9 @@ describe("AppMenu", () => {
     expect(screen.getByText("Language")).toBeTruthy();
     expect(screen.getByText("Signed in as")).toBeTruthy();
     expect(screen.getByText("Anna Andersson")).toBeTruthy();
+    expect(
+      screen.getByText("HB Stunder is an unofficial app and is not affiliated with Hagabadet."),
+    ).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Sign out" }));
     expect(onSignOut).toHaveBeenCalledOnce();
   });

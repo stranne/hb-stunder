@@ -119,6 +119,8 @@ export function AppMenu({
                 <p className={styles.unavailable}>{t("auth.signInUnavailable")}</p>
               )}
             </div>
+
+            <p className={styles.unofficial}>{t("app.unofficial")}</p>
           </Dialog>
         </Popover>
       </DialogTrigger>

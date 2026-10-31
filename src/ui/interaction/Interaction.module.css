@@ -64,7 +64,7 @@
   }
 
   .danger {
-    border-color: color-mix(in oklch, var(--color-error) 60%, transparent);
+    border-color: color-mix(in srgb, var(--color-error) 60%, transparent);
     color: var(--color-error-strong);
     background: transparent;
   }
@@ -77,7 +77,7 @@
   .danger:active:not(:disabled):not([data-disabled]),
   .danger[data-pressed]:not([data-disabled]) {
     border-color: var(--color-error-strong);
-    background: color-mix(in oklch, var(--color-error) 22%, var(--color-surface));
+    background: color-mix(in srgb, var(--color-error) 22%, var(--color-surface));
   }
 
   .selectable[aria-current]:not([aria-current="false"]),

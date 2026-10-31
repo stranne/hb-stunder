@@ -8,6 +8,17 @@ import { SignInAction } from "./SignInAction";
 afterEach(cleanup);
 
 describe("SignInAction", () => {
+  it("says the app is unofficial before asking for credentials", async () => {
+    render(<SignInAction onSignIn={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
+    const dialog = within(await screen.findByRole("dialog"));
+
+    expect(
+      dialog.getByText("HB Stunder is an unofficial app and is not affiliated with Hagabadet."),
+    ).toBeTruthy();
+  });
+
   it("passes the explicit remember-me choice separately from the credentials", async () => {
     const onSignIn = vi.fn(async () => undefined);
     render(<SignInAction onSignIn={onSignIn} />);

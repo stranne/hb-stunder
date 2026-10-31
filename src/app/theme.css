@@ -4,69 +4,74 @@
 
 @layer reset, tokens, base, components, utilities;
 
+/*
+ * Mix colors with `color-mix(in srgb, ...)`. This palette is near-neutral, and oklch treats the hue
+ * of a low-chroma color as powerless: mixing one with `transparent` gives hue `none`, which renders
+ * as 0 degrees. A pale green tint came out pink that way.
+ */
 @layer tokens {
   :root,
   [data-color-mode="light"] {
     color-scheme: light;
-    /* Limestone paper and glazed bathhouse green, taken from the app icon. */
-    --color-canvas: #f5f0e6;
-    --color-surface: #fbf8f1;
-    --color-surface-strong: #dfd6c5;
-    --color-surface-recessed: #ebe5d8;
-    --color-surface-elevated: #fffdf8;
-    --color-ink: #17261f;
-    --color-ink-muted: #56635b;
-    --color-ink-inverse: #fbf6ea;
-    --color-chrome: #0c3b30;
-    --color-chrome-ink: #fbf1df;
-    --color-chrome-muted: #bfd3c7;
-    --color-chrome-accent: #e6b562;
-    --color-chrome-border: color-mix(in oklch, var(--color-chrome-ink) 16%, transparent);
-    --color-action: #12503f;
-    --color-action-strong: #0c3b30;
-    --color-action-pressed: #082c24;
-    --color-action-ink: #fbf6ea;
-    --color-accent: #1a6350;
-    --color-accent-strong: #12503f;
-    --color-accent-pressed: #0c3b30;
-    --color-current-time: #8f6420;
+    /* Warm white, ink, and a single note of brass. Green is reserved for availability. */
+    --color-canvas: #fbf9f3;
+    --color-surface: #fffefa;
+    --color-surface-strong: #e4dfd3;
+    --color-surface-recessed: #f1eee5;
+    --color-surface-elevated: #ffffff;
+    --color-ink: #1f1d1a;
+    --color-ink-muted: #5f5b53;
+    --color-ink-inverse: #fbf9f3;
+    --color-chrome: #1f1d1a;
+    --color-chrome-ink: #fbf6ea;
+    --color-chrome-muted: #c9c3b6;
+    --color-chrome-accent: #d9bd7c;
+    --color-chrome-border: color-mix(in srgb, var(--color-chrome-ink) 16%, transparent);
+    --color-action: #1f1d1a;
+    --color-action-strong: #3a372f;
+    --color-action-pressed: #000000;
+    --color-action-ink: #fbf9f3;
+    --color-accent: #3a372f;
+    --color-accent-strong: #1f1d1a;
+    --color-accent-pressed: #000000;
+    --color-current-time: #8a6f2f;
     --color-focus: #1f6fb2;
     --color-focus-chrome: #a5d4f7;
-    --color-border: color-mix(in oklch, var(--color-ink) 12%, transparent);
-    --color-border-strong: color-mix(in oklch, var(--color-ink) 26%, transparent);
+    --color-border: color-mix(in srgb, var(--color-ink) 12%, transparent);
+    --color-border-strong: color-mix(in srgb, var(--color-ink) 26%, transparent);
     --color-control-surface: var(--color-surface);
     --color-control-border: var(--color-border-strong);
-    --color-interaction-hover: #edf1e7;
-    --color-interaction-pressed: #e2e9de;
+    --color-interaction-hover: #f4f1e8;
+    --color-interaction-pressed: #ebe7db;
     --color-interaction-border-hover: color-mix(
-      in oklch,
+      in srgb,
       var(--color-accent) 42%,
       var(--color-border-strong)
     );
     --color-interaction-border-pressed: color-mix(
-      in oklch,
+      in srgb,
       var(--color-accent) 62%,
       var(--color-border-strong)
     );
-    --color-selected-surface: #dfe9df;
-    --color-selected-surface-hover: #d1e0d4;
+    --color-selected-surface: #efebe0;
+    --color-selected-surface-hover: #e6e1d4;
     --color-selected-border: var(--color-accent);
-    --color-selected-keyline: color-mix(in oklch, var(--color-accent) 22%, transparent);
+    --color-selected-keyline: color-mix(in srgb, var(--color-accent) 22%, transparent);
     --color-selected-ink: var(--color-accent-strong);
-    --color-brass: #a97f33;
-    --color-brass-strong: #76541a;
-    --color-brass-soft: #f2e4c4;
+    --color-brass: #a08a52;
+    --color-brass-strong: #6f5c2a;
+    --color-brass-soft: #f2ead6;
     --color-positive: #2f7a55;
     --color-positive-strong: #1c5c3e;
-    --color-positive-soft: #dcecdf;
+    --color-positive-soft: #e3efe4;
     --color-warning: #b06a1c;
     --color-warning-strong: #7a4409;
     --color-warning-soft: #f6e3c5;
     --color-error: #a3413f;
     --color-error-strong: #7f2a2b;
     --color-error-soft: #f5dcd6;
-    --color-overlay: rgb(9 28 23 / 55%);
-    --color-shadow: rgb(23 38 31 / 14%);
+    --color-overlay: rgb(20 18 15 / 55%);
+    --color-shadow: rgb(31 29 26 / 14%);
 
     --font-sans: "Commissioner Variable", Commissioner, ui-sans-serif, system-ui, sans-serif;
     --font-display: "Newsreader Variable", Newsreader, Georgia, serif;
@@ -77,6 +82,8 @@
     --text-class: clamp(1.1875rem, 1.1rem + 0.4vw, 1.375rem);
     --text-title: clamp(2rem, 1.35rem + 2.8vw, 3.25rem);
     --text-display: clamp(2.75rem, 10vw, 6rem);
+    --weight-display: 500;
+    --weight-heading: 540;
     --weight-medium: 520;
     --weight-semibold: 620;
 
@@ -106,64 +113,64 @@
 
   [data-color-mode="dark"] {
     color-scheme: dark;
-    /* Dark glazed tile rather than an inversion: green-black ground, warm cream type. */
-    --color-canvas: #0f1a16;
-    --color-surface: #16231e;
-    --color-surface-strong: #2a3a33;
-    --color-surface-recessed: #0b1411;
-    --color-surface-elevated: #1c2c26;
-    --color-ink: #f1ebdd;
-    --color-ink-muted: #aab5ab;
-    --color-ink-inverse: #0f1a16;
-    --color-chrome: #0a2a22;
-    --color-chrome-ink: #f6ecd8;
-    --color-chrome-muted: #a9c2b4;
-    --color-chrome-accent: #e6b562;
-    --color-chrome-border: color-mix(in oklch, var(--color-chrome-ink) 14%, transparent);
-    --color-action: #a8d8bd;
-    --color-action-strong: #c3e6d2;
-    --color-action-pressed: #8cc3a5;
-    --color-action-ink: #0b1f19;
-    --color-accent: #7cc09c;
-    --color-accent-strong: #a8d8bd;
-    --color-accent-pressed: #5fa583;
-    --color-current-time: #e3c88f;
+    /* Golden light on black: warm near-black ground, pale gold for primary actions. */
+    --color-canvas: #141311;
+    --color-surface: #1c1a17;
+    --color-surface-strong: #37332c;
+    --color-surface-recessed: #0f0e0c;
+    --color-surface-elevated: #24211d;
+    --color-ink: #f3eee3;
+    --color-ink-muted: #b4aea1;
+    --color-ink-inverse: #141311;
+    --color-chrome: #0f0e0c;
+    --color-chrome-ink: #f6efe0;
+    --color-chrome-muted: #b9b2a3;
+    --color-chrome-accent: #d9bd7c;
+    --color-chrome-border: color-mix(in srgb, var(--color-chrome-ink) 14%, transparent);
+    --color-action: #e1cf9f;
+    --color-action-strong: #eddfb9;
+    --color-action-pressed: #cdb983;
+    --color-action-ink: #1a1815;
+    --color-accent: #c9ae6f;
+    --color-accent-strong: #e1cf9f;
+    --color-accent-pressed: #b39a5d;
+    --color-current-time: #e1cf9f;
     --color-focus: #7fbdf0;
     --color-focus-chrome: #a5d4f7;
-    --color-border: color-mix(in oklch, var(--color-ink) 14%, transparent);
-    --color-border-strong: color-mix(in oklch, var(--color-ink) 30%, transparent);
+    --color-border: color-mix(in srgb, var(--color-ink) 14%, transparent);
+    --color-border-strong: color-mix(in srgb, var(--color-ink) 30%, transparent);
     --color-control-surface: var(--color-surface);
     --color-control-border: var(--color-border-strong);
-    --color-interaction-hover: color-mix(in oklch, var(--color-accent) 10%, var(--color-surface));
-    --color-interaction-pressed: color-mix(in oklch, var(--color-accent) 17%, var(--color-surface));
+    --color-interaction-hover: color-mix(in srgb, var(--color-accent) 10%, var(--color-surface));
+    --color-interaction-pressed: color-mix(in srgb, var(--color-accent) 17%, var(--color-surface));
     --color-interaction-border-hover: color-mix(
-      in oklch,
+      in srgb,
       var(--color-accent) 46%,
       var(--color-border-strong)
     );
     --color-interaction-border-pressed: color-mix(
-      in oklch,
+      in srgb,
       var(--color-accent) 66%,
       var(--color-border-strong)
     );
-    --color-selected-surface: #1f3b31;
-    --color-selected-surface-hover: #274a3d;
+    --color-selected-surface: #2e2a21;
+    --color-selected-surface-hover: #3a3528;
     --color-selected-border: var(--color-accent);
-    --color-selected-keyline: color-mix(in oklch, var(--color-accent) 30%, transparent);
+    --color-selected-keyline: color-mix(in srgb, var(--color-accent) 30%, transparent);
     --color-selected-ink: var(--color-accent-strong);
-    --color-brass: #c9a35c;
-    --color-brass-strong: #e3c88f;
-    --color-brass-soft: #2f2715;
+    --color-brass: #c9ae6f;
+    --color-brass-strong: #e3cf9e;
+    --color-brass-soft: #2c2618;
     --color-positive: #4fb07f;
     --color-positive-strong: #8fd4ab;
-    --color-positive-soft: #14302a;
+    --color-positive-soft: #16302a;
     --color-warning: #d9a24a;
     --color-warning-strong: #f0c27a;
     --color-warning-soft: #33260f;
     --color-error: #d9695f;
     --color-error-strong: #f2a79f;
     --color-error-soft: #3a1a1a;
-    --color-overlay: rgb(3 10 8 / 72%);
+    --color-overlay: rgb(5 4 3 / 72%);
     --color-shadow: rgb(0 0 0 / 45%);
   }
 }

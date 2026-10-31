@@ -22,7 +22,7 @@
   }
 
   .label[data-dynamic="true"]::before {
-    box-shadow: 0 0 0 0.2rem color-mix(in oklch, var(--status-label-marker) 14%, transparent);
+    box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--status-label-marker) 14%, transparent);
   }
 
   .content:empty {

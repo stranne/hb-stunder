@@ -135,7 +135,7 @@
       min-inline-size: 100%;
       font-family: var(--font-display);
       font-size: 1.0625rem;
-      font-weight: 480;
+      font-weight: var(--weight-heading);
       line-height: 1.15;
       overflow-wrap: anywhere;
       text-wrap: balance;
@@ -191,7 +191,7 @@
       linear-gradient(to bottom, var(--color-border) 0 1px, transparent 1px),
       linear-gradient(
         to bottom,
-        color-mix(in oklch, var(--color-border) 45%, transparent) 0 1px,
+        color-mix(in srgb, var(--color-border) 45%, transparent) 0 1px,
         transparent 1px
       );
     background-position:
@@ -226,7 +226,7 @@
     inset-inline: var(--space-1);
     display: grid;
     overflow: hidden;
-    border: 1px solid color-mix(in oklch, var(--color-accent) 28%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-accent) 28%, transparent);
     border-radius: var(--radius-sm);
     color: var(--color-accent-strong);
     background: var(--color-selected-surface);
@@ -246,7 +246,7 @@
   }
 
   .block[data-booking-state]:not([data-started="true"]) {
-    border-color: color-mix(in oklch, var(--booking-state-color) 55%, transparent);
+    border-color: color-mix(in srgb, var(--booking-state-color) 55%, transparent);
     border-inline-start: 0.25rem solid var(--booking-state-color);
     background: var(--booking-state-background);
   }
@@ -295,12 +295,12 @@
 
     .block[data-started="true"]:hover {
       border-color: var(--color-border-strong);
-      background: color-mix(in oklch, var(--color-ink-muted) 9%, var(--color-surface));
+      background: color-mix(in srgb, var(--color-ink-muted) 9%, var(--color-surface));
     }
 
     .block[data-booking-state]:not([data-started="true"]):hover {
       border-color: var(--booking-state-color);
-      background: color-mix(in oklch, var(--booking-state-background) 82%, var(--color-ink) 6%);
+      background: color-mix(in srgb, var(--booking-state-background) 82%, var(--color-ink) 6%);
     }
   }
 
@@ -311,7 +311,7 @@
   }
 
   .block[data-started="true"] .blockDetails strong {
-    color: color-mix(in oklch, var(--color-ink) 72%, var(--color-ink-muted));
+    color: color-mix(in srgb, var(--color-ink) 72%, var(--color-ink-muted));
   }
 
   .blockDetails:focus-visible {

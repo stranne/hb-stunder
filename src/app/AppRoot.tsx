@@ -76,16 +76,6 @@ export function AppRoot() {
     <>
       <header className={styles.shellHeader}>
         <div className={styles.masthead}>
-          <a
-            {...classesLinkProps}
-            className={`${styles.brand} ${interactionStyles.focusRing}`}
-            aria-current={undefined}
-          >
-            <BrandMark />
-            <span>
-              {brandPrefix} <em>{brandRest.join(" ")}</em>
-            </span>
-          </a>
           <nav className={styles.nav} aria-label={t("navigation.label")}>
             <a
               {...classesLinkProps}
@@ -141,6 +131,16 @@ export function AppRoot() {
               ) : null}
             </a>
           </nav>
+          <a
+            {...classesLinkProps}
+            className={`${styles.brand} ${interactionStyles.focusRing}`}
+            aria-current={undefined}
+          >
+            <BrandMark />
+            <span>
+              {brandPrefix} <em>{brandRest.join(" ")}</em>
+            </span>
+          </a>
           <div className={styles.account}>
             <AppMenu
               customer={customer}

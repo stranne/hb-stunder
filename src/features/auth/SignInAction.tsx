@@ -83,6 +83,7 @@ export function SignInDialog({
         {({ close }) => (
           <form onSubmit={(event) => void submit(event, close)}>
             <Heading slot="title">{t("auth.title")}</Heading>
+            <p className={styles.unofficial}>{t("app.unofficial")}</p>
             <TextField className={styles.field} name="username" isRequired autoFocus>
               <Label>{t("auth.username")}</Label>
               <Input autoComplete="username" />

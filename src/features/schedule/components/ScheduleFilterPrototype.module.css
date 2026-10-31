@@ -137,7 +137,7 @@
 
   .locationCheckbox[data-selected] {
     border-color: var(--color-accent);
-    background: color-mix(in oklch, var(--color-accent) 12%, var(--color-surface));
+    background: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface));
   }
 
   .checkboxBox {
@@ -146,7 +146,7 @@
     inline-size: 1.25rem;
     block-size: 1.25rem;
     place-items: center;
-    border: 1px solid color-mix(in oklch, var(--color-ink) 35%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-ink) 35%, transparent);
     border-radius: 0.3rem;
     color: var(--color-ink-inverse);
 

@@ -124,7 +124,7 @@ function PalettePanel({ mode }: { mode: "light" | "dark" }) {
         <h2
           style={{ margin: "0.25rem 0 0", fontFamily: "var(--font-display)", fontSize: "1.6rem" }}
         >
-          Limestone & bathhouse green
+          Warm ink & brass
         </h2>
       </header>
       <article

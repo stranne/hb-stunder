@@ -1,4 +1,4 @@
-import { Clock, MapPin, NavArrowDown, User } from "iconoir-react";
+import { Clock, NavArrowDown } from "iconoir-react";
 import { useEffect, useId, useRef, useState, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 import type { GroupActivityBooking } from "../../bookings/model/bookings";
@@ -179,6 +179,7 @@ export function GymClassCard({
       data-availability={displayedAvailabilityKind}
       data-started={(hasStarted && !activity.cancelled) || undefined}
       data-selected={controlledExpanded || undefined}
+      data-expanded={isExpanded || undefined}
       onClick={(event) => {
         if (
           !hasDetails ||
@@ -198,14 +199,12 @@ export function GymClassCard({
           <p className={styles.metadata}>
             {classListDuration ? (
               <span className={styles.metadataItem}>
-                <Clock aria-hidden="true" />
                 <span className={styles.visuallyHidden}>{t("schedule.details.duration")}: </span>
                 {classListDuration}
               </span>
             ) : null}
             {hasInstructors ? (
               <span className={styles.metadataItem}>
-                <User aria-hidden="true" />
                 <span className={styles.visuallyHidden}>{t("schedule.filters.instructor")}: </span>
                 <span>
                   <FavoriteInstructorNames
@@ -216,27 +215,12 @@ export function GymClassCard({
               </span>
             ) : null}
             {locations ? (
-              <span className={styles.metadataItem}>
-                <MapPin aria-hidden="true" />
+              <span className={styles.metadataItem} data-metadata="location">
                 <span className={styles.visuallyHidden}>{t("schedule.filters.location")}: </span>
                 {locations}
               </span>
             ) : null}
           </p>
-        ) : null}
-        {hasDetails ? (
-          <button
-            type="button"
-            className={`${styles.expand} ${interactionStyles.control} ${interactionStyles.quiet}`}
-            aria-expanded={isExpanded}
-            aria-controls={detailsId}
-            onClick={() => setExpanded(!isExpanded)}
-          >
-            <span className={styles.visuallyHidden}>
-              {t(isExpanded ? "schedule.details.hide" : "schedule.details.show")}
-            </span>
-            <NavArrowDown aria-hidden="true" />
-          </button>
         ) : null}
       </div>
       <div className={styles.actions}>
@@ -336,6 +320,20 @@ export function GymClassCard({
           />
         ) : null}
       </div>
+      {hasDetails ? (
+        <button
+          type="button"
+          className={`${styles.expand} ${interactionStyles.control} ${interactionStyles.quiet}`}
+          aria-expanded={isExpanded}
+          aria-controls={detailsId}
+          onClick={() => setExpanded(!isExpanded)}
+        >
+          <span className={styles.visuallyHidden}>
+            {t(isExpanded ? "schedule.details.hide" : "schedule.details.show")}
+          </span>
+          <NavArrowDown aria-hidden="true" />
+        </button>
+      ) : null}
       {externalMessage ? (
         <section className={styles.message} data-message-type="external">
           <h3>{t("schedule.information.forThisClass")}</h3>

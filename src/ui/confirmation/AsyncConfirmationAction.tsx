@@ -1,6 +1,7 @@
 import { useRef, useState, type RefObject } from "react";
 import { Dialog, DialogTrigger, Heading, Modal } from "react-aria-components";
 import { Button, type ButtonTone } from "../button/Button";
+import dialogStyles from "../dialog/Dialog.module.css";
 import { ErrorMessage } from "../feedback/ErrorMessage";
 import styles from "./AsyncConfirmationAction.module.css";
 
@@ -105,11 +106,11 @@ export function AsyncConfirmationAction({
         {triggerLabel}
       </Button>
       <Modal
-        className={styles.modal}
+        className={dialogStyles.backdrop}
         isDismissable={!isPending}
         isKeyboardDismissDisabled={isPending}
       >
-        <Dialog className={styles.dialog}>{({ close }) => confirmationContent(close)}</Dialog>
+        <Dialog className={dialogStyles.dialog}>{({ close }) => confirmationContent(close)}</Dialog>
       </Modal>
     </DialogTrigger>
   );

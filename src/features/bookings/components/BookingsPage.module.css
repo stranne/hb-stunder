@@ -1,53 +1,72 @@
 @layer components {
   .page {
-    inline-size: min(calc(100% - 2rem), 64rem);
+    --rail-width: 7rem;
+
+    inline-size: min(calc(100% - 2rem), var(--page-width));
     margin-inline: auto;
-    padding-block: var(--space-4) var(--space-12);
+    padding-block: clamp(1.25rem, 0.75rem + 2.5vw, 2.5rem) var(--space-12);
   }
 
-  .srHeading {
-    position: absolute;
-    inline-size: 1px;
-    block-size: 1px;
-    margin: -1px;
-    padding: 0;
-    overflow: hidden;
-    clip-path: inset(50%);
-    border: 0;
-    white-space: nowrap;
+  .title {
+    margin: 0 0 var(--space-6);
+    font-family: var(--font-display);
+    font-size: var(--text-title);
+    font-weight: 420;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    outline: none;
   }
 
   .list {
-    display: grid;
-    gap: var(--space-3);
+    margin: 0;
     padding: 0;
+    border-block-start: 1px solid var(--color-border-strong);
     list-style: none;
   }
 
   .booking {
     display: grid;
-    gap: var(--space-2);
+    grid-template-columns: var(--rail-width) minmax(0, 1fr);
+    border-block-end: 1px solid var(--color-border);
   }
 
   .date {
-    padding-inline: var(--space-6);
-    color: var(--color-ink-muted);
-    font-size: var(--text-sm);
+    display: grid;
+    align-content: start;
+    gap: 0.125rem;
+    padding-block-start: var(--space-4);
     font-variant-numeric: tabular-nums;
   }
 
-  .notice {
-    display: grid;
-    justify-items: center;
-    gap: var(--space-4);
-    padding: var(--space-8);
-    border-radius: var(--radius-md);
-    color: var(--color-ink);
-    background: var(--color-surface-recessed);
-    text-align: center;
+  .dateDay {
+    color: var(--color-ink-muted);
+    font-size: var(--text-sm);
+    line-height: 1.3;
+  }
 
-    p {
-      margin: 0;
+  .dateTime {
+    order: -1;
+    font-size: 1.0625rem;
+    font-weight: var(--weight-medium);
+    line-height: 1.6rem;
+  }
+
+  @media (width < 40rem) {
+    .booking {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .date {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: var(--space-2);
+      padding-block-end: var(--space-2);
+      padding-inline-start: var(--space-2);
+    }
+
+    .dateTime {
+      font-size: var(--text-base);
     }
   }
 }

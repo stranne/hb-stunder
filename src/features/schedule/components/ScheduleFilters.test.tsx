@@ -109,7 +109,12 @@ describe("ScheduleFilters", () => {
     expect(dayButtons[0]?.querySelector("strong")?.textContent).toBe(
       String(Number(today.slice(-2))),
     );
-    expect(dayButtons[0]?.querySelector("span:last-child")?.textContent).not.toContain("Today");
+    // The tile shows only weekday and number, so the name must still carry the full date.
+    expect(dayButtons[0]?.getAttribute("aria-label")).toBe(
+      new Intl.DateTimeFormat("en", { weekday: "long", day: "numeric", month: "long" }).format(
+        new Date(`${today}T12:00:00Z`),
+      ),
+    );
     expect(dayButtons[0]?.tabIndex).toBe(0);
     expect(dayButtons.slice(1).every((button) => button.tabIndex === -1)).toBe(true);
 

@@ -64,20 +64,20 @@
   }
 
   .danger {
-    border-color: color-mix(in oklch, var(--color-error) 35%, var(--color-control-border));
+    border-color: color-mix(in oklch, var(--color-error) 60%, transparent);
     color: var(--color-error-strong);
-    background: var(--color-error-soft);
+    background: transparent;
   }
 
   .danger[data-hovered]:not([data-disabled]) {
     border-color: var(--color-error);
-    background: color-mix(in oklch, var(--color-error) 20%, var(--color-surface));
+    background: var(--color-error-soft);
   }
 
   .danger:active:not(:disabled):not([data-disabled]),
   .danger[data-pressed]:not([data-disabled]) {
     border-color: var(--color-error-strong);
-    background: color-mix(in oklch, var(--color-error) 27%, var(--color-surface));
+    background: color-mix(in oklch, var(--color-error) 22%, var(--color-surface));
   }
 
   .selectable[aria-current]:not([aria-current="false"]),
@@ -109,7 +109,7 @@
 
     .danger:hover:not(:disabled):not([data-disabled]) {
       border-color: var(--color-error);
-      background: color-mix(in oklch, var(--color-error) 20%, var(--color-surface));
+      background: var(--color-error-soft);
     }
 
     .selectable[aria-current]:not([aria-current="false"]):hover:not([data-disabled]),

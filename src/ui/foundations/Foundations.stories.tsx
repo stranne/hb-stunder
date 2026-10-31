@@ -9,6 +9,7 @@ const colorTokens = [
   ["Elevated", "--color-surface-elevated"],
   ["Ink", "--color-ink"],
   ["Muted ink", "--color-ink-muted"],
+  ["Chrome", "--color-chrome"],
   ["Action", "--color-action"],
   ["Selection", "--color-accent"],
   ["Brass", "--color-brass"],
@@ -123,7 +124,7 @@ function PalettePanel({ mode }: { mode: "light" | "dark" }) {
         <h2
           style={{ margin: "0.25rem 0 0", fontFamily: "var(--font-display)", fontSize: "1.6rem" }}
         >
-          Chromatic Architecture
+          Limestone & bathhouse green
         </h2>
       </header>
       <article

@@ -1,0 +1,28 @@
+@layer components {
+  .mark {
+    display: block;
+    flex: none;
+    inline-size: auto;
+    block-size: 1.875rem;
+    overflow: visible;
+  }
+
+  .egg {
+    fill: var(--color-chrome-ink);
+  }
+
+  .drop {
+    fill: #6fa9d8;
+  }
+
+  .brass ellipse {
+    fill: var(--color-chrome-accent);
+  }
+
+  .brass path {
+    fill: none;
+    stroke: var(--color-chrome-accent);
+    stroke-linecap: round;
+    stroke-width: 28;
+  }
+}

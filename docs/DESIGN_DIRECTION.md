@@ -37,7 +37,8 @@ Both fonts are self-hosted through Fontsource packages and support Swedish text.
 
 ### Usage guidance
 
-- Use Newsreader for page titles, class names, dialog titles, and occasional prominent phrases.
+- Use Newsreader for page titles, class names, dialog titles, room names, day numbers, the wordmark, and occasional prominent phrases.
+- Newsreader italic marks the date in page titles and the wordmark. It costs about 64 kB of font data, so keep it to those display uses.
 - Keep Newsreader out of dense controls, long descriptions, and small status text.
 - Use Commissioner throughout the functional interface.
 - Prefer medium or semibold weights over uppercase for hierarchy.
@@ -62,27 +63,35 @@ It currently appears in navigation, account, date navigation, filter, favorite, 
 - Do not mix utility icon libraries.
 - A small custom set of activity/category symbols could be explored later, but it should complement rather than replace Iconoir.
 
-## Visual vocabulary to explore
+## Visual vocabulary
 
-### Architectural curves
+### The arch
 
-Use shallow arches or softly curved upper edges as occasional signature details, potentially in page-title framing, dialog headers, or empty-state artwork. Do not make every card arch-shaped.
+The arch is the product's one signature shape. It appears in three places, each with a job:
 
-### Tile and grid structure
+- The selected day in the date strip stands on the strip's baseline as a filled arched window.
+- Dialogs have a shallow arched top edge, and become bottom sheets on phones.
+- Empty states show a line-drawn arched window in brass.
 
-Treat the schedule grid as part of the identity. Fine separators, deliberate alignment, and subtle tiled rhythm could make the room calendar and date navigation recognizable without harming readability.
+Do not add it elsewhere without a reason. Cards, buttons, and fields stay plain so that the arch keeps its meaning.
+
+### Timetable rows, not cards
+
+The class list and My bookings read as a printed timetable: a rail of times against ruled rows. Statuses, actions, and disclosure controls align in columns from row to row. Rows have no background or shadow of their own; state adds a tint where needed.
+
+The room calendar follows the same logic: hairlines instead of drop shadows, full-hour lines with fainter half-hour lines, and flat tinted blocks.
 
 ### Brass as material accent
 
-Hagabadet uses a muted gold-like tone around `#AE9A64`. HB Stunder may reference muted brass, but it should be treated as a material or decorative accent rather than automatically becoming the main action color. Pale brass text on light surfaces is unlikely to meet contrast requirements; interactive use needs a sufficiently dark companion tone.
+Brass marks the current navigation item, the booking count, external class messages, and empty-state artwork. Decorative brass does not meet text contrast requirements; use `--color-brass-strong` for text.
 
 ### Shape hierarchy
 
-Reserve pills primarily for primary actions, compact statuses, and selected filters. Cards, fields, schedules, and dialogs can use more modest radii so that the interface does not become a collection of equally rounded floating objects.
+Pills are reserved for actions, filter chips, and compact statuses. Fields, dialogs, and calendar blocks use modest radii.
 
 ### Surface character
 
-Aim for warm paper, limestone, plaster, tile, or mineral associations through color, restrained tonal variation, and line work. Avoid obvious texture images, spa clichés, gradients used only for luxury signaling, and decorative noise behind dense content.
+Warm paper, limestone, and glazed tile come from color, tonal variation, and line work. Avoid texture images, spa clichés, decorative gradients, and noise behind dense content.
 
 ## Interaction language
 
@@ -90,57 +99,47 @@ The adopted interaction direction is **quiet architectural states**: the same st
 
 - Controls remain physically stationary. Hover and press use tonal surfaces and keylines rather than vertical transforms.
 - Hover uses a subtle accent wash and, where a boundary is visible, a stronger border. Press uses a slightly stronger version of the same treatment.
-- Selected, current, and open controls use a persistent soft accent surface, accent foreground, and a structural cue such as a keyline, check, or marker. Full accent fills are primarily reserved for primary actions.
-- Keyboard focus always uses the shared blue external ring and remains visible on top of selected or semantic states.
-- Destructive red is reserved for genuine cancellation and removal actions. It is not used as generic hover or focus feedback.
+- Selected, current, and open controls use a persistent soft accent surface, accent foreground, and a structural cue such as a keyline, check, or marker. Full accent fills are primarily reserved for primary actions; the selected day's arch is the deliberate exception.
+- Keyboard focus always uses the shared water-blue ring and remains visible on top of selected or semantic states. On the green band it uses `--color-focus-chrome`.
+- The green band remaps the shared interaction tokens in `src/app/AppRoot.module.css`, because the recipes otherwise assume a light surface.
+- Destructive oxblood is reserved for genuine cancellation and removal actions. It is an outlined control at rest, so that cancelling never outranks booking. It is not used as generic hover or focus feedback.
 - Availability and booking colors describe semantic status, not interaction. Status remains understandable through text and markers rather than color alone.
 - Past or otherwise muted schedule items retain their data-state treatment. If they remain interactive, hover and focus must still be visibly communicated; otherwise they must not show an interactive cursor.
 - Directional or state-explanatory motion, such as a disclosure arrow rotating, is allowed. Decorative control movement is not.
 
 The shared state colors live in `src/app/theme.css`; reusable control recipes live in `src/ui/interaction/Interaction.module.css`. New components should consume these tokens and recipes rather than defining page-specific hover, pressed, selected, focus, disabled, or destructive colors.
 
-## Color status
+## Color
 
-Primary actions use the established blue accent rather than the error-adjacent red previously used for buttons. The warm canvas, dark ink, semantic state colors, and blue focus color remain in place; red stays reserved for genuine destructive actions and error feedback.
+The adopted palette is **limestone and bathhouse green**, taken directly from the app icon (`docs/design/app-icon-source.png`). It was the leading study in the earlier color exploration and gives the interface the same identity as the icon on a phone's home screen.
 
-A dedicated color exploration should:
+| Role                    | Light                     | Dark                       | Source                 |
+| ----------------------- | ------------------------- | -------------------------- | ---------------------- |
+| Canvas                  | `#f5f0e6` limestone paper | `#0f1a16` dark glazed tile |                        |
+| Band and primary action | `#0c3b30`, `#12503f`      | `#0a2a22`, `#a8d8bd`       | Icon background        |
+| Ink                     | `#17261f`                 | `#f1ebdd`                  | Icon egg, in dark mode |
+| Accent on the band      | `#e6b562`                 | `#e6b562`                  | Icon motion lines      |
+| Focus                   | `#1f6fb2`                 | `#7fbdf0`                  | Icon water drop        |
+| Destructive             | `#a3413f`                 | `#d9695f`                  |                        |
 
-- Define the emotional role of canvas, surfaces, ink, brass, and the primary action color.
-- Keep decorative and interactive colors separate where their contrast requirements differ.
-- Test normal, hover, pressed, selected, disabled, focus, warning, error, waiting-list, full, and cancelled states.
-- Test contrast in both schedule cards and the denser room calendar.
-- Decide whether a dark theme is valuable rather than assuming one is required.
+Dark mode is independently tuned rather than inverted: a green-black ground, warm cream type, and a pale celadon primary action.
 
-### Storybook color studies
+All text pairs meet WCAG AA. Storybook's accessibility checks enforce this, including on the dark-mode stories. The Foundations stories show the tokens side by side.
 
-Three experimental directions are available from the Storybook toolbar in independently tuned light and dark modes:
+## Layout
 
-1. **Limestone + bathhouse green** — the leading warm, restorative direction.
-2. **Plaster + oxblood** — a more historic and editorial direction, with a separate green availability color.
-3. **Pale mineral + blue-green** — a cooler, more architectural direction intended to favor dense schedule legibility.
+- Every view opens with a title in the same position. The schedule title is the selected date, which scrolls away so that only the date strip stays pinned.
+- The class list, filters, and bookings share one reading width (`--page-width`). The room calendar takes up to 100rem, and runs edge to edge on phones.
+- On phones, the wordmark and account menu scroll away at the top, while navigation stays under the thumb.
 
-The dark studies are not direct inversions. They use dark stone or tile-like canvases, independently tuned elevated and recessed surfaces, brighter interactive colors, warmer brass, stronger borders, and deeper overlays. The `Design system/Foundations/Overview/Comparison` story shows all six studies together; toolbar controls apply each study to the existing representative component and route stories.
+## Recommended next steps
 
-These studies remain Storybook-only. Their role-based surface and semantic tokens can support a final theme, but no color direction or application-level dark mode has been adopted yet.
-
-## Layout status
-
-Broader layout changes are also open. Likely areas to explore are:
-
-- Reducing reliance on repeated floating cards.
-- Strengthening the typographic hierarchy of times, dates, class names, and availability.
-- Making the schedule and room grid the primary visual structure.
-- Giving page-level content a clearer opening or identity without consuming scarce mobile space.
-- Reviewing desktop width and density separately from mobile navigation.
-
-## Recommended next step
-
-Explore **color and surface direction** in Storybook before making broad layout changes. Create two or three bounded theme studies using the existing representative stories, then compare them for contrast, schedule legibility, visual character, and consistency. Do not immediately refactor every component around an untested concept.
-
-After selecting a color/surface direction, review shape hierarchy and schedule layout together. This order reduces the risk of confusing a color improvement with a structural improvement.
+- Evaluate the palette on real devices, particularly the green band against the phone's status bar.
+- Consider a "now" divider in today's class list, so that past classes do not push the next class below the fold.
+- Consider a sign-in action in the signed-out My bookings empty state.
 
 ## New-session handoff prompt
 
 Use this prompt to continue the design work in a fresh session:
 
-> Continue the HB Stunder visual design work. Read `docs/DESIGN_DIRECTION.md`, `docs/PROJECT_FOUNDATION.md`, and the current theme/components before proposing changes. The adopted foundation is Newsreader + Commissioner with Iconoir, introduced in commit `65f0d2f`. The working concept is “contemporary bathhouse”: warm, architectural, Scandinavian, accessible, and highly functional rather than a generic fitness app or imitation luxury spa. Colors and broader layout are intentionally still open. Start with a focused color and surface exploration in Storybook, including accessible interaction and schedule states. Discuss the proposed alternatives with me before applying a site-wide direction.
+> Continue the HB Stunder visual design work. Read `docs/DESIGN_DIRECTION.md`, `docs/PROJECT_FOUNDATION.md`, and the current theme/components before proposing changes. The foundation is Newsreader + Commissioner with Iconoir. The concept is “contemporary bathhouse”: warm, architectural, Scandinavian, accessible, and highly functional rather than a generic fitness app or imitation luxury spa. The palette (limestone and bathhouse green, from the app icon), the timetable layout, and the arch as signature shape are adopted. Refine within that system, and discuss alternatives with me before changing direction site-wide.

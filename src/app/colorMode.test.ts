@@ -12,7 +12,7 @@ import {
 beforeEach(() => {
   window.localStorage.clear();
   document.documentElement.removeAttribute("data-color-mode");
-  document.head.innerHTML = '<meta name="theme-color" content="#e8e1d5">';
+  document.head.innerHTML = '<meta name="theme-color" content="#0c3b30">';
 });
 
 afterEach(() => {
@@ -39,7 +39,7 @@ describe("color mode", () => {
 
     expect(document.documentElement.dataset.colorMode).toBe("dark");
     expect(document.querySelector('meta[name="theme-color"]')?.getAttribute("content")).toBe(
-      "#111110",
+      "#0a2a22",
     );
   });
 });

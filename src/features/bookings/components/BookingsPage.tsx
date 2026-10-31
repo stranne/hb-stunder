@@ -2,6 +2,7 @@ import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/rea
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../../ui/button/Button";
+import { EmptyState } from "../../../ui/feedback/EmptyState";
 import { ErrorMessage } from "../../../ui/feedback/ErrorMessage";
 import { groupActivityQueryOptions } from "../../schedule/api/scheduleQueries";
 import { GymClassCard } from "../../schedule/components/GymClassCard";
@@ -17,14 +18,19 @@ function bookingTime(booking: GroupActivityBooking, language: string) {
   const start = new Date(booking.duration.start);
   if (Number.isNaN(start.getTime())) return undefined;
 
-  return new Intl.DateTimeFormat(language, {
-    timeZone: "Europe/Stockholm",
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(start);
+  return {
+    day: new Intl.DateTimeFormat(language, {
+      timeZone: "Europe/Stockholm",
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+    }).format(start),
+    time: new Intl.DateTimeFormat(language, {
+      timeZone: "Europe/Stockholm",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(start),
+  };
 }
 
 function activityFromBooking(booking: GroupActivityBooking): ScheduledActivity {
@@ -60,18 +66,16 @@ export function BookingsPage({
 
   return (
     <main className={styles.page}>
-      <h1 className={styles.srHeading} ref={pageHeadingRef} tabIndex={-1}>
+      <h1 className={styles.title} ref={pageHeadingRef} tabIndex={-1}>
         {t("bookings.title")}
       </h1>
 
       {!customerId ? (
-        <div className={styles.notice}>
-          <p>{t(canSignIn ? "bookings.signedOut" : "bookings.signInUnavailable")}</p>
-        </div>
+        <EmptyState>
+          {t(canSignIn ? "bookings.signedOut" : "bookings.signInUnavailable")}
+        </EmptyState>
       ) : bookings.isPending ? (
-        <p className={styles.notice} role="status">
-          {t("bookings.loading")}
-        </p>
+        <EmptyState role="status">{t("bookings.loading")}</EmptyState>
       ) : bookings.isError ? (
         <ErrorMessage
           action={<Button onPress={() => void bookings.refetch()}>{t("bookings.retry")}</Button>}
@@ -79,7 +83,7 @@ export function BookingsPage({
           {t("bookings.error")}
         </ErrorMessage>
       ) : sortedBookings.length === 0 ? (
-        <p className={styles.notice}>{t("bookings.empty")}</p>
+        <EmptyState>{t("bookings.empty")}</EmptyState>
       ) : (
         <ul
           className={styles.list}
@@ -88,6 +92,7 @@ export function BookingsPage({
         >
           {sortedBookings.map((booking, index) => {
             const bookingId = booking.groupActivityBooking?.id;
+            const time = bookingTime(booking, i18n.resolvedLanguage ?? "en");
             const activity = activityQueries[index]?.data ?? activityFromBooking(booking);
             const onCancel =
               booking.type === "groupActivityBooking" &&
@@ -104,7 +109,14 @@ export function BookingsPage({
                 }
               >
                 <time className={styles.date} dateTime={booking.duration?.start}>
-                  {bookingTime(booking, i18n.resolvedLanguage ?? "en") ?? t("bookings.timeUnknown")}
+                  {time ? (
+                    <>
+                      <span className={styles.dateDay}>{time.day}</span>{" "}
+                      <span className={styles.dateTime}>{time.time}</span>
+                    </>
+                  ) : (
+                    <span className={styles.dateDay}>{t("bookings.timeUnknown")}</span>
+                  )}
                 </time>
                 <GymClassCard
                   activity={activity}

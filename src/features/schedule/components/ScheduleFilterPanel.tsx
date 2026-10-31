@@ -128,7 +128,7 @@ function SearchableOptions({
     <section className={styles.selector} aria-labelledby={headingId}>
       <div className={styles.sectionHeading}>
         {icon}
-        <h3 id={headingId}>{label}</h3>
+        <h2 id={headingId}>{label}</h2>
       </div>
       <SearchField value={query} onChange={changeQuery} aria-label={searchLabel}>
         <Input
@@ -149,11 +149,11 @@ function SearchableOptions({
           onChange={(values) => onSelectedChange(values.map(Number))}
         >
           {!query && !isBrowsing ? (
-            <h4 className={styles.groupTitle}>{t("schedule.filters.favorites")}</h4>
+            <h3 className={styles.groupTitle}>{t("schedule.filters.favorites")}</h3>
           ) : null}
           {[...groupedOptions.entries()].map(([letter, group]) => (
             <div className={styles.optionGroup} role="group" aria-label={letter} key={letter}>
-              {(query || isBrowsing) && <h4 className={styles.groupTitle}>{letter}</h4>}
+              {(query || isBrowsing) && <h3 className={styles.groupTitle}>{letter}</h3>}
               {group.map((option) => (
                 <div className={styles.optionRow} key={option.id}>
                   <Checkbox
@@ -304,12 +304,12 @@ export function ScheduleFilterPanel({
     <section id="schedule-filter-panel" className={styles.panel} aria-labelledby={headingId}>
       <div className={styles.dialog}>
         <header className={styles.header}>
-          <h2 id={headingId}>{t("schedule.filters.filters")}</h2>
+          <h1 id={headingId}>{t("schedule.filters.filters")}</h1>
         </header>
 
         <section className={styles.summary} aria-labelledby={selectionHeadingId}>
           <div className={styles.summaryHeading}>
-            <h3 id={selectionHeadingId}>{t("schedule.filters.selectedFilters")}</h3>
+            <h2 id={selectionHeadingId}>{t("schedule.filters.selectedFilters")}</h2>
             <div className={styles.summaryActions}>
               {hasSelectedFilters ? (
                 <AriaButton
@@ -389,7 +389,7 @@ export function ScheduleFilterPanel({
           <section className={styles.locationSection} aria-labelledby={locationHeadingId}>
             <div className={styles.sectionHeading}>
               <MapPin aria-hidden="true" />
-              <h3 id={locationHeadingId}>{t("schedule.filters.location")}</h3>
+              <h2 id={locationHeadingId}>{t("schedule.filters.location")}</h2>
             </div>
             <CheckboxGroup
               className={styles.locationOptions}

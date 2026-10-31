@@ -10,6 +10,7 @@ import {
 } from "../features/bookings/api/bookingQueries";
 import { useSession } from "../features/auth/sessionContext";
 import { AppMenu } from "./AppMenu";
+import { BrandMark } from "./BrandMark";
 import {
   applyColorMode,
   readColorModePreference,
@@ -58,6 +59,7 @@ export function AppRoot() {
     search: (previous) => ({ ...parseScheduleSearch(previous), view: "filters" }),
   });
   const bookingsLinkProps = useLinkProps({ to: "/bookings" });
+  const [brandPrefix, ...brandRest] = t("app.name").split(" ");
 
   const handleSignOut = () => {
     if (customer)
@@ -73,7 +75,17 @@ export function AppRoot() {
   return (
     <>
       <header className={styles.shellHeader}>
-        <div className={styles.navigationBar}>
+        <div className={styles.masthead}>
+          <a
+            {...classesLinkProps}
+            className={`${styles.brand} ${interactionStyles.focusRing}`}
+            aria-current={undefined}
+          >
+            <BrandMark />
+            <span>
+              {brandPrefix} <em>{brandRest.join(" ")}</em>
+            </span>
+          </a>
           <nav className={styles.nav} aria-label={t("navigation.label")}>
             <a
               {...classesLinkProps}
@@ -129,17 +141,15 @@ export function AppRoot() {
               ) : null}
             </a>
           </nav>
-          <div className={styles.utilities}>
-            <div className={styles.account}>
-              <AppMenu
-                customer={customer}
-                canSignIn={canSignIn}
-                onSignIn={signIn}
-                onSignOut={handleSignOut}
-                colorModePreference={colorModePreference}
-                onColorModeChange={handleColorModeChange}
-              />
-            </div>
+          <div className={styles.account}>
+            <AppMenu
+              customer={customer}
+              canSignIn={canSignIn}
+              onSignIn={signIn}
+              onSignOut={handleSignOut}
+              colorModePreference={colorModePreference}
+              onColorModeChange={handleColorModeChange}
+            />
           </div>
         </div>
       </header>

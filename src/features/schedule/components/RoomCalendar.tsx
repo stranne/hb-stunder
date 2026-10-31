@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 import type { GroupActivityBooking } from "../../bookings/model/bookings";
 import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
 import { StatusLabel } from "../../../ui/status-label/StatusLabel";
+import dialogStyles from "../../../ui/dialog/Dialog.module.css";
 import interactionStyles from "../../../ui/interaction/Interaction.module.css";
 import type { ActivityState, ScheduledActivity } from "../model/schedule";
 import { getActivityState } from "../model/schedule";
@@ -453,14 +454,14 @@ export function RoomCalendar({
         </div>
       </div>
       <Modal
-        className={styles.dialogBackdrop}
+        className={dialogStyles.backdrop}
         isOpen={detail !== undefined}
         onOpenChange={(isOpen) => {
           if (!isOpen) closeDetail();
         }}
         isDismissable
       >
-        <Dialog className={styles.dialog}>
+        <Dialog className={dialogStyles.dialog}>
           {({ close }) =>
             detail ? (
               <>
@@ -639,20 +640,22 @@ function RoomBookingAction({
   if (!canBook || !onBook) return null;
   const waiting = availability.kind === "waitingList";
   return (
-    <AsyncConfirmationAction
-      triggerLabel={t(waiting ? "schedule.waitingList.book" : "schedule.booking.book")}
-      title={t(waiting ? "schedule.waitingList.confirmTitle" : "schedule.booking.confirmTitle")}
-      message={t(
-        waiting ? "schedule.waitingList.confirmMessage" : "schedule.booking.confirmMessage",
-        { name: activity.name ?? t("schedule.unnamedClass") },
-      )}
-      cancelLabel={t("schedule.booking.cancel")}
-      confirmLabel={t(waiting ? "schedule.waitingList.confirm" : "schedule.booking.confirm")}
-      retryLabel={t(waiting ? "schedule.waitingList.retry" : "schedule.booking.retry")}
-      pendingMessage={t(waiting ? "schedule.waitingList.pending" : "schedule.booking.pending")}
-      errorMessage={t(waiting ? "schedule.waitingList.error" : "schedule.booking.error")}
-      onConfirm={() => onBook(activity)}
-      presentation="inline"
-    />
+    <div className={styles.bookingActions} data-align="end">
+      <AsyncConfirmationAction
+        triggerLabel={t(waiting ? "schedule.waitingList.book" : "schedule.booking.book")}
+        title={t(waiting ? "schedule.waitingList.confirmTitle" : "schedule.booking.confirmTitle")}
+        message={t(
+          waiting ? "schedule.waitingList.confirmMessage" : "schedule.booking.confirmMessage",
+          { name: activity.name ?? t("schedule.unnamedClass") },
+        )}
+        cancelLabel={t("schedule.booking.cancel")}
+        confirmLabel={t(waiting ? "schedule.waitingList.confirm" : "schedule.booking.confirm")}
+        retryLabel={t(waiting ? "schedule.waitingList.retry" : "schedule.booking.retry")}
+        pendingMessage={t(waiting ? "schedule.waitingList.pending" : "schedule.booking.pending")}
+        errorMessage={t(waiting ? "schedule.waitingList.error" : "schedule.booking.error")}
+        onConfirm={() => onBook(activity)}
+        presentation="inline"
+      />
+    </div>
   );
 }

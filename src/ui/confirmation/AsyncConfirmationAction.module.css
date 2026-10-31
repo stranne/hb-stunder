@@ -1,32 +1,4 @@
 @layer components {
-  .modal {
-    position: fixed;
-    z-index: var(--layer-dialog);
-    inset: 0;
-    display: grid;
-    padding: var(--space-6);
-    background: var(--color-overlay);
-    place-items: center;
-  }
-
-  .dialog {
-    inline-size: min(28rem, 100%);
-    padding: var(--space-6);
-    border-radius: var(--radius-lg);
-    background: var(--color-surface-elevated);
-    box-shadow: var(--shadow-raised);
-
-    h2,
-    p {
-      margin-block-start: 0;
-    }
-
-    h2 {
-      font-family: var(--font-display);
-      font-size: var(--text-lg);
-    }
-  }
-
   .inlineConfirmation {
     margin-block-start: var(--space-4);
     padding-block-start: var(--space-4);
@@ -36,16 +8,23 @@
     p {
       margin-block-start: 0;
     }
+
+    h3 {
+      font-size: var(--text-base);
+      font-weight: var(--weight-semibold);
+    }
   }
 
   .actions {
     display: flex;
-    gap: var(--space-3);
+    flex-wrap: wrap;
+    gap: var(--space-2);
     justify-content: flex-end;
+    margin-block-start: var(--space-6);
   }
 
   .status,
-  .dialog > [role="alert"],
+  [role="dialog"] > [role="alert"],
   .inlineConfirmation > [role="alert"] {
     margin-block: var(--space-4) 0;
   }

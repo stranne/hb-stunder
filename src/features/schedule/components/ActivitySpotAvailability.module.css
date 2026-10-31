@@ -31,7 +31,7 @@
 
   .bar {
     overflow: hidden;
-    block-size: 0.35rem;
+    block-size: 0.25rem;
     border-radius: var(--radius-pill);
     background: var(--color-surface-recessed);
   }
@@ -56,9 +56,9 @@
   }
 
   .edge .bar {
-    block-size: 0.3rem;
+    block-size: 0.1875rem;
     border-radius: 0;
-    background: color-mix(in oklch, var(--color-ink-muted) 16%, transparent);
+    background: color-mix(in oklch, var(--color-ink-muted) 12%, transparent);
   }
 
   .edge .bar span {

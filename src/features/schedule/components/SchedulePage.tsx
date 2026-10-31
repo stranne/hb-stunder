@@ -8,6 +8,7 @@ import {
 import { customerGroupActivityBookingsQueryOptions } from "../../bookings/api/bookingQueries";
 import { bookingsByActivityId } from "../../bookings/model/bookings";
 import { Button } from "../../../ui/button/Button";
+import { EmptyState } from "../../../ui/feedback/EmptyState";
 import { ErrorMessage } from "../../../ui/feedback/ErrorMessage";
 import { ViewLoading } from "../../../ui/feedback/ViewLoading";
 import { activityTypeQueryOptions, instructorQueryOptions } from "../api/scheduleFilterQueries";
@@ -118,6 +119,15 @@ export function SchedulePage({
     hour: "2-digit",
     minute: "2-digit",
   });
+  const titleDate = new Date(`${search.date}T12:00:00Z`);
+  const titleFormatters = {
+    weekday: new Intl.DateTimeFormat(i18n.resolvedLanguage, { weekday: "long", timeZone: "UTC" }),
+    date: new Intl.DateTimeFormat(i18n.resolvedLanguage, {
+      day: "numeric",
+      month: "long",
+      timeZone: "UTC",
+    }),
+  };
   const groupedSchedule = groupActivitiesByStart(scheduleData);
   const view = search.view ?? "classes";
   const isPending = scheduleQueries.some((query) => query.isPending);
@@ -155,6 +165,21 @@ export function SchedulePage({
       )}
     >
       {!isFiltersOpen ? (
+        <header className={styles.pageHeader}>
+          <h1 className={styles.pageTitle}>
+            <span className={styles.titleWeekday}>{titleFormatters.weekday.format(titleDate)}</span>{" "}
+            <em>{titleFormatters.date.format(titleDate)}</em>
+          </h1>
+          <ScheduleFilterSummary
+            search={search}
+            onChange={onSearchChange}
+            instructors={instructors.data}
+            activityTypes={activityTypes.data}
+          />
+        </header>
+      ) : null}
+
+      {!isFiltersOpen ? (
         <div
           ref={stickyControlsRef}
           className={styles.stickyControls}
@@ -179,12 +204,6 @@ export function SchedulePage({
         </Suspense>
       ) : (
         <>
-          <ScheduleFilterSummary
-            search={search}
-            onChange={onSearchChange}
-            instructors={instructors.data}
-            activityTypes={activityTypes.data}
-          />
           {customerId !== undefined && bookings.isPending ? (
             <p className={styles.statusRegion} role="status">
               {t("bookings.loading")}
@@ -238,12 +257,10 @@ export function SchedulePage({
               </ErrorMessage>
             ) : null}
             {isSelectedActivityMissing ? (
-              <p className={styles.notice}>{t("schedule.sharedClassUnavailable")}</p>
+              <EmptyState>{t("schedule.sharedClassUnavailable")}</EmptyState>
             ) : null}
             {!isPending && !isError && !isSelectedActivityMissing && scheduleData.length === 0 ? (
-              <p className={styles.notice}>
-                {t(view === "rooms" ? "rooms.empty" : "schedule.empty")}
-              </p>
+              <EmptyState>{t(view === "rooms" ? "rooms.empty" : "schedule.empty")}</EmptyState>
             ) : null}
             {!isPending && !isError && scheduleData.length > 0 && view === "rooms" ? (
               <Suspense fallback={<ViewLoading />}>

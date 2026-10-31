@@ -192,7 +192,7 @@ describe("SchedulePage", () => {
     renderPage([1]);
 
     const page = screen.getByRole("main", { name: "Classes" });
-    const controls = page.firstElementChild;
+    const controls = screen.getByRole("group", { name: "Schedule filters" }).parentElement;
     expect(controls?.getAttribute("data-elevated")).toBeNull();
 
     const pageRect = vi

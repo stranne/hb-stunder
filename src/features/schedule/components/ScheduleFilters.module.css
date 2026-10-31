@@ -2,41 +2,74 @@
   .filters {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      "days"
-      "date";
+    grid-template-areas: "days";
     align-items: center;
-    gap: var(--space-2);
-    padding-block: var(--space-2);
+    column-gap: var(--space-1);
+    border-block-end: 1px solid var(--color-border-strong);
     background: var(--color-canvas);
   }
 
-  .datePickerInput {
+  /* Phones and narrow windows: the native picker is an icon beside the strip. */
+  .datePicker {
+    position: relative;
     grid-area: date;
     display: none;
-    min-block-size: 2.5rem;
-    min-inline-size: 8.5rem;
-    max-inline-size: 10rem;
-    padding: var(--space-1) var(--space-2);
-    border: 1px solid var(--color-control-border);
-    border-radius: var(--radius-sm);
-    color: var(--color-ink);
-    background: var(--color-surface);
-    font: inherit;
-    font-size: var(--text-sm);
-    cursor: pointer;
+    place-items: center;
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+    border-radius: var(--radius-pill);
+    color: var(--color-ink-muted);
+    transition: background-color var(--motion-fast) var(--ease-out);
+
+    > svg {
+      inline-size: 1.25rem;
+      block-size: 1.25rem;
+    }
 
     &:hover {
-      border-color: var(--color-interaction-border-hover);
+      background: var(--color-interaction-hover);
     }
 
-    &:focus-visible {
+    &:has(input:focus-visible) {
       outline: var(--focus-width) solid var(--color-focus);
-      outline-offset: var(--focus-offset);
+      outline-offset: calc(-1 * var(--focus-width));
     }
 
-    &::-webkit-calendar-picker-indicator {
+    input {
+      position: absolute;
+      inset: 0;
+      inline-size: 100%;
+      block-size: 100%;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      color: var(--color-ink);
+      background: transparent;
+      font: inherit;
+      opacity: 0;
       cursor: pointer;
+    }
+
+    input::-webkit-calendar-picker-indicator {
+      position: absolute;
+      inset: 0;
+      inline-size: 100%;
+      block-size: 100%;
+      cursor: pointer;
+    }
+  }
+
+  /* Keyboard users need to see the segments they are editing. */
+  @media (hover: hover) {
+    .datePicker input:focus-visible {
+      z-index: 1;
+      inset-inline: auto 0;
+      inline-size: 10rem;
+      padding-inline: var(--space-2);
+      border: 1px solid var(--color-control-border);
+      border-radius: var(--radius-sm);
+      background: var(--color-surface-elevated);
+      opacity: 1;
     }
   }
 
@@ -49,100 +82,142 @@
 
   .weekNavigation {
     display: grid;
-    grid-template-columns: 2.5rem minmax(0, 1fr) 2.5rem;
-    align-items: stretch;
-    gap: var(--space-1);
+    grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem;
+    align-items: center;
+    max-inline-size: 60rem;
 
     > button {
-      min-block-size: 3.5rem;
-      padding-inline: 0;
-      border-radius: var(--radius-sm);
-      font-size: 1.1rem;
+      inline-size: 2.75rem;
+      padding: 0;
 
       svg {
-        inline-size: 1.2rem;
-        block-size: 1.2rem;
-        vertical-align: middle;
+        inline-size: 1.25rem;
+        block-size: 1.25rem;
       }
     }
   }
 
   .dayStrip {
     display: grid;
-    grid-template-columns: repeat(7, minmax(3.75rem, 1fr));
-    gap: var(--space-1);
+    grid-template-columns: repeat(7, minmax(3.25rem, 1fr));
     min-inline-size: 0;
     overflow-x: auto;
-    padding: var(--focus-width);
-    scrollbar-width: thin;
+    scrollbar-width: none;
 
     &:focus-visible {
       outline: var(--focus-width) solid var(--color-focus);
-      outline-offset: var(--focus-offset);
+      outline-offset: calc(-1 * var(--focus-width));
+    }
+
+    &::-webkit-scrollbar {
+      display: none;
     }
   }
 
+  /* Each day stands on the strip's baseline like a window on a wall; the arch marks the state. */
   .dayButton {
+    position: relative;
+    isolation: isolate;
     display: grid;
-    grid-template-columns: 1fr;
-    place-items: center;
-    gap: 0.1rem;
+    align-content: center;
+    justify-items: center;
+    gap: 0.25rem;
     min-block-size: 4.5rem;
-    padding: var(--space-1) var(--space-2);
-    border: 1px solid var(--color-control-border);
-    border-radius: var(--radius-sm);
+    padding: var(--space-3) var(--space-1) var(--space-2);
+    border: 0;
     color: var(--color-ink);
-    background: var(--color-control-surface);
+    background: transparent;
     font: inherit;
+  }
+
+  .dayButton::before {
+    position: absolute;
+    z-index: -1;
+    inset-block: var(--space-1) 0;
+    inset-inline-start: 50%;
+    inline-size: min(100%, 3.75rem);
+    border-start-start-radius: var(--radius-pill);
+    border-start-end-radius: var(--radius-pill);
+    content: "";
+    transform: translateX(-50%);
+    transition: background-color var(--motion-fast) var(--ease-out);
+  }
+
+  .dayButton:focus-visible {
+    border-radius: var(--radius-sm);
+    outline-offset: calc(-1 * var(--focus-width));
+  }
+
+  @media (hover: hover) {
+    .dayButton:hover::before {
+      background: var(--color-interaction-pressed);
+    }
+  }
+
+  .dayButton:active::before {
+    background: var(--color-interaction-pressed);
   }
 
   .dayButton[data-visible="false"] {
     display: none;
   }
 
+  .dayButton[aria-pressed="true"] {
+    color: var(--color-action-ink);
+  }
+
+  .dayButton[aria-pressed="true"]::before,
+  .dayButton[aria-pressed="true"]:hover::before {
+    background: var(--color-action);
+  }
+
   .weekday {
-    font-size: var(--text-sm);
-    font-weight: 700;
-    line-height: 1.1;
+    color: var(--color-ink-muted);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-medium);
+    line-height: 1;
     text-transform: capitalize;
+  }
+
+  .dayButton[data-today="true"] .weekday {
+    color: var(--color-accent-strong);
+    font-weight: var(--weight-semibold);
+  }
+
+  .dayButton[aria-pressed="true"] .weekday {
+    color: inherit;
   }
 
   .dayNumber {
-    font-size: 1.25rem;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-variant-numeric: lining-nums tabular-nums;
+    font-weight: 450;
     line-height: 1;
-  }
-
-  .month {
-    color: var(--color-ink-muted);
-    font-size: 0.75rem;
-    text-transform: capitalize;
-    white-space: nowrap;
-  }
-
-  .dayButton[aria-pressed="true"] .month {
-    color: inherit;
   }
 
   .selectedDate {
     margin: 0;
-    color: var(--color-ink);
+    padding-block: var(--space-2);
+    color: var(--color-ink-muted);
     font-size: var(--text-sm);
-    font-weight: 700;
+    font-weight: var(--weight-medium);
     text-align: center;
     text-transform: capitalize;
   }
 
   @media (width < 52rem) {
-    .datePickerInput {
-      display: block;
+    .filters {
+      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-areas: "days date";
+    }
+
+    .datePicker {
+      display: grid;
     }
   }
 
   @media (width < 42rem) {
-    .filters {
-      margin-inline: -0.25rem;
-    }
-
     .weekNavigation {
       grid-template-columns: minmax(0, 1fr);
 
@@ -152,8 +227,9 @@
     }
 
     .dayStrip {
-      grid-template-columns: repeat(21, minmax(4rem, 1fr));
+      grid-template-columns: repeat(21, 3.5rem);
       scroll-snap-type: inline proximity;
+      mask-image: linear-gradient(to left, transparent, black var(--space-4));
     }
 
     .dayButton,

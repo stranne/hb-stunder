@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Checkbox, Dialog, Heading, Input, Label, Modal, TextField } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../ui/button/Button";
+import dialogStyles from "../../ui/dialog/Dialog.module.css";
 import { ErrorMessage } from "../../ui/feedback/ErrorMessage";
 import type { LoginCredentials } from "./api/auth";
 import styles from "./SignInAction.module.css";
@@ -69,7 +70,7 @@ export function SignInDialog({
 
   return (
     <Modal
-      className={styles.modal}
+      className={dialogStyles.backdrop}
       isOpen={isOpen}
       onOpenChange={(open) => {
         setHasFailed(false);
@@ -78,7 +79,7 @@ export function SignInDialog({
       isDismissable={!isPending}
       isKeyboardDismissDisabled={isPending}
     >
-      <Dialog className={styles.dialog}>
+      <Dialog className={dialogStyles.dialog}>
         {({ close }) => (
           <form onSubmit={(event) => void submit(event, close)}>
             <Heading slot="title">{t("auth.title")}</Heading>

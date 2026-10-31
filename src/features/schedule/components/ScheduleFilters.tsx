@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { NavArrowLeft, NavArrowRight } from "iconoir-react";
+import { Calendar, NavArrowLeft, NavArrowRight } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../../ui/button/Button";
 import interactionStyles from "../../../ui/interaction/Interaction.module.css";
@@ -28,7 +28,6 @@ export function ScheduleFilters({ search, onChange }: ScheduleFiltersProps) {
   const pageIndex = selectedIndex < 0 ? 0 : Math.floor(selectedIndex / DAYS_PER_PAGE);
   const locale = i18n.resolvedLanguage ?? i18n.language;
   const weekdayFormatter = new Intl.DateTimeFormat(locale, { weekday: "short" });
-  const monthFormatter = new Intl.DateTimeFormat(locale, { month: "short" });
   const fullDateFormatter = new Intl.DateTimeFormat(locale, {
     weekday: "long",
     day: "numeric",
@@ -82,7 +81,8 @@ export function ScheduleFilters({ search, onChange }: ScheduleFiltersProps) {
                   key={date}
                   ref={isSelected ? selectedDayRef : undefined}
                   type="button"
-                  className={`${styles.dayButton} ${interactionStyles.control} ${interactionStyles.secondary} ${interactionStyles.selectable}`}
+                  className={`${styles.dayButton} ${interactionStyles.control}`}
+                  data-today={isToday}
                   data-visible={Math.floor(index / DAYS_PER_PAGE) === pageIndex}
                   tabIndex={isSelected ? 0 : -1}
                   aria-label={fullDateFormatter.format(formattedDate)}
@@ -105,7 +105,6 @@ export function ScheduleFilters({ search, onChange }: ScheduleFiltersProps) {
                     {isToday ? t("schedule.filters.today") : weekdayFormatter.format(formattedDate)}
                   </span>
                   <strong className={styles.dayNumber}>{formattedDate.getUTCDate()}</strong>
-                  <span className={styles.month}>{monthFormatter.format(formattedDate)}</span>
                 </button>
               );
             })}
@@ -130,18 +129,20 @@ export function ScheduleFilters({ search, onChange }: ScheduleFiltersProps) {
         ) : null}
       </div>
 
-      <input
-        className={styles.datePickerInput}
-        aria-label={t("schedule.filters.chooseDate")}
-        type="date"
-        min={today}
-        max={lastVisibleDate}
-        value={search.date}
-        onChange={(event) => {
-          const date = event.currentTarget.value;
-          if (date) changeDate(date);
-        }}
-      />
+      <label className={styles.datePicker}>
+        <Calendar aria-hidden="true" />
+        <input
+          aria-label={t("schedule.filters.chooseDate")}
+          type="date"
+          min={today}
+          max={lastVisibleDate}
+          value={search.date}
+          onChange={(event) => {
+            const date = event.currentTarget.value;
+            if (date) changeDate(date);
+          }}
+        />
+      </label>
     </div>
   );
 }

@@ -7,7 +7,6 @@ import i18n from "../../../i18n";
 import { addDays, todayInStockholm } from "../model/scheduleDate";
 import type { ScheduleSearch } from "../model/scheduleSearch";
 import { ScheduleFilterPanel } from "./ScheduleFilterPanel";
-import { ScheduleFilterToggle } from "./ScheduleFilterToggle";
 import { ScheduleFilters } from "./ScheduleFilters";
 
 beforeAll(async () => {
@@ -48,7 +47,9 @@ function FilterTestView({
 
   return (
     <>
-      <ScheduleFilterToggle search={search} isOpen={isOpen} onOpenChange={setIsOpen} />
+      <button type="button" onClick={() => setIsOpen(!isOpen)}>
+        {isOpen ? "Show schedule" : "Open schedule filters"}
+      </button>
       {!isOpen ? <ScheduleFilters search={search} onChange={onChange} /> : null}
       {isOpen ? (
         <ScheduleFilterPanel
@@ -67,34 +68,6 @@ function FilterTestView({
 }
 
 describe("ScheduleFilters", () => {
-  it("toggles the filter view from a separate, consistently labelled action", () => {
-    render(<FilterTestView search={search} onChange={vi.fn()} />);
-
-    const filterButton = screen.getByRole("button", { name: /^Open schedule filters/ });
-    const selectedDay = screen.getByRole("button", { pressed: true });
-    expect(filterButton.tabIndex).toBe(0);
-    expect(
-      filterButton.compareDocumentPosition(selectedDay) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
-
-    filterButton.focus();
-    fireEvent.keyDown(filterButton, { key: "Enter" });
-    fireEvent.keyUp(filterButton, { key: "Enter" });
-
-    expect(document.activeElement).toBe(filterButton);
-    expect(filterButton.getAttribute("aria-expanded")).toBe("true");
-    expect(filterButton.textContent).toContain("Show schedule");
-    expect(screen.queryByRole("group", { name: "Upcoming days" })).toBeNull();
-    expect(screen.getByRole("region", { name: "Filters" })).toBeTruthy();
-
-    fireEvent.keyDown(filterButton, { key: "Enter" });
-    fireEvent.keyUp(filterButton, { key: "Enter" });
-
-    expect(filterButton.getAttribute("aria-expanded")).toBe("false");
-    expect(screen.queryByRole("region", { name: "Filters" })).toBeNull();
-    expect(screen.getByRole("group", { name: "Upcoming days" })).toBeTruthy();
-  });
-
   it("shows three weeks of named upcoming days and selects a day directly", () => {
     const onChange = vi.fn();
     render(<FilterTestView search={{ date: today, ...filterSelection }} onChange={onChange} />);

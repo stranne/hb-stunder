@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/tanstack-react";
 import { useState } from "react";
 import { expect, userEvent, within } from "storybook/test";
+import { Button } from "../../../ui/button/Button";
 import type { ScheduleFilterOption } from "../api/scheduleFilterQueries";
 import { addDays, todayInStockholm } from "../model/scheduleDate";
 import type { ScheduleSearch } from "../model/scheduleSearch";
 import { ScheduleFilterPanel } from "./ScheduleFilterPanel";
-import { ScheduleFilterToggle } from "./ScheduleFilterToggle";
 import { ScheduleFilters } from "./ScheduleFilters";
 const instructors = [
   { id: 21, name: "Anna Andersson" },
@@ -36,15 +36,10 @@ function InteractiveFilters({
   const [isOpen, setIsOpen] = useState(false);
   return (
     <div>
-      <header
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          padding: "var(--space-2)",
-          background: "var(--color-chrome)",
-        }}
-      >
-        <ScheduleFilterToggle search={search} isOpen={isOpen} onOpenChange={setIsOpen} />
+      <header style={{ display: "flex", justifyContent: "flex-end", padding: "var(--space-2)" }}>
+        <Button tone="quiet" onPress={() => setIsOpen(!isOpen)}>
+          {isOpen ? "Show schedule" : "Open schedule filters"}
+        </Button>
       </header>
       {!isOpen ? <ScheduleFilters search={search} onChange={setSearch} /> : null}
       {isOpen ? (
@@ -166,9 +161,7 @@ export const FavoriteRemovalFocus: Story = {
   loaders: [loadFavorites],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(
-      canvas.getByRole("button", { name: /open schedule filters|öppna schemats filter/i }),
-    );
+    await userEvent.click(canvas.getByRole("button", { name: /open schedule filters/i }));
     await userEvent.click(
       canvas.getByRole("button", {
         name: /remove Anna Andersson from favorites|ta bort Anna Andersson från favoriter/i,
@@ -187,9 +180,7 @@ export const NoFavorites: Story = {
 export const NoSearchResults: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(
-      canvas.getByRole("button", { name: /open schedule filters|öppna schemats filter/i }),
-    );
+    await userEvent.click(canvas.getByRole("button", { name: /open schedule filters/i }));
     await userEvent.type(
       canvas.getByRole("searchbox", { name: /search instructors|sök instruktörer/i }),
       "No matching instructor",
@@ -212,7 +203,7 @@ export const KeyboardNavigation: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const filterButton = canvas.getByRole("button", {
-      name: /open schedule filters|öppna schemats filter/i,
+      name: /open schedule filters/i,
     });
     await userEvent.click(filterButton);
     const filterView = canvas.getByRole("region", { name: /^filters?$|^filter$/i });

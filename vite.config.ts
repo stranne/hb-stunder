@@ -4,6 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import react from "@vitejs/plugin-react";
+import { msw } from "msw/vite";
 import { defineConfig, lazyPlugins } from "vite-plus";
 import { playwright } from "vite-plus/test/browser-playwright";
 
@@ -13,7 +14,7 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   base: process.env.VITE_BASE_PATH ?? "/",
   fmt: {
-    ignorePatterns: ["openapi/openapi.yaml", "public/mockServiceWorker.js", "src/api/generated/**"],
+    ignorePatterns: ["openapi/openapi.yaml", "src/api/generated/**"],
   },
   lint: {
     plugins: ["react", "typescript", "oxc"],
@@ -38,7 +39,8 @@ export default defineConfig({
       },
     ],
   },
-  plugins: lazyPlugins(() => [react()]),
+  // In its default mode, the MSW plugin serves its worker in development and never emits it here.
+  plugins: lazyPlugins(() => [react(), msw()]),
   test: {
     projects: [
       {

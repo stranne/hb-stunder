@@ -2,12 +2,10 @@
   "app": {
     "loadingView": "Laddar vyn…",
     "name": "HB Stunder",
-    "foundationReady": "Projektgrunden är klar",
     "unofficial": "HB Stunder är en inofficiell app och är inte ansluten till Hagabadet."
   },
   "navigation": {
     "label": "Huvudnavigering",
-    "schedule": "Klasser",
     "classes": "Klasser",
     "rooms": "Rum",
     "bookings": "Mina bokningar",
@@ -43,7 +41,6 @@
   },
   "bookings": {
     "title": "Mina bokningar",
-    "description": "Alla gruppträningsbokningar som returneras för ditt konto, oberoende av schemafilter.",
     "listLabel": "Aktuella bokningar",
     "signedOut": "Logga in för att se dina aktuella bokningar.",
     "signInUnavailable": "Inloggning är inte tillgänglig just nu.",
@@ -84,7 +81,6 @@
       "spotsWithQueue_other": "{{available}} av {{total}} platser tillgängliga, {{count}} i kö"
     },
     "information": {
-      "title": "Klassinformation",
       "forThisClass": "För det här tillfället",
       "aboutClass": "Om klassen"
     },
@@ -126,7 +122,6 @@
     },
     "filters": {
       "label": "Schemafilter",
-      "date": "Datum",
       "location": "Plats",
       "upcomingDays": "Kommande dagar",
       "previousWeek": "Föregående vecka",
@@ -134,18 +129,11 @@
       "chooseDate": "Välj datum…",
       "today": "Idag",
       "filters": "Filter",
-      "openFilters": "Öppna schemats filter",
-      "openFiltersActive_one": "Öppna schemats filter, {{count}} aktivt",
-      "openFiltersActive_other": "Öppna schemats filter, {{count}} aktiva",
-      "showSchedule": "Visa schema",
-      "showScheduleActive_one": "Visa schema, {{count}} filter aktivt",
-      "showScheduleActive_other": "Visa schema, {{count}} filter aktiva",
       "clearFilters": "Rensa filter",
       "instructor": "Instruktör",
       "activityType": "Klasstyp",
       "searchInstructors": "Sök instruktörer",
       "searchActivityTypes": "Sök klasstyper",
-      "clearSearch": "Rensa sökning",
       "noInstructors": "Inga instruktörer hittades.",
       "noActivityTypes": "Inga klasstyper hittades.",
       "noSearchResults": "Inga matchande alternativ hittades.",
@@ -159,10 +147,6 @@
       "showMore": "Visa {{count}} till",
       "favorites": "Favoriter",
       "favorite": "Favorit",
-      "all": "Alla",
-      "optionCount_one": "{{count}} alternativ",
-      "optionCount_other": "{{count}} alternativ",
-      "optionInstructions": "Använd uppåt- och nedåtpil, Page Up och Page Down samt Home och End för att gå igenom alternativen. Tryck på blanksteg för att välja ett alternativ. Tryck på Tab en gång för favoritknappen och en gång till för att lämna listan.",
       "addFavorite": "Lägg till {{name}} som favorit",
       "removeFavorite": "Ta bort {{name}} från favoriter",
       "loadingOptions": "Laddar filteralternativ…",

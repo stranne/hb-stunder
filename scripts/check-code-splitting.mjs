@@ -4,6 +4,7 @@ import path from "node:path";
 import { gzipSync } from "node:zlib";
 import { chromium } from "playwright";
 import { preview } from "vite-plus";
+import { browserLaunchOptions } from "./browser-launch-options.ts";
 
 // Exercise the actual production chunks with local API fixtures, never live bookings.
 const outDir = process.env.BUILD_DIR ?? "dist";
@@ -16,7 +17,7 @@ const server = await preview({
   preview: { host: "127.0.0.1", port: 0, open: false },
 });
 const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
-const browser = await chromium.launch(process.env.CI ? { channel: "chrome" } : {});
+const browser = await chromium.launch(browserLaunchOptions);
 
 try {
   await mkdir(evidenceDir, { recursive: true });

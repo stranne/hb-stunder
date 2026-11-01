@@ -7,6 +7,7 @@ import react from "@vitejs/plugin-react";
 import { msw } from "msw/vite";
 import { defineConfig, lazyPlugins } from "vite-plus";
 import { playwright } from "vite-plus/test/browser-playwright";
+import { contentSecurityPolicy } from "./scripts/content-security-policy.ts";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -40,7 +41,7 @@ export default defineConfig({
     ],
   },
   // In its default mode, the MSW plugin serves its worker in development and never emits it here.
-  plugins: lazyPlugins(() => [react(), msw()]),
+  plugins: lazyPlugins(() => [react(), msw(), contentSecurityPolicy()]),
   test: {
     projects: [
       {

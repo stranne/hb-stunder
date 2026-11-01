@@ -6,7 +6,7 @@ See [`docs/PROJECT_FOUNDATION.md`](docs/PROJECT_FOUNDATION.md) for product and a
 
 ## Requirements
 
-- Node.js `^20.19.0`, `^22.18.0`, or `>=24.11.0`
+- Node.js `^22.22.2`, `^24.15.0`, or `>=26.0.0`. CI uses Node.js 26.
 
 ## Commands
 
@@ -23,9 +23,17 @@ pnpm api:generate
 
 Vite+ owns development, checking, testing, and production builds. Dependency versions related to Vite+ and Storybook are pinned because Vite+ is still young.
 
-`pnpm run test:production` builds the app and checks chunk sizes, on-demand view loading, navigation, filter persistence, and booking flows in Chromium using local API fixtures. It includes a throttled mobile run and saves screenshots under `node_modules/.cache/code-splitting`. Install the browser with `pnpm exec playwright install chromium` if needed.
+`pnpm run test:production` builds the app, checks that the output contains only what production uses, and checks chunk sizes, on-demand view loading, navigation, filter persistence, and booking flows in Chromium using local API fixtures. Content Security Policy violations fail it. It includes a throttled mobile run and saves screenshots under `node_modules/.cache/code-splitting`. Install the browser with `pnpm exec playwright install chromium` if needed.
 
-GitHub Actions runs checking, unit tests, Storybook interaction and accessibility tests, and both production builds. Successful pushes to `main` deploy the application to GitHub Pages.
+GitHub Actions runs checking, unit tests, Storybook interaction and accessibility tests, and both production builds. A separate job builds the site that gets deployed, so test tools never touch it. Merging to `main` deploys the application to GitHub Pages, and the [deployment history](https://github.com/stranne/hb-stunder/deployments/github-pages) records the commit behind each release.
+
+## Security
+
+- **Content Security Policy:** GitHub Pages cannot send headers, so [`scripts/content-security-policy.ts`](scripts/content-security-policy.ts) adds the policy to the production page and calculates the inline script's hash. Add a host there if the app needs to contact a new one. Development and Storybook do not use the policy.
+- **Production output:** [`scripts/check-production-output.mjs`](scripts/check-production-output.mjs) fails the build if the policy is missing or development content ships.
+- **Action versions:** [`.github/workflows/actions.lock`](.github/workflows/actions.lock) pins every action, including indirect ones, to a commit. After changing a `uses:` line, run `gh actions-lock` (install it with `gh extension install github/gh-actions-lock`) and review the diff.
+- **CI network access:** [`.github/egress-firewall.yaml`](.github/egress-firewall.yaml) limits which hosts the `verify` and `build` jobs can reach, using GitHub's egress firewall, which is in technical preview. When a host is denied, the run summary names it and the command that tried. Allow it only if the job really needs it.
+- **Branch rules:** `main` accepts no force-pushes or deletion, and changes reach it through a pull request once the `verify` and `build` checks pass.
 
 ## API generation
 
@@ -43,11 +51,11 @@ API timestamps such as `2026-07-28T06:00:00.000Z` must be interpreted as UTC and
 
 ## Authentication and mocking
 
-`pnpm dev` uses the real API. Sign in with your Hagabadet username and password; authenticated requests include the returned bearer token. By default the token and customer identity are kept for the browser session, until the seven-day JWT expires. The optional **Keep me signed in** choice persists them on that device together with the refresh token, and the app renews the access token in the browser, so the session lasts until sign-out or until the server refuses the refresh token. The password is never stored. Sign-out clears all stored session data and the customer booking cache, but no endpoint is known that revokes the refresh token on the server.
+`pnpm dev` uses the real API. Sign in with your Hagabadet username and password; authenticated requests include the returned bearer token. By default the token and customer identity are kept for the browser session, until the seven-day JWT expires. The optional **Keep me signed in** choice persists them on that device together with the refresh token, and the app renews the access token in the browser, so the session lasts until sign-out or until the server refuses the refresh token. The password is never stored. Sign-out clears all stored session data and the customer booking cache in every open tab, but no endpoint is known that revokes the refresh token on the server.
 
 The complete ordinary group-activity happy path—sign in, create a booking, list it under **My bookings**, cancel it, and observe its removal—has been manually verified against the real API on localhost. Public reads and the planned GitHub Pages origin's required CORS preflights were reverified without an API key on 2026-08-18; sanitized evidence is recorded in [`docs/public-runtime-evidence.md`](docs/public-runtime-evidence.md). The release-scope API integration is therefore considered technically verified. Token renewal was verified with a real sign-in on 2026-11-01. Waiting-list mutations, failure-specific responses, and idempotency/rate limits remain unknown edge contracts rather than release blockers.
 
-MSW is configured beneath the generated HTTP client. It is disabled by default and can only start in development:
+MSW is configured beneath the generated HTTP client. Its Vite plugin serves the worker in development, so the worker is not part of the repository or the production site. It is disabled by default and can only start in development:
 
 ```sh
 VITE_ENABLE_MSW=true pnpm dev

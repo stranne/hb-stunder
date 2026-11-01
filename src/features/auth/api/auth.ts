@@ -1,4 +1,4 @@
-import { apiClient, setApiAccessToken } from "../../../api/client";
+import { API_BASE_URL, apiClient, setApiAccessToken } from "../../../api/client";
 import { ApiError } from "../../../api/errors";
 import type { CustomerSession } from "../sessionContext";
 
@@ -9,9 +9,17 @@ export interface LoginCredentials {
 
 export interface AuthenticatedSession extends CustomerSession {
   accessToken: string;
+  refreshToken?: string;
 }
 
+export type RenewableSession = AuthenticatedSession & { refreshToken: string };
+
 type JsonObject = Record<string, unknown>;
+
+// BRP serves token renewal from the application root, outside the versioned API path.
+const TOKEN_RENEWAL_BASE_URL = API_BASE_URL.replace(/\/api\/ver3$/, "");
+const REFRESH_TOKEN_KEYS = ["refresh_token", "refreshToken"];
+const SESSION_REJECTED_STATUSES = [400, 401, 403];
 
 function isObject(value: unknown): value is JsonObject {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -135,6 +143,42 @@ export async function login(credentials: LoginCredentials): Promise<Authenticate
 
   setApiAccessToken(accessToken);
   const displayName = customer.displayName ?? (await loadCustomerDisplayName(customer.customerId));
+  const refreshToken = findString(data, REFRESH_TOKEN_KEYS);
 
-  return displayName ? { ...customer, displayName, accessToken } : { ...customer, accessToken };
+  return {
+    ...customer,
+    accessToken,
+    ...(displayName ? { displayName } : {}),
+    ...(refreshToken ? { refreshToken } : {}),
+  };
+}
+
+export async function renewSession(session: RenewableSession): Promise<RenewableSession> {
+  const { data, error, response } = await apiClient.POST("/oauth/access_token", {
+    baseUrl: TOKEN_RENEWAL_BASE_URL,
+    // An expired bearer token must not accompany the refresh token.
+    headers: { Authorization: null, "Content-Type": "application/x-www-form-urlencoded" },
+    body: { grant_type: "refresh_token", refresh_token: session.refreshToken },
+    bodySerializer: (body) => new URLSearchParams(body).toString(),
+  });
+
+  if (error || !response.ok) {
+    throw new ApiError("Session renewal failed", response.status, error);
+  }
+
+  const accessToken = bearerToken(data, response);
+  if (!accessToken) {
+    throw new ApiError("The renewal response did not contain an access token", response.status);
+  }
+
+  return {
+    ...session,
+    accessToken,
+    refreshToken: findString(data, REFRESH_TOKEN_KEYS) ?? session.refreshToken,
+  };
+}
+
+/** Distinguishes a refresh token the server refused from an outage worth retrying. */
+export function isSessionRejected(error: unknown) {
+  return error instanceof ApiError && SESSION_REJECTED_STATUSES.includes(error.status);
 }

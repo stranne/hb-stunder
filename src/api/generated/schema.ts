@@ -65,7 +65,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** getNewTokens */
+        /** Exchange a refresh token for a new access token */
         post: operations["getNewTokens"];
         delete?: never;
         options?: never;
@@ -3095,23 +3095,38 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: {
+        requestBody: {
             content: {
-                "application/json": {
-                    grant_type?: string;
-                    refresh_token?: string;
+                "application/x-www-form-urlencoded": {
+                    /** @enum {string} */
+                    grant_type: "refresh_token";
+                    refresh_token: string;
                 };
             };
         };
         responses: {
-            /** @description Successful response; payload shape not yet determined */
+            /** @description Observed successful response, with the same fields as the login response */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": {
+                        access_token?: string;
+                        expires_in?: number;
+                        refresh_token?: string;
+                        roles?: string[];
+                        token_type?: string;
+                        username?: string;
+                    };
                 };
+            };
+            /** @description Observed response to an unrecognized refresh token */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Unexpected error */
             default: {

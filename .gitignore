@@ -13,6 +13,11 @@ storybook-static
 dist-ssr
 *.local
 
+# Local configuration and browser captures, which can contain passwords and tokens
+.env
+.env.*
+*.har
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

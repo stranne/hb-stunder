@@ -3,7 +3,7 @@ import type { ScheduledActivity } from "./schedule";
 function escapeCalendarText(value: string) {
   return value
     .replaceAll("\\", "\\\\")
-    .replaceAll("\n", "\\n")
+    .replace(/\r\n?|\n/g, "\\n")
     .replaceAll(",", "\\,")
     .replaceAll(";", "\\;");
 }

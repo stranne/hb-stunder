@@ -33,6 +33,22 @@ describe("activityCalendarContent", () => {
     expect(result).toContain("URL:https://example.test/?activity=123\r\n");
   });
 
+  it.each(["\r", "\n", "\r\n"])(
+    "keeps a line break in API text from starting a new field",
+    (lineBreak) => {
+      const result = activityCalendarContent(
+        {
+          id: 123,
+          name: `Yoga${lineBreak}ATTACH:https://example.test/file`,
+          duration: { start: "2026-07-28T06:00:00.000Z", end: "2026-07-28T07:00:00.000Z" },
+        },
+        "https://example.test/",
+      );
+
+      expect(result).toContain("SUMMARY:Yoga\\nATTACH:https://example.test/file\r\n");
+    },
+  );
+
   it("does not create an event without a complete time range", () => {
     expect(activityCalendarContent({ id: 123 }, "https://example.test/")).toBeUndefined();
   });

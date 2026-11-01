@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState, type ReactNode } from "react";
-import { SessionProvider } from "../src/features/auth/SessionProvider";
 import i18n from "../src/i18n";
+import { MockSessionProvider } from "../src/mocks/MockSessionProvider";
 
 export function StoryEnvironment({
   locale,
@@ -38,9 +38,9 @@ export function StoryEnvironment({
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SessionProvider mockEnabled initiallySignedIn={initiallySignedIn}>
+      <MockSessionProvider initiallySignedIn={initiallySignedIn}>
         <div data-reduced-motion={reducedMotion || undefined}>{children}</div>
-      </SessionProvider>
+      </MockSessionProvider>
     </QueryClientProvider>
   );
 }

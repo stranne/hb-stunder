@@ -66,7 +66,7 @@ function respondWithRenewedToken(expiresAt = Date.now() + 7 * DAY_MS) {
 
 function renderSession() {
   return render(
-    <SessionProvider mockEnabled={false}>
+    <SessionProvider>
       <SessionStatus />
     </SessionProvider>,
   );
@@ -112,32 +112,9 @@ afterEach(() => {
 afterAll(() => server.close());
 
 describe("SessionProvider", () => {
-  it("persists an explicit mock session and clears it on sign-out", () => {
-    const view = render(
-      <SessionProvider mockEnabled>
-        <SessionStatus />
-      </SessionProvider>,
-    );
-
-    expect(screen.getByText("signed-out")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
-    expect(screen.getByText("900001")).toBeTruthy();
-
-    view.unmount();
-    render(
-      <SessionProvider mockEnabled>
-        <SessionStatus />
-      </SessionProvider>,
-    );
-    expect(screen.getByText("900001")).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Sign out" }));
-    expect(screen.getByText("signed-out")).toBeTruthy();
-  });
-
   it("stores a remembered real session persistently and restores it", async () => {
     const view = render(
-      <SessionProvider mockEnabled={false}>
+      <SessionProvider>
         <SessionStatus />
       </SessionProvider>,
     );
@@ -149,7 +126,7 @@ describe("SessionProvider", () => {
 
     view.unmount();
     render(
-      <SessionProvider mockEnabled={false}>
+      <SessionProvider>
         <SessionStatus />
       </SessionProvider>,
     );
@@ -167,7 +144,7 @@ describe("SessionProvider", () => {
     );
 
     render(
-      <SessionProvider mockEnabled={false}>
+      <SessionProvider>
         <SessionStatus />
       </SessionProvider>,
     );
@@ -182,7 +159,7 @@ describe("SessionProvider", () => {
 
   it("keeps real sessions temporary by default", async () => {
     render(
-      <SessionProvider mockEnabled={false}>
+      <SessionProvider>
         <SessionStatus />
       </SessionProvider>,
     );
@@ -204,7 +181,7 @@ describe("SessionProvider", () => {
     );
 
     render(
-      <SessionProvider mockEnabled={false}>
+      <SessionProvider>
         <SessionStatus />
       </SessionProvider>,
     );
@@ -213,9 +190,9 @@ describe("SessionProvider", () => {
     expect(window.localStorage.getItem("hb-stunder.session")).toBeNull();
   });
 
-  it("makes real sign-in available when mock mode is disabled", () => {
+  it("makes sign-in available without a stored session", () => {
     render(
-      <SessionProvider mockEnabled={false}>
+      <SessionProvider>
         <SessionStatus />
       </SessionProvider>,
     );
@@ -317,7 +294,7 @@ describe("SessionProvider", () => {
 
       render(
         <StrictMode>
-          <SessionProvider mockEnabled={false}>
+          <SessionProvider>
             <SessionStatus />
           </SessionProvider>
         </StrictMode>,
@@ -513,21 +490,6 @@ describe("SessionProvider", () => {
 
       expect(screen.getByText("signed-out")).toBeTruthy();
       expect(storedSession()).toBeNull();
-    });
-
-    it("does not touch stored sessions in mock mode", async () => {
-      const accessToken = storeRememberedSession(Date.now() - DAY_MS);
-      const { requests } = respondWithRenewedToken();
-
-      render(
-        <SessionProvider mockEnabled>
-          <SessionStatus />
-        </SessionProvider>,
-      );
-      await settleRequests();
-
-      expect(requests).toHaveLength(0);
-      expect(storedSession()?.accessToken).toBe(accessToken);
     });
   });
 });

@@ -70,7 +70,7 @@ describe("ScheduleFilters", () => {
   it("toggles the filter view from a separate, consistently labelled action", () => {
     render(<FilterTestView search={search} onChange={vi.fn()} />);
 
-    const filterButton = screen.getByRole("button", { name: "Open schedule filters" });
+    const filterButton = screen.getByRole("button", { name: /^Open schedule filters/ });
     const selectedDay = screen.getByRole("button", { pressed: true });
     expect(filterButton.tabIndex).toBe(0);
     expect(
@@ -109,12 +109,15 @@ describe("ScheduleFilters", () => {
     expect(dayButtons[0]?.querySelector("strong")?.textContent).toBe(
       String(Number(today.slice(-2))),
     );
-    // The tile shows only weekday and number, so the name must still carry the full date.
-    expect(dayButtons[0]?.getAttribute("aria-label")).toBe(
-      new Intl.DateTimeFormat("en", { weekday: "long", day: "numeric", month: "long" }).format(
-        new Date(`${today}T12:00:00Z`),
-      ),
+    // The tile shows only weekday and number, so the name adds the month after the visible text.
+    const month = new Intl.DateTimeFormat("en", { month: "long" }).format(
+      new Date(`${today}T12:00:00Z`),
     );
+    expect(
+      within(upcomingDays).getByRole("button", {
+        name: `Today ${Number(today.slice(-2))} ${month}`,
+      }),
+    ).toBe(dayButtons[0]);
     expect(dayButtons[0]?.tabIndex).toBe(0);
     expect(dayButtons.slice(1).every((button) => button.tabIndex === -1)).toBe(true);
 
@@ -213,7 +216,7 @@ describe("ScheduleFilters", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Open schedule filters/ }));
     const instructorSelector = within(screen.getByRole("region", { name: "Instructor" }));
     fireEvent.click(instructorSelector.getByRole("button", { name: "Browse options" }));
     fireEvent.click(
@@ -259,7 +262,7 @@ describe("ScheduleFilters", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Open schedule filters/ }));
     const instructorSelector = within(screen.getByRole("region", { name: "Instructor" }));
     fireEvent.click(
       instructorSelector.getByRole("button", { name: "Remove Anna Andersson from favorites" }),
@@ -292,7 +295,7 @@ describe("ScheduleFilters", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Open schedule filters/ }));
     fireEvent.click(
       within(screen.getByRole("region", { name: "Class type" })).getByRole("button", {
         name: "Browse options",
@@ -318,7 +321,7 @@ describe("ScheduleFilters", () => {
     }));
     render(<FilterTestView search={search} onChange={vi.fn()} instructors={instructors} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Open schedule filters/ }));
     const selector = within(screen.getByRole("region", { name: "Instructor" }));
 
     expect(selector.queryByRole("checkbox")).toBeNull();
@@ -360,7 +363,7 @@ describe("ScheduleFilters", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Open schedule filters/ }));
 
     expect(screen.getByRole("button", { name: "Remove Instructor 045" })).toBeTruthy();
     const firstFavorite = screen.getByRole("checkbox", { name: "Instructor 001" });
@@ -391,7 +394,7 @@ describe("ScheduleFilters", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Open schedule filters/ }));
     fireEvent.click(screen.getByRole("button", { name: "Remove Hagabadet i Haga" }));
     fireEvent.click(screen.getByRole("button", { name: "Remove Anna Andersson" }));
     fireEvent.click(screen.getByRole("button", { name: "Remove Yinyoga" }));
@@ -422,7 +425,7 @@ describe("ScheduleFilters", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Open schedule filters/ }));
 
     expect(screen.getByRole("alert").textContent).toContain(
       "Some filter options could not be loaded.",
@@ -437,9 +440,9 @@ describe("ScheduleFilters", () => {
     const chosenDate = addDays(today, 10);
 
     fireEvent.change(screen.getByLabelText("Choose date…"), { target: { value: chosenDate } });
-    fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Open schedule filters/ }));
     fireEvent.click(screen.getByRole("checkbox", { name: "Hagabadet Drottningtorget" }));
-    fireEvent.click(screen.getByRole("button", { name: "Show schedule" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Show schedule/ }));
     fireEvent.click(
       within(screen.getByRole("group", { name: "Upcoming days" })).getAllByRole("button")[0]!,
     );

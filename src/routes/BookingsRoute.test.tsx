@@ -6,8 +6,8 @@ import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vite-plus/test";
 import { REAL_API_BASE_URL } from "../api/config";
-import { SessionProvider } from "../features/auth/SessionProvider";
 import i18n from "../i18n";
+import { MockSessionProvider } from "../mocks/MockSessionProvider";
 
 const server = setupServer();
 let BookingsRoute: typeof import("./BookingsRoute").BookingsRoute;
@@ -17,9 +17,9 @@ function renderRoute(initiallySignedIn = false) {
   queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={queryClient}>
-      <SessionProvider mockEnabled initiallySignedIn={initiallySignedIn}>
+      <MockSessionProvider initiallySignedIn={initiallySignedIn}>
         <BookingsRoute />
-      </SessionProvider>
+      </MockSessionProvider>
     </QueryClientProvider>,
   );
 }

@@ -14,7 +14,6 @@ import {
   restoreStoredSession,
   updateStoredSession,
 } from "./sessionPersistence";
-import type { CustomerSession } from "./sessionContext";
 
 const RENEWAL_MARGIN_MS = 24 * 60 * 60 * 1000;
 const MINIMUM_RENEWAL_INTERVAL_MS = 5 * 60 * 1000;
@@ -35,10 +34,6 @@ function runAt(time: number, action: () => void) {
   return () => window.clearTimeout(timeout);
 }
 
-function isAuthenticated(session: CustomerSession): session is AuthenticatedSession {
-  return "accessToken" in session;
-}
-
 function findRenewableSession(session: AuthenticatedSession | undefined) {
   // Once its access token has expired, a remembered session exists only in storage.
   if (!session) return readRenewableSession();
@@ -55,16 +50,15 @@ function isStillStored(session: RenewableSession) {
  * renewal succeeds. Only the server refusing the refresh token ends it.
  */
 export function useSessionLifetime(
-  session: AuthenticatedSession | CustomerSession | undefined,
+  session: AuthenticatedSession | undefined,
   setSession: (session: AuthenticatedSession | undefined) => void,
-  isEnabled: boolean,
 ) {
   const lastRenewalAttempt = useRef(0);
   const isRenewing = useRef(false);
   const [finishedRenewals, setFinishedRenewals] = useState(0);
 
   useEffect(() => {
-    if (!session || !isAuthenticated(session)) return;
+    if (!session) return;
 
     const expiresAt = accessTokenExpiresAt(session.accessToken);
     if (!expiresAt) return;
@@ -77,8 +71,6 @@ export function useSessionLifetime(
   }, [session, setSession]);
 
   useEffect(() => {
-    if (!isEnabled || (session && !isAuthenticated(session))) return;
-
     const renewableSession = findRenewableSession(session);
     if (!renewableSession) return;
 
@@ -134,5 +126,5 @@ export function useSessionLifetime(
       document.removeEventListener("visibilitychange", renewIfDue);
       window.removeEventListener("online", renewIfDue);
     };
-  }, [session, setSession, isEnabled, finishedRenewals]);
+  }, [session, setSession, finishedRenewals]);
 }

@@ -25,7 +25,7 @@ Vite+ owns development, checking, testing, and production builds. Dependency ver
 
 `pnpm run test:production` builds the app, checks that the output contains only what production uses, and checks chunk sizes, on-demand view loading, navigation, filter persistence, and booking flows in Chromium using local API fixtures. Content Security Policy violations fail it. It includes a throttled mobile run and saves screenshots under `node_modules/.cache/code-splitting`. Install the browser with `pnpm exec playwright install chromium` if needed.
 
-GitHub Actions runs checking, unit tests, Storybook interaction and accessibility tests, and both production builds. A separate job builds the site that gets deployed, so test tools never touch it. Merging to `main` deploys the application to GitHub Pages, and the [deployment history](https://github.com/stranne/hb-stunder/deployments/github-pages) records the commit behind each release.
+GitHub Actions runs checking, unit tests, Storybook interaction and accessibility tests, and both production builds. A separate job builds the site that gets deployed. It runs after the tests and without their cache, so test tools cannot touch it. Merging to `main` deploys the application to GitHub Pages, and the [deployment history](https://github.com/stranne/hb-stunder/deployments/github-pages) records the commit behind each release.
 
 ## Security
 

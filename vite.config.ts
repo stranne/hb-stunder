@@ -7,6 +7,7 @@ import react from "@vitejs/plugin-react";
 import { msw } from "msw/vite";
 import { defineConfig, lazyPlugins } from "vite-plus";
 import { playwright } from "vite-plus/test/browser-playwright";
+import { browserLaunchOptions } from "./scripts/browser-launch-options.ts";
 import { contentSecurityPolicy } from "./scripts/content-security-policy.ts";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -62,9 +63,7 @@ export default defineConfig({
           browser: {
             enabled: true,
             headless: true,
-            // CI uses the runner's Chrome, because Chromium downloads come from a general-purpose
-            // storage host that its egress firewall should not allow.
-            provider: playwright(process.env.CI ? { launchOptions: { channel: "chrome" } } : {}),
+            provider: playwright({ launchOptions: browserLaunchOptions }),
             instances: [{ browser: "chromium" }],
           },
         },

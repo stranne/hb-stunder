@@ -10,6 +10,7 @@ import {
 import {
   clearStoredSessions,
   isRenewable,
+  listenForSignOut,
   readRenewableSession,
   restoreStoredSession,
   updateStoredSession,
@@ -56,6 +57,16 @@ export function useSessionLifetime(
   const lastRenewalAttempt = useRef(0);
   const isRenewing = useRef(false);
   const [finishedRenewals, setFinishedRenewals] = useState(0);
+
+  useEffect(
+    () =>
+      listenForSignOut(() => {
+        clearStoredSessions();
+        setApiAccessToken(undefined);
+        setSession(undefined);
+      }),
+    [setSession],
+  );
 
   useEffect(() => {
     if (!session) return;

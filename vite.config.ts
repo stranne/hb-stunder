@@ -62,7 +62,9 @@ export default defineConfig({
           browser: {
             enabled: true,
             headless: true,
-            provider: playwright({}),
+            // CI uses the runner's Chrome, because Chromium downloads come from a general-purpose
+            // storage host that its egress firewall should not allow.
+            provider: playwright(process.env.CI ? { launchOptions: { channel: "chrome" } } : {}),
             instances: [{ browser: "chromium" }],
           },
         },

@@ -6,7 +6,12 @@ export const SCHEDULE_LOCATIONS = [
   { id: 3509, name: "Hagabadet Älvstranden" },
 ] as const;
 
-export const LOCATION_IDS = SCHEDULE_LOCATIONS.map(({ id }) => id);
+export const LOCATION_IDS: number[] = SCHEDULE_LOCATIONS.map(({ id }) => id);
+
+/** The app polls the API once per selected location, so links must not be able to add more. */
+export function knownLocationIds(ids: number[]) {
+  return ids.filter((id) => LOCATION_IDS.includes(id));
+}
 
 export type ScheduleView = "classes" | "rooms" | "filters";
 
@@ -43,7 +48,7 @@ function parseIds(value: unknown): number[] {
 }
 
 export function parseScheduleSearch(search: Record<string, unknown>): ScheduleSearch {
-  const locations = parseIds(search.locations ?? search.location);
+  const locations = knownLocationIds(parseIds(search.locations ?? search.location));
   const activity = parseIds(search.activity)[0];
 
   return {

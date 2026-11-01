@@ -1,4 +1,4 @@
-import type { ScheduleSearch } from "./scheduleSearch";
+import { knownLocationIds, type ScheduleSearch } from "./scheduleSearch";
 
 const STORAGE_KEY = "hb-stunder.schedule-preferences";
 export interface StoredFilterSelection {
@@ -51,7 +51,7 @@ export function readSchedulePreferencesResult(): SchedulePreferencesResult {
     const lastUsedValue = value.lastUsed as Partial<StoredFilterSelection> | undefined;
     const lastUsed = lastUsedValue
       ? {
-          locations: validIds(lastUsedValue.locations),
+          locations: knownLocationIds(validIds(lastUsedValue.locations)),
           instructors: validIds(lastUsedValue.instructors),
           activityTypes: validIds(lastUsedValue.activityTypes),
         }

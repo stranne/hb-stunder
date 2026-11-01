@@ -1,6 +1,7 @@
 import { accessTokenExpiresAt, type AuthenticatedSession, type RenewableSession } from "./api/auth";
 
 const SESSION_STORAGE_KEY = "hb-stunder.session";
+const SESSION_CHANNEL_NAME = "hb-stunder.session";
 
 function hasUsableAccessToken(session: AuthenticatedSession) {
   const expiresAt = accessTokenExpiresAt(session.accessToken);
@@ -74,4 +75,21 @@ export function updateStoredSession(session: AuthenticatedSession) {
 export function clearStoredSessions() {
   window.localStorage.removeItem(SESSION_STORAGE_KEY);
   window.sessionStorage.removeItem(SESSION_STORAGE_KEY);
+}
+
+/**
+ * Tells other tabs that the customer signed out. Storage events cannot do this, because a duplicated
+ * tab keeps its own copy of a temporary session in session storage.
+ */
+export function announceSignOut() {
+  const channel = new BroadcastChannel(SESSION_CHANNEL_NAME);
+  channel.postMessage("signed-out");
+  channel.close();
+}
+
+/** Runs the listener when a tab announces a sign-out, and returns a function that stops listening. */
+export function listenForSignOut(listener: () => void) {
+  const channel = new BroadcastChannel(SESSION_CHANNEL_NAME);
+  channel.addEventListener("message", listener);
+  return () => channel.close();
 }

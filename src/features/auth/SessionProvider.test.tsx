@@ -5,7 +5,7 @@ import { delay, http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { StrictMode } from "react";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vite-plus/test";
-import { setApiAccessToken } from "../../api/client";
+import { apiClient, setApiAccessToken } from "../../api/client";
 import { REAL_API_BASE_URL } from "../../api/config";
 import { SessionProvider } from "./SessionProvider";
 import { useSession } from "./sessionContext";
@@ -199,6 +199,67 @@ describe("SessionProvider", () => {
 
     expect(screen.getByText("available")).toBeTruthy();
     expect(screen.getByText("signed-out")).toBeTruthy();
+  });
+
+  describe("signing out in several tabs", () => {
+    function signOutInAnotherTab() {
+      const otherTab = new BroadcastChannel("hb-stunder.session");
+      otherTab.postMessage("signed-out");
+      otherTab.close();
+    }
+
+    it("ends a remembered session and stops authorizing requests", async () => {
+      storeRememberedSession(Date.now() + 5 * DAY_MS);
+      let authorization: string | null = "not-requested";
+      server.use(
+        http.get(`${REAL_API_BASE_URL}/customers/42`, ({ request }) => {
+          authorization = request.headers.get("authorization");
+          return HttpResponse.json({ id: 42 });
+        }),
+      );
+      renderSession();
+      expect(screen.getByText("42")).toBeTruthy();
+
+      signOutInAnotherTab();
+
+      await waitFor(() => expect(screen.getByText("signed-out")).toBeTruthy());
+      expect(storedSession()).toBeNull();
+      await apiClient.GET("/customers/{customerId}", { params: { path: { customerId: "42" } } });
+      expect(authorization).toBeNull();
+    });
+
+    it("ends a temporary session whose copy is in this tab's own storage", async () => {
+      window.sessionStorage.setItem(
+        "hb-stunder.session",
+        JSON.stringify({
+          accessToken: jwtWithExpiry(Date.now() + DAY_MS),
+          customerId: "42",
+          displayName: "Test Member",
+        }),
+      );
+      renderSession();
+      expect(screen.getByText("42")).toBeTruthy();
+
+      signOutInAnotherTab();
+
+      await waitFor(() => expect(screen.getByText("signed-out")).toBeTruthy());
+      expect(window.sessionStorage.getItem("hb-stunder.session")).toBeNull();
+    });
+
+    it("tells other tabs when the customer signs out here", async () => {
+      storeRememberedSession(Date.now() + 5 * DAY_MS);
+      const otherTab = new BroadcastChannel("hb-stunder.session");
+      const announcement = new Promise((resolve) => {
+        otherTab.addEventListener("message", resolve, { once: true });
+      });
+      renderSession();
+
+      fireEvent.click(screen.getByRole("button", { name: "Sign out" }));
+
+      await announcement;
+      otherTab.close();
+      expect(screen.getByText("signed-out")).toBeTruthy();
+    });
   });
 
   describe("session renewal", () => {

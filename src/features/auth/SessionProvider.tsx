@@ -8,6 +8,7 @@ import {
 } from "./api/auth";
 import { SessionContext, type SessionContextValue } from "./sessionContext";
 import {
+  announceSignOut,
   clearStoredSessions,
   restoreStoredSession,
   storeNewSession,
@@ -62,6 +63,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         clearStoredSessions();
         setApiAccessToken(undefined);
         setSession(undefined);
+        announceSignOut();
       },
     }),
     [session],

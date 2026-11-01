@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Outlet, useLinkProps, useLocation } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Calendar, CalendarCheck, FilterList, ViewGrid } from "iconoir-react";
 import { useTranslation } from "react-i18next";
@@ -33,8 +33,19 @@ export function AppRoot() {
     Number(scheduleSearch.instructors.length > 0) +
     Number(scheduleSearch.activityTypes.length > 0);
   const [colorModePreference, setColorModePreference] = useState(readColorModePreference);
-  const bookings = useQuery(customerGroupActivityBookingsQueryOptions(customer?.customerId));
+  const customerId = customer?.customerId;
+  const previousCustomerId = useRef(customerId);
+  const bookings = useQuery(customerGroupActivityBookingsQueryOptions(customerId));
   const bookingCount = bookings.data?.length;
+
+  // Covers every way a session ends, including expiry and a sign-out in another tab.
+  useEffect(() => {
+    const previous = previousCustomerId.current;
+    previousCustomerId.current = customerId;
+    if (previous && previous !== customerId) {
+      queryClient.removeQueries({ queryKey: bookingKeys.customer(previous) });
+    }
+  }, [customerId, queryClient]);
 
   useEffect(() => {
     applyColorMode(colorModePreference);
@@ -60,12 +71,6 @@ export function AppRoot() {
   });
   const bookingsLinkProps = useLinkProps({ to: "/bookings" });
   const [brandPrefix, ...brandRest] = t("app.name").split(" ");
-
-  const handleSignOut = () => {
-    if (customer)
-      queryClient.removeQueries({ queryKey: bookingKeys.customer(customer.customerId) });
-    signOut();
-  };
 
   const handleColorModeChange = (preference: ColorModePreference) => {
     writeColorModePreference(preference);
@@ -146,7 +151,7 @@ export function AppRoot() {
               customer={customer}
               canSignIn={canSignIn}
               onSignIn={signIn}
-              onSignOut={handleSignOut}
+              onSignOut={signOut}
               colorModePreference={colorModePreference}
               onColorModeChange={handleColorModeChange}
             />

@@ -1,11 +1,8 @@
 # GitHub's egress firewall for the verify and build jobs. It runs outside the runner, so code in a
 # job cannot switch it off. GitHub's own artifact, cache, and checkout hosts are allowed by default.
-mode: log
+mode: enforce
 allow:
+  # setup-node looks up and downloads the Node.js version from here.
   - api.github.com
-  - registry.npmjs.org
-  - nodejs.org
-  - raw.githubusercontent.com
   - release-assets.githubusercontent.com
-  - cdn.playwright.dev
-  - playwright.download.prss.microsoft.com
+  - registry.npmjs.org

@@ -16,7 +16,7 @@ const server = await preview({
   preview: { host: "127.0.0.1", port: 0, open: false },
 });
 const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
-const browser = await chromium.launch();
+const browser = await chromium.launch(process.env.CI ? { channel: "chrome" } : {});
 
 try {
   await mkdir(evidenceDir, { recursive: true });

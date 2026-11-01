@@ -43,8 +43,22 @@ CORS preflights from `https://stranne.github.io` returned `200 OK` and `Access-C
 
 The responses allowed `GET,POST,PUT,DELETE` and echoed the requested headers. This verifies that the live API currently permits the browser transport needed by the planned static deployment. CORS configuration can still change independently of this application.
 
+## Token renewal on 2026-11-01
+
+The account owner ran one real sign-in in their own browser, with a script that logged only field names and token lifetimes. No token values were retained.
+
+- `POST /auth/login` returned the fields `roles`, `username`, `access_token`, `expires_in`, `refresh_token`, and `token_type`. `expires_in` was `604800`, and the access token's JWT lifetime was 168 hours. The refresh token's JWT has no `exp` claim.
+- `POST https://hagabadet.brpsystems.com/brponline/oauth/access_token` with the form-encoded fields `grant_type=refresh_token` and `refresh_token`, and no `Authorization` header, returned `200` with the same six fields. The new access token again lasted 168 hours, and the returned refresh token was unchanged, so it does not rotate.
+
+Requests without customer credentials on the same date add the following:
+
+- That URL is outside `/api/ver3`, where the same path returns `404`. A fake refresh token gets `403` from it, while a nonexistent sibling path gets `404`.
+- Its preflight from `https://stranne.github.io` returned `200 OK` and `Access-Control-Allow-Origin: *`.
+
+Hagabadet's public website stores only `access_token` and never renews it. It calls `POST /auth/validate` but does not store the result, so `/auth/validate` is not an established renewal path. It remains unknown whether a refresh token can be revoked, for example by a password change.
+
 ## Conclusion
 
 The release-scope API integration is technically verified without an API key: public schedule and metadata reads are live, customer resources enforce authorization, the ordinary authenticated booking flow has already worked against the live API, and the planned origin passes the required CORS preflights. An additional deployed-origin run may be useful as a smoke test after deployment, but it is not treated as a separate implementation blocker.
 
-Unknown edge contracts—authenticated token renewal, conflict-specific errors, rate limits, idempotency, and waiting-list cancellation—should be investigated only when implementing behavior that depends on them.
+Unknown edge contracts—conflict-specific errors, rate limits, idempotency, and waiting-list cancellation—should be investigated only when implementing behavior that depends on them.

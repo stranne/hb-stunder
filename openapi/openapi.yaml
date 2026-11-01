@@ -103,29 +103,57 @@ paths:
           schema:
             type: string
   /oauth/access_token:
+    servers:
+      - url: https://hagabadet.brpsystems.com/brponline
     post:
       operationId: getNewTokens
-      summary: getNewTokens
+      summary: Exchange a refresh token for a new access token
       tags:
         - oauth
       responses:
         "200":
-          description: Successful response; payload shape not yet determined
+          description: Observed successful response, with the same fields as the login response
           content:
             application/json:
-              schema: {}
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  expires_in:
+                    type: integer
+                  refresh_token:
+                    type: string
+                  roles:
+                    type: array
+                    items:
+                      type: string
+                  token_type:
+                    type: string
+                  username:
+                    type: string
+        "403":
+          description: Observed response to an unrecognized refresh token
         default:
           description: Unexpected error
-      x-reverse-engineering-confidence: low
+      x-reverse-engineering-confidence: high
+      x-reverse-engineering-evidence: Observed on 2026-11-01 with a real sign-in; see
+        docs/public-runtime-evidence.md.
       security: []
       requestBody:
+        required: true
         content:
-          application/json:
+          application/x-www-form-urlencoded:
             schema:
               type: object
+              required:
+                - grant_type
+                - refresh_token
               properties:
                 grant_type:
                   type: string
+                  enum:
+                    - refresh_token
                 refresh_token:
                   type: string
   /apps:

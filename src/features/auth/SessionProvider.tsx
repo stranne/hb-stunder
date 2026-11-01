@@ -2,37 +2,24 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { setApiAccessToken } from "../../api/client";
 import { MOCK_CUSTOMER_ID } from "../../mocks/mockSession";
 import {
-  accessTokenExpiresAt,
   loadCustomerDisplayName,
   login,
   type AuthenticatedSession,
   type LoginCredentials,
 } from "./api/auth";
 import { SessionContext, type CustomerSession, type SessionContextValue } from "./sessionContext";
+import {
+  clearStoredSessions,
+  restoreStoredSession,
+  storeNewSession,
+  updateStoredSession,
+} from "./sessionPersistence";
+import { useSessionLifetime } from "./useSessionLifetime";
 
 const MOCK_SESSION_STORAGE_KEY = "hb-stunder.mock-session";
-const REAL_SESSION_STORAGE_KEY = "hb-stunder.session";
 
 function mockSignInEnabled() {
   return import.meta.env.DEV && import.meta.env.VITE_ENABLE_MSW === "true";
-}
-
-function restoreStoredSession(storage: Storage): AuthenticatedSession | undefined {
-  const stored = storage.getItem(REAL_SESSION_STORAGE_KEY);
-  if (!stored) return undefined;
-
-  try {
-    const session = JSON.parse(stored) as AuthenticatedSession;
-    const expiresAt = session.accessToken && accessTokenExpiresAt(session.accessToken);
-    if (!session.customerId || !expiresAt || expiresAt <= Date.now()) {
-      storage.removeItem(REAL_SESSION_STORAGE_KEY);
-      return undefined;
-    }
-    return session;
-  } catch {
-    storage.removeItem(REAL_SESSION_STORAGE_KEY);
-    return undefined;
-  }
 }
 
 function restoreSession(mockEnabled: boolean): AuthenticatedSession | CustomerSession | undefined {
@@ -44,8 +31,7 @@ function restoreSession(mockEnabled: boolean): AuthenticatedSession | CustomerSe
       : undefined;
   }
 
-  const session =
-    restoreStoredSession(window.localStorage) ?? restoreStoredSession(window.sessionStorage);
+  const session = restoreStoredSession();
   if (session) setApiAccessToken(session.accessToken);
   return session;
 }
@@ -65,24 +51,7 @@ export function SessionProvider({
       : restoreSession(mockEnabled),
   );
 
-  useEffect(() => {
-    if (!("accessToken" in (session ?? {}))) return;
-
-    const authenticatedSession = session as AuthenticatedSession;
-    const expiresAt = accessTokenExpiresAt(authenticatedSession.accessToken);
-    if (!expiresAt) return;
-
-    const timeout = window.setTimeout(
-      () => {
-        window.localStorage.removeItem(REAL_SESSION_STORAGE_KEY);
-        window.sessionStorage.removeItem(REAL_SESSION_STORAGE_KEY);
-        setApiAccessToken(undefined);
-        setSession(undefined);
-      },
-      Math.max(0, expiresAt - Date.now()),
-    );
-    return () => window.clearTimeout(timeout);
-  }, [session]);
+  useSessionLifetime(session, setSession, !mockEnabled);
 
   useEffect(() => {
     if (
@@ -97,10 +66,7 @@ export function SessionProvider({
       if (cancelled || !displayName) return;
 
       const updatedSession = { ...session, displayName };
-      const storage = window.localStorage.getItem(REAL_SESSION_STORAGE_KEY)
-        ? window.localStorage
-        : window.sessionStorage;
-      storage.setItem(REAL_SESSION_STORAGE_KEY, JSON.stringify(updatedSession));
+      updateStoredSession(updatedSession);
       setSession(updatedSession);
     });
 
@@ -126,17 +92,11 @@ export function SessionProvider({
           return;
         }
 
-        const authenticatedSession = await login(credentials);
-        const storage = remember ? window.localStorage : window.sessionStorage;
-        const otherStorage = remember ? window.sessionStorage : window.localStorage;
-        otherStorage.removeItem(REAL_SESSION_STORAGE_KEY);
-        storage.setItem(REAL_SESSION_STORAGE_KEY, JSON.stringify(authenticatedSession));
-        setSession(authenticatedSession);
+        setSession(storeNewSession(await login(credentials), remember));
       },
       signOut: () => {
         window.localStorage.removeItem(MOCK_SESSION_STORAGE_KEY);
-        window.localStorage.removeItem(REAL_SESSION_STORAGE_KEY);
-        window.sessionStorage.removeItem(REAL_SESSION_STORAGE_KEY);
+        clearStoredSessions();
         setApiAccessToken(undefined);
         setSession(undefined);
       },

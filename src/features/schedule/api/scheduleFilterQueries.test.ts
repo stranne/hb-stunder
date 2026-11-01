@@ -9,7 +9,7 @@ const server = setupServer();
 let queries: typeof import("./scheduleFilterQueries");
 
 beforeAll(async () => {
-  server.listen({ onUnhandledRequest: "error" });
+  server.listen({ onUnhandledFrame: "error" });
   queries = await import("./scheduleFilterQueries");
 });
 afterEach(() => server.resetHandlers());

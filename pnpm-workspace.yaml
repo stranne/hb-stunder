@@ -2,9 +2,12 @@ allowBuilds:
   esbuild: false
   msw: false
 catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@0.3.1
-  vite-plus: 0.3.1
+  vite: npm:@voidzero-dev/vite-plus-core@1.4.0
+  vite-plus: 1.4.0
 overrides:
+  # Moderate advisories in development tooling whose dependents have not caught up yet.
+  glob@<14.0.2: ^14.0.2
+  minimatch@<11.0.1: ^11.0.1
   vite: "catalog:"
 peerDependencyRules:
   allowAny:
@@ -12,3 +15,6 @@ peerDependencyRules:
   allowedVersions:
     vite: "*"
     vite-plus: "*"
+trustPolicy: no-downgrade
+# A takeover shows up as a new release, so only recent versions need the check.
+trustPolicyIgnoreAfter: 43200

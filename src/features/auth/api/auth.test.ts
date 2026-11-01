@@ -8,7 +8,7 @@ import { login } from "./auth";
 
 const server = setupServer();
 
-beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
+beforeAll(() => server.listen({ onUnhandledFrame: "error" }));
 afterEach(() => {
   setApiAccessToken(undefined);
   server.resetHandlers();

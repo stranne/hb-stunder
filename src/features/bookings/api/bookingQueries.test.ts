@@ -9,7 +9,7 @@ const server = setupServer();
 let queries: typeof import("./bookingQueries");
 
 beforeAll(async () => {
-  server.listen({ onUnhandledRequest: "error" });
+  server.listen({ onUnhandledFrame: "error" });
   queries = await import("./bookingQueries");
 });
 afterEach(() => server.resetHandlers());

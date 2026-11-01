@@ -25,7 +25,7 @@ function renderRoute(initiallySignedIn = false) {
 }
 
 beforeAll(async () => {
-  server.listen({ onUnhandledRequest: "error" });
+  server.listen({ onUnhandledFrame: "error" });
   BookingsRoute = (await import("./BookingsRoute")).BookingsRoute;
   await i18n.changeLanguage("en");
 });

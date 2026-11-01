@@ -100,7 +100,7 @@ function SessionStatus() {
   );
 }
 
-beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
+beforeAll(() => server.listen({ onUnhandledFrame: "error" }));
 afterEach(() => {
   vi.useRealTimers();
   cleanup();

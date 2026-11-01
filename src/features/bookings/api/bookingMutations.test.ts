@@ -57,7 +57,7 @@ function executeCreate(
 }
 
 beforeAll(async () => {
-  server.listen({ onUnhandledRequest: "error" });
+  server.listen({ onUnhandledFrame: "error" });
   [bookingMocks, scheduleQueries, queries, mutations] = await Promise.all([
     import("../../../mocks/handlers/bookings"),
     import("../../schedule/api/scheduleQueries"),

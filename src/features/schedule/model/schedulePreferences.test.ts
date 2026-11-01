@@ -32,6 +32,30 @@ describe("schedule preferences", () => {
     });
   });
 
+  it("drops saved locations that do not exist", () => {
+    window.localStorage.setItem(
+      storageKey,
+      JSON.stringify({
+        version: 2,
+        favoriteInstructorIds: [],
+        favoriteActivityTypeIds: [],
+        lastUsed: { locations: [1, 5000, 6000], instructors: [], activityTypes: [] },
+      }),
+    );
+    expect(readSchedulePreferencesResult().preferences.lastUsed?.locations).toEqual([1]);
+
+    window.localStorage.setItem(
+      storageKey,
+      JSON.stringify({
+        version: 2,
+        favoriteInstructorIds: [],
+        favoriteActivityTypeIds: [],
+        lastUsed: { locations: [5000], instructors: [], activityTypes: [] },
+      }),
+    );
+    expect(readSchedulePreferencesResult().preferences.lastUsed).toBeUndefined();
+  });
+
   it("ignores saved searches left by an earlier application version", () => {
     window.localStorage.setItem(
       storageKey,

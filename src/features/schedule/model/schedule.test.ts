@@ -7,7 +7,7 @@ import {
   hasActivityStarted,
 } from "./schedule";
 import { addDays, getStockholmDayPeriod, isDateString } from "./scheduleDate";
-import { parseScheduleSearch } from "./scheduleSearch";
+import { LOCATION_IDS, parseScheduleSearch } from "./scheduleSearch";
 
 describe("schedule model", () => {
   it("derives the main availability states", () => {
@@ -92,6 +92,12 @@ describe("schedule model", () => {
       start: "2026-10-24T22:00:00.000Z",
       end: "2026-10-25T23:00:00.000Z",
     });
+  });
+
+  it("ignores locations that do not exist, so a link cannot add API polling", () => {
+    expect(parseScheduleSearch({ locations: "[1,5000,6000]" }).locations).toEqual([1]);
+    expect(parseScheduleSearch({ locations: "[5000,6000]" }).locations).toEqual(LOCATION_IDS);
+    expect(parseScheduleSearch({ location: 5000 }).locations).toEqual(LOCATION_IDS);
   });
 
   it("validates route search values", () => {

@@ -90,7 +90,7 @@ function renderPage(
 }
 
 beforeAll(async () => {
-  server.listen({ onUnhandledRequest: "error" });
+  server.listen({ onUnhandledFrame: "error" });
   SchedulePage = (await import("./SchedulePage")).SchedulePage;
   await i18n.changeLanguage("en");
 });

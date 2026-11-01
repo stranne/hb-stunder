@@ -1,6 +1,4 @@
-@import "@fontsource-variable/commissioner/wght.css";
-@import "@fontsource-variable/newsreader/wght.css";
-@import "@fontsource-variable/newsreader/wght-italic.css";
+@import "./fonts.css";
 
 @layer reset, tokens, base, components, utilities;
 

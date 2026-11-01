@@ -18,7 +18,6 @@ import {
 import { REAL_API_BASE_URL } from "../../../api/config";
 import i18n from "../../../i18n";
 import type { ScheduleSearch } from "../model/scheduleSearch";
-import { ScheduleFilterToggle } from "./ScheduleFilterToggle";
 
 let SchedulePage: typeof import("./SchedulePage").SchedulePage;
 const scheduleEndpoint = `${REAL_API_BASE_URL}/businessunits/:businessUnit/groupactivities`;
@@ -49,13 +48,16 @@ function TestPage({
   customerId?: string;
 }) {
   const [search, setSearch] = useState(initialSearch);
+  const isOpen = search.view === "filters";
   return (
     <>
-      <ScheduleFilterToggle
-        search={search}
-        isOpen={search.view === "filters"}
-        onOpenChange={(isOpen) => setSearch({ ...search, view: isOpen ? "filters" : "classes" })}
-      />
+      <button
+        type="button"
+        aria-expanded={isOpen}
+        onClick={() => setSearch({ ...search, view: isOpen ? "classes" : "filters" })}
+      >
+        {isOpen ? "Show schedule" : "Open schedule filters"}
+      </button>
       <SchedulePage search={search} onSearchChange={setSearch} customerId={customerId} />
     </>
   );

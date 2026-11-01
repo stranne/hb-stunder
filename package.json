@@ -64,10 +64,5 @@
       "onFail": "download"
     }
   },
-  "packageManager": "pnpm@12.16.1",
-  "msw": {
-    "workerDirectory": [
-      "public"
-    ]
-  }
+  "packageManager": "pnpm@12.16.1"
 }

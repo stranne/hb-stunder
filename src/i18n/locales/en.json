@@ -2,12 +2,10 @@
   "app": {
     "loadingView": "Loading view…",
     "name": "HB Stunder",
-    "foundationReady": "Project foundation ready",
     "unofficial": "HB Stunder is an unofficial app and is not affiliated with Hagabadet."
   },
   "navigation": {
     "label": "Main navigation",
-    "schedule": "Classes",
     "classes": "Classes",
     "rooms": "Rooms",
     "bookings": "My bookings",
@@ -43,7 +41,6 @@
   },
   "bookings": {
     "title": "My bookings",
-    "description": "All group activity bookings returned for your account, independent of schedule filters.",
     "listLabel": "Current bookings",
     "signedOut": "Sign in to see your current bookings.",
     "signInUnavailable": "Sign-in is currently unavailable.",
@@ -84,7 +81,6 @@
       "spotsWithQueue_other": "{{available}} of {{total}} spots available, {{count}} in queue"
     },
     "information": {
-      "title": "Class information",
       "forThisClass": "For this class",
       "aboutClass": "About the class"
     },
@@ -126,7 +122,6 @@
     },
     "filters": {
       "label": "Schedule filters",
-      "date": "Date",
       "location": "Location",
       "upcomingDays": "Upcoming days",
       "previousWeek": "Previous week",
@@ -134,18 +129,11 @@
       "chooseDate": "Choose date…",
       "today": "Today",
       "filters": "Filters",
-      "openFilters": "Open schedule filters",
-      "openFiltersActive_one": "Open schedule filters, {{count}} active",
-      "openFiltersActive_other": "Open schedule filters, {{count}} active",
-      "showSchedule": "Show schedule",
-      "showScheduleActive_one": "Show schedule, {{count}} filter active",
-      "showScheduleActive_other": "Show schedule, {{count}} filters active",
       "clearFilters": "Clear filters",
       "instructor": "Instructor",
       "activityType": "Class type",
       "searchInstructors": "Search instructors",
       "searchActivityTypes": "Search class types",
-      "clearSearch": "Clear search",
       "noInstructors": "No instructors found.",
       "noActivityTypes": "No class types found.",
       "noSearchResults": "No matching options found.",
@@ -159,10 +147,6 @@
       "showMore": "Show {{count}} more",
       "favorites": "Favorites",
       "favorite": "Favorite",
-      "all": "All",
-      "optionCount_one": "{{count}} option",
-      "optionCount_other": "{{count}} options",
-      "optionInstructions": "Use Up and Down Arrow, Page Up and Page Down, Home, and End to move through options. Press Space to select an option. Tab once to its favorite button, then Tab again to leave the list.",
       "addFavorite": "Add {{name}} to favorites",
       "removeFavorite": "Remove {{name}} from favorites",
       "loadingOptions": "Loading filter options…",

@@ -167,7 +167,7 @@ export const FavoriteRemovalFocus: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(
-      canvas.getByRole("button", { name: /open schedule filters|öppna schemafilter/i }),
+      canvas.getByRole("button", { name: /open schedule filters|öppna schemats filter/i }),
     );
     await userEvent.click(
       canvas.getByRole("button", {
@@ -188,7 +188,7 @@ export const NoSearchResults: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(
-      canvas.getByRole("button", { name: /open schedule filters|öppna schemafilter/i }),
+      canvas.getByRole("button", { name: /open schedule filters|öppna schemats filter/i }),
     );
     await userEvent.type(
       canvas.getByRole("searchbox", { name: /search instructors|sök instruktörer/i }),
@@ -212,7 +212,7 @@ export const KeyboardNavigation: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const filterButton = canvas.getByRole("button", {
-      name: /open schedule filters|öppna schemafilter/i,
+      name: /open schedule filters|öppna schemats filter/i,
     });
     await userEvent.click(filterButton);
     const filterView = canvas.getByRole("region", { name: /^filters?$|^filter$/i });

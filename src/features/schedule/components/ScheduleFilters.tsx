@@ -28,11 +28,7 @@ export function ScheduleFilters({ search, onChange }: ScheduleFiltersProps) {
   const pageIndex = selectedIndex < 0 ? 0 : Math.floor(selectedIndex / DAYS_PER_PAGE);
   const locale = i18n.resolvedLanguage ?? i18n.language;
   const weekdayFormatter = new Intl.DateTimeFormat(locale, { weekday: "short" });
-  const fullDateFormatter = new Intl.DateTimeFormat(locale, {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  });
+  const monthFormatter = new Intl.DateTimeFormat(locale, { month: "long" });
   const selectedDateFormatter = new Intl.DateTimeFormat(locale, {
     weekday: "long",
     day: "numeric",
@@ -85,7 +81,6 @@ export function ScheduleFilters({ search, onChange }: ScheduleFiltersProps) {
                   data-today={isToday}
                   data-visible={Math.floor(index / DAYS_PER_PAGE) === pageIndex}
                   tabIndex={isSelected ? 0 : -1}
-                  aria-label={fullDateFormatter.format(formattedDate)}
                   aria-pressed={isSelected}
                   aria-current={isSelected ? "date" : undefined}
                   onClick={() => changeDate(date)}
@@ -103,8 +98,12 @@ export function ScheduleFilters({ search, onChange }: ScheduleFiltersProps) {
                 >
                   <span className={styles.weekday}>
                     {isToday ? t("schedule.filters.today") : weekdayFormatter.format(formattedDate)}
+                  </span>{" "}
+                  <strong className={styles.dayNumber}>{formattedDate.getUTCDate()}</strong>{" "}
+                  {/* The name starts with the visible text so voice control can target the tile. */}
+                  <span className={styles.visuallyHidden}>
+                    {monthFormatter.format(formattedDate)}
                   </span>
-                  <strong className={styles.dayNumber}>{formattedDate.getUTCDate()}</strong>
                 </button>
               );
             })}

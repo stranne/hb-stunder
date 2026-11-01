@@ -364,7 +364,7 @@ describe("RoomCalendar", () => {
     );
 
     const activity = screen.getByRole("button", {
-      name: /Open details for Yinyoga, 55 min, .*Yogastudio, Hagabadet i Haga, Alex Example, Sam Example/,
+      name: /Open details for Yinyoga, 55 min, Alex Example, Sam Example, .*Yogastudio, Hagabadet i Haga/,
     });
     expect(within(activity).getByText("Alex Example")).toBeTruthy();
     expect(within(activity).getByText("Sam Example")).toBeTruthy();

@@ -210,13 +210,13 @@ describe("SchedulePage", () => {
     server.use(http.get(scheduleEndpoint, () => HttpResponse.json([])));
     renderPage([1]);
 
-    const openButton = screen.getByRole("button", { name: "Open schedule filters" });
+    const openButton = screen.getByRole("button", { name: /^Open schedule filters/ });
     expect(openButton.getAttribute("aria-expanded")).toBe("false");
     expect(screen.getByRole("region", { name: "Scheduled classes" })).toBeTruthy();
 
     fireEvent.click(openButton);
 
-    const showScheduleButton = screen.getByRole("button", { name: "Show schedule" });
+    const showScheduleButton = screen.getByRole("button", { name: /^Show schedule/ });
     expect(showScheduleButton.getAttribute("aria-expanded")).toBe("true");
     expect(showScheduleButton.textContent).toContain("Show schedule");
     expect(await screen.findByRole("region", { name: "Filters" })).toBeTruthy();
@@ -240,14 +240,14 @@ describe("SchedulePage", () => {
     );
     renderPage([1]);
 
-    fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Open schedule filters/ }));
     const browseButtons = await screen.findAllByRole("button", { name: "Browse options" });
     fireEvent.click(browseButtons[0]!);
     fireEvent.click(await screen.findByRole("checkbox", { name: "Maya" }));
 
-    fireEvent.click(screen.getByRole("button", { name: "Show schedule" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Show schedule/ }));
     expect(screen.getByRole("region", { name: "Scheduled classes" })).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Open schedule filters/ }));
     const reopenedBrowseButtons = await screen.findAllByRole("button", { name: "Browse options" });
     fireEvent.click(reopenedBrowseButtons[0]!);
 
@@ -489,7 +489,7 @@ describe("SchedulePage", () => {
     renderPage([1]);
 
     expect(await screen.findByText("Haga class")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Open schedule filters" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Open schedule filters/ }));
     const browseButtons = await screen.findAllByRole("button", { name: "Browse options" });
     browseButtons.forEach((button) => fireEvent.click(button));
 

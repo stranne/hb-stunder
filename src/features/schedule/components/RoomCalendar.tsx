@@ -395,12 +395,13 @@ export function RoomCalendar({
                             total: activityState.totalBookable,
                           })
                         : undefined;
+                    // The visible name and instructors stay adjacent so voice control can target them.
                     const activityDetails = [
                       item.activity.name ?? t("schedule.unnamedClass"),
+                      instructors,
                       `${timeLabel(item.activity.duration?.start, locale)}–${timeLabel(item.activity.duration?.end, locale)}`,
                       item.roomName,
                       item.businessUnitName,
-                      instructors,
                       spotDetails,
                       bookingState ? t(`schedule.availability.${bookingState}`) : undefined,
                       hasStarted ? t("schedule.availability.started") : undefined,
@@ -424,7 +425,7 @@ export function RoomCalendar({
                           <strong>
                             {item.activity.name ?? t("schedule.unnamedClass")}
                             <FavoriteMarker isFavorite={isFavoriteActivityType} />
-                          </strong>
+                          </strong>{" "}
                           {instructors ? (
                             <span className={styles.instructors}>
                               <User aria-hidden="true" data-instructor-icon />

@@ -17,12 +17,17 @@ export function ScheduleFilterToggle({ search, isOpen, onOpenChange }: ScheduleF
     Number(search.locations.length < LOCATION_IDS.length) +
     Number(search.instructors.length > 0) +
     Number(search.activityTypes.length > 0);
+  const action = isOpen ? "showSchedule" : "openFilters";
 
   return (
     <Button
       type="button"
       tone="quiet"
-      aria-label={t(isOpen ? "schedule.filters.showSchedule" : "schedule.filters.openFilters")}
+      aria-label={
+        activeFilterCount > 0
+          ? t(`schedule.filters.${action}Active`, { count: activeFilterCount })
+          : t(`schedule.filters.${action}`)
+      }
       aria-expanded={isOpen}
       aria-controls="schedule-filter-panel"
       className={`${styles.toggle} ${interactionStyles.selectable}`}
@@ -36,7 +41,7 @@ export function ScheduleFilterToggle({ search, isOpen, onOpenChange }: ScheduleF
       )}
       <span className={styles.label}>
         {t(isOpen ? "schedule.filters.showSchedule" : "schedule.filters.filters")}
-      </span>
+      </span>{" "}
       {activeFilterCount > 0 ? (
         <span className={styles.count} aria-hidden="true">
           {activeFilterCount}

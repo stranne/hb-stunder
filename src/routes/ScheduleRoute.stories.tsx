@@ -24,15 +24,23 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const expectScheduleNavigation = async (canvasElement: HTMLElement, view: "Lista" | "Rum") => {
+  const canvas = within(canvasElement);
+  const navigation = within(canvas.getByRole("navigation"));
+  await expect(navigation.getAllByRole("link").map((link) => link.textContent)).toEqual([
+    "Schema",
+    expect.stringContaining("Mina bokningar"),
+  ]);
+  await expect(navigation.getByRole("link", { name: "Schema" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await expect(canvas.getByRole("radio", { name: view })).toBeChecked();
+  await expect(canvas.getByRole("button", { name: /^Filter/ })).toBeInTheDocument();
+};
+
 export const Classes: Story = {
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const links = canvas.getAllByRole("link");
-    await expect(links.filter((link) => link.getAttribute("aria-current") === "page")).toEqual([
-      expect.objectContaining({ textContent: "Klasser" }),
-    ]);
-    await expect(canvas.getByRole("link", { name: /filters|filter/i })).toBeInTheDocument();
-  },
+  play: async ({ canvasElement }) => expectScheduleNavigation(canvasElement, "Lista"),
 };
 
 export const ActiveFilters: Story = {
@@ -66,14 +74,7 @@ export const Rooms: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const links = canvas.getAllByRole("link");
-    await expect(links.filter((link) => link.getAttribute("aria-current") === "page")).toEqual([
-      expect.objectContaining({ textContent: "Rum" }),
-    ]);
-    await expect(canvas.getByRole("link", { name: /filters|filter/i })).toBeInTheDocument();
-  },
+  play: async ({ canvasElement }) => expectScheduleNavigation(canvasElement, "Rum"),
 };
 
 export const Filters: Story = {
@@ -86,19 +87,26 @@ export const Filters: Story = {
           locations: [1, 4128, 3509],
           instructors: [],
           activityTypes: [],
-          view: "filters",
+          filters: true,
         },
+      },
+    },
+    docs: {
+      description: {
+        story:
+          "Filters open over the schedule: a side panel on wide screens and a bottom sheet on phones. Links to the former filter view (view=filters) open it too.",
       },
     },
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const links = canvas.getAllByRole("link");
-    await expect(links.filter((link) => link.getAttribute("aria-current") === "page")).toEqual([
-      expect.objectContaining({ textContent: "Filter" }),
-    ]);
-    await expect(canvas.getByRole("main", { name: "Filter" })).toBeInTheDocument();
+    const page = within(canvasElement.ownerDocument.body);
+    await expect(await page.findByRole("dialog", { name: "Filter" })).toBeVisible();
   },
+};
+
+export const FiltersMobile: Story = {
+  ...Filters,
+  globals: { viewport: { value: "mobile", isRotated: false } },
 };
 
 export const ClassesMobile: Story = {

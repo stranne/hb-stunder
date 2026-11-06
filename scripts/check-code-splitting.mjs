@@ -128,19 +128,21 @@ try {
       `${width}px initial JS: ${initialBytes.reduce((n, x) => n + x.bytes, 0)} bytes; ${initialBytes.reduce((n, x) => n + x.gzip, 0)} bytes gzip across ${initialScripts.length} chunks`,
     );
 
-    for (const { link, chunk, ready } of [
+    const filterSheet = page.getByRole("dialog", { name: "Filters" });
+    for (const { open, chunk, ready, close } of [
       {
-        link: "Rooms",
+        open: () => page.getByRole("radio", { name: "Rooms", exact: true }).click(),
         chunk: "RoomCalendar",
         ready: () => page.getByRole("button", { name: /Test yoga/ }),
       },
       {
-        link: "Filters",
+        open: () => page.getByRole("button", { name: /^Filters/ }).click(),
         chunk: "ScheduleFilterPanel",
-        ready: () => page.getByRole("region", { name: "Filters", exact: true }),
+        ready: () => filterSheet.getByRole("heading", { name: "Location" }),
+        close: () => filterSheet.getByRole("button", { name: "Close filters" }).click(),
       },
       {
-        link: "My bookings",
+        open: () => page.getByRole("link", { name: "My bookings", exact: true }).click(),
         chunk: "BookingsRoute",
         ready: () => page.getByRole("heading", { name: "My bookings" }),
       },
@@ -154,7 +156,7 @@ try {
         await gate;
         await route.continue();
       });
-      await page.getByRole("link", { name: link, exact: true }).click();
+      await open();
       await page.getByRole("status").filter({ hasText: "Loading view" }).waitFor();
       await page.screenshot({
         path: `${evidenceDir}/${width}-${chunk}-loading.png`,
@@ -170,23 +172,29 @@ try {
       });
       await page.reload();
       await ready().waitFor();
+      await close?.();
     }
 
+    // Opening and closing filters replaces the history entry, so Back returns to the rooms.
     await page.goBack();
-    await page.getByRole("region", { name: "Filters", exact: true }).waitFor();
+    await page.getByRole("button", { name: /Test yoga/ }).waitFor();
+    assert.equal(await filterSheet.count(), 0);
     await page.goForward();
     await page.getByRole("heading", { name: "My bookings" }).waitFor();
 
-    await page.getByRole("link", { name: /Filters/ }).click();
-    await page.getByText("Hagabadet Drottningtorget", { exact: true }).click();
-    await page.getByRole("link", { name: "Classes", exact: true }).click();
+    await page.getByRole("link", { name: "Schedule", exact: true }).click();
     await page.getByRole("heading", { name: "Test yoga" }).waitFor();
-    await page.getByRole("link", { name: /Filters/ }).click();
+    await page.getByRole("button", { name: /^Filters/ }).click();
+    await filterSheet.getByText("Hagabadet Drottningtorget", { exact: true }).click();
+    await filterSheet.getByRole("button", { name: /^Show \d+ class/ }).click();
+    await page.getByRole("heading", { name: "Test yoga" }).waitFor();
+    await page.getByRole("button", { name: /^Filters/ }).click();
     assert.ok(
-      await page
+      await filterSheet
         .getByRole("checkbox", { name: "Hagabadet Drottningtorget", exact: true })
         .isChecked(),
     );
+    await filterSheet.getByRole("button", { name: "Close filters" }).click();
     // Booking starts signed out: sign-in continues straight to the class's confirmation.
     await page.goto(scheduleUrl);
     await page.getByRole("button", { name: "Book", exact: true }).click();

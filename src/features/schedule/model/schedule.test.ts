@@ -137,7 +137,16 @@ describe("schedule model", () => {
       view: "classes",
     });
     expect(parseScheduleSearch({ view: "rooms" }).view).toBe("rooms");
-    expect(parseScheduleSearch({ view: "filters" }).view).toBe("filters");
+    // Filters were once a view of their own; those links now open the filter sheet.
+    expect(parseScheduleSearch({ view: "filters" })).toMatchObject({
+      view: "classes",
+      filters: true,
+    });
+    expect(parseScheduleSearch({ filters: true, favorites: "true" })).toMatchObject({
+      filters: true,
+      favorites: true,
+    });
+    expect(parseScheduleSearch({ filters: "no" })).not.toHaveProperty("filters");
     expect(parseScheduleSearch({ view: "unknown" }).view).toBe("classes");
   });
 

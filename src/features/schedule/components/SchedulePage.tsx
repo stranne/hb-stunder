@@ -21,6 +21,7 @@ import { scheduleQueryOptions } from "../api/scheduleQueries";
 import {
   getAvailability,
   groupActivitiesByStart,
+  isFavoriteActivity,
   splitStartedGroups,
   type ScheduledActivity,
   type TimeGroup,
@@ -28,10 +29,12 @@ import {
 import { addDays } from "../model/scheduleDate";
 import { readSchedulePreferences } from "../model/schedulePreferences";
 import interactionStyles from "../../../ui/interaction/Interaction.module.css";
-import type { ScheduleSearch } from "../model/scheduleSearch";
+import { LOCATION_IDS, type ScheduleSearch, type ScheduleView } from "../model/scheduleSearch";
 import { GymClassCard, GymClassCardSkeleton } from "./GymClassCard";
 import { ScheduleFilters } from "./ScheduleFilters";
+import { ScheduleFilterSheet } from "./ScheduleFilterSheet";
 import { ScheduleFilterSummary } from "./ScheduleFilterSummary";
+import { ScheduleViewControls } from "./ScheduleViewControls";
 import styles from "./SchedulePage.module.css";
 
 const ScheduleFilterPanel = lazy(() =>
@@ -45,6 +48,8 @@ export interface SchedulePageProps {
   search: ScheduleSearch;
   onSearchChange: (search: ScheduleSearch) => void;
   onSelectedActivityChange?: (activity: number | undefined, replace?: boolean) => void;
+  /** Switching between the list and rooms is navigation, so it can add a history entry. */
+  onViewChange?: (view: ScheduleView) => void;
   customerId?: string;
   /** Lets a signed-out customer start booking: sign-in then continues to the confirmation. */
   onSignIn?: (credentials: LoginCredentials, remember: boolean) => Promise<CustomerSession>;
@@ -54,6 +59,7 @@ export function SchedulePage({
   search,
   onSearchChange,
   onSelectedActivityChange,
+  onViewChange,
   customerId,
   onSignIn,
 }: SchedulePageProps) {
@@ -62,7 +68,6 @@ export function SchedulePage({
   const listRef = useRef<HTMLElement>(null);
   const stickyControlsRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
-  const isFiltersOpen = search.view === "filters";
   const [areControlsElevated, setAreControlsElevated] = useState(false);
   /** Undefined until the customer chooses, so a shared link to an earlier class can open it. */
   const [showEarlier, setShowEarlier] = useState<boolean>();
@@ -98,7 +103,7 @@ export function SchedulePage({
       window.removeEventListener("scroll", updateElevation);
       page.style.removeProperty("--schedule-sticky-offset");
     };
-  }, [isFiltersOpen]);
+  }, []);
   const createBooking = useMutation(createGroupActivityBookingMutationOptions(queryClient));
   const cancelBooking = useMutation(cancelGroupActivityBookingMutationOptions(queryClient));
   const scheduleQueries = useQueries({
@@ -163,7 +168,8 @@ export function SchedulePage({
         (search.activityTypes.length === 0 ||
           (activity.groupActivityProduct?.id
             ? search.activityTypes.includes(activity.groupActivityProduct.id)
-            : false)),
+            : false)) &&
+        (!search.favorites || isFavoriteActivity(activity, favoriteFilters)),
     )
     .sort((a, b) => (a.duration?.start ?? "").localeCompare(b.duration?.start ?? ""));
   const timeFormatter = new Intl.DateTimeFormat(i18n.resolvedLanguage, {
@@ -220,6 +226,14 @@ export function SchedulePage({
     failedScheduleQueries.length === 0 &&
     !availableScheduleData.some(({ id }) => id === search.activity);
   const failedFilterQueries = [instructors, activityTypes].filter((query) => query.isError);
+  const activeFilterCount =
+    Number(search.locations.length < LOCATION_IDS.length) +
+    Number(search.instructors.length > 0) +
+    Number(search.activityTypes.length > 0);
+  const hasFavorites =
+    favoriteFilters.favoriteInstructorIds.length > 0 ||
+    favoriteFilters.favoriteActivityTypeIds.length > 0;
+  const openFilters = () => onSearchChange({ ...search, filters: true });
 
   const retrySchedule = () => {
     void Promise.all(failedScheduleQueries.map((query) => query.refetch()));
@@ -298,41 +312,46 @@ export function SchedulePage({
     <main
       ref={pageRef}
       className={`${styles.page} ${view === "rooms" ? styles.roomsPage : ""}`}
-      data-filters-open={isFiltersOpen || undefined}
-      aria-label={t(
-        view === "filters"
-          ? "schedule.filters.filters"
-          : view === "rooms"
-            ? "rooms.title"
-            : "schedule.title",
-      )}
+      aria-label={t(view === "rooms" ? "rooms.title" : "schedule.title")}
     >
-      {!isFiltersOpen ? (
-        <header className={styles.pageHeader}>
-          <h1 className={styles.pageTitle}>
-            <span className={styles.titleWeekday}>{titleFormatters.weekday.format(titleDate)}</span>{" "}
-            <em>{titleFormatters.date.format(titleDate)}</em>
-          </h1>
-          <ScheduleFilterSummary
-            search={search}
-            onChange={onSearchChange}
-            instructors={instructors.data}
-            activityTypes={activityTypes.data}
-          />
-        </header>
-      ) : null}
+      <header className={styles.pageHeader}>
+        <h1 className={styles.pageTitle}>
+          <span className={styles.titleWeekday}>{titleFormatters.weekday.format(titleDate)}</span>{" "}
+          <em>{titleFormatters.date.format(titleDate)}</em>
+        </h1>
+        <ScheduleFilterSummary
+          search={search}
+          onChange={onSearchChange}
+          instructors={instructors.data}
+          activityTypes={activityTypes.data}
+        />
+      </header>
 
-      {!isFiltersOpen ? (
-        <div
-          ref={stickyControlsRef}
-          className={styles.stickyControls}
-          data-elevated={areControlsElevated || undefined}
-        >
-          <ScheduleFilters search={search} onChange={onSearchChange} />
-        </div>
-      ) : null}
+      <div
+        ref={stickyControlsRef}
+        className={styles.stickyControls}
+        data-elevated={areControlsElevated || undefined}
+      >
+        <ScheduleFilters search={search} onChange={onSearchChange} />
+        <ScheduleViewControls
+          view={view}
+          activeFilterCount={activeFilterCount}
+          showFavorites={search.favorites === true}
+          onOpenFilters={openFilters}
+          onShowFavoritesChange={(favorites) =>
+            onSearchChange({ ...search, favorites: favorites || undefined })
+          }
+          onViewChange={(nextView) =>
+            onViewChange ? onViewChange(nextView) : onSearchChange({ ...search, view: nextView })
+          }
+        />
+      </div>
 
-      {isFiltersOpen ? (
+      <ScheduleFilterSheet
+        isOpen={search.filters === true}
+        onOpenChange={(isOpen) => onSearchChange({ ...search, filters: isOpen || undefined })}
+        resultCount={isPending || isError ? undefined : scheduleData.length}
+      >
         <Suspense fallback={<ViewLoading />}>
           <ScheduleFilterPanel
             search={search}
@@ -345,145 +364,151 @@ export function SchedulePage({
             onFavoriteFiltersChange={setFavoriteFilters}
           />
         </Suspense>
-      ) : (
-        <>
-          {customerId !== undefined && bookings.isPending ? (
-            <p className={styles.statusRegion} role="status">
-              {t("bookings.loading")}
-            </p>
-          ) : null}
-          {customerId !== undefined && bookings.isError ? (
-            <div className={styles.statusRegion}>
-              <ErrorMessage
-                action={
-                  <Button
-                    tone="quiet"
-                    isDisabled={bookings.isFetching}
-                    onPress={() => void bookings.refetch()}
-                  >
-                    {t("bookings.retry")}
-                  </Button>
-                }
+      </ScheduleFilterSheet>
+
+      {customerId !== undefined && bookings.isPending ? (
+        <p className={styles.statusRegion} role="status">
+          {t("bookings.loading")}
+        </p>
+      ) : null}
+      {customerId !== undefined && bookings.isError ? (
+        <div className={styles.statusRegion}>
+          <ErrorMessage
+            action={
+              <Button
+                tone="quiet"
+                isDisabled={bookings.isFetching}
+                onPress={() => void bookings.refetch()}
               >
-                {t("schedule.bookingStatusError")}
-              </ErrorMessage>
-            </div>
-          ) : null}
-          {isPartialError ? (
-            <div className={styles.statusRegion}>
-              <ErrorMessage
-                action={
-                  <Button tone="quiet" onPress={retrySchedule}>
-                    {t("schedule.retry")}
-                  </Button>
-                }
-              >
-                {t("schedule.partialError", { count: failedScheduleQueries.length })}
-              </ErrorMessage>
-            </div>
-          ) : null}
-          <section
-            ref={listRef}
-            className={styles.list}
-            data-view={view}
-            aria-label={t(view === "rooms" ? "rooms.calendarLabel" : "schedule.listLabel")}
-            aria-busy={isFetching}
+                {t("bookings.retry")}
+              </Button>
+            }
           >
-            {isPending ? (
-              <>
-                <GymClassCardSkeleton />
-                <GymClassCardSkeleton />
-              </>
-            ) : null}
-            {isError ? (
-              <ErrorMessage action={<Button onPress={retrySchedule}>{t("schedule.retry")}</Button>}>
-                {t("schedule.error")}
-              </ErrorMessage>
-            ) : null}
-            {isSelectedActivityMissing ? (
-              <EmptyState>{t("schedule.sharedClassUnavailable")}</EmptyState>
-            ) : null}
-            {!isPending && !isError && !isSelectedActivityMissing && scheduleData.length === 0 ? (
-              <EmptyState>{t(view === "rooms" ? "rooms.empty" : "schedule.empty")}</EmptyState>
-            ) : null}
-            {!isPending && !isError && scheduleData.length > 0 && view === "rooms" ? (
-              <Suspense fallback={<ViewLoading />}>
-                <RoomCalendar
-                  activities={scheduleData}
-                  date={search.date}
-                  bookingsByActivity={bookingsByActivity}
-                  customerId={customerId}
-                  favoriteInstructorIds={favoriteFilters.favoriteInstructorIds}
-                  favoriteActivityTypeIds={favoriteFilters.favoriteActivityTypeIds}
-                  includeBusinessUnitName={search.locations.length > 1}
-                  selectedActivityId={search.activity}
-                  onSelectedActivityChange={onSelectedActivityChange}
-                  onBook={
-                    canCreateBooking
-                      ? (activity) =>
-                          createBooking.mutateAsync({
-                            customerId: customerId!,
-                            groupActivity: activity.id!,
-                            allowWaitingList: getAvailability(activity).kind === "waitingList",
-                          })
-                      : undefined
-                  }
-                  onSignInToBook={openSignInToBook}
-                  confirmingBookingId={confirmingBookingId}
-                  onConfirmingBookingChange={setConfirmingBookingId}
-                  onCancel={(bookingId) =>
-                    cancelBooking.mutateAsync({ customerId: customerId!, bookingId })
-                  }
-                />
-              </Suspense>
-            ) : null}
-            {!isPending && !isError && view === "classes" && earlierGroups.length > 0 ? (
-              <>
-                <AriaButton
-                  className={`${styles.earlierToggle} ${interactionStyles.control}`}
-                  aria-expanded={isEarlierExpanded}
-                  aria-controls={earlierClassesId}
-                  onPress={() => setShowEarlier(!isEarlierExpanded)}
-                >
-                  <span>
-                    <strong>{t("schedule.earlier.title")}</strong>
-                    <span aria-hidden="true"> · </span>
-                    <span className={styles.visuallyHidden}>, </span>
-                    {t("schedule.earlier.count", { count: earlierClassCount })}
-                  </span>
-                  <NavArrowDown aria-hidden="true" />
-                </AriaButton>
-                <div
-                  id={earlierClassesId}
-                  className={styles.earlierGroups}
-                  hidden={!isEarlierExpanded}
-                >
-                  {isEarlierExpanded ? earlierGroups.map(renderTimeGroup) : null}
-                </div>
-              </>
-            ) : null}
-            {!isPending && !isError && view === "classes" ? laterGroups.map(renderTimeGroup) : null}
-            {!isPending &&
-            !isError &&
-            view === "classes" &&
-            earlierGroups.length > 0 &&
-            laterGroups.length === 0 ? (
-              <EmptyState
-                action={
-                  <Button
-                    tone="secondary"
-                    onPress={() => onSearchChange({ ...search, date: addDays(search.date, 1) })}
-                  >
-                    {t("schedule.earlier.showTomorrow")}
-                  </Button>
-                }
+            {t("schedule.bookingStatusError")}
+          </ErrorMessage>
+        </div>
+      ) : null}
+      {isPartialError ? (
+        <div className={styles.statusRegion}>
+          <ErrorMessage
+            action={
+              <Button tone="quiet" onPress={retrySchedule}>
+                {t("schedule.retry")}
+              </Button>
+            }
+          >
+            {t("schedule.partialError", { count: failedScheduleQueries.length })}
+          </ErrorMessage>
+        </div>
+      ) : null}
+      <section
+        ref={listRef}
+        className={styles.list}
+        data-view={view}
+        aria-label={t(view === "rooms" ? "rooms.calendarLabel" : "schedule.listLabel")}
+        aria-busy={isFetching}
+      >
+        {isPending ? (
+          <>
+            <GymClassCardSkeleton />
+            <GymClassCardSkeleton />
+          </>
+        ) : null}
+        {isError ? (
+          <ErrorMessage action={<Button onPress={retrySchedule}>{t("schedule.retry")}</Button>}>
+            {t("schedule.error")}
+          </ErrorMessage>
+        ) : null}
+        {isSelectedActivityMissing ? (
+          <EmptyState>{t("schedule.sharedClassUnavailable")}</EmptyState>
+        ) : null}
+        {!isPending && !isError && !isSelectedActivityMissing && scheduleData.length === 0 ? (
+          search.favorites ? (
+            <EmptyState
+              action={
+                <Button tone="secondary" onPress={openFilters}>
+                  {t("schedule.favoritesFilter.openFilters")}
+                </Button>
+              }
+            >
+              {t(hasFavorites ? "schedule.favoritesFilter.empty" : "schedule.favoritesFilter.none")}
+            </EmptyState>
+          ) : (
+            <EmptyState>{t(view === "rooms" ? "rooms.empty" : "schedule.empty")}</EmptyState>
+          )
+        ) : null}
+        {!isPending && !isError && scheduleData.length > 0 && view === "rooms" ? (
+          <Suspense fallback={<ViewLoading />}>
+            <RoomCalendar
+              activities={scheduleData}
+              date={search.date}
+              bookingsByActivity={bookingsByActivity}
+              customerId={customerId}
+              favoriteInstructorIds={favoriteFilters.favoriteInstructorIds}
+              favoriteActivityTypeIds={favoriteFilters.favoriteActivityTypeIds}
+              includeBusinessUnitName={search.locations.length > 1}
+              selectedActivityId={search.activity}
+              onSelectedActivityChange={onSelectedActivityChange}
+              onBook={
+                canCreateBooking
+                  ? (activity) =>
+                      createBooking.mutateAsync({
+                        customerId: customerId!,
+                        groupActivity: activity.id!,
+                        allowWaitingList: getAvailability(activity).kind === "waitingList",
+                      })
+                  : undefined
+              }
+              onSignInToBook={openSignInToBook}
+              confirmingBookingId={confirmingBookingId}
+              onConfirmingBookingChange={setConfirmingBookingId}
+              onCancel={(bookingId) =>
+                cancelBooking.mutateAsync({ customerId: customerId!, bookingId })
+              }
+            />
+          </Suspense>
+        ) : null}
+        {!isPending && !isError && view === "classes" && earlierGroups.length > 0 ? (
+          <>
+            <AriaButton
+              className={`${styles.earlierToggle} ${interactionStyles.control}`}
+              aria-expanded={isEarlierExpanded}
+              aria-controls={earlierClassesId}
+              onPress={() => setShowEarlier(!isEarlierExpanded)}
+            >
+              <span>
+                <strong>{t("schedule.earlier.title")}</strong>
+                <span aria-hidden="true"> · </span>
+                <span className={styles.visuallyHidden}>, </span>
+                {t("schedule.earlier.count", { count: earlierClassCount })}
+              </span>
+              <NavArrowDown aria-hidden="true" />
+            </AriaButton>
+            <div id={earlierClassesId} className={styles.earlierGroups} hidden={!isEarlierExpanded}>
+              {isEarlierExpanded ? earlierGroups.map(renderTimeGroup) : null}
+            </div>
+          </>
+        ) : null}
+        {!isPending && !isError && view === "classes" ? laterGroups.map(renderTimeGroup) : null}
+        {!isPending &&
+        !isError &&
+        view === "classes" &&
+        earlierGroups.length > 0 &&
+        laterGroups.length === 0 ? (
+          <EmptyState
+            action={
+              <Button
+                tone="secondary"
+                onPress={() => onSearchChange({ ...search, date: addDays(search.date, 1) })}
               >
-                {t("schedule.earlier.noMoreToday")}
-              </EmptyState>
-            ) : null}
-          </section>
-        </>
-      )}
+                {t("schedule.earlier.showTomorrow")}
+              </Button>
+            }
+          >
+            {t("schedule.earlier.noMoreToday")}
+          </EmptyState>
+        ) : null}
+      </section>
       {onSignIn ? (
         <SignInDialog
           isOpen={isSignInOpen}

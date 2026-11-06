@@ -13,7 +13,7 @@ export function knownLocationIds(ids: number[]) {
   return ids.filter((id) => LOCATION_IDS.includes(id));
 }
 
-export type ScheduleView = "classes" | "rooms" | "filters";
+export type ScheduleView = "classes" | "rooms";
 
 export interface ScheduleSearch {
   date: string;
@@ -24,6 +24,14 @@ export interface ScheduleSearch {
   activity?: number;
   /** Omitted links remain compatible and open the classes view. */
   view?: ScheduleView;
+  /** The filter sheet is open over the schedule. */
+  filters?: boolean;
+  /** Only classes with a favorite instructor or class type are shown. */
+  favorites?: boolean;
+}
+
+function isTrue(value: unknown) {
+  return value === true || value === "true";
 }
 
 function parseIds(value: unknown): number[] {
@@ -57,6 +65,9 @@ export function parseScheduleSearch(search: Record<string, unknown>): ScheduleSe
     instructors: parseIds(search.instructors),
     activityTypes: parseIds(search.activityTypes),
     ...(activity === undefined ? {} : { activity }),
-    view: search.view === "rooms" || search.view === "filters" ? search.view : "classes",
+    view: search.view === "rooms" ? "rooms" : "classes",
+    // Filters used to be a view of their own, so those links now open the filter sheet.
+    ...(isTrue(search.filters) || search.view === "filters" ? { filters: true } : {}),
+    ...(isTrue(search.favorites) ? { favorites: true } : {}),
   };
 }

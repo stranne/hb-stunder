@@ -4,7 +4,7 @@ import type { ScheduleView } from "./scheduleSearch";
 
 export function classShareUrl(
   activity: ScheduledActivity,
-  view: Exclude<ScheduleView, "filters">,
+  view: ScheduleView,
   baseUrl = window.location.href,
 ) {
   const url = new URL(baseUrl);

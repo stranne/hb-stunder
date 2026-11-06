@@ -74,7 +74,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "The contextual filter action replaces date selection with a normally scrolling, search-first editor and provides an explicit return to the schedule.",
+          "The date strip and the search-first filter editor. In the application the editor opens in the filter sheet; here it toggles in place so it can be tested on its own.",
       },
     },
   },
@@ -206,10 +206,7 @@ export const KeyboardNavigation: Story = {
       name: /open schedule filters/i,
     });
     await userEvent.click(filterButton);
-    const filterView = canvas.getByRole("region", { name: /^filters?$|^filter$/i });
-    const instructorSelector = within(filterView).getByRole("region", {
-      name: /instructor|instruktör/i,
-    });
+    const instructorSelector = canvas.getByRole("region", { name: /instructor|instruktör/i });
     await userEvent.click(
       within(instructorSelector).getByRole("button", {
         name: /browse options|bläddra bland alternativ/i,

@@ -14,9 +14,13 @@ export function ScheduleRoute() {
   const [restoredSearch, setRestoredSearch] = useState(() => {
     if (typeof window === "undefined") return undefined;
     const url = new URLSearchParams(window.location.search);
-    const hasExplicitFilters = ["locations", "location", "instructors", "activityTypes"].some(
-      (key) => url.has(key),
-    );
+    const hasExplicitFilters = [
+      "locations",
+      "location",
+      "instructors",
+      "activityTypes",
+      "favorites",
+    ].some((key) => url.has(key));
     const lastUsed = hasExplicitFilters ? undefined : readSchedulePreferences().lastUsed;
     return lastUsed ? { ...routeSearch, ...lastUsed } : undefined;
   });
@@ -41,6 +45,7 @@ export function ScheduleRoute() {
           replace: true,
         })
       }
+      onViewChange={(view) => void navigate({ search: { ...search, view } })}
       onSelectedActivityChange={(activity, replace = false) =>
         void navigate({
           search: { ...search, activity },

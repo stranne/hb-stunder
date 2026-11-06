@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Outlet, useLinkProps, useLocation } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import { Calendar, CalendarCheck, FilterList, ViewGrid } from "iconoir-react";
+import { Calendar, CalendarCheck } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import {
   bookingKeys,
@@ -18,7 +18,7 @@ import {
   type ColorModePreference,
 } from "./colorMode";
 import interactionStyles from "../ui/interaction/Interaction.module.css";
-import { LOCATION_IDS, parseScheduleSearch } from "../features/schedule/model/scheduleSearch";
+import { parseScheduleSearch } from "../features/schedule/model/scheduleSearch";
 import styles from "./AppRoot.module.css";
 
 export function AppRoot() {
@@ -26,12 +26,6 @@ export function AppRoot() {
   const queryClient = useQueryClient();
   const location = useLocation();
   const { customer, canSignIn, signIn, signOut } = useSession();
-  const scheduleSearch = parseScheduleSearch(location.search);
-  const scheduleView = scheduleSearch.view;
-  const activeFilterCount =
-    Number(scheduleSearch.locations.length < LOCATION_IDS.length) +
-    Number(scheduleSearch.instructors.length > 0) +
-    Number(scheduleSearch.activityTypes.length > 0);
   const [colorModePreference, setColorModePreference] = useState(readColorModePreference);
   const customerId = customer?.customerId;
   const previousCustomerId = useRef(customerId);
@@ -57,17 +51,10 @@ export function AppRoot() {
     mediaQuery.addEventListener("change", handleChange);
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, [colorModePreference]);
-  const classesLinkProps = useLinkProps({
+  // The schedule keeps its own view and filters, so returning to it continues where it was left.
+  const scheduleLinkProps = useLinkProps({
     to: "/",
-    search: (previous) => ({ ...parseScheduleSearch(previous), view: "classes" }),
-  });
-  const roomsLinkProps = useLinkProps({
-    to: "/",
-    search: (previous) => ({ ...parseScheduleSearch(previous), view: "rooms" }),
-  });
-  const filtersLinkProps = useLinkProps({
-    to: "/",
-    search: (previous) => ({ ...parseScheduleSearch(previous), view: "filters" }),
+    search: (previous) => parseScheduleSearch(previous),
   });
   const bookingsLinkProps = useLinkProps({ to: "/bookings" });
   const [brandPrefix, ...brandRest] = t("app.name").split(" ");
@@ -83,24 +70,12 @@ export function AppRoot() {
         <div className={styles.masthead}>
           <nav className={styles.nav} aria-label={t("navigation.label")}>
             <a
-              {...classesLinkProps}
+              {...scheduleLinkProps}
               className={`${interactionStyles.control} ${interactionStyles.quiet} ${interactionStyles.selectable}`}
-              aria-current={
-                location.pathname === "/" && scheduleView === "classes" ? "page" : undefined
-              }
+              aria-current={location.pathname === "/" ? "page" : undefined}
             >
               <Calendar aria-hidden="true" />
-              <span>{t("navigation.classes")}</span>
-            </a>
-            <a
-              {...roomsLinkProps}
-              className={`${interactionStyles.control} ${interactionStyles.quiet} ${interactionStyles.selectable}`}
-              aria-current={
-                location.pathname === "/" && scheduleView === "rooms" ? "page" : undefined
-              }
-            >
-              <ViewGrid aria-hidden="true" />
-              <span>{t("navigation.rooms")}</span>
+              <span>{t("navigation.schedule")}</span>
             </a>
             <a
               {...bookingsLinkProps}
@@ -120,24 +95,9 @@ export function AppRoot() {
                 </>
               ) : null}
             </a>
-            <a
-              {...filtersLinkProps}
-              className={`${interactionStyles.control} ${interactionStyles.quiet} ${interactionStyles.selectable}`}
-              aria-current={
-                location.pathname === "/" && scheduleView === "filters" ? "page" : undefined
-              }
-            >
-              <FilterList aria-hidden="true" />
-              <span>{t("schedule.filters.filters")}</span>
-              {activeFilterCount > 0 ? (
-                <span className={styles.navCount} aria-hidden="true">
-                  {activeFilterCount}
-                </span>
-              ) : null}
-            </a>
           </nav>
           <a
-            {...classesLinkProps}
+            {...scheduleLinkProps}
             className={`${styles.brand} ${interactionStyles.focusRing}`}
             aria-current={undefined}
           >

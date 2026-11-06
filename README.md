@@ -69,7 +69,7 @@ Storybook initializes MSW so stories can add handlers independently.
 
 The sidebar is organized by what you are looking for rather than by source-file location:
 
-- **Application / Pages** — every complete screen in one place. Each page groups its routed **In application** stories and isolated **States** such as loading, empty, and error views. Start here to browse Classes, Rooms, and My bookings. Navigation links inside the routed stories are functional.
+- **Application / Pages** — every complete screen in one place. Each page groups its routed **In application** stories and isolated **States** such as loading, empty, and error views. Start here to browse the Schedule, with its list, rooms, and filter sheet, and My bookings. Navigation links inside the routed stories are functional.
 - **Application / Shell** — app-wide navigation, menus, and other chrome that frames the pages.
 - **Features** — feature-owned components, grouped by Authentication and Schedule.
 - **Design system** — shared foundations and reusable components that are not owned by one product feature.

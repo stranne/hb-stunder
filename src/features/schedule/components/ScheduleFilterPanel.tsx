@@ -128,7 +128,7 @@ function SearchableOptions({
     <section className={styles.selector} aria-labelledby={headingId}>
       <div className={styles.sectionHeading}>
         {icon}
-        <h2 id={headingId}>{label}</h2>
+        <h3 id={headingId}>{label}</h3>
       </div>
       <SearchField value={query} onChange={changeQuery} aria-label={searchLabel}>
         <Input
@@ -149,11 +149,11 @@ function SearchableOptions({
           onChange={(values) => onSelectedChange(values.map(Number))}
         >
           {!query && !isBrowsing ? (
-            <h3 className={styles.groupTitle}>{t("schedule.filters.favorites")}</h3>
+            <h4 className={styles.groupTitle}>{t("schedule.filters.favorites")}</h4>
           ) : null}
           {[...groupedOptions.entries()].map(([letter, group]) => (
             <div className={styles.optionGroup} role="group" aria-label={letter} key={letter}>
-              {(query || isBrowsing) && <h3 className={styles.groupTitle}>{letter}</h3>}
+              {(query || isBrowsing) && <h4 className={styles.groupTitle}>{letter}</h4>}
               {group.map((option) => (
                 <div className={styles.optionRow} key={option.id}>
                   <Checkbox
@@ -229,7 +229,6 @@ export function ScheduleFilterPanel({
   onFavoriteFiltersChange,
 }: ScheduleFilterPanelProps) {
   const { t } = useTranslation();
-  const headingId = useId();
   const selectionHeadingId = useId();
   const locationHeadingId = useId();
   const preferences = readSchedulePreferences();
@@ -301,153 +300,147 @@ export function ScheduleFilterPanel({
   }
 
   return (
-    <section id="schedule-filter-panel" className={styles.panel} aria-labelledby={headingId}>
-      <div className={styles.dialog}>
-        <header className={styles.header}>
-          <h1 id={headingId}>{t("schedule.filters.filters")}</h1>
-        </header>
-
-        <section className={styles.summary} aria-labelledby={selectionHeadingId}>
-          <div className={styles.summaryHeading}>
-            <h2 id={selectionHeadingId}>{t("schedule.filters.selectedFilters")}</h2>
-            <div className={styles.summaryActions}>
-              {hasSelectedFilters ? (
-                <AriaButton
-                  className={`${styles.iconButton} ${interactionStyles.control} ${interactionStyles.quiet}`}
-                  aria-label={t("schedule.filters.clearFilters")}
-                  onPress={clearFilters}
-                >
-                  <Erase aria-hidden="true" />
-                </AriaButton>
-              ) : null}
-            </div>
-          </div>
-          {hasSelectedFilters ? (
-            <div className={styles.chips}>
-              {selectedLocations.map((location) => (
-                <AriaButton
-                  className={`${styles.chip} ${interactionStyles.control} ${interactionStyles.secondary}`}
-                  key={`location-${location.id}`}
-                  aria-label={t("schedule.filters.removeSelection", { name: location.name })}
-                  onPress={() => removeLocation(location.id)}
-                >
-                  <MapPin aria-hidden="true" />
-                  {location.name}
-                  <Xmark aria-hidden="true" />
-                </AriaButton>
-              ))}
-              {selectedOptions.map((option) => (
-                <AriaButton
-                  className={`${styles.chip} ${interactionStyles.control} ${interactionStyles.secondary}`}
-                  key={`${option.category}-${option.id}`}
-                  aria-label={t("schedule.filters.removeSelection", { name: option.name })}
-                  onPress={() =>
-                    option.category === "instructor"
-                      ? changeOrdinaryFilters({
-                          ...search,
-                          instructors: toggleId(search.instructors, option.id),
-                        })
-                      : changeOrdinaryFilters({
-                          ...search,
-                          activityTypes: toggleId(search.activityTypes, option.id),
-                        })
-                  }
-                >
-                  {option.category === "instructor" ? (
-                    <User aria-hidden="true" />
-                  ) : (
-                    <Gym aria-hidden="true" />
-                  )}
-                  {option.name}
-                  <Xmark aria-hidden="true" />
-                </AriaButton>
-              ))}
-            </div>
-          ) : (
-            <p>{t("schedule.filters.noSelectedFilters")}</p>
-          )}
-        </section>
-
-        <div className={styles.filterFields}>
-          {isLoadingOptions ? (
-            <p className={styles.loading} role="status">
-              {t("schedule.filters.loadingOptions")}
-            </p>
-          ) : null}
-          {hasOptionsError ? (
-            <ErrorMessage
-              action={
-                <Button tone="quiet" onPress={onRetryOptions}>
-                  {t("schedule.filters.retryOptions")}
-                </Button>
-              }
-            >
-              {t("schedule.filters.optionsError")}
-            </ErrorMessage>
-          ) : null}
-
-          <section className={styles.locationSection} aria-labelledby={locationHeadingId}>
-            <div className={styles.sectionHeading}>
-              <MapPin aria-hidden="true" />
-              <h2 id={locationHeadingId}>{t("schedule.filters.location")}</h2>
-            </div>
-            <CheckboxGroup
-              className={styles.locationOptions}
-              aria-label={t("schedule.filters.location")}
-              value={search.locations.map(String)}
-              onChange={(values) => {
-                const selected = values.map(Number);
-                changeOrdinaryFilters({
-                  ...search,
-                  locations: selected.length > 0 ? selected : [...LOCATION_IDS],
-                });
-              }}
-            >
-              {SCHEDULE_LOCATIONS.map((location) => (
-                <Checkbox
-                  className={`${styles.locationCheckbox} ${interactionStyles.control} ${interactionStyles.secondary} ${interactionStyles.selectable}`}
-                  key={location.id}
-                  value={String(location.id)}
-                >
-                  {({ isSelected }) => (
-                    <>
-                      <span className={styles.checkboxBox} aria-hidden="true">
-                        {isSelected ? <Check /> : null}
-                      </span>
-                      {location.name}
-                    </>
-                  )}
-                </Checkbox>
-              ))}
-            </CheckboxGroup>
-          </section>
-
-          <div className={styles.selectors}>
-            <SearchableOptions
-              label={t("schedule.filters.instructor")}
-              icon={<User aria-hidden="true" />}
-              searchLabel={t("schedule.filters.searchInstructors")}
-              emptyLabel={t("schedule.filters.noInstructors")}
-              options={instructors}
-              selectedIds={search.instructors}
-              favoriteIds={favoriteInstructorIds}
-              onSelectedChange={(ids) => changeOrdinaryFilters({ ...search, instructors: ids })}
-              onFavoriteChange={setFavoriteInstructorIds}
-            />
-            <SearchableOptions
-              label={t("schedule.filters.activityType")}
-              icon={<Gym aria-hidden="true" />}
-              searchLabel={t("schedule.filters.searchActivityTypes")}
-              emptyLabel={t("schedule.filters.noActivityTypes")}
-              options={visibleActivityTypes}
-              selectedIds={search.activityTypes}
-              favoriteIds={favoriteActivityTypeIds}
-              onSelectedChange={(ids) => changeOrdinaryFilters({ ...search, activityTypes: ids })}
-              onFavoriteChange={setFavoriteActivityTypeIds}
-            />
+    <div className={styles.panel}>
+      <section className={styles.summary} aria-labelledby={selectionHeadingId}>
+        <div className={styles.summaryHeading}>
+          <h3 id={selectionHeadingId}>{t("schedule.filters.selectedFilters")}</h3>
+          <div className={styles.summaryActions}>
+            {hasSelectedFilters ? (
+              <AriaButton
+                className={`${styles.iconButton} ${interactionStyles.control} ${interactionStyles.quiet}`}
+                aria-label={t("schedule.filters.clearFilters")}
+                onPress={clearFilters}
+              >
+                <Erase aria-hidden="true" />
+              </AriaButton>
+            ) : null}
           </div>
         </div>
+        {hasSelectedFilters ? (
+          <div className={styles.chips}>
+            {selectedLocations.map((location) => (
+              <AriaButton
+                className={`${styles.chip} ${interactionStyles.control} ${interactionStyles.secondary}`}
+                key={`location-${location.id}`}
+                aria-label={t("schedule.filters.removeSelection", { name: location.name })}
+                onPress={() => removeLocation(location.id)}
+              >
+                <MapPin aria-hidden="true" />
+                {location.name}
+                <Xmark aria-hidden="true" />
+              </AriaButton>
+            ))}
+            {selectedOptions.map((option) => (
+              <AriaButton
+                className={`${styles.chip} ${interactionStyles.control} ${interactionStyles.secondary}`}
+                key={`${option.category}-${option.id}`}
+                aria-label={t("schedule.filters.removeSelection", { name: option.name })}
+                onPress={() =>
+                  option.category === "instructor"
+                    ? changeOrdinaryFilters({
+                        ...search,
+                        instructors: toggleId(search.instructors, option.id),
+                      })
+                    : changeOrdinaryFilters({
+                        ...search,
+                        activityTypes: toggleId(search.activityTypes, option.id),
+                      })
+                }
+              >
+                {option.category === "instructor" ? (
+                  <User aria-hidden="true" />
+                ) : (
+                  <Gym aria-hidden="true" />
+                )}
+                {option.name}
+                <Xmark aria-hidden="true" />
+              </AriaButton>
+            ))}
+          </div>
+        ) : (
+          <p>{t("schedule.filters.noSelectedFilters")}</p>
+        )}
+      </section>
+
+      <div className={styles.filterFields}>
+        {isLoadingOptions ? (
+          <p className={styles.loading} role="status">
+            {t("schedule.filters.loadingOptions")}
+          </p>
+        ) : null}
+        {hasOptionsError ? (
+          <ErrorMessage
+            action={
+              <Button tone="quiet" onPress={onRetryOptions}>
+                {t("schedule.filters.retryOptions")}
+              </Button>
+            }
+          >
+            {t("schedule.filters.optionsError")}
+          </ErrorMessage>
+        ) : null}
+
+        <section className={styles.locationSection} aria-labelledby={locationHeadingId}>
+          <div className={styles.sectionHeading}>
+            <MapPin aria-hidden="true" />
+            <h3 id={locationHeadingId}>{t("schedule.filters.location")}</h3>
+          </div>
+          <CheckboxGroup
+            className={styles.locationOptions}
+            aria-label={t("schedule.filters.location")}
+            value={search.locations.map(String)}
+            onChange={(values) => {
+              const selected = values.map(Number);
+              changeOrdinaryFilters({
+                ...search,
+                locations: selected.length > 0 ? selected : [...LOCATION_IDS],
+              });
+            }}
+          >
+            {SCHEDULE_LOCATIONS.map((location) => (
+              <Checkbox
+                className={`${styles.locationCheckbox} ${interactionStyles.control} ${interactionStyles.secondary} ${interactionStyles.selectable}`}
+                key={location.id}
+                value={String(location.id)}
+              >
+                {({ isSelected }) => (
+                  <>
+                    <span className={styles.checkboxBox} aria-hidden="true">
+                      {isSelected ? <Check /> : null}
+                    </span>
+                    {location.name}
+                  </>
+                )}
+              </Checkbox>
+            ))}
+          </CheckboxGroup>
+        </section>
+
+        <div className={styles.selectors}>
+          <SearchableOptions
+            label={t("schedule.filters.instructor")}
+            icon={<User aria-hidden="true" />}
+            searchLabel={t("schedule.filters.searchInstructors")}
+            emptyLabel={t("schedule.filters.noInstructors")}
+            options={instructors}
+            selectedIds={search.instructors}
+            favoriteIds={favoriteInstructorIds}
+            onSelectedChange={(ids) => changeOrdinaryFilters({ ...search, instructors: ids })}
+            onFavoriteChange={setFavoriteInstructorIds}
+          />
+          <SearchableOptions
+            label={t("schedule.filters.activityType")}
+            icon={<Gym aria-hidden="true" />}
+            searchLabel={t("schedule.filters.searchActivityTypes")}
+            emptyLabel={t("schedule.filters.noActivityTypes")}
+            options={visibleActivityTypes}
+            selectedIds={search.activityTypes}
+            favoriteIds={favoriteActivityTypeIds}
+            onSelectedChange={(ids) => changeOrdinaryFilters({ ...search, activityTypes: ids })}
+            onFavoriteChange={setFavoriteActivityTypeIds}
+          />
+        </div>
       </div>
-    </section>
+    </div>
   );
 }

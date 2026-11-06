@@ -1,6 +1,7 @@
 @layer components {
   .emptyState {
     display: grid;
+    align-content: start;
     justify-items: center;
     gap: var(--space-4);
     padding: var(--space-12) var(--space-4);

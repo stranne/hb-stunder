@@ -62,6 +62,21 @@ export function splitStartedGroups(
   };
 }
 
+/** Whether a class has one of the customer's favorite instructors or class types. */
+export function isFavoriteActivity(
+  activity: ScheduledActivity,
+  favorites: { favoriteInstructorIds: number[]; favoriteActivityTypeIds: number[] },
+): boolean {
+  const productId = activity.groupActivityProduct?.id;
+  return (
+    (productId !== undefined && favorites.favoriteActivityTypeIds.includes(productId)) ||
+    (activity.instructors?.some(
+      ({ id }) => id !== undefined && favorites.favoriteInstructorIds.includes(id),
+    ) ??
+      false)
+  );
+}
+
 export function hasActivityStarted(activity: ScheduledActivity, now = Date.now()): boolean {
   const start = activity.duration?.start;
   return start !== undefined && Date.parse(start) <= now;

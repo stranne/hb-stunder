@@ -11,6 +11,7 @@ const mocks = vi.hoisted(() => ({
   onSelectedActivityChange: undefined as
     | ((activity: number | undefined, replace?: boolean) => void)
     | undefined,
+  onViewChange: undefined as ((view: "classes" | "rooms") => void) | undefined,
   routeSearch: {
     date: "2026-07-29",
     locations: [1, 4128, 3509],
@@ -33,14 +34,17 @@ vi.mock("../features/schedule/components/SchedulePage", () => ({
     search,
     onSearchChange,
     onSelectedActivityChange,
+    onViewChange,
   }: {
     search: ScheduleSearch;
     onSearchChange: (search: ScheduleSearch) => void;
     onSelectedActivityChange: (activity: number | undefined, replace?: boolean) => void;
+    onViewChange: (view: "classes" | "rooms") => void;
   }) => {
     mocks.renderedSearch = search;
     mocks.onSearchChange = onSearchChange;
     mocks.onSelectedActivityChange = onSelectedActivityChange;
+    mocks.onViewChange = onViewChange;
     return null;
   },
 }));
@@ -54,6 +58,7 @@ beforeEach(() => {
   mocks.renderedSearch = undefined;
   mocks.onSearchChange = undefined;
   mocks.onSelectedActivityChange = undefined;
+  mocks.onViewChange = undefined;
   mocks.routeSearch = {
     date: "2026-07-29",
     locations: [1, 4128, 3509],
@@ -121,6 +126,15 @@ describe("ScheduleRoute", () => {
     });
   });
 
+  it("pushes a switch between the list and rooms", () => {
+    render(<ScheduleRoute />);
+
+    mocks.onViewChange?.("rooms");
+    expect(mocks.navigate).toHaveBeenLastCalledWith({
+      search: { ...mocks.routeSearch, view: "rooms" },
+    });
+  });
+
   it("pushes opened class details and replaces them when closed", () => {
     render(<ScheduleRoute />);
 
@@ -148,7 +162,8 @@ describe("ScheduleRoute", () => {
       date: "2026-07-30",
       locations: [3509],
       instructors: [21],
-      view: "filters",
+      view: "rooms",
+      filters: true,
     };
     view.rerender(<ScheduleRoute />);
 

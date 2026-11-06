@@ -1,4 +1,5 @@
 import type { components } from "../../../api/generated/schema";
+import { todayInStockholm } from "./scheduleDate";
 
 export type ScheduledActivity = components["schemas"]["ScheduledGroupActivity"];
 
@@ -41,6 +42,24 @@ export function groupActivitiesByStart(activities: ScheduledActivity[]): TimeGro
     start,
     activities: groupedActivities,
   }));
+}
+
+/**
+ * Separates today's groups that have started, and so can no longer be booked, from those ahead.
+ * Other days have no started groups, so a full past or future day is never folded away.
+ */
+export function splitStartedGroups(
+  groups: TimeGroup[],
+  date: string,
+  now = Date.now(),
+): { started: TimeGroup[]; upcoming: TimeGroup[] } {
+  if (date !== todayInStockholm(new Date(now))) return { started: [], upcoming: groups };
+
+  const hasStarted = (group: TimeGroup) => group.start !== "" && Date.parse(group.start) <= now;
+  return {
+    started: groups.filter(hasStarted),
+    upcoming: groups.filter((group) => !hasStarted(group)),
+  };
 }
 
 export function hasActivityStarted(activity: ScheduledActivity, now = Date.now()): boolean {

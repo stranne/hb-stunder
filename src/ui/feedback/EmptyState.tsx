@@ -4,10 +4,12 @@ import styles from "./EmptyState.module.css";
 export interface EmptyStateProps {
   children: ReactNode;
   role?: "status";
+  /** The next step out of the empty view, such as signing in or moving to another day. */
+  action?: ReactNode;
 }
 
 /** Quiet message for views with nothing to list, drawn as an empty arched window. */
-export function EmptyState({ children, role }: EmptyStateProps) {
+export function EmptyState({ children, role, action }: EmptyStateProps) {
   return (
     <div className={styles.emptyState} role={role}>
       <svg className={styles.arch} viewBox="0 0 64 72" aria-hidden="true" focusable="false">
@@ -16,6 +18,7 @@ export function EmptyState({ children, role }: EmptyStateProps) {
         <path d="M0 71h64" />
       </svg>
       <p>{children}</p>
+      {action}
     </div>
   );
 }

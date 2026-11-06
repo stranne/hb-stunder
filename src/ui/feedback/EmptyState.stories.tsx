@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/tanstack-react";
+import { Button } from "../button/Button";
 import { EmptyState } from "./EmptyState";
 
 const meta = {
@@ -19,5 +20,11 @@ export const LongMessage: Story = {
   args: {
     children:
       "Inga rum har aktiviteter som matchar de valda filtren. Prova en annan dag eller ta bort ett filter.",
+  },
+};
+export const WithAction: Story = {
+  args: {
+    children: "Inga fler klasser idag.",
+    action: <Button tone="secondary">Visa imorgon</Button>,
   },
 };

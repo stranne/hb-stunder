@@ -1,5 +1,7 @@
 import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
-import { lazy, Suspense, useLayoutEffect, useRef, useState } from "react";
+import { lazy, Suspense, useId, useLayoutEffect, useRef, useState } from "react";
+import { NavArrowDown } from "iconoir-react";
+import { Button as AriaButton } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 import {
   cancelGroupActivityBookingMutationOptions,
@@ -13,8 +15,15 @@ import { ErrorMessage } from "../../../ui/feedback/ErrorMessage";
 import { ViewLoading } from "../../../ui/feedback/ViewLoading";
 import { activityTypeQueryOptions, instructorQueryOptions } from "../api/scheduleFilterQueries";
 import { scheduleQueryOptions } from "../api/scheduleQueries";
-import { getAvailability, groupActivitiesByStart } from "../model/schedule";
+import {
+  getAvailability,
+  groupActivitiesByStart,
+  splitStartedGroups,
+  type TimeGroup,
+} from "../model/schedule";
+import { addDays } from "../model/scheduleDate";
 import { readSchedulePreferences } from "../model/schedulePreferences";
+import interactionStyles from "../../../ui/interaction/Interaction.module.css";
 import type { ScheduleSearch } from "../model/scheduleSearch";
 import { GymClassCard, GymClassCardSkeleton } from "./GymClassCard";
 import { ScheduleFilters } from "./ScheduleFilters";
@@ -47,6 +56,9 @@ export function SchedulePage({
   const queryClient = useQueryClient();
   const isFiltersOpen = search.view === "filters";
   const [areControlsElevated, setAreControlsElevated] = useState(false);
+  /** Undefined until the customer chooses, so a shared link to an earlier class can open it. */
+  const [showEarlier, setShowEarlier] = useState<boolean>();
+  const earlierClassesId = useId();
   const [favoriteFilters, setFavoriteFilters] = useState(() => {
     const { favoriteInstructorIds, favoriteActivityTypeIds } = readSchedulePreferences();
     return { favoriteInstructorIds, favoriteActivityTypeIds };
@@ -129,6 +141,19 @@ export function SchedulePage({
     }),
   };
   const groupedSchedule = groupActivitiesByStart(scheduleData);
+  // Today opens at the next class: classes that have already started cannot be booked.
+  const { started: earlierGroups, upcoming: laterGroups } = splitStartedGroups(
+    groupedSchedule,
+    search.date,
+  );
+  const earlierClassCount = earlierGroups.reduce(
+    (count, group) => count + group.activities.length,
+    0,
+  );
+  const isSelectedActivityEarlier = earlierGroups.some((group) =>
+    group.activities.some(({ id }) => id !== undefined && id === search.activity),
+  );
+  const isEarlierExpanded = showEarlier ?? isSelectedActivityEarlier;
   const view = search.view ?? "classes";
   const isPending = scheduleQueries.some((query) => query.isPending);
   const isFetching = scheduleQueries.some((query) => query.isFetching);
@@ -150,6 +175,61 @@ export function SchedulePage({
   const retryFilterOptions = () => {
     void Promise.all(failedFilterQueries.map((query) => query.refetch()));
   };
+
+  const renderTimeGroup = (group: TimeGroup) => (
+    <section
+      className={styles.timeGroup}
+      key={group.start || "unknown"}
+      aria-labelledby={`time-${group.start || "unknown"}`}
+    >
+      <h2 id={`time-${group.start || "unknown"}`}>
+        {group.start ? timeFormatter.format(new Date(group.start)) : t("schedule.timeUnknown")}
+      </h2>
+      <div className={styles.groupCards}>
+        {group.activities.map((activity, index) => {
+          const booking =
+            activity.id === undefined ? undefined : bookingsByActivity.get(activity.id);
+          const bookingId = booking?.groupActivityBooking?.id;
+          const onCancel =
+            customerId !== undefined &&
+            booking?.type === "groupActivityBooking" &&
+            bookingId !== undefined
+              ? () => cancelBooking.mutateAsync({ customerId, bookingId })
+              : undefined;
+          return (
+            <GymClassCard
+              key={activity.id ?? `${activity.duration?.start}-${index}`}
+              activity={activity}
+              booking={booking}
+              headingLevel={3}
+              favoriteInstructorIds={favoriteFilters.favoriteInstructorIds}
+              favoriteActivityTypeIds={favoriteFilters.favoriteActivityTypeIds}
+              includeBusinessUnitName={search.locations.length > 1}
+              allowShare
+              {...(onSelectedActivityChange
+                ? {
+                    isExpanded: search.activity === activity.id,
+                    onExpandedChange: (isExpanded: boolean) =>
+                      onSelectedActivityChange(isExpanded ? activity.id : undefined, !isExpanded),
+                  }
+                : {})}
+              onBook={
+                !canCreateBooking || activity.id === undefined
+                  ? undefined
+                  : () =>
+                      createBooking.mutateAsync({
+                        customerId,
+                        groupActivity: activity.id!,
+                        allowWaitingList: getAvailability(activity).kind === "waitingList",
+                      })
+              }
+              onCancel={onCancel}
+            />
+          );
+        })}
+      </div>
+    </section>
+  );
 
   return (
     <main
@@ -290,70 +370,50 @@ export function SchedulePage({
                 />
               </Suspense>
             ) : null}
-            {!isPending && !isError && view === "classes"
-              ? groupedSchedule.map((group) => (
-                  <section
-                    className={styles.timeGroup}
-                    key={group.start || "unknown"}
-                    aria-labelledby={`time-${group.start || "unknown"}`}
+            {!isPending && !isError && view === "classes" && earlierGroups.length > 0 ? (
+              <>
+                <AriaButton
+                  className={`${styles.earlierToggle} ${interactionStyles.control}`}
+                  aria-expanded={isEarlierExpanded}
+                  aria-controls={earlierClassesId}
+                  onPress={() => setShowEarlier(!isEarlierExpanded)}
+                >
+                  <span>
+                    <strong>{t("schedule.earlier.title")}</strong>
+                    <span aria-hidden="true"> · </span>
+                    <span className={styles.visuallyHidden}>, </span>
+                    {t("schedule.earlier.count", { count: earlierClassCount })}
+                  </span>
+                  <NavArrowDown aria-hidden="true" />
+                </AriaButton>
+                <div
+                  id={earlierClassesId}
+                  className={styles.earlierGroups}
+                  hidden={!isEarlierExpanded}
+                >
+                  {isEarlierExpanded ? earlierGroups.map(renderTimeGroup) : null}
+                </div>
+              </>
+            ) : null}
+            {!isPending && !isError && view === "classes" ? laterGroups.map(renderTimeGroup) : null}
+            {!isPending &&
+            !isError &&
+            view === "classes" &&
+            earlierGroups.length > 0 &&
+            laterGroups.length === 0 ? (
+              <EmptyState
+                action={
+                  <Button
+                    tone="secondary"
+                    onPress={() => onSearchChange({ ...search, date: addDays(search.date, 1) })}
                   >
-                    <h2 id={`time-${group.start || "unknown"}`}>
-                      {group.start
-                        ? timeFormatter.format(new Date(group.start))
-                        : t("schedule.timeUnknown")}
-                    </h2>
-                    <div className={styles.groupCards}>
-                      {group.activities.map((activity, index) => {
-                        const booking =
-                          activity.id === undefined
-                            ? undefined
-                            : bookingsByActivity.get(activity.id);
-                        const bookingId = booking?.groupActivityBooking?.id;
-                        const onCancel =
-                          customerId !== undefined &&
-                          booking?.type === "groupActivityBooking" &&
-                          bookingId !== undefined
-                            ? () => cancelBooking.mutateAsync({ customerId, bookingId })
-                            : undefined;
-                        return (
-                          <GymClassCard
-                            key={activity.id ?? `${activity.duration?.start}-${index}`}
-                            activity={activity}
-                            booking={booking}
-                            headingLevel={3}
-                            favoriteInstructorIds={favoriteFilters.favoriteInstructorIds}
-                            favoriteActivityTypeIds={favoriteFilters.favoriteActivityTypeIds}
-                            includeBusinessUnitName={search.locations.length > 1}
-                            allowShare
-                            {...(onSelectedActivityChange
-                              ? {
-                                  isExpanded: search.activity === activity.id,
-                                  onExpandedChange: (isExpanded: boolean) =>
-                                    onSelectedActivityChange(
-                                      isExpanded ? activity.id : undefined,
-                                      !isExpanded,
-                                    ),
-                                }
-                              : {})}
-                            onBook={
-                              !canCreateBooking || activity.id === undefined
-                                ? undefined
-                                : () =>
-                                    createBooking.mutateAsync({
-                                      customerId,
-                                      groupActivity: activity.id!,
-                                      allowWaitingList:
-                                        getAvailability(activity).kind === "waitingList",
-                                    })
-                            }
-                            onCancel={onCancel}
-                          />
-                        );
-                      })}
-                    </div>
-                  </section>
-                ))
-              : null}
+                    {t("schedule.earlier.showTomorrow")}
+                  </Button>
+                }
+              >
+                {t("schedule.earlier.noMoreToday")}
+              </EmptyState>
+            ) : null}
           </section>
         </>
       )}

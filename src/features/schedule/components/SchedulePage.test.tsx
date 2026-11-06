@@ -189,6 +189,70 @@ describe("SchedulePage", () => {
     ).toBeTruthy();
   });
 
+  describe("today", () => {
+    const startedClass = activity(101, "Morning class");
+    const laterClass = {
+      ...activity(102, "Evening class"),
+      duration: { start: "2026-07-28T16:00:00.000Z", end: "2026-07-28T17:00:00.000Z" },
+    };
+
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(new Date("2026-07-28T10:00:00.000Z"));
+    });
+
+    it("opens at the next class and folds the classes that have started", async () => {
+      server.use(http.get(scheduleEndpoint, () => HttpResponse.json([startedClass, laterClass])));
+      renderPage([1]);
+
+      await screen.findByText("Evening class");
+      const toggle = screen.getByRole("button", { name: /^Earlier today/ });
+      expect(toggle.getAttribute("aria-expanded")).toBe("false");
+      expect(toggle.textContent).toContain("1 class");
+      expect(screen.queryByText("Morning class")).toBeNull();
+
+      fireEvent.click(toggle);
+
+      expect(toggle.getAttribute("aria-expanded")).toBe("true");
+      expect(screen.getByText("Morning class")).toBeTruthy();
+    });
+
+    it("opens the folded classes for a shared link to one of them", async () => {
+      server.use(http.get(scheduleEndpoint, () => HttpResponse.json([startedClass, laterClass])));
+      renderPage([1], undefined, { activity: 101 });
+
+      expect(await screen.findByText("Morning class")).toBeTruthy();
+      expect(
+        screen.getByRole("button", { name: /^Earlier today/ }).getAttribute("aria-expanded"),
+      ).toBe("true");
+    });
+
+    it("offers the next day once every class today has started", async () => {
+      let requestedStart: string | null = null;
+      server.use(
+        http.get(scheduleEndpoint, ({ request }) => {
+          requestedStart = new URL(request.url).searchParams.get("period.start");
+          return HttpResponse.json(requestedStart?.startsWith("2026-07-27") ? [startedClass] : []);
+        }),
+      );
+      renderPage([1]);
+
+      expect(await screen.findByText("No more classes today.")).toBeTruthy();
+      fireEvent.click(screen.getByRole("button", { name: "Show tomorrow" }));
+
+      await waitFor(() => expect(requestedStart).toBe("2026-07-28T22:00:00.000Z"));
+      expect(screen.queryByRole("button", { name: /^Earlier today/ })).toBeNull();
+    });
+
+    it("does not fold classes on other days", async () => {
+      server.use(http.get(scheduleEndpoint, () => HttpResponse.json([startedClass])));
+      renderPage([1], undefined, { date: "2026-07-29" });
+
+      await screen.findByText("Morning class");
+      expect(screen.queryByRole("button", { name: /^Earlier today/ })).toBeNull();
+    });
+  });
+
   it("elevates the sticky controls only after the page scrolls beneath them", () => {
     server.use(http.get(scheduleEndpoint, () => HttpResponse.json([])));
     renderPage([1]);

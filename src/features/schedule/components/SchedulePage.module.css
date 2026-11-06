@@ -141,6 +141,67 @@
     }
   }
 
+  /* Folded classes that have already started, so today opens at the next bookable class. */
+  .earlierToggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    min-block-size: 3.25rem;
+    padding: var(--space-2) var(--space-1) var(--space-2) 0;
+    border: 0;
+    border-block-end: 1px solid var(--color-border);
+    border-radius: 0;
+    color: var(--color-ink-muted);
+    background: transparent;
+    font: inherit;
+    font-size: 0.9375rem;
+    text-align: start;
+    cursor: pointer;
+
+    &[data-hovered] {
+      background: var(--color-interaction-hover);
+    }
+
+    &[data-pressed] {
+      background: var(--color-interaction-pressed);
+    }
+
+    &[data-focus-visible] {
+      outline-offset: calc(-1 * var(--focus-width));
+    }
+
+    strong {
+      color: var(--color-ink);
+      font-weight: var(--weight-semibold);
+    }
+
+    svg {
+      flex: none;
+      inline-size: 1.125rem;
+      block-size: 1.125rem;
+      margin-inline-end: 0.6875rem;
+      transition: transform var(--motion-standard) var(--ease-out);
+    }
+
+    &[aria-expanded="true"] svg {
+      transform: rotate(180deg);
+    }
+  }
+
+  .earlierGroups {
+    display: grid;
+  }
+
+  .visuallyHidden {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
   @media (width < 40rem) {
     .page {
       --rail-width: 3.5rem;

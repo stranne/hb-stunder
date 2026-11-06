@@ -67,6 +67,13 @@
     "partialError_one": "Klasser från en plats kunde inte laddas.",
     "partialError_other": "Klasser från {{count}} platser kunde inte laddas.",
     "retry": "Försök igen",
+    "earlier": {
+      "title": "Tidigare idag",
+      "count_one": "{{count}} klass",
+      "count_other": "{{count}} klasser",
+      "noMoreToday": "Inga fler klasser idag.",
+      "showTomorrow": "Visa imorgon"
+    },
     "details": {
       "show": "Visa detaljer",
       "hide": "Dölj detaljer",

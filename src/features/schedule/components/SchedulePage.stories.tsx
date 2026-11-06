@@ -2,7 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { Meta, StoryObj } from "@storybook/tanstack-react";
 import { delay, http, HttpResponse, type RequestHandler } from "msw";
 import { useEffect, type ComponentProps } from "react";
-import { expect, waitFor, within } from "storybook/test";
+import { expect, userEvent, waitFor, within } from "storybook/test";
 import { API_BASE_URL } from "../../../api/client";
 import { scheduleForDate } from "../../../mocks/fixtures/schedule";
 import { handlers } from "../../../mocks/handlers";
@@ -25,6 +25,30 @@ const upcomingSearch = {
 function mockSchedule(businessUnit: number) {
   return scheduleForDate("2026-07-28", businessUnit);
 }
+
+/** Today's schedule retimed around the current moment, so stories show started classes. */
+function scheduleAroundNow(businessUnit: number, startedClasses: number) {
+  const quarterHour = 15 * 60_000;
+  const base = Math.floor(Date.now() / quarterHour) * quarterHour;
+  return mockSchedule(businessUnit).map((activity, index) => {
+    const start = base + (index - startedClasses + 1) * 50 * 60_000;
+    const length = Date.parse(activity.duration!.end!) - Date.parse(activity.duration!.start!);
+    return {
+      ...activity,
+      duration: {
+        start: new Date(start).toISOString(),
+        end: new Date(start + length).toISOString(),
+      },
+    };
+  });
+}
+
+const todaySearch = {
+  date: todayInStockholm(),
+  locations: [1],
+  instructors: [],
+  activityTypes: [],
+};
 
 function withDefaultHandlers(...storyHandlers: RequestHandler[]) {
   return { handlers: [...storyHandlers, ...handlers] };
@@ -229,6 +253,61 @@ export const RoomsMobile: Story = {
     },
   },
   globals: { viewport: { value: "mobile", isRotated: false } },
+};
+
+export const Today: Story = {
+  args: { search: todaySearch },
+  parameters: {
+    msw: withDefaultHandlers(
+      http.get(endpoint, ({ params }) =>
+        HttpResponse.json(scheduleAroundNow(Number(params.businessUnit), 4)),
+      ),
+    ),
+    docs: {
+      description: {
+        story:
+          "Today opens at the next class. Classes that have started fold into one row above it, because they can no longer be booked.",
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const toggle = await canvas.findByRole("button", { name: /^(Earlier today|Tidigare idag)/ });
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await expect(toggle).toHaveTextContent(/4 (classes|klasser)/);
+  },
+};
+
+export const TodayEarlierExpanded: Story = {
+  ...Today,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const toggle = await canvas.findByRole("button", { name: /^(Earlier today|Tidigare idag)/ });
+    await userEvent.click(toggle);
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  },
+};
+
+export const TodayMobile: Story = {
+  ...Today,
+  globals: { viewport: { value: "mobile", isRotated: false } },
+};
+
+export const TodayFinished: Story = {
+  args: { search: todaySearch },
+  parameters: {
+    msw: withDefaultHandlers(
+      http.get(endpoint, ({ params }) =>
+        HttpResponse.json(scheduleAroundNow(Number(params.businessUnit), 99)),
+      ),
+    ),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      await canvas.findByRole("button", { name: /^(Show tomorrow|Visa imorgon)$/ }),
+    ).toBeInTheDocument();
+  },
 };
 
 export const Empty: Story = {

@@ -67,6 +67,13 @@
     "partialError_one": "Classes from one location could not be loaded.",
     "partialError_other": "Classes from {{count}} locations could not be loaded.",
     "retry": "Try again",
+    "earlier": {
+      "title": "Earlier today",
+      "count_one": "{{count}} class",
+      "count_other": "{{count}} classes",
+      "noMoreToday": "No more classes today.",
+      "showTomorrow": "Show tomorrow"
+    },
     "details": {
       "show": "Show details",
       "hide": "Hide details",

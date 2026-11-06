@@ -5,11 +5,31 @@ import {
   groupActivitiesByStart,
   hasActivityEnded,
   hasActivityStarted,
+  splitStartedGroups,
 } from "./schedule";
 import { addDays, getStockholmDayPeriod, isDateString } from "./scheduleDate";
 import { LOCATION_IDS, parseScheduleSearch } from "./scheduleSearch";
 
 describe("schedule model", () => {
+  it("folds only the groups that have started today", () => {
+    const groups = [
+      { start: "", activities: [] },
+      { start: "2026-07-28T06:00:00.000Z", activities: [] },
+      { start: "2026-07-28T10:00:00.000Z", activities: [] },
+      { start: "2026-07-28T16:00:00.000Z", activities: [] },
+    ];
+    const now = Date.parse("2026-07-28T10:00:00.000Z");
+
+    expect(splitStartedGroups(groups, "2026-07-28", now)).toEqual({
+      started: [groups[1], groups[2]],
+      upcoming: [groups[0], groups[3]],
+    });
+    expect(splitStartedGroups(groups, "2026-07-29", now)).toEqual({
+      started: [],
+      upcoming: groups,
+    });
+  });
+
   it("derives the main availability states", () => {
     expect(getAvailability({ slots: { leftToBook: 8 } })).toEqual({
       kind: "available",

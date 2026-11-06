@@ -144,6 +144,7 @@ HB Stunder is unofficial and signs people in with their Hagabadet credentials, s
 ## Layout
 
 - Every view opens with a title in the same position. The schedule title is the selected date, which scrolls away so that only the date strip stays pinned.
+- Today opens at the next class. Classes that have already started fold into one "Earlier today" row, and when none remain the list offers the next day.
 - The class list, filters, and bookings share one reading width (`--page-width`). The room calendar takes up to 100rem, and runs edge to edge on phones.
 - The masthead places navigation on the left, the wordmark in the center, and the account menu on the right. Below 64rem the wordmark moves to the left because there is no room to center it.
 - On phones, the wordmark and account menu scroll away at the top, while navigation stays under the thumb.
@@ -151,7 +152,6 @@ HB Stunder is unofficial and signs people in with their Hagabadet credentials, s
 ## Recommended next steps
 
 - Evaluate the palette on real devices, particularly the dark band against the phone's status bar.
-- Consider a "now" divider in today's class list, so that past classes do not push the next class below the fold.
 - Consider a sign-in action in the signed-out My bookings empty state.
 
 ## New-session handoff prompt

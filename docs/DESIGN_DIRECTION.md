@@ -70,7 +70,7 @@ It currently appears in navigation, account, date navigation, filter, favorite, 
 The arch is the product's one signature shape. It appears in three places, each with a job:
 
 - The selected day in the date strip stands on the strip's baseline as a filled arched window.
-- Dialogs have a shallow arched top edge, and become bottom sheets on phones.
+- Dialogs have a shallow arched top edge, and become bottom sheets on phones. The filter sheet follows this on phones; on wider screens it is a full-height side panel without the arch, so the list stays visible beside it.
 - Empty states show a line-drawn arched window in brass.
 
 Do not add it elsewhere without a reason. Cards, buttons, and fields stay plain so that the arch keeps its meaning.
@@ -83,7 +83,7 @@ The room calendar follows the same logic: hairlines instead of drop shadows, ful
 
 ### Brass as material accent
 
-Brass marks the current navigation item, the booking count, external class messages, and empty-state artwork. Decorative brass does not meet text contrast requirements; use `--color-brass-strong` for text.
+Brass marks the current navigation item, the booking and active filter counts, external class messages, and empty-state artwork. Decorative brass does not meet text contrast requirements; use `--color-brass-strong` for text.
 
 ### Shape hierarchy
 
@@ -143,7 +143,8 @@ HB Stunder is unofficial and signs people in with their Hagabadet credentials, s
 
 ## Layout
 
-- Every view opens with a title in the same position. The schedule title is the selected date, which scrolls away so that only the date strip stays pinned.
+- Every view opens with a title in the same position. The schedule title is the selected date, which scrolls away so that only the date strip and the schedule controls stay pinned.
+- Navigation has two destinations, Schedule and My bookings. The schedule's own controls (Filters with its active count, Favorites, and the switch between the list and the rooms) sit in one row under the date strip, because they refine what the strip shows. Filters open over the list rather than replacing it.
 - Today opens at the next class. Classes that have already started fold into one "Earlier today" row, and when none remain the list offers the next day.
 - The class list, filters, and bookings share one reading width (`--page-width`). The room calendar takes up to 100rem, and runs edge to edge on phones.
 - The masthead places navigation on the left, the wordmark in the center, and the account menu on the right. Below 64rem the wordmark moves to the left because there is no room to center it.

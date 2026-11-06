@@ -5,6 +5,7 @@ export interface StoredFilterSelection {
   locations: number[];
   instructors: number[];
   activityTypes: number[];
+  favorites?: boolean;
 }
 
 export interface FavoriteFilterSelection {
@@ -54,6 +55,7 @@ export function readSchedulePreferencesResult(): SchedulePreferencesResult {
           locations: knownLocationIds(validIds(lastUsedValue.locations)),
           instructors: validIds(lastUsedValue.instructors),
           activityTypes: validIds(lastUsedValue.activityTypes),
+          ...(lastUsedValue.favorites === true ? { favorites: true } : {}),
         }
       : undefined;
     return {
@@ -79,6 +81,7 @@ export function writeLastUsedFilters(search: ScheduleSearch): void {
       locations: search.locations,
       instructors: search.instructors,
       activityTypes: search.activityTypes,
+      ...(search.favorites ? { favorites: true } : {}),
     },
   });
 }

@@ -55,23 +55,13 @@ function TestPage({
     setCustomerId("900001");
     return { customerId: "900001" };
   };
-  const isOpen = search.view === "filters";
   return (
-    <>
-      <button
-        type="button"
-        aria-expanded={isOpen}
-        onClick={() => setSearch({ ...search, view: isOpen ? "classes" : "filters" })}
-      >
-        {isOpen ? "Show schedule" : "Open schedule filters"}
-      </button>
-      <SchedulePage
-        search={search}
-        onSearchChange={setSearch}
-        customerId={customerId}
-        onSignIn={canSignIn ? signIn : undefined}
-      />
-    </>
+    <SchedulePage
+      search={search}
+      onSearchChange={setSearch}
+      customerId={customerId}
+      onSignIn={canSignIn ? signIn : undefined}
+    />
   );
 }
 
@@ -119,6 +109,7 @@ afterEach(() => {
   vi.useRealTimers();
   vi.restoreAllMocks();
   cleanup();
+  window.localStorage.clear();
   clients.splice(0).forEach((client) => client.clear());
   server.resetHandlers();
 });
@@ -286,32 +277,31 @@ describe("SchedulePage", () => {
     expect(controls?.getAttribute("data-elevated")).toBeNull();
   });
 
-  it("replaces the schedule with a toggled filter view", async () => {
-    server.use(http.get(scheduleEndpoint, () => HttpResponse.json([])));
+  it("opens filters in a sheet over the schedule and closes it from the result count", async () => {
+    server.use(http.get(scheduleEndpoint, () => HttpResponse.json([activity(101, "Yoga")])));
     renderPage([1]);
+    await screen.findByText("Yoga");
 
-    const openButton = screen.getByRole("button", { name: /^Open schedule filters/ });
-    expect(openButton.getAttribute("aria-expanded")).toBe("false");
-    expect(screen.getByRole("region", { name: "Scheduled classes" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /^Filters/ }));
 
-    fireEvent.click(openButton);
+    const sheet = await screen.findByRole("dialog", { name: "Filters" });
+    expect(screen.getByRole("region", { name: "Scheduled classes", hidden: true })).toBeTruthy();
+    expect(await within(sheet).findByRole("heading", { name: "Location" })).toBeTruthy();
 
-    const showScheduleButton = screen.getByRole("button", { name: /^Show schedule/ });
-    expect(showScheduleButton.getAttribute("aria-expanded")).toBe("true");
-    expect(showScheduleButton.textContent).toContain("Show schedule");
-    expect(await screen.findByRole("region", { name: "Filters" })).toBeTruthy();
-    expect(screen.queryByRole("group", { name: "Upcoming days" })).toBeNull();
-    expect(screen.queryByRole("region", { name: "Scheduled classes" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Done" })).toBeNull();
+    fireEvent.click(within(sheet).getByRole("button", { name: "Show 1 class" }));
 
-    fireEvent.click(showScheduleButton);
-
-    expect(screen.queryByRole("region", { name: "Filters" })).toBeNull();
-    expect(screen.getByRole("group", { name: "Upcoming days" })).toBeTruthy();
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     expect(screen.getByRole("region", { name: "Scheduled classes" })).toBeTruthy();
   });
 
-  it("preserves immediate selections when returning to and reopening the filter view", async () => {
+  it("counts active filters on the Filters button", async () => {
+    server.use(http.get(scheduleEndpoint, () => HttpResponse.json([])));
+    renderPage([1], undefined, { instructors: [21] });
+
+    expect(screen.getByRole("button", { name: /^Filters\s*,\s*2 active$/ })).toBeTruthy();
+  });
+
+  it("keeps immediate selections when the filter sheet is closed and reopened", async () => {
     server.use(
       http.get(scheduleEndpoint, () => HttpResponse.json([])),
       http.get(`${REAL_API_BASE_URL}/services/groupactivityinstructors`, () =>
@@ -320,20 +310,70 @@ describe("SchedulePage", () => {
     );
     renderPage([1]);
 
-    fireEvent.click(screen.getByRole("button", { name: /^Open schedule filters/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^Filters/ }));
     const browseButtons = await screen.findAllByRole("button", { name: "Browse options" });
     fireEvent.click(browseButtons[0]!);
     fireEvent.click(await screen.findByRole("checkbox", { name: "Maya" }));
 
-    fireEvent.click(screen.getByRole("button", { name: /^Show schedule/ }));
-    expect(screen.getByRole("region", { name: "Scheduled classes" })).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: /^Open schedule filters/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Close filters" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    fireEvent.click(screen.getByRole("button", { name: /^Filters/ }));
     const reopenedBrowseButtons = await screen.findAllByRole("button", { name: "Browse options" });
     fireEvent.click(reopenedBrowseButtons[0]!);
 
     expect(
       ((await screen.findByRole("checkbox", { name: "Maya" })) as HTMLInputElement).checked,
     ).toBe(true);
+  });
+
+  it("shows only classes with a favorite instructor or class type", async () => {
+    window.localStorage.setItem(
+      "hb-stunder.schedule-preferences",
+      JSON.stringify({ version: 2, favoriteInstructorIds: [21], favoriteActivityTypeIds: [] }),
+    );
+    server.use(
+      http.get(scheduleEndpoint, () =>
+        HttpResponse.json([
+          { ...activity(101, "Favorite yoga"), instructors: [{ id: 21, name: "Maya" }] },
+          { ...activity(102, "Other class"), instructors: [{ id: 22, name: "Noah" }] },
+        ]),
+      ),
+    );
+    renderPage([1]);
+    await screen.findByText("Other class");
+
+    const favorites = screen.getByRole("button", { name: "Favorites" });
+    fireEvent.click(favorites);
+
+    expect(favorites.getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByText("Favorite yoga")).toBeTruthy();
+    expect(screen.queryByText("Other class")).toBeNull();
+  });
+
+  it("explains how to add favorites when there are none", async () => {
+    server.use(http.get(scheduleEndpoint, () => HttpResponse.json([activity(101, "Yoga")])));
+    renderPage([1], undefined, { favorites: true });
+
+    expect(
+      await screen.findByText(
+        "You have no favorites yet. Star instructors or class types under Filters.",
+      ),
+    ).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Open filters" }));
+    expect(await screen.findByRole("dialog", { name: "Filters" })).toBeTruthy();
+  });
+
+  it("switches between the list and the rooms", async () => {
+    server.use(http.get(scheduleEndpoint, () => HttpResponse.json([activity(101, "Yoga")])));
+    renderPage([1]);
+    await screen.findByText("Yoga");
+
+    const list = screen.getByRole("radio", { name: "List" });
+    expect((list as HTMLInputElement).checked ?? list.getAttribute("aria-checked")).toBeTruthy();
+    fireEvent.click(screen.getByRole("radio", { name: "Rooms" }));
+
+    expect(await screen.findByLabelText("Room calendar", { selector: "div" })).toBeTruthy();
+    expect(screen.getByRole("main", { name: "Rooms" })).toBeTruthy();
   });
 
   it("includes business unit names when multiple locations are enabled", async () => {
@@ -638,7 +678,7 @@ describe("SchedulePage", () => {
     renderPage([1]);
 
     expect(await screen.findByText("Haga class")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: /^Open schedule filters/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^Filters/ }));
     const browseButtons = await screen.findAllByRole("button", { name: "Browse options" });
     browseButtons.forEach((button) => fireEvent.click(button));
 

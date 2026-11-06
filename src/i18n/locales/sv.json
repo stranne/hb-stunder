@@ -6,8 +6,7 @@
   },
   "navigation": {
     "label": "Huvudnavigering",
-    "classes": "Klasser",
-    "rooms": "Rum",
+    "schedule": "Schema",
     "bookings": "Mina bokningar",
     "bookingCount_one": "{{count}} bokning",
     "bookingCount_other": "{{count}} bokningar"
@@ -73,6 +72,16 @@
       "count_other": "{{count}} klasser",
       "noMoreToday": "Inga fler klasser idag.",
       "showTomorrow": "Visa imorgon"
+    },
+    "view": {
+      "label": "Vy",
+      "classes": "Lista",
+      "rooms": "Rum"
+    },
+    "favoritesFilter": {
+      "none": "Du har inga favoriter ännu. Stjärnmärk instruktörer eller klasstyper under Filter.",
+      "empty": "Inga av dina favoriter har klasser den här dagen.",
+      "openFilters": "Öppna filter"
     },
     "details": {
       "show": "Visa detaljer",
@@ -163,7 +172,13 @@
       "removeFavorite": "Ta bort {{name}} från favoriter",
       "loadingOptions": "Laddar filteralternativ…",
       "optionsError": "Vissa filteralternativ kunde inte laddas.",
-      "retryOptions": "Försök ladda filteralternativ igen"
+      "retryOptions": "Försök ladda filteralternativ igen",
+      "activeCount_one": "{{count}} aktivt",
+      "activeCount_other": "{{count}} aktiva",
+      "close": "Stäng filter",
+      "showSchedule": "Visa schemat",
+      "showResults_one": "Visa {{count}} klass",
+      "showResults_other": "Visa {{count}} klasser"
     },
     "availability": {
       "available_one": "{{count}} plats",

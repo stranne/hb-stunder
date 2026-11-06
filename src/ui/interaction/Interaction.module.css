@@ -82,16 +82,14 @@
 
   .selectable[aria-current]:not([aria-current="false"]),
   .selectable[aria-pressed="true"],
-  .selectable[data-selected],
-  .selectable[data-filters-open] {
+  .selectable[data-selected] {
     border-color: var(--color-selected-border);
     color: var(--color-selected-ink);
     background: var(--color-selected-surface);
     box-shadow: inset 0 0 0 1px var(--color-selected-keyline);
   }
 
-  .selectable[data-selected][data-hovered]:not([data-disabled]),
-  .selectable[data-filters-open][data-hovered]:not([data-disabled]) {
+  .selectable[data-selected][data-hovered]:not([data-disabled]) {
     border-color: var(--color-selected-border);
     background: var(--color-selected-surface-hover);
   }

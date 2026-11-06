@@ -10,8 +10,7 @@
     --page-width: 100rem;
   }
 
-  .roomsPage,
-  .page[data-filters-open="true"] {
+  .roomsPage {
     display: flex;
     flex-direction: column;
     min-block-size: calc(100dvh - 3.75rem);
@@ -207,8 +206,7 @@
       --rail-width: 3.5rem;
     }
 
-    .roomsPage,
-    .page[data-filters-open="true"] {
+    .roomsPage {
       min-block-size: calc(100dvh - 4rem - env(safe-area-inset-bottom));
     }
 

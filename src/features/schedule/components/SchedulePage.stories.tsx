@@ -165,26 +165,65 @@ export const FiltersOpen: Story = {
       locations: [1, 4128, 3509],
       instructors: [],
       activityTypes: [],
-      view: "filters",
+      filters: true,
     },
   },
   parameters: {
     docs: {
       description: {
         story:
-          "The filter editor replaces both the schedule and its date selector; the application shell provides the persistent return action.",
+          "The filter editor opens over the schedule, so the list stays in place and the sheet reports how many classes match.",
       },
     },
   },
   play: async ({ canvasElement }) => {
+    const sheet = await within(canvasElement.ownerDocument.body).findByRole("dialog", {
+      name: "Filter",
+    });
+    await expect(
+      await within(sheet).findByRole("button", { name: /^Visa \d+ klass(er)?$/ }),
+    ).toBeVisible();
+  },
+};
+
+export const FiltersOpenMobile: Story = {
+  ...FiltersOpen,
+  globals: { viewport: { value: "mobile", isRotated: false } },
+};
+
+export const FavoritesOnly: Story = {
+  args: { search: { ...upcomingSearch, favorites: true } },
+  beforeEach: () => {
+    const key = "hb-stunder.schedule-preferences";
+    const previous = window.localStorage.getItem(key);
+    const favoriteActivityTypeIds = scheduleForDate(upcomingSearch.date, 1)
+      .slice(0, 2)
+      .flatMap((activity) => activity.groupActivityProduct?.id ?? []);
+    window.localStorage.setItem(
+      key,
+      JSON.stringify({ version: 2, favoriteInstructorIds: [], favoriteActivityTypeIds }),
+    );
+    return () => {
+      if (previous === null) window.localStorage.removeItem(key);
+      else window.localStorage.setItem(key, previous);
+    };
+  },
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await expect(canvas.getByRole("button", { name: "Favoriter" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expect((await canvas.findAllByRole("article")).length).toBeGreaterThan(0);
+  },
+};
+
+export const NoFavorites: Story = {
+  args: { search: { ...upcomingSearch, favorites: true } },
+  play: async ({ canvasElement }) => {
     await expect(
-      await canvas.findByRole("region", { name: /^filters?$|^filter$/i }),
-    ).toBeInTheDocument();
-    await expect(
-      canvas.queryByRole("group", { name: /upcoming days|kommande dagar/i }),
-    ).not.toBeInTheDocument();
-    await expect(canvas.queryByRole("button", { name: /done|klar/i })).not.toBeInTheDocument();
+      await within(canvasElement).findByRole("button", { name: "Öppna filter" }),
+    ).toBeVisible();
   },
 };
 

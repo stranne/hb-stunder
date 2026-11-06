@@ -1,7 +1,11 @@
 // @vitest-environment jsdom
 
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
-import { readSchedulePreferencesResult, writeFavoriteFilters } from "./schedulePreferences";
+import {
+  readSchedulePreferencesResult,
+  writeFavoriteFilters,
+  writeLastUsedFilters,
+} from "./schedulePreferences";
 
 const storageKey = "hb-stunder.schedule-preferences";
 
@@ -30,6 +34,21 @@ describe("schedule preferences", () => {
         lastUsed: { locations: [1], instructors: [2], activityTypes: [3] },
       },
     });
+  });
+
+  it("remembers showing only favorites with the last-used filters", () => {
+    const search = { date: "2026-07-28", locations: [1], instructors: [], activityTypes: [] };
+
+    writeLastUsedFilters({ ...search, favorites: true, filters: true });
+    expect(readSchedulePreferencesResult().preferences.lastUsed).toEqual({
+      locations: [1],
+      instructors: [],
+      activityTypes: [],
+      favorites: true,
+    });
+
+    writeLastUsedFilters(search);
+    expect(readSchedulePreferencesResult().preferences.lastUsed).not.toHaveProperty("favorites");
   });
 
   it("drops saved locations that do not exist", () => {

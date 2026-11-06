@@ -22,14 +22,25 @@ describe("schedule route search", () => {
     expect(location.searchStr).toBe("?date=2026-08-05");
   });
 
-  it("keeps the filter page in the view query parameter", () => {
+  it("keeps the open filter sheet and the favorites choice in the URL", () => {
     const location = router.buildLocation({
       to: "/",
-      search: { ...defaultSearch, view: "filters" },
+      search: { ...defaultSearch, filters: true, favorites: true },
+    });
+    const search = new URLSearchParams(location.searchStr);
+
+    expect(search.get("filters")).toBe("true");
+    expect(search.get("favorites")).toBe("true");
+    expect(search.has("view")).toBe(false);
+  });
+
+  it("does not serialize a closed filter sheet or favorites that are off", () => {
+    const location = router.buildLocation({
+      to: "/",
+      search: { ...defaultSearch, filters: false, favorites: false },
     });
 
-    expect(new URLSearchParams(location.searchStr).get("view")).toBe("filters");
-    expect(new URLSearchParams(location.searchStr).has("filters")).toBe(false);
+    expect(location.searchStr).toBe("?date=2026-08-05");
   });
 
   it("keeps an actual filter selection in the URL", () => {

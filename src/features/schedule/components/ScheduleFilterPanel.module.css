@@ -1,37 +1,22 @@
 @layer components {
   .panel {
-    inline-size: min(calc(100% - 2rem), var(--page-width));
-    margin-inline: auto;
-    color: var(--color-ink);
-  }
-
-  .dialog {
     display: grid;
     gap: var(--space-8);
-    padding-block: clamp(1.25rem, 0.75rem + 2.5vw, 2.5rem) var(--space-8);
-  }
-
-  .header h1 {
-    margin: 0;
-    font-family: var(--font-display);
-    font-size: var(--text-title);
-    font-weight: var(--weight-display);
-    letter-spacing: -0.02em;
-    line-height: 1.05;
+    color: var(--color-ink);
   }
 
   .summary {
     display: grid;
     gap: var(--space-3);
-    padding-block: var(--space-4);
-    border-block: 1px solid var(--color-border);
+    padding-block-end: var(--space-4);
+    border-block-end: 1px solid var(--color-border);
 
-    h2,
+    h3,
     p {
       margin: 0;
     }
 
-    h2 {
+    h3 {
       font-size: var(--text-sm);
       font-weight: var(--weight-semibold);
     }
@@ -129,7 +114,7 @@
     align-items: center;
     gap: var(--space-2);
 
-    h2 {
+    h3 {
       margin: 0;
       font-family: var(--font-display);
       font-size: var(--text-lg);
@@ -266,7 +251,7 @@
   }
 
   @media (width < 42rem) {
-    .dialog {
+    .panel {
       gap: var(--space-6);
     }
 

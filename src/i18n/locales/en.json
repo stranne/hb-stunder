@@ -6,8 +6,7 @@
   },
   "navigation": {
     "label": "Main navigation",
-    "classes": "Classes",
-    "rooms": "Rooms",
+    "schedule": "Schedule",
     "bookings": "My bookings",
     "bookingCount_one": "{{count}} booking",
     "bookingCount_other": "{{count}} bookings"
@@ -73,6 +72,16 @@
       "count_other": "{{count}} classes",
       "noMoreToday": "No more classes today.",
       "showTomorrow": "Show tomorrow"
+    },
+    "view": {
+      "label": "View",
+      "classes": "List",
+      "rooms": "Rooms"
+    },
+    "favoritesFilter": {
+      "none": "You have no favorites yet. Star instructors or class types under Filters.",
+      "empty": "None of your favorites have classes this day.",
+      "openFilters": "Open filters"
     },
     "details": {
       "show": "Show details",
@@ -163,7 +172,13 @@
       "removeFavorite": "Remove {{name}} from favorites",
       "loadingOptions": "Loading filter options…",
       "optionsError": "Some filter options could not be loaded.",
-      "retryOptions": "Retry filter options"
+      "retryOptions": "Retry filter options",
+      "activeCount_one": "{{count}} active",
+      "activeCount_other": "{{count}} active",
+      "close": "Close filters",
+      "showSchedule": "Show schedule",
+      "showResults_one": "Show {{count}} class",
+      "showResults_other": "Show {{count}} classes"
     },
     "availability": {
       "available_one": "{{count}} spot",

@@ -80,6 +80,28 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Available: Story = {};
+export const SignedOut: Story = {
+  args: { onBook: undefined, onSignInToBook: () => undefined },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Signed out, the class still offers Book. Pressing it asks the page to sign the customer in, and the page then opens this class's confirmation.",
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByRole("button", { name: "Boka" })).toBeVisible();
+  },
+};
+export const SignedOutWaitingList: Story = {
+  args: { activity: upcomingWaitingList, onBook: undefined, onSignInToBook: () => undefined },
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getByRole("button", { name: "Ställ dig i kö" }),
+    ).toBeVisible();
+  },
+};
 export const MobileLongMetadata: Story = {
   globals: { viewport: { value: "mobile", isRotated: false } },
   args: {

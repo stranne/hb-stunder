@@ -310,6 +310,35 @@ export const TodayFinished: Story = {
   },
 };
 
+export const SignInToBook: Story = {
+  args: {
+    search: upcomingSearch,
+    onSignIn: async () => ({ customerId: "900001" }),
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Signed out, Book opens sign-in for that class. In the application the confirmation follows straight after; see the in-application story.",
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const [book] = await canvas.findAllByRole("button", { name: "Boka" });
+    await userEvent.click(book!);
+    const dialog = await within(canvasElement.ownerDocument.body).findByRole("dialog", {
+      name: "Logga in för att boka",
+    });
+    await expect(within(dialog).getByText("Sedan bekräftar du bokningen.")).toBeVisible();
+  },
+};
+
+export const SignInToBookMobile: Story = {
+  ...SignInToBook,
+  globals: { viewport: { value: "mobile", isRotated: false } },
+};
+
 export const Empty: Story = {
   args: {
     search: { date: "2026-07-29", locations: [1], instructors: [], activityTypes: [] },

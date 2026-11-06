@@ -187,17 +187,17 @@ try {
         .getByRole("checkbox", { name: "Hagabadet Drottningtorget", exact: true })
         .isChecked(),
     );
-    await page.getByRole("link", { name: "My bookings", exact: true }).click();
-
-    await page.getByRole("button", { name: "Open menu", exact: true }).click();
-    await page.getByRole("button", { name: "Sign in", exact: true }).click();
-    await page.getByRole("textbox", { name: "Username" }).fill("test-user");
-    await page.getByLabel("Password", { exact: true }).fill("local-fixture-only");
-    await page.getByRole("dialog").getByRole("button", { name: "Sign in", exact: true }).click();
-    await page.getByText("You have no current group activity bookings.").waitFor();
+    // Booking starts signed out: sign-in continues straight to the class's confirmation.
     await page.goto(scheduleUrl);
     await page.getByRole("button", { name: "Book", exact: true }).click();
-    await page.getByRole("button", { name: "Confirm booking", exact: true }).click();
+    const signIn = page.getByRole("dialog", { name: "Sign in to book" });
+    await signIn.getByRole("textbox", { name: "Username" }).fill("test-user");
+    await signIn.getByLabel("Password", { exact: true }).fill("local-fixture-only");
+    await signIn.getByRole("button", { name: "Sign in and continue", exact: true }).click();
+    await page
+      .getByRole("dialog", { name: "Confirm booking" })
+      .getByRole("button", { name: "Confirm booking", exact: true })
+      .click();
     await page.getByRole("button", { name: "Cancel booking", exact: true }).waitFor();
     await page.getByRole("link", { name: /My bookings/ }).click();
     await page.getByRole("heading", { name: "My bookings" }).waitFor();

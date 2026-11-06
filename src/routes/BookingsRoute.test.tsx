@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vite-plus/test";
@@ -90,7 +90,7 @@ describe("BookingsRoute", () => {
     renderRoute();
 
     expect(screen.getByText("Sign in to see your current bookings.")).toBeTruthy();
-    expect(screen.queryByRole("button", { name: "Sign in" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Sign in" })).toBeTruthy();
     expect(requests).toBe(0);
 
     cleanup();
@@ -107,6 +107,28 @@ describe("BookingsRoute", () => {
     const items = screen.getAllByRole("listitem");
     expect(items[0]?.textContent).toContain("Today strength");
     expect(items[1]?.textContent).toContain("Tomorrow yoga");
+  });
+
+  it("signs in from the signed-out page and then shows the bookings", async () => {
+    server.use(
+      http.get(`${REAL_API_BASE_URL}/customers/:customerId/bookings/groupactivities`, () =>
+        HttpResponse.json([]),
+      ),
+    );
+    renderRoute();
+
+    fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
+    const dialog = within(await screen.findByRole("dialog"));
+    fireEvent.change(dialog.getByRole("textbox", { name: "Username" }), {
+      target: { value: "member" },
+    });
+    fireEvent.change(dialog.getByLabelText("Password"), { target: { value: "secret" } });
+    fireEvent.click(dialog.getByRole("button", { name: "Sign in" }));
+
+    expect(await screen.findByText("You have no current group activity bookings.")).toBeTruthy();
+    await waitFor(() =>
+      expect(document.activeElement).toBe(screen.getByRole("heading", { name: "My bookings" })),
+    );
   });
 
   it("cancels an ordinary booking after confirmation and keeps waiting-list cancellation blocked", async () => {

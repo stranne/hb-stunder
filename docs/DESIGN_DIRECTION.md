@@ -148,11 +148,11 @@ HB Stunder is unofficial and signs people in with their Hagabadet credentials, s
 - The class list, filters, and bookings share one reading width (`--page-width`). The room calendar takes up to 100rem, and runs edge to edge on phones.
 - The masthead places navigation on the left, the wordmark in the center, and the account menu on the right. Below 64rem the wordmark moves to the left because there is no room to center it.
 - On phones, the wordmark and account menu scroll away at the top, while navigation stays under the thumb.
+- Booking never waits on finding the account menu. Signed out, Book opens sign-in for that class and continues to its confirmation, and the signed-out My bookings page offers sign-in directly.
 
 ## Recommended next steps
 
 - Evaluate the palette on real devices, particularly the dark band against the phone's status bar.
-- Consider a sign-in action in the signed-out My bookings empty state.
 
 ## New-session handoff prompt
 

@@ -9,7 +9,8 @@ export interface CustomerSession {
 export interface SessionContextValue {
   customer?: CustomerSession;
   canSignIn: boolean;
-  signIn: (credentials: LoginCredentials, remember?: boolean) => Promise<void>;
+  /** Resolves with the signed-in customer, so a caller can continue what sign-in interrupted. */
+  signIn: (credentials: LoginCredentials, remember?: boolean) => Promise<CustomerSession>;
   signOut: () => void;
 }
 

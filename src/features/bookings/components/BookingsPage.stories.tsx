@@ -85,7 +85,14 @@ export const Mobile: Story = {
 };
 
 export const SignedOut: Story = {
-  args: { customerId: undefined },
+  args: { customerId: undefined, onSignIn: async () => undefined },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByRole("button", { name: "Logga in" })).toBeVisible();
+  },
+};
+
+export const SignInUnavailable: Story = {
+  args: { customerId: undefined, canSignIn: false },
 };
 
 export const Empty: Story = {

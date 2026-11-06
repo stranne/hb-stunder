@@ -10,6 +10,7 @@ import { Dialog, Heading, Modal } from "react-aria-components";
 import { Calendar, Clock, MapPin, User, Xmark } from "iconoir-react";
 import { useTranslation } from "react-i18next";
 import type { GroupActivityBooking } from "../../bookings/model/bookings";
+import { Button } from "../../../ui/button/Button";
 import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
 import { StatusLabel } from "../../../ui/status-label/StatusLabel";
 import dialogStyles from "../../../ui/dialog/Dialog.module.css";
@@ -37,6 +38,11 @@ export interface RoomCalendarProps {
   bookingsByActivity: Map<number, GroupActivityBooking>;
   customerId?: string;
   onBook?: (activity: ScheduledActivity) => Promise<void>;
+  /** Offered instead of booking when signed out; sign-in then returns to this class. */
+  onSignInToBook?: (activity: ScheduledActivity) => void;
+  /** The class whose booking confirmation the page holds open, such as straight after sign-in. */
+  confirmingBookingId?: number;
+  onConfirmingBookingChange?: (activityId: number | undefined) => void;
   onCancel: (bookingId: number) => Promise<void>;
   favoriteInstructorIds?: number[];
   favoriteActivityTypeIds?: number[];
@@ -101,6 +107,9 @@ export function RoomCalendar({
   bookingsByActivity,
   customerId,
   onBook,
+  onSignInToBook,
+  confirmingBookingId,
+  onConfirmingBookingChange,
   onCancel,
   favoriteInstructorIds = [],
   favoriteActivityTypeIds = [],
@@ -537,6 +546,19 @@ export function RoomCalendar({
                   booking={detailBooking}
                   customerId={customerId}
                   onBook={onBook}
+                  onSignInToBook={onSignInToBook}
+                  isConfirmationOpen={
+                    onConfirmingBookingChange
+                      ? detail.activity.id !== undefined &&
+                        detail.activity.id === confirmingBookingId
+                      : undefined
+                  }
+                  onConfirmationOpenChange={
+                    onConfirmingBookingChange
+                      ? (isOpen) =>
+                          onConfirmingBookingChange(isOpen ? detail.activity.id : undefined)
+                      : undefined
+                  }
                   onCancel={onCancel}
                 />
               </>
@@ -597,11 +619,16 @@ function RoomBookingAction({
   booking,
   customerId,
   onBook,
+  onSignInToBook,
+  isConfirmationOpen,
+  onConfirmationOpenChange,
   onCancel,
-}: Pick<RoomCalendarProps, "customerId" | "onBook" | "onCancel"> & {
+}: Pick<RoomCalendarProps, "customerId" | "onBook" | "onSignInToBook" | "onCancel"> & {
   activity: ScheduledActivity;
   activityState: ActivityState;
   booking?: GroupActivityBooking;
+  isConfirmationOpen?: boolean;
+  onConfirmationOpenChange?: (isOpen: boolean) => void;
 }) {
   const { t } = useTranslation();
   const { availability } = activityState;
@@ -637,9 +664,18 @@ function RoomBookingAction({
       </div>
     );
   }
+  const waiting = availability.kind === "waitingList";
+  if (!customerId && onSignInToBook && activity.id !== undefined && activityState.canBook) {
+    return (
+      <div className={styles.bookingActions} data-align="end">
+        <Button onPress={() => onSignInToBook(activity)}>
+          {t(waiting ? "schedule.waitingList.book" : "schedule.booking.book")}
+        </Button>
+      </div>
+    );
+  }
   const canBook = !booking && customerId && activity.id !== undefined && activityState.canBook;
   if (!canBook || !onBook) return null;
-  const waiting = availability.kind === "waitingList";
   return (
     <div className={styles.bookingActions} data-align="end">
       <AsyncConfirmationAction
@@ -656,6 +692,8 @@ function RoomBookingAction({
         errorMessage={t(waiting ? "schedule.waitingList.error" : "schedule.booking.error")}
         onConfirm={() => onBook(activity)}
         presentation="inline"
+        isOpen={isConfirmationOpen}
+        onOpenChange={onConfirmationOpenChange}
       />
     </div>
   );

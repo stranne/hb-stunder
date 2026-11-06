@@ -8,7 +8,7 @@ import {
 } from "../features/schedule/model/schedulePreferences";
 
 export function ScheduleRoute() {
-  const { customer } = useSession();
+  const { customer, canSignIn, signIn } = useSession();
   const routeSearch = useSearch({ from: "/" });
   const navigate = useNavigate({ from: "/" });
   const [restoredSearch, setRestoredSearch] = useState(() => {
@@ -49,6 +49,7 @@ export function ScheduleRoute() {
         })
       }
       customerId={customer?.customerId}
+      onSignIn={canSignIn ? signIn : undefined}
     />
   );
 }

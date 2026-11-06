@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { useState } from "react";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
@@ -42,12 +42,19 @@ function activity(id: number, name: string) {
 
 function TestPage({
   initialSearch,
-  customerId,
+  customerId: initialCustomerId,
+  canSignIn,
 }: {
   initialSearch: ScheduleSearch;
   customerId?: string;
+  canSignIn?: boolean;
 }) {
   const [search, setSearch] = useState(initialSearch);
+  const [customerId, setCustomerId] = useState(initialCustomerId);
+  const signIn = async () => {
+    setCustomerId("900001");
+    return { customerId: "900001" };
+  };
   const isOpen = search.view === "filters";
   return (
     <>
@@ -58,7 +65,12 @@ function TestPage({
       >
         {isOpen ? "Show schedule" : "Open schedule filters"}
       </button>
-      <SchedulePage search={search} onSearchChange={setSearch} customerId={customerId} />
+      <SchedulePage
+        search={search}
+        onSearchChange={setSearch}
+        customerId={customerId}
+        onSignIn={canSignIn ? signIn : undefined}
+      />
     </>
   );
 }
@@ -67,6 +79,7 @@ function renderPage(
   locations: number[],
   customerId?: string,
   search: Partial<ScheduleSearch> = {},
+  canSignIn = false,
 ) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
@@ -84,6 +97,7 @@ function renderPage(
           ...search,
         }}
         customerId={customerId}
+        canSignIn={canSignIn}
       />
     </QueryClientProvider>,
   );
@@ -402,6 +416,75 @@ describe("SchedulePage", () => {
     expect(await screen.findByText("Already booked")).toBeTruthy();
     expect(postRequests).toBe(1);
     expect(screen.queryByRole("button", { name: "Book" })).toBeNull();
+  });
+
+  describe("signed out", () => {
+    const bookingsEndpoint = `${REAL_API_BASE_URL}/customers/:customerId/bookings/groupactivities`;
+
+    async function signInFromBook() {
+      fireEvent.click(await screen.findByRole("button", { name: "Book" }));
+      const dialog = within(await screen.findByRole("dialog", { name: "Sign in to book" }));
+      expect(dialog.getByText("Next, you confirm the booking.")).toBeTruthy();
+      fireEvent.change(dialog.getByRole("textbox", { name: "Username" }), {
+        target: { value: "member" },
+      });
+      fireEvent.change(dialog.getByLabelText("Password"), { target: { value: "secret" } });
+      fireEvent.click(dialog.getByRole("button", { name: "Sign in and continue" }));
+    }
+
+    it("offers no booking when sign-in is unavailable", async () => {
+      server.use(
+        http.get(scheduleEndpoint, () => HttpResponse.json([activity(101, "Available class")])),
+      );
+      renderPage([1]);
+
+      await screen.findByText("Available class");
+      expect(screen.queryByRole("button", { name: "Book" })).toBeNull();
+    });
+
+    it("signs in from Book and continues to that class's confirmation", async () => {
+      let postRequests = 0;
+      server.use(
+        http.get(scheduleEndpoint, () => HttpResponse.json([activity(101, "Available class")])),
+        http.get(bookingsEndpoint, () => HttpResponse.json([])),
+        http.post(bookingsEndpoint, () => {
+          postRequests += 1;
+          return new HttpResponse(null, { status: 201 });
+        }),
+      );
+      renderPage([1], undefined, {}, true);
+
+      await signInFromBook();
+
+      const confirmation = within(await screen.findByRole("dialog", { name: "Confirm booking" }));
+      expect(postRequests).toBe(0);
+      fireEvent.click(confirmation.getByRole("button", { name: "Confirm booking" }));
+      await waitFor(() => expect(postRequests).toBe(1));
+    });
+
+    it("shows an existing booking instead of asking to book the class again", async () => {
+      server.use(
+        http.get(scheduleEndpoint, () => HttpResponse.json([activity(101, "Available class")])),
+        http.get(bookingsEndpoint, () =>
+          HttpResponse.json([
+            {
+              type: "groupActivityBooking",
+              groupActivity: { id: 101 },
+              groupActivityBooking: { id: 700001 },
+            },
+          ]),
+        ),
+      );
+      renderPage([1], undefined, {}, true);
+
+      await signInFromBook();
+
+      expect(await screen.findByText("Already booked")).toBeTruthy();
+      await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+      await waitFor(() =>
+        expect(document.activeElement?.getAttribute("data-activity-id")).toBe("101"),
+      );
+    });
   });
 
   it("joins a waiting list only after confirmation and reconciles the refetched state", async () => {

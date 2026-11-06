@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/tanstack-react";
-import { expect, within } from "storybook/test";
+import { expect, userEvent, within } from "storybook/test";
+import { addDays, todayInStockholm } from "../features/schedule/model/scheduleDate";
 import { indexRoute } from "../app/router";
 
 const meta = {
@@ -108,4 +109,39 @@ export const ClassesMobile: Story = {
 export const RoomsMobile: Story = {
   ...Rooms,
   globals: { viewport: { value: "mobile", isRotated: false } },
+};
+
+export const SignInToBook: Story = {
+  parameters: {
+    tanstack: {
+      router: {
+        route: indexRoute,
+        query: {
+          date: addDays(todayInStockholm(), 1),
+          locations: [1],
+          instructors: [],
+          activityTypes: [],
+        },
+      },
+    },
+    docs: {
+      description: {
+        story:
+          "A signed-out customer presses Book, signs in, and lands in that class's confirmation without finding it again.",
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const page = within(canvasElement.ownerDocument.body);
+    const book = (await canvas.findAllByRole("button", { name: "Boka" })).at(-1)!;
+    await userEvent.click(book);
+    const signIn = within(await page.findByRole("dialog", { name: "Logga in för att boka" }));
+    await userEvent.type(signIn.getByRole("textbox", { name: "Användarnamn" }), "member");
+    await userEvent.type(signIn.getByLabelText("Lösenord"), "password");
+    await userEvent.click(signIn.getByRole("button", { name: "Logga in och fortsätt" }));
+    await expect(
+      await page.findByRole("dialog", { name: "Bekräfta bokning" }, { timeout: 5_000 }),
+    ).toBeVisible();
+  },
 };

@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 import { Checkbox, Dialog, Heading, Input, Label, Modal, TextField } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../ui/button/Button";
@@ -11,7 +11,7 @@ export function SignInAction({
   onSignIn,
   tone,
 }: {
-  onSignIn: (credentials: LoginCredentials, remember: boolean) => Promise<void> | void;
+  onSignIn: (credentials: LoginCredentials, remember: boolean) => Promise<unknown> | void;
   tone?: "accent" | "quiet";
 }) {
   const { t } = useTranslation();
@@ -31,10 +31,17 @@ export function SignInDialog({
   isOpen,
   onOpenChange,
   onSignIn,
+  title,
+  description,
+  submitLabel,
 }: {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onSignIn: (credentials: LoginCredentials, remember: boolean) => Promise<void> | void;
+  onSignIn: (credentials: LoginCredentials, remember: boolean) => Promise<unknown> | void;
+  /** Replaces the generic heading when sign-in is a step towards something else, such as booking. */
+  title?: string;
+  description?: ReactNode;
+  submitLabel?: string;
 }) {
   const { t } = useTranslation();
   const [isPending, setIsPending] = useState(false);
@@ -82,7 +89,8 @@ export function SignInDialog({
       <Dialog className={dialogStyles.dialog}>
         {({ close }) => (
           <form onSubmit={(event) => void submit(event, close)}>
-            <Heading slot="title">{t("auth.title")}</Heading>
+            <Heading slot="title">{title ?? t("auth.title")}</Heading>
+            {description ? <div className={styles.description}>{description}</div> : null}
             <p className={styles.unofficial}>{t("app.unofficial")}</p>
             <TextField className={styles.field} name="username" isRequired autoFocus>
               <Label>{t("auth.username")}</Label>
@@ -104,7 +112,7 @@ export function SignInDialog({
                 {t("auth.cancel")}
               </Button>
               <Button type="submit" isDisabled={isPending}>
-                {t("auth.signIn")}
+                {submitLabel ?? t("auth.signIn")}
               </Button>
             </div>
             {hasFailed ? <ErrorMessage>{t("auth.error")}</ErrorMessage> : null}

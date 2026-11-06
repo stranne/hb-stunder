@@ -2,6 +2,7 @@ import { Clock, NavArrowDown } from "iconoir-react";
 import { useEffect, useId, useRef, useState, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 import type { GroupActivityBooking } from "../../bookings/model/bookings";
+import { Button } from "../../../ui/button/Button";
 import { AsyncConfirmationAction } from "../../../ui/confirmation/AsyncConfirmationAction";
 import { StatusLabel } from "../../../ui/status-label/StatusLabel";
 import interactionStyles from "../../../ui/interaction/Interaction.module.css";
@@ -16,6 +17,11 @@ export interface GymClassCardProps {
   activity: ScheduledActivity;
   booking?: GroupActivityBooking;
   onBook?: () => Promise<void>;
+  /** Offered instead of booking when signed out; sign-in then returns to this class. */
+  onSignInToBook?: () => void;
+  /** Lets the page open the booking confirmation itself, such as straight after sign-in. */
+  isBookingConfirmationOpen?: boolean;
+  onBookingConfirmationOpenChange?: (isOpen: boolean) => void;
   onCancel?: () => Promise<void>;
   headingLevel?: 2 | 3;
   favoriteInstructorIds?: number[];
@@ -51,6 +57,9 @@ export function GymClassCard({
   activity,
   booking,
   onBook,
+  onSignInToBook,
+  isBookingConfirmationOpen,
+  onBookingConfirmationOpenChange,
   onCancel,
   headingLevel = 3,
   favoriteInstructorIds = [],
@@ -141,6 +150,8 @@ export function GymClassCard({
     ? t(`schedule.availability.${availability.kind}Text`, { count: availability.remaining })
     : undefined;
   const canBook = !booking && activityState.canBook && onBook !== undefined;
+  const canSignInToBook =
+    !booking && activityState.canBook && onBook === undefined && onSignInToBook !== undefined;
   const canCancel =
     booking?.type === "groupActivityBooking" &&
     booking.groupActivityBooking?.id !== undefined &&
@@ -176,6 +187,7 @@ export function GymClassCard({
     <article
       ref={cardRef}
       className={`${styles.card} ${hasDetails ? styles.clickable : ""}`}
+      data-activity-id={activity.id}
       data-availability={displayedAvailabilityKind}
       data-started={(hasStarted && !activity.cancelled) || undefined}
       data-selected={controlledExpanded || undefined}
@@ -300,7 +312,12 @@ export function GymClassCard({
             errorMessage={t(`${bookingCopy}.error`)}
             onConfirm={onBook}
             focusFallbackRef={cardRef}
+            isOpen={isBookingConfirmationOpen}
+            onOpenChange={onBookingConfirmationOpenChange}
           />
+        ) : null}
+        {canSignInToBook && onSignInToBook ? (
+          <Button onPress={onSignInToBook}>{t(`${bookingCopy}.book`)}</Button>
         ) : null}
         {canCancel && onCancel ? (
           <AsyncConfirmationAction

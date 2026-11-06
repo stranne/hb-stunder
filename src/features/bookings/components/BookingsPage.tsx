@@ -1,6 +1,8 @@
 import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import type { LoginCredentials } from "../../auth/api/auth";
+import { SignInDialog } from "../../auth/SignInAction";
 import { Button } from "../../../ui/button/Button";
 import { EmptyState } from "../../../ui/feedback/EmptyState";
 import { ErrorMessage } from "../../../ui/feedback/ErrorMessage";
@@ -45,14 +47,17 @@ function activityFromBooking(booking: GroupActivityBooking): ScheduledActivity {
 export function BookingsPage({
   customerId,
   canSignIn,
+  onSignIn,
 }: {
   customerId?: string;
   canSignIn: boolean;
+  onSignIn?: (credentials: LoginCredentials, remember: boolean) => Promise<unknown>;
 }) {
   const { i18n, t } = useTranslation();
   const queryClient = useQueryClient();
   const cancellation = useMutation(cancelGroupActivityBookingMutationOptions(queryClient));
   const pageHeadingRef = useRef<HTMLHeadingElement>(null);
+  const [isSignInOpen, setIsSignInOpen] = useState(false);
   const bookings = useQuery(customerGroupActivityBookingsQueryOptions(customerId));
   const sortedBookings = [...(bookings.data ?? [])].sort((left, right) =>
     (left.duration?.start ?? "").localeCompare(right.duration?.start ?? ""),
@@ -71,7 +76,13 @@ export function BookingsPage({
       </h1>
 
       {!customerId ? (
-        <EmptyState>
+        <EmptyState
+          action={
+            canSignIn && onSignIn ? (
+              <Button onPress={() => setIsSignInOpen(true)}>{t("auth.signIn")}</Button>
+            ) : undefined
+          }
+        >
           {t(canSignIn ? "bookings.signedOut" : "bookings.signInUnavailable")}
         </EmptyState>
       ) : bookings.isPending ? (
@@ -134,6 +145,17 @@ export function BookingsPage({
           })}
         </ul>
       )}
+      {onSignIn ? (
+        <SignInDialog
+          isOpen={isSignInOpen}
+          onOpenChange={setIsSignInOpen}
+          onSignIn={async (credentials, remember) => {
+            await onSignIn(credentials, remember);
+            // The sign-in button disappears with the empty state, so focus moves to the page title.
+            setTimeout(() => pageHeadingRef.current?.focus(), 0);
+          }}
+        />
+      ) : null}
     </main>
   );
 }

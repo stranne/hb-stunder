@@ -2,7 +2,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { SessionContext, type SessionContextValue } from "../features/auth/sessionContext";
 import { MOCK_CUSTOMER_ID } from "./mockSession";
 
-const MOCK_SESSION_STORAGE_KEY = "hb-stunder.mock-session";
+export const MOCK_SESSION_STORAGE_KEY = "hb-stunder.mock-session";
 const MOCK_CUSTOMER = { customerId: MOCK_CUSTOMER_ID, displayName: "Mock Customer" };
 
 /** Replaces the real session in stories, tests, and development with `VITE_ENABLE_MSW=true`. */
@@ -25,6 +25,7 @@ export function MockSessionProvider({
       signIn: async () => {
         window.localStorage.setItem(MOCK_SESSION_STORAGE_KEY, "signed-in");
         setIsSignedIn(true);
+        return MOCK_CUSTOMER;
       },
       signOut: () => {
         window.localStorage.removeItem(MOCK_SESSION_STORAGE_KEY);

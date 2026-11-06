@@ -7,9 +7,14 @@ import { setupWorker } from "msw/browser";
 import { mswLoader } from "msw-storybook-addon/csf3";
 import { StoryEnvironment } from "./StoryEnvironment";
 import { handlers } from "../src/mocks/handlers";
+import { MOCK_SESSION_STORAGE_KEY } from "../src/mocks/MockSessionProvider";
 import "../src/app/theme.css";
 
 const preview: Preview = {
+  // Stories can sign in through the mock session; each one starts from its own session parameter.
+  beforeEach: () => {
+    window.localStorage.removeItem(MOCK_SESSION_STORAGE_KEY);
+  },
   loaders: [
     mswLoader(async () => {
       const worker = setupWorker();

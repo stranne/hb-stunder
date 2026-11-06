@@ -14,7 +14,7 @@ import styles from "./AppMenu.module.css";
 interface AppMenuProps {
   customer?: CustomerSession;
   canSignIn: boolean;
-  onSignIn: (credentials: LoginCredentials, remember?: boolean) => Promise<void> | void;
+  onSignIn: (credentials: LoginCredentials, remember?: boolean) => Promise<unknown> | void;
   onSignOut: () => void;
   colorModePreference: ColorModePreference;
   onColorModeChange: (preference: ColorModePreference) => void;

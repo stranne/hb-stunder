@@ -99,7 +99,10 @@
       "cancel": "Cancel",
       "pending": "Booking in progress…",
       "error": "The class could not be booked. Your schedule has not changed.",
-      "retry": "Try booking again"
+      "retry": "Try booking again",
+      "signInTitle": "Sign in to book",
+      "signInNext": "Next, you confirm the booking.",
+      "signInSubmit": "Sign in and continue"
     },
     "waitingList": {
       "book": "Join waiting list",
@@ -108,7 +111,9 @@
       "confirm": "Join waiting list",
       "pending": "Joining waiting list…",
       "error": "The waiting list could not be joined. Your schedule has not changed.",
-      "retry": "Try joining again"
+      "retry": "Try joining again",
+      "signInTitle": "Sign in to join the waiting list",
+      "signInNext": "Next, you confirm joining the waiting list."
     },
     "cancellation": {
       "cancelBooking": "Cancel booking",

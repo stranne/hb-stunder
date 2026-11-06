@@ -57,7 +57,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         : undefined,
       canSignIn: true,
       signIn: async (credentials: LoginCredentials, remember = false) => {
-        setSession(storeNewSession(await login(credentials), remember));
+        const newSession = storeNewSession(await login(credentials), remember);
+        setSession(newSession);
+        return { customerId: newSession.customerId, displayName: newSession.displayName };
       },
       signOut: () => {
         clearStoredSessions();

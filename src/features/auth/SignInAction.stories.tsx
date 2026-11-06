@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/tanstack-react";
 import { expect, userEvent, within } from "storybook/test";
-import { SignInAction } from "./SignInAction";
+import { SignInAction, SignInDialog } from "./SignInAction";
 
 async function openDialog(canvasElement: HTMLElement) {
   await userEvent.click(within(canvasElement).getByRole("button", { name: "Logga in" }));
@@ -30,6 +30,31 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+export const ForBooking: Story = {
+  render: (args) => (
+    <SignInDialog
+      isOpen
+      onOpenChange={() => undefined}
+      onSignIn={args.onSignIn}
+      title="Logga in för att boka"
+      description={
+        <>
+          <p>Yinyoga, 55 min · lör 7 nov. 07:15</p>
+          <p>Sedan bekräftar du bokningen.</p>
+        </>
+      }
+      submitLabel="Logga in och fortsätt"
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement.ownerDocument.body).findByRole("dialog", {
+        name: "Logga in för att boka",
+      }),
+    ).toBeVisible();
+  },
+};
 
 export const DialogOpen: Story = {
   play: async ({ canvasElement }) => {

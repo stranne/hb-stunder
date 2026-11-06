@@ -8,6 +8,9 @@ import {
   createGroupActivityBookingMutationOptions,
 } from "../../bookings/api/bookingMutations";
 import { customerGroupActivityBookingsQueryOptions } from "../../bookings/api/bookingQueries";
+import type { LoginCredentials } from "../../auth/api/auth";
+import type { CustomerSession } from "../../auth/sessionContext";
+import { SignInDialog } from "../../auth/SignInAction";
 import { bookingsByActivityId } from "../../bookings/model/bookings";
 import { Button } from "../../../ui/button/Button";
 import { EmptyState } from "../../../ui/feedback/EmptyState";
@@ -19,6 +22,7 @@ import {
   getAvailability,
   groupActivitiesByStart,
   splitStartedGroups,
+  type ScheduledActivity,
   type TimeGroup,
 } from "../model/schedule";
 import { addDays } from "../model/scheduleDate";
@@ -42,6 +46,8 @@ export interface SchedulePageProps {
   onSearchChange: (search: ScheduleSearch) => void;
   onSelectedActivityChange?: (activity: number | undefined, replace?: boolean) => void;
   customerId?: string;
+  /** Lets a signed-out customer start booking: sign-in then continues to the confirmation. */
+  onSignIn?: (credentials: LoginCredentials, remember: boolean) => Promise<CustomerSession>;
 }
 
 export function SchedulePage({
@@ -49,9 +55,11 @@ export function SchedulePage({
   onSearchChange,
   onSelectedActivityChange,
   customerId,
+  onSignIn,
 }: SchedulePageProps) {
   const { t, i18n } = useTranslation();
   const pageRef = useRef<HTMLElement>(null);
+  const listRef = useRef<HTMLElement>(null);
   const stickyControlsRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const isFiltersOpen = search.view === "filters";
@@ -102,6 +110,38 @@ export function SchedulePage({
   const activityTypes = useQuery(activityTypeQueryOptions());
   const bookings = useQuery(customerGroupActivityBookingsQueryOptions(customerId));
   const canCreateBooking = customerId !== undefined && bookings.isSuccess;
+  const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const [signInActivity, setSignInActivity] = useState<ScheduledActivity>();
+  /** The class whose booking confirmation is open, so sign-in can continue straight into it. */
+  const [confirmingBookingId, setConfirmingBookingId] = useState<number>();
+  const openSignInToBook =
+    customerId === undefined && onSignIn
+      ? (activity: ScheduledActivity) => {
+          setSignInActivity(activity);
+          setIsSignInOpen(true);
+        }
+      : undefined;
+
+  const continueToBooking = async (signedInCustomerId: string, activityId: number) => {
+    try {
+      // Booking waits for the customer's bookings anyway, and they show whether this class is taken.
+      const customerBookings = await queryClient.fetchQuery(
+        customerGroupActivityBookingsQueryOptions(signedInCustomerId),
+      );
+      if (!bookingsByActivityId(customerBookings).has(activityId)) {
+        setConfirmingBookingId(activityId);
+      } else {
+        // Already booked: the Book button is gone, so focus the row that now says so.
+        setTimeout(() =>
+          listRef.current
+            ?.querySelector<HTMLElement>(`[data-activity-id="${activityId}"]`)
+            ?.focus(),
+        );
+      }
+    } catch {
+      // The page reports that booking status could not be checked and offers to try again.
+    }
+  };
   const bookingsByActivity = bookingsByActivityId(bookings.data ?? []);
   const availableScheduleData = [
     ...new Map(
@@ -140,6 +180,18 @@ export function SchedulePage({
       timeZone: "UTC",
     }),
   };
+  const signInTimeFormatter = new Intl.DateTimeFormat(i18n.resolvedLanguage, {
+    timeZone: "Europe/Stockholm",
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const signInBookingCopy =
+    signInActivity && getAvailability(signInActivity).kind === "waitingList"
+      ? "schedule.waitingList"
+      : "schedule.booking";
   const groupedSchedule = groupActivitiesByStart(scheduleData);
   // Today opens at the next class: classes that have already started cannot be booked.
   const { started: earlierGroups, upcoming: laterGroups } = splitStartedGroups(
@@ -222,6 +274,17 @@ export function SchedulePage({
                         groupActivity: activity.id!,
                         allowWaitingList: getAvailability(activity).kind === "waitingList",
                       })
+              }
+              onSignInToBook={
+                openSignInToBook && activity.id !== undefined
+                  ? () => openSignInToBook(activity)
+                  : undefined
+              }
+              isBookingConfirmationOpen={
+                activity.id !== undefined && activity.id === confirmingBookingId
+              }
+              onBookingConfirmationOpenChange={(isOpen) =>
+                setConfirmingBookingId(isOpen ? activity.id : undefined)
               }
               onCancel={onCancel}
             />
@@ -320,6 +383,7 @@ export function SchedulePage({
             </div>
           ) : null}
           <section
+            ref={listRef}
             className={styles.list}
             data-view={view}
             aria-label={t(view === "rooms" ? "rooms.calendarLabel" : "schedule.listLabel")}
@@ -364,6 +428,9 @@ export function SchedulePage({
                           })
                       : undefined
                   }
+                  onSignInToBook={openSignInToBook}
+                  confirmingBookingId={confirmingBookingId}
+                  onConfirmingBookingChange={setConfirmingBookingId}
                   onCancel={(bookingId) =>
                     cancelBooking.mutateAsync({ customerId: customerId!, bookingId })
                   }
@@ -417,6 +484,37 @@ export function SchedulePage({
           </section>
         </>
       )}
+      {onSignIn ? (
+        <SignInDialog
+          isOpen={isSignInOpen}
+          onOpenChange={setIsSignInOpen}
+          onSignIn={async (credentials, remember) => {
+            const customer = await onSignIn(credentials, remember);
+            if (signInActivity?.id !== undefined) {
+              await continueToBooking(customer.customerId, signInActivity.id);
+            }
+          }}
+          title={t(`${signInBookingCopy}.signInTitle`)}
+          description={
+            signInActivity ? (
+              <>
+                <p>
+                  {[
+                    signInActivity.name ?? t("schedule.unnamedClass"),
+                    signInActivity.duration?.start
+                      ? signInTimeFormatter.format(new Date(signInActivity.duration.start))
+                      : undefined,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </p>
+                <p>{t(`${signInBookingCopy}.signInNext`)}</p>
+              </>
+            ) : undefined
+          }
+          submitLabel={t("schedule.booking.signInSubmit")}
+        />
+      ) : null}
     </main>
   );
 }
